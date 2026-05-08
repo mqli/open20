@@ -107,7 +107,8 @@
     "exportCharacter": "Export Character",
     "resetData": "Reset All Data",
     "resetConfirm": "Are you sure? This will delete all characters.",
-    "version": "Version"
+    "version": "Version",
+    "about": "About"
   },
   "characterList": {
     "title": "Your Characters",

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProviders } from '@/contexts';
+import { TooltipProvider } from '@/components/ui';
 import { useSettingsStore, useCharacterStore } from '@/stores';
 import { GameMode } from '@/features/game-mode';
 import { CharacterCreation } from '@/features/character-creation';
@@ -37,10 +38,10 @@ function AppContent() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'light') {
-      root.classList.add('light');
+    if (theme === 'dark') {
+      root.classList.add('dark');
     } else {
-      root.classList.remove('light');
+      root.classList.remove('dark');
     }
   }, [theme]);
 
@@ -71,7 +72,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppProviders>
-        <AppContent />
+        <TooltipProvider>
+          <AppContent />
+        </TooltipProvider>
       </AppProviders>
     </BrowserRouter>
   );

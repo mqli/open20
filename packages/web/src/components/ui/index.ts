@@ -1,12 +1,24 @@
-export { Button, type ButtonProps } from './Button';
-export { Card, CardHeader, CardTitle, CardContent, type CardProps } from './Card';
+export { Button, buttonVariants } from './button';
+export { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter, CardAction } from './card';
 export {
   Dialog,
-  DialogPrimitive,
+  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from './Dialog';
-export { Sheet, SheetHeader, SheetContent } from './Sheet';
+  DialogClose,
+  DialogOverlay,
+  DialogPortal,
+} from './dialog';
+export { Sheet, SheetHeader, SheetContent, SheetTitle, SheetFooter, SheetDescription } from './sheet';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
+export { Slider } from './slider';
+export { Switch } from './switch';
+export { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from './select';
+export { Input } from './input';
+export { Label } from './label';
+export { Separator } from './separator';
+export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './dropdown-menu';
+export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './tooltip';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCharacter, useLocale } from '@/hooks';
-import { CombatStats, HPDisplay, ResourceTracker, SpellSlotTracker, ConditionBar, WeaponList, SkillChips, ConditionPicker } from '@/components';
+import { CombatStats, HPDisplay, ResourceTracker, SpellSlotTracker, ConditionBar, WeaponList, SkillChips, ConditionPicker, Section } from '@/components';
 import { Button } from '@/components/ui';
 import { HPModifyPanel } from './HPModifyPanel';
 import { ShortRestDialog } from './ShortRestDialog';
@@ -112,10 +112,7 @@ export function GameMode() {
 
         {/* Resources */}
         {resources && resources.length > 0 && (
-          <section className="w-full bg-[--color-bg-surface] rounded-lg p-4 border border-[--color-border]">
-            <h2 className="text-sm font-semibold text-[--color-text-secondary] uppercase tracking-wide mb-2">
-              {t('gameMode.resources')}
-            </h2>
+          <Section title={t('gameMode.resources')}>
             {resources.map((resource: Resource) => (
               <ResourceTracker
                 key={resource.id}
@@ -124,34 +121,28 @@ export function GameMode() {
                 onRecover={() => recoverResource(resource.id)}
               />
             ))}
-          </section>
+          </Section>
         )}
 
         {/* Spell Slots */}
         {spells?.slots && Object.keys(spells.slots).length > 0 && (
-          <section className="w-full bg-[--color-bg-surface] rounded-lg p-4 border border-[--color-border]">
-            <h2 className="text-sm font-semibold text-[--color-text-secondary] uppercase tracking-wide mb-2">
-              {t('gameMode.spellSlots')}
-            </h2>
+          <Section title={t('gameMode.spellSlots')}>
             <SpellSlotTracker
               slots={spells.slots}
               onConsume={castSpell}
               onRecover={recoverSpellSlot}
             />
-          </section>
+          </Section>
         )}
 
         {/* Conditions */}
-        <section className="w-full bg-[--color-bg-surface] rounded-lg p-4 border border-[--color-border]">
-          <h2 className="text-sm font-semibold text-[--color-text-secondary] uppercase tracking-wide mb-2">
-            {t('gameMode.conditions')}
-          </h2>
+        <Section title={t('gameMode.conditions')}>
           <ConditionBar
             conditions={conditions || []}
             onToggle={toggleCondition}
             onAdd={() => setShowConditionPicker(true)}
           />
-        </section>
+        </Section>
 
         {/* Quick Actions */}
         <section className="grid grid-cols-2 gap-3">

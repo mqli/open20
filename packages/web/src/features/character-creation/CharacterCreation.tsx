@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCharacterStore } from '@/stores';
 import { useLocale } from '@/hooks';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, CardContent } from '@/components/ui';
 import { ChevronLeft, ChevronRight, Check, Swords } from 'lucide-react';
 
 const STEPS = [
@@ -98,8 +98,10 @@ export function CharacterCreation() {
                   }`}
                   onClick={() => setSelectedSpecies(species.id)}
                 >
-                  <h3 className="font-semibold">{species.name}</h3>
-                  <p className="text-sm text-[--color-text-secondary]">{species.description}</p>
+                  <CardContent>
+                    <h3 className="font-semibold">{species.name}</h3>
+                    <p className="text-sm text-[--color-text-secondary]">{species.description}</p>
+                  </CardContent>
                 </Card>
               ))}
             </div>
@@ -121,8 +123,10 @@ export function CharacterCreation() {
                   }`}
                   onClick={() => setSelectedClass(cls.id)}
                 >
-                  <h3 className="font-semibold">{cls.name}</h3>
-                  <p className="text-sm text-[--color-text-secondary]">{cls.description}</p>
+                  <CardContent>
+                    <h3 className="font-semibold">{cls.name}</h3>
+                    <p className="text-sm text-[--color-text-secondary]">{cls.description}</p>
+                  </CardContent>
                 </Card>
               ))}
             </div>
@@ -168,20 +172,22 @@ export function CharacterCreation() {
           <div className="w-full space-y-4">
             <h2 className="text-xl font-semibold">{t('creation.review')}</h2>
             <Card>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-[--color-text-secondary]">Name</span>
-                  <span className="font-semibold">{name}</span>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-[--color-text-secondary]">Name</span>
+                    <span className="font-semibold">{name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[--color-text-secondary]">Species</span>
+                    <span className="font-semibold">{SPECIES.find(s => s.id === selectedSpecies)?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[--color-text-secondary]">Class</span>
+                    <span className="font-semibold">{selectedClass}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[--color-text-secondary]">Species</span>
-                  <span className="font-semibold">{SPECIES.find(s => s.id === selectedSpecies)?.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[--color-text-secondary]">Class</span>
-                  <span className="font-semibold">{selectedClass}</span>
-                </div>
-              </div>
+              </CardContent>
             </Card>
           </div>
         );

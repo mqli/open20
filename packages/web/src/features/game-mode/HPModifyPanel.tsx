@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCharacter, useLocale } from '@/hooks';
-import { Sheet, SheetHeader, SheetContent, Button } from '@/components/ui';
+import { Sheet, SheetHeader, SheetContent, SheetTitle, Button } from '@/components/ui';
 
 interface HPModifyPanelProps {
   open: boolean;
@@ -28,12 +28,12 @@ export function HPModifyPanel({ open, onOpenChange }: HPModifyPanelProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetHeader onClose={() => onOpenChange(false)}>
-        <h2 className="text-lg font-semibold">
-          {t('gameMode.hp')}: {hitPoints.current} / {hitPoints.max}
-        </h2>
-      </SheetHeader>
-      <SheetContent className="w-full space-y-6">
+      <SheetContent side="bottom" className="space-y-6 p-4">
+        <SheetHeader>
+          <SheetTitle>
+            {t('gameMode.hp')}: {hitPoints.current} / {hitPoints.max}
+          </SheetTitle>
+        </SheetHeader>
         {/* Temp HP */}
         <div className="w-full">
           <label className="text-sm text-[--color-text-secondary]">

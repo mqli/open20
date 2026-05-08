@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ConditionName } from '@/types/open20-core';
 import { useLocale } from '@/hooks';
-import { Sheet, SheetHeader, SheetContent } from '@/components/ui';
+import { Sheet, SheetHeader, SheetContent, SheetTitle } from '@/components/ui';
 import { Search } from 'lucide-react';
 
 interface ConditionPickerProps {
@@ -32,11 +32,11 @@ export function ConditionPicker({ open, onOpenChange, activeConditions, onToggle
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetHeader onClose={() => onOpenChange(false)}>
-        <h2 className="font-semibold text-lg">{t('gameMode.addCondition')}</h2>
-      </SheetHeader>
+      <SheetContent side="bottom" className="flex flex-col max-h-[60vh] p-4">
+        <SheetHeader>
+          <SheetTitle>{t('gameMode.addCondition')}</SheetTitle>
+        </SheetHeader>
 
-      <SheetContent className="flex flex-col max-h-[60vh]">
         <div className="relative mb-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-text-secondary]" />
           <input

@@ -1,6 +1,7 @@
 import type { SkillEntry, AbilityScores } from '@/types/open20-core';
 import { useLocale } from '@/hooks';
 import { SkillBadge } from './SkillBadge';
+import { Section } from './layout';
 
 // Standard D&D 5e skills with their governing abilities
 const SKILL_DEFINITIONS = [
@@ -49,10 +50,7 @@ export function SkillChips({ skills, abilityScores, proficiencyBonus, onSkillCli
   };
 
   return (
-    <section className="w-full bg-[--color-bg-surface] rounded-lg p-4 border border-[--color-border]">
-      <h2 className="text-sm font-semibold text-[--color-text-secondary] uppercase tracking-wide mb-3">
-        {t('gameMode.skills')}
-      </h2>
+    <Section title={t('gameMode.skills')}>
       <div className="flex flex-wrap gap-2">
         {SKILL_DEFINITIONS.map(({ name }) => {
           const skill = skills[name] || { proficient: false, expertise: false };
@@ -68,6 +66,6 @@ export function SkillChips({ skills, abilityScores, proficiencyBonus, onSkillCli
           );
         })}
       </div>
-    </section>
+    </Section>
   );
 }

@@ -1,6 +1,7 @@
 import type { Attack } from '@/types/open20-core';
 import { useLocale } from '@/hooks';
 import { WeaponRow } from './WeaponRow';
+import { Section } from './layout';
 
 interface WeaponListProps {
   attacks: readonly Attack[];
@@ -15,10 +16,7 @@ export function WeaponList({ attacks, onAttack }: WeaponListProps) {
   }
 
   return (
-    <section className="w-full bg-[--color-bg-surface] rounded-lg p-4 border border-[--color-border]">
-      <h2 className="text-sm font-semibold text-[--color-text-secondary] uppercase tracking-wide mb-3">
-        {t('gameMode.weapons')}
-      </h2>
+    <Section title={t('gameMode.weapons')}>
       <div className="space-y-2">
         {attacks.map((attack, index) => (
           <WeaponRow
@@ -28,6 +26,6 @@ export function WeaponList({ attacks, onAttack }: WeaponListProps) {
           />
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

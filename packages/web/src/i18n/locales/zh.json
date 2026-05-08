@@ -107,7 +107,8 @@
     "exportCharacter": "导出角色",
     "resetData": "重置所有数据",
     "resetConfirm": "确定吗?这将删除所有角色。",
-    "version": "版本"
+    "version": "版本",
+    "about": "关于"
   },
   "characterList": {
     "title": "你的角色",
