@@ -1,5 +1,14 @@
 import { ChevronDown, ChevronRight, Shield, Plus, X } from 'lucide-react';
-import { Badge, Button, Dialog, Surface, Text } from '@open20/ui';
+import {
+  Badge,
+  Button,
+  DialogClose,
+  DialogContent,
+  DialogRoot,
+  DialogTitle,
+  Surface,
+  Text,
+} from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
 import { getCasterTypeForClass } from '@/core/character-service';
@@ -230,17 +239,17 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
           </div>
 
           {/* Cantrip Selection Modal */}
-          <Dialog.Root open={isCantripModalOpen} onOpenChange={setIsCantripModalOpen}>
-            <Dialog.Content className="w-[calc(100%-2rem)] max-w-md">
+          <DialogRoot open={isCantripModalOpen} onOpenChange={setIsCantripModalOpen}>
+            <DialogContent className="w-[calc(100%-2rem)] max-w-md">
               <div className="flex justify-between items-center mb-4">
-                <Dialog.Title className="text-lg font-bold">
+                <DialogTitle className="text-lg font-bold">
                   {cantripToReplace ? 'Replace Cantrip' : 'Learn Cantrip'}
-                </Dialog.Title>
-                <Dialog.Close asChild>
+                </DialogTitle>
+                <DialogClose asChild>
                   <Button variant="ghost" size="sm" className="p-1">
                     <X className="w-4 h-4" />
                   </Button>
-                </Dialog.Close>
+                </DialogClose>
               </div>
               <div className="space-y-1 max-h-64 overflow-y-auto">
                 {getAvailableCantrips().map((spell: Spell) => (
@@ -258,8 +267,8 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
                   </Text>
                 )}
               </div>
-            </Dialog.Content>
-          </Dialog.Root>
+            </DialogContent>
+          </DialogRoot>
 
           {/* Spell List */}
           <div className="space-y-4">

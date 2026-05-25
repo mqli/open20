@@ -1,8 +1,18 @@
 import type { Spell } from 'open20-core';
 import { useSpellStore } from '@/stores/spell-store';
 import { useCharacterStore } from '@/stores/character-store';
-import { IconButton } from '@/components/ui/IconButton';
-import { Badge, DropdownMenu, Surface, Text } from '@open20/ui';
+import {
+  Badge,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRoot,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  IconButton,
+  Surface,
+  Text,
+} from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { getCasterType } from '@/core/character-service';
 import { Sparkles, BookMarked, Star, ChevronDown } from 'lucide-react';
@@ -38,8 +48,8 @@ function ClassActionDropdown({
   const hasInactive = matchingClassIds.some(id => !activeClassIds.includes(id));
 
   return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger asChild>
+    <DropdownMenuRoot>
+      <DropdownMenuTrigger asChild>
         <IconButton
           variant={variant}
           active={active}
@@ -52,13 +62,13 @@ function ClassActionDropdown({
           )}
           <ChevronDown className="w-2.5 h-2.5 ml-0.5" />
         </IconButton>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="w-40">
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40">
         {hasActive && (
           <>
-            <DropdownMenu.Label>{label} for</DropdownMenu.Label>
+            <DropdownMenuLabel>{label} for</DropdownMenuLabel>
             {activeClassIds.map(classId => (
-              <DropdownMenu.Item
+              <DropdownMenuItem
                 key={`remove-${classId}`}
                 onSelect={() => onToggle(classId)}
               >
@@ -66,18 +76,18 @@ function ClassActionDropdown({
                 <span className="text-text-tertiary text-xs ml-2">
                   {label === 'Cantrip' ? 'Unlearn' : 'Unprepare'}
                 </span>
-              </DropdownMenu.Item>
+              </DropdownMenuItem>
             ))}
-            {hasInactive && <DropdownMenu.Separator />}
+            {hasInactive && <DropdownMenuSeparator />}
           </>
         )}
         {hasInactive && (
           <>
-            {!hasActive && <DropdownMenu.Label>Add {label} for</DropdownMenu.Label>}
+            {!hasActive && <DropdownMenuLabel>Add {label} for</DropdownMenuLabel>}
             {matchingClassIds
               .filter(classId => !activeClassIds.includes(classId))
               .map(classId => (
-                <DropdownMenu.Item
+                <DropdownMenuItem
                   key={`add-${classId}`}
                   onSelect={() => onToggle(classId)}
                 >
@@ -85,12 +95,12 @@ function ClassActionDropdown({
                   <span className="text-text-tertiary text-xs ml-2">
                     {label === 'Cantrip' ? 'Learn' : 'Prepare'}
                   </span>
-                </DropdownMenu.Item>
+                </DropdownMenuItem>
               ))}
           </>
         )}
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
+      </DropdownMenuContent>
+    </DropdownMenuRoot>
   );
 }
 

@@ -1,5 +1,15 @@
 import { X, Pencil } from 'lucide-react';
-import { Badge, Button, Sheet, Text } from '@open20/ui';
+import {
+  Badge,
+  Button,
+  SheetBody,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetRoot,
+  SheetTitle,
+  Text,
+} from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { SpellSlotsSection } from './CharacterSheet/SpellSlotsSection';
@@ -33,12 +43,12 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const spellcastingClasses = classes?.filter(c => classSpellcasting[c.classId]) ?? [];
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <Sheet.Content side="right" className="max-w-sm flex flex-col">
+    <SheetRoot open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="max-w-sm flex flex-col">
         {/* Header */}
-        <Sheet.Header>
+        <SheetHeader>
           <div>
-            <Sheet.Title>{activeCharacter.name}</Sheet.Title>
+            <SheetTitle>{activeCharacter.name}</SheetTitle>
             <div className="flex gap-2 mt-2 flex-wrap">
               {classes?.map((c, i) => (
                 <Badge key={i} variant={i === 0 ? "primary" : "secondary"} size="sm">
@@ -58,15 +68,15 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
             >
               <Pencil className="w-4 h-4" />
             </Button>
-            <Sheet.Close asChild>
+            <SheetClose asChild>
               <Button variant="ghost" size="sm" className="p-2 text-text-tertiary hover:text-text-primary">
                 <X className="w-5 h-5" />
               </Button>
-            </Sheet.Close>
+            </SheetClose>
           </div>
-        </Sheet.Header>
+        </SheetHeader>
 
-        <Sheet.Body className="space-y-6">
+        <SheetBody className="space-y-6">
           {/* Concentration */}
           {concentratingSpellId && (
             <ConcentrationBanner concentratingSpellId={concentratingSpellId} />
@@ -99,7 +109,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               </div>
             </section>
           )}
-        </Sheet.Body>
+        </SheetBody>
 
         {/* Footer */}
         <div className="p-4 border-t border-border flex-shrink-0">
@@ -112,7 +122,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
             Edit Character Stats
           </Button>
         </div>
-      </Sheet.Content>
-    </Sheet>
+      </SheetContent>
+    </SheetRoot>
   );
 }

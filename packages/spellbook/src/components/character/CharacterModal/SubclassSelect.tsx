@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Select, Text } from '@open20/ui';
+import { SelectContent, SelectItem, SelectRoot, SelectTrigger, Text } from '@open20/ui';
 import { dataLoader } from '@/core/data-loader';
 
 interface SubclassSelectProps {
@@ -31,20 +31,20 @@ export function SubclassSelect({
       <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
         {label || 'Subclass'}
       </Text>
-      <Select.Root 
+      <SelectRoot 
         value={selectValue} 
         onValueChange={(val) => onChange(val === '_none' ? '' : val)}
       >
-        <Select.Trigger />
-        <Select.Content>
-          <Select.Item value="_none">None</Select.Item>
+        <SelectTrigger />
+        <SelectContent>
+          <SelectItem value="_none">None</SelectItem>
           {subclasses.map((sub) => (
-            <Select.Item key={sub.id} value={sub.id}>
+            <SelectItem key={sub.id} value={sub.id}>
               {sub.id} {/* Subclass doesn't have 'name' property, use id */}
-            </Select.Item>
+            </SelectItem>
           ))}
-        </Select.Content>
-      </Select.Root>
+        </SelectContent>
+      </SelectRoot>
     </div>
   );
 }

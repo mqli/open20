@@ -2,9 +2,18 @@ import { useState, Fragment } from 'react';
 import { useCharacterStore } from '@/stores/character-store';
 import type { AppCharacter } from '@/core/types';
 import { dataLoader } from '@/core/data-loader';
-import { IconButton } from '@/components/ui/IconButton';
-import { SlotPips } from '@/components/ui/SlotPips';
-import { Button, DropdownMenu, Surface, Text } from '@open20/ui';
+import {
+  Button,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRoot,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  IconButton,
+  SlotPips,
+  Surface,
+  Text,
+} from '@open20/ui';
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
 import { Plus, User, Moon, FileText, Users, ChevronRight } from 'lucide-react';
@@ -137,8 +146,8 @@ export function CharacterBar() {
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* Switch / create character — less prominent */}
         {characters.length > 0 && (
-          <DropdownMenu.Root open={isSwitchOpen} onOpenChange={setIsSwitchOpen}>
-            <DropdownMenu.Trigger asChild>
+          <DropdownMenuRoot open={isSwitchOpen} onOpenChange={setIsSwitchOpen}>
+            <DropdownMenuTrigger asChild>
               <IconButton
                 size="sm"
                 title="Switch character"
@@ -146,10 +155,10 @@ export function CharacterBar() {
               >
                 <Users className="w-3.5 h-3.5" />
               </IconButton>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content className="w-48">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
               {characters.map(char => (
-                <DropdownMenu.Item
+                <DropdownMenuItem
                   key={char.id}
                   onSelect={() => handleSelect(char)}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm"
@@ -167,15 +176,15 @@ export function CharacterBar() {
                   >
                     <FileText className="w-2.5 h-2.5" />
                   </IconButton>
-                </DropdownMenu.Item>
+                </DropdownMenuItem>
               ))}
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item onSelect={handleCreate}>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={handleCreate}>
                 <Plus className="w-3 h-3 mr-2" />
                 Add character
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenuRoot>
         )}
 
         {/* Long Rest */}

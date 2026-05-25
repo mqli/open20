@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { Button, Input, Select, Surface } from '@open20/ui';
+import { Button, Input, SelectContent, SelectItem, SelectRoot, SelectTrigger, Surface } from '@open20/ui';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
 import { CLASSES } from './constants';
@@ -19,17 +19,17 @@ export function AdditionalClassEntryComponent({
     <Surface variant="ghost" padding="sm" className="space-y-2 bg-bg-primary/30">
       <div className="grid grid-cols-12 gap-2 items-end">
         <div className="col-span-7">
-          <Select.Root 
+          <SelectRoot 
             value={entry.classId} 
             onValueChange={(value) => onUpdate(entry.id, { classId: value, subclassId: undefined })}
           >
-            <Select.Trigger />
-            <Select.Content>
+            <SelectTrigger />
+            <SelectContent>
               {CLASSES.map(c => (
-                <Select.Item key={c.id} value={c.id}>{c.name}</Select.Item>
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
               ))}
-            </Select.Content>
-          </Select.Root>
+            </SelectContent>
+          </SelectRoot>
         </div>
         <div className="col-span-3">
           <Input 

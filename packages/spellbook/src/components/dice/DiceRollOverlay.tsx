@@ -1,8 +1,7 @@
 import { useRollStore } from '@/stores/roll-store';
 import { Dices, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { IconButton } from '@/components/ui/IconButton';
-import { Surface, Text } from '@open20/ui';
+import { IconButton, Surface, Text } from '@open20/ui';
 
 export function DiceRollOverlay() {
   const { latestRoll } = useRollStore();

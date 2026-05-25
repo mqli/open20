@@ -1,5 +1,17 @@
 import { X } from 'lucide-react';
-import { Button, Dialog, Input, Select, Text } from '@open20/ui';
+import {
+  Button,
+  DialogClose,
+  DialogContent,
+  DialogRoot,
+  DialogTitle,
+  Input,
+  SelectContent,
+  SelectItem,
+  SelectRoot,
+  SelectTrigger,
+  Text,
+} from '@open20/ui';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
@@ -73,13 +85,13 @@ export function CharacterModalForm({
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Content className="w-[calc(100%-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+    <DialogRoot open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="flex justify-between items-center mb-8">
-          <Dialog.Title className="text-2xl font-black text-text-primary uppercase tracking-tight">
+          <DialogTitle className="text-2xl font-black text-text-primary uppercase tracking-tight">
             {editingCharacter ? 'Edit Character' : 'Create Your Hero'}
-          </Dialog.Title>
-          <Dialog.Close asChild>
+          </DialogTitle>
+          <DialogClose asChild>
             <Button 
               variant="ghost"
               size="sm"
@@ -88,7 +100,7 @@ export function CharacterModalForm({
             >
               <X className="w-6 h-6" />
             </Button>
-          </Dialog.Close>
+          </DialogClose>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-8">
@@ -112,19 +124,19 @@ export function CharacterModalForm({
                   <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                     Class
                   </Text>
-                  <Select.Root 
+                  <SelectRoot 
                     value={formData.charClass} 
                     onValueChange={(value) => { 
                       setFormData(prev => ({ ...prev, charClass: value, subclassId: '' })); 
                     }}
                   >
-                    <Select.Trigger />
-                    <Select.Content>
+                    <SelectTrigger />
+                    <SelectContent>
                       {CLASSES.map(c => (
-                        <Select.Item key={c.id} value={c.id}>{c.name}</Select.Item>
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
-                    </Select.Content>
-                  </Select.Root>
+                    </SelectContent>
+                  </SelectRoot>
                 </div>
                 <div>
                   <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
@@ -151,33 +163,33 @@ export function CharacterModalForm({
                   <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                     Species
                   </Text>
-                  <Select.Root 
+                  <SelectRoot 
                     value={formData.species} 
                     onValueChange={(value) => setFormData(prev => ({ ...prev, species: value }))}
                   >
-                    <Select.Trigger />
-                    <Select.Content>
+                    <SelectTrigger />
+                    <SelectContent>
                       {SPECIES.map(s => (
-                        <Select.Item key={s.id} value={s.id}>{s.name}</Select.Item>
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                       ))}
-                    </Select.Content>
-                  </Select.Root>
+                    </SelectContent>
+                  </SelectRoot>
                 </div>
                 <div>
                   <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
                     Background
                   </Text>
-                  <Select.Root 
+                  <SelectRoot 
                     value={formData.background} 
                     onValueChange={(value) => setFormData(prev => ({ ...prev, background: value }))}
                   >
-                    <Select.Trigger />
-                    <Select.Content>
+                    <SelectTrigger />
+                    <SelectContent>
                       {BACKGROUNDS.map(b => (
-                        <Select.Item key={b.id} value={b.id}>{b.name}</Select.Item>
+                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                       ))}
-                    </Select.Content>
-                  </Select.Root>
+                    </SelectContent>
+                  </SelectRoot>
                 </div>
               </div>
 
@@ -238,7 +250,7 @@ export function CharacterModalForm({
             </Button>
           </div>
         </form>
-      </Dialog.Content>
-    </Dialog.Root>
+      </DialogContent>
+    </DialogRoot>
   );
 }

@@ -6,7 +6,7 @@ import {
 import { useSpellStore } from '@/stores/spell-store';
 import { useCharacterStore } from '@/stores/character-store';
 import { useRollStore } from '@/stores/roll-store';
-import { Button, Sheet } from '@open20/ui';
+import { Button, SheetBody, SheetClose, SheetContent, SheetHeader, SheetRoot } from '@open20/ui';
 import { characterService } from '@/core/character-service';
 import { spellService } from '@/core/spell-service';
 
@@ -93,9 +93,9 @@ export function SpellDetailFlyout() {
   };
 
   return (
-    <Sheet open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
-      <Sheet.Content side="right">
-        <Sheet.Header>
+    <SheetRoot open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
+      <SheetContent side="right">
+        <SheetHeader>
           <Button
             variant="ghost"
             size="sm"
@@ -119,7 +119,7 @@ export function SpellDetailFlyout() {
             onConcentrationToggle={handleConcentrationToggle}
           />
 
-          <Sheet.Close asChild>
+          <SheetClose asChild>
             <Button
               variant="ghost"
               size="sm"
@@ -127,10 +127,10 @@ export function SpellDetailFlyout() {
             >
               <X className="w-5 h-5 text-text-secondary" />
             </Button>
-          </Sheet.Close>
-        </Sheet.Header>
+          </SheetClose>
+        </SheetHeader>
 
-        <Sheet.Body>
+        <SheetBody>
           <SpellContent spell={selectedSpell} />
           
           <div className="my-8">
@@ -149,8 +149,8 @@ export function SpellDetailFlyout() {
             onDamageRoll={handleDamageRoll}
             onPrepareToggle={handlePrepareToggle}
           />
-        </Sheet.Body>
-      </Sheet.Content>
-    </Sheet>
+        </SheetBody>
+      </SheetContent>
+    </SheetRoot>
   );
 }

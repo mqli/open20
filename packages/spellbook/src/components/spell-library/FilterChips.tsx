@@ -1,6 +1,5 @@
 import { useSpellStore } from '@/stores/spell-store';
-import { FilterChip } from '@/components/ui/FilterChip';
-import { Button, Text } from '@open20/ui';
+import { Button, FilterChip, Text } from '@open20/ui';
 import { dataLoader } from '@/core/data-loader';
 
 const CLASSES = dataLoader.getAllClasses().filter(c => !!c.spellcasting).map(c => c.id);

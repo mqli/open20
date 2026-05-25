@@ -1,7 +1,7 @@
-// Deprecated: Use ui/SlotPips instead
+// Deprecated: Use @open20/ui SlotPips instead
 // This file is kept for backward compatibility
 
-import { SlotPips } from '@/components/ui/SlotPips';
+import { SlotPips } from '@open20/ui';
 
 interface SpellSlotPipsProps {
   level: number;
