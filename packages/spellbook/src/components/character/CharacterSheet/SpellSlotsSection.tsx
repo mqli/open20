@@ -1,7 +1,7 @@
 import { Flame } from 'lucide-react';
 import { SlotPips } from '@/components/ui/SlotPips';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { Text } from '@/components/ui/Text';
+import { Text } from '@open20/ui';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 

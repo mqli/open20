@@ -1,16 +1,16 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils/helpers';
 import type { ReactNode } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../lib/cn';
 import {
-  textVariants as textViewantClasses,
-  textSizeVariants,
   textColorVariants,
+  textSizeVariants,
+  textVariants as textVariantClasses,
   textWeightVariants,
-} from '@/styles/design-tokens';
+} from '../styles/design-tokens';
 
 const textVariants = cva('', {
   variants: {
-    variant: textViewantClasses,
+    variant: textVariantClasses,
     size: textSizeVariants,
     color: textColorVariants,
     weight: textWeightVariants,
@@ -20,8 +20,7 @@ const textVariants = cva('', {
   },
 });
 
-export interface TextProps
-  extends VariantProps<typeof textVariants> {
+export interface TextProps extends VariantProps<typeof textVariants> {
   children: ReactNode;
   as?: 'p' | 'span' | 'div' | 'label' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   className?: string;
@@ -40,22 +39,7 @@ const elementMap = {
   h6: 'h6',
 } as const;
 
-export function Text({
-  variant,
-  size,
-  color,
-  weight,
-  as = 'p',
-  className,
-  children,
-}: TextProps) {
+export function Text({ variant, size, color, weight, as = 'p', className, children }: TextProps) {
   const Component = elementMap[as] || 'p';
-
-  return (
-    <Component
-      className={cn(textVariants({ variant, size, color, weight }), className)}
-    >
-      {children}
-    </Component>
-  );
+  return <Component className={cn(textVariants({ variant, size, color, weight }), className)}>{children}</Component>;
 }

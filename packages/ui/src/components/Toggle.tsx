@@ -1,11 +1,14 @@
+import type { ReactNode } from 'react';
 import * as RadixToggle from '@radix-ui/react-toggle';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils/helpers';
-import type { ReactNode } from 'react';
-import { toggleVariants as toggleVariantClasses, badgeToggleSizeVariants as sizeVariantClasses } from '@/styles/design-tokens';
+import { cn } from '../lib/cn';
+import {
+  badgeToggleSizeVariants as sizeVariantClasses,
+  toggleVariants as toggleVariantClasses,
+} from '../styles/design-tokens';
 
 const toggleVariants = cva(
-  'inline-flex items-center justify-center font-medium transition-all duration-200 border cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed',
+  'inline-flex cursor-pointer select-none items-center justify-center border font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: toggleVariantClasses,
@@ -15,7 +18,7 @@ const toggleVariants = cva(
       variant: 'secondary',
       size: 'md',
     },
-  }
+  },
 );
 
 export interface ToggleProps
@@ -26,10 +29,7 @@ export interface ToggleProps
 
 export function Toggle({ variant, size, className, children, ...props }: ToggleProps) {
   return (
-    <RadixToggle.Root
-      className={cn(toggleVariants({ variant, size }), className)}
-      {...props}
-    >
+    <RadixToggle.Root className={cn(toggleVariants({ variant, size }), className)} {...props}>
       {children}
     </RadixToggle.Root>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useSpellStore } from '@/stores/spell-store';
-import { Input } from '@/components/ui/Input';
+import { Input } from '@open20/ui';
 
 export function SearchBar() {
   const { searchQuery, setSearchQuery } = useSpellStore();

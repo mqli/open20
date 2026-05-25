@@ -2,7 +2,7 @@ import { Activity } from 'lucide-react';
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from '@/core/types';
 import { getCasterType } from '@/core/character-service';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@open20/ui';
 
 interface SpellHeaderProps {
   spell: Spell;

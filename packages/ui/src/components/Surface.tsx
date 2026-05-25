@@ -1,13 +1,13 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/utils/helpers';
 import type { HTMLAttributes, ReactNode } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../lib/cn';
 import {
-  surfaceVariants as surfaceVariantClasses,
   surfacePaddingVariants as paddingClasses,
   surfaceShadowVariants as shadowClasses,
-} from '@/styles/design-tokens';
+  surfaceVariants as surfaceVariantClasses,
+} from '../styles/design-tokens';
 
-const surfaceVariants = cva('border rounded-xl transition-all', {
+const surfaceVariants = cva('rounded-xl border transition-all', {
   variants: {
     variant: surfaceVariantClasses,
     padding: paddingClasses,
@@ -35,10 +35,7 @@ export function Surface({
   ...props
 }: SurfaceProps) {
   return (
-    <div
-      className={cn(surfaceVariants({ variant, padding, shadow }), className)}
-      {...props}
-    >
+    <div className={cn(surfaceVariants({ variant, padding, shadow }), className)} {...props}>
       {children}
     </div>
   );

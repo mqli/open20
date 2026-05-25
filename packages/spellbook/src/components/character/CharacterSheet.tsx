@@ -1,8 +1,5 @@
 import { X, Pencil } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Text } from '@/components/ui/Text';
-import { Sheet } from '@/components/ui/Sheet';
+import { Badge, Button, Sheet, Text } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { SpellSlotsSection } from './CharacterSheet/SpellSlotsSection';

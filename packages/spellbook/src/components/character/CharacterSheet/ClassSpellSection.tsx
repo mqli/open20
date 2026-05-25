@@ -1,9 +1,5 @@
 import { ChevronDown, ChevronRight, Shield, Plus, X } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Surface } from '@/components/ui/Surface';
-import { Text } from '@/components/ui/Text';
-import { Dialog } from '@/components/ui/Dialog';
+import { Badge, Button, Dialog, Surface, Text } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
 import { getCasterTypeForClass } from '@/core/character-service';

@@ -1,7 +1,5 @@
 import { Sparkles, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Surface } from '@/components/ui/Surface';
-import { Text } from '@/components/ui/Text';
+import { Button, Surface, Text } from '@open20/ui';
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from '@/core/types';
 import { getCasterType } from '@/core/character-service';

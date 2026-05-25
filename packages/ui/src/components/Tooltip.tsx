@@ -1,7 +1,6 @@
-/* eslint-disable react-refresh/only-export-components */
-import * as RadixTooltip from '@radix-ui/react-tooltip';
-import { cn } from '@/utils/helpers';
 import type { ReactNode } from 'react';
+import * as RadixTooltip from '@radix-ui/react-tooltip';
+import { cn } from '../lib/cn';
 
 export function TooltipProvider({ children }: { children: ReactNode }) {
   return <RadixTooltip.Provider delayDuration={300}>{children}</RadixTooltip.Provider>;
@@ -15,7 +14,7 @@ export const Tooltip = {
       <RadixTooltip.Content
         className={cn(
           'z-50 overflow-hidden rounded-md bg-bg-tertiary px-3 py-1.5 text-xs text-text-primary shadow-md animate-in fade-in-0 zoom-in-95',
-          className
+          className,
         )}
         sideOffset={4}
         {...props}

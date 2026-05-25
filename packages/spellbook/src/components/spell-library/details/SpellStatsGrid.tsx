@@ -1,6 +1,5 @@
 import type { Spell } from 'open20-core';
-import { Surface } from '@/components/ui/Surface';
-import { Text } from '@/components/ui/Text';
+import { Surface, Text } from '@open20/ui';
 
 interface SpellStatsGridProps {
   spell: Spell;

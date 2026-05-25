@@ -1,6 +1,6 @@
 import { cn } from '@/utils/helpers';
+import { Text } from '@open20/ui';
 import type { ReactNode } from 'react';
-import { Text } from './Text';
 
 interface SectionHeaderProps {
   icon?: ReactNode;

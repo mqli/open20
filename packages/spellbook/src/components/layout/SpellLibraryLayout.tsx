@@ -6,9 +6,7 @@ import { LevelTabs } from '@/components/spell-library/LevelTabs';
 import { FilterChips } from '@/components/spell-library/FilterChips';
 import { SpellCard } from '@/components/spell-library/SpellCard';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
-import { Surface } from '@/components/ui/Surface';
-
-import { Toggle } from '@/components/ui/Toggle';
+import { Surface, Toggle } from '@open20/ui';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useCharacterStore } from '@/stores/character-store';
 import { getCasterType } from '@/core/character-service';

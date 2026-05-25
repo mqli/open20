@@ -1,11 +1,8 @@
 import type { Spell } from 'open20-core';
 import { useSpellStore } from '@/stores/spell-store';
 import { useCharacterStore } from '@/stores/character-store';
-import { Badge } from '@/components/ui/Badge';
 import { IconButton } from '@/components/ui/IconButton';
-import { Surface } from '@/components/ui/Surface';
-import { Text } from '@/components/ui/Text';
-import { DropdownMenu } from '@/components/ui/DropdownMenu';
+import { Badge, DropdownMenu, Surface, Text } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { getCasterType } from '@/core/character-service';
 import { Sparkles, BookMarked, Star, ChevronDown } from 'lucide-react';

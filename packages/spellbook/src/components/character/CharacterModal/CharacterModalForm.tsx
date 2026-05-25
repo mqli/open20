@@ -1,9 +1,5 @@
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
-import { Dialog } from '@/components/ui/Dialog';
-import { Text } from '@/components/ui/Text';
+import { Button, Dialog, Input, Select, Text } from '@open20/ui';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';

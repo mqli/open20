@@ -6,8 +6,7 @@ import {
 import { useSpellStore } from '@/stores/spell-store';
 import { useCharacterStore } from '@/stores/character-store';
 import { useRollStore } from '@/stores/roll-store';
-import { Sheet } from '@/components/ui/Sheet';
-import { Button } from '@/components/ui/Button';
+import { Button, Sheet } from '@open20/ui';
 import { characterService } from '@/core/character-service';
 import { spellService } from '@/core/spell-service';
 

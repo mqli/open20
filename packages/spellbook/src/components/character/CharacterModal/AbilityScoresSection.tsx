@@ -1,6 +1,4 @@
-import { Input } from '@/components/ui/Input';
-import { Text } from '@/components/ui/Text';
-import { Surface } from '@/components/ui/Surface';
+import { Input, Surface, Text } from '@open20/ui';
 
 interface AbilityScoresSectionProps {
   abilities: Record<string, number>;

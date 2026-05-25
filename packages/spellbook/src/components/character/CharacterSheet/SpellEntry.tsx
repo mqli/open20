@@ -1,7 +1,5 @@
 import { Shield, Zap, Flame, Activity } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Surface } from '@/components/ui/Surface';
-import { Text } from '@/components/ui/Text';
+import { Button, Surface, Text } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
 import { useRollStore } from '@/stores/roll-store';
 import { characterService } from '@/core/character-service';

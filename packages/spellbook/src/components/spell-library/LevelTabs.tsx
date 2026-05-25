@@ -1,5 +1,5 @@
 import { useSpellStore } from '@/stores/spell-store';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@open20/ui';
 
 const LEVELS = [
   { value: null, label: 'All' },

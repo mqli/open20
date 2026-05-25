@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/helpers';
-import Toggle from './Toggle';
+import { Toggle } from '@open20/ui';
 import type { ReactNode } from 'react';
 
 const filterChipVariants = cva(

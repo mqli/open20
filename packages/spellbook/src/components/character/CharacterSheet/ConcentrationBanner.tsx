@@ -1,7 +1,6 @@
 import { Wind } from 'lucide-react';
 import { spellService } from '@/core/spell-service';
-import { Surface } from '@/components/ui/Surface';
-import { Text } from '@/components/ui/Text';
+import { Surface, Text } from '@open20/ui';
 
 interface ConcentrationBannerProps {
   concentratingSpellId: string;

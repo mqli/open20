@@ -1,8 +1,5 @@
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
-import { Surface } from '@/components/ui/Surface';
+import { Button, Input, Select, Surface } from '@open20/ui';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
 import { CLASSES } from './constants';
