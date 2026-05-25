@@ -29,6 +29,7 @@
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "lucide-react": "catalog:",
+    "open20-core": "workspace:*",
     "tailwind-merge": "catalog:"
   },
   "peerDependencies": {

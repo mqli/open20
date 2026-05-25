@@ -20,6 +20,8 @@ export { Select };
 export { Sheet };
 export { Slider } from './components/Slider/index';
 export { SlotPips } from './components/SlotPips/index';
+export { SpellCard } from './components/spell/index';
+export type { SpellCardProps } from './components/spell/index';
 export { Surface } from './components/Surface/index';
 export type { SurfaceProps } from './components/Surface/index';
 export { Switch } from './components/Switch/index';

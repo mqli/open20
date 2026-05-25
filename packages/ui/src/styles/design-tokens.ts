@@ -222,3 +222,35 @@ export const sheetSideClasses = {
 
 export const closeButtonClasses =
   'absolute top-4 right-4 p-1 rounded hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition-colors';
+
+// Spell school color tokens — each D&D school gets a distinct color.
+export const spellSchoolVariants = {
+  Abjuration: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20',
+  Conjuration: 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20',
+  Divination: 'bg-slate-400/15 text-slate-500 dark:text-slate-400 border border-slate-400/20',
+  Enchantment: 'bg-pink-500/15 text-pink-600 dark:text-pink-400 border border-pink-500/20',
+  Evocation: 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20',
+  Illusion: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20',
+  Necromancy: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+  Transmutation: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20',
+} as const;
+
+// ── Generic chip/badge base (rounded-md, small) ──
+export const chipBase = 'inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold';
+
+// ── Generic inline metadata item (icon + text) ──
+export const inlineMeta = 'inline-flex items-center gap-1 text-[11px] text-text-tertiary';
+
+// ── Generic section divider (thin border-top + padding) ──
+export const sectionDivider = 'pt-2 border-t border-border/50';
+
+// ── Generic collapse/show-more toggle ──
+export const collapseToggle =
+  'flex items-center gap-1 self-start text-[10px] font-medium text-text-tertiary hover:text-text-secondary transition-colors';
+
+// ── Shared icon size tokens ──
+export const iconSizes = {
+  xs: 'h-3 w-3',
+  sm: 'h-3.5 w-3.5',
+  md: 'h-4 w-4',
+} as const;

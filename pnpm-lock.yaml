@@ -343,6 +343,9 @@ importers:
       lucide-react:
         specifier: 'catalog:'
         version: 1.16.0(react@19.2.6)
+      open20-core:
+        specifier: workspace:*
+        version: link:../core
       react:
         specifier: ^19.0.0
         version: 19.2.6
