@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/open20-core)](https://www.npmjs.com/package/open20-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/open20/open20-core/actions/workflows/ci.yml/badge.svg)](https://github.com/open20/open20-core/actions/workflows/ci.yml)
+[![CI](https://github.com/mqli/open20/actions/workflows/ci.yml/badge.svg)](https://github.com/mqli/open20/actions/workflows/ci.yml)
 
 A headless TypeScript game engine for D&D 5e 2024 — rule calculations, spell & monster management, dice rolling, and character management. Framework-agnostic, UI-free, test-driven.
 
@@ -97,25 +97,17 @@ npm run build:bundle
 
 ## Development
 
+This package is part of the [open20 monorepo](../../README.md). Install from the repo root:
+
 ```bash
-# Install dependencies
-npm install
+pnpm install       # from monorepo root
 
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Type check
-npm run typecheck
-
-# Lint
-npm run lint
-
-# Build
-npm run build
-npm run build:bundle
+pnpm test
+pnpm run test:coverage
+pnpm run typecheck
+pnpm run lint
+pnpm run build
+pnpm run build:bundle
 ```
 
 ## Documentation

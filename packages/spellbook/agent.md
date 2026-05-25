@@ -1,14 +1,22 @@
 # AI Agent Guidelines - Open20 Spellbook
 
+## Monorepo Context
+
+This package lives at `packages/spellbook/` inside the [open20 monorepo](../../agent.md). Read `../../agent.md` for repo-wide conventions before working here.
+
+`open20-core` is a **workspace dependency** (`"open20-core": "workspace:*"`), not an external npm package. It lives at `packages/core/` in this same repo. Changes to core are immediately visible to spellbook — no publish step needed. However, keep changes scoped: UI concerns stay in spellbook, game logic changes go in core.
+
+---
+
 ## Project Overview
 
-**Open20 Spellbook** is a D&D 5e spellbook web application. It's a headless UI shell that uses `open20-core` (npm package) for all game logic, rule calculations, and data management.
+**Open20 Spellbook** is a D&D 5e spellbook web application. It's a thin UI shell over `open20-core` for spell search, preparation tracking, and slot management.
 
-**Tech Stack**: React 18 + TypeScript + Vite + Zustand + Radix UI + Tailwind CSS
+**Tech Stack**: React 19 + TypeScript + Vite + Zustand + Radix UI + Tailwind CSS v3
 
 **Architecture Principle**: Headless Core + UI Shell
 - `open20-core` handles all game logic, rule calculations, and data management
-- UI layer is a thin shell that renders state and dispatches actions to the core library
+- UI layer renders state and dispatches actions to the core library
 
 ---
 
@@ -130,7 +138,7 @@ Available wrapped components:
 ### DO NOT
 
 - ❌ Create new documentation files (*.md) unless explicitly asked
-- ❌ Modify `open20-core` package (it's a dependency)
+- ❌ Put game logic in spellbook that belongs in `open20-core` (`packages/core`)
 - ❌ Use Radix UI directly in app components (use wrapped components)
 - ❌ Hardcode colors or break design system
 - ❌ Commit without reading the relevant spec
@@ -153,12 +161,14 @@ Available wrapped components:
 ### Common Commands
 
 ```bash
-npm run dev          # Start dev server
-npm run build        # Production build
-npm run test         # Run tests
-npm run test:coverage # Run tests with coverage
-npm run lint         # Lint code
+pnpm dev             # Start dev server
+pnpm build           # Production build (tsc -b + vite build)
+pnpm test            # Run tests
+pnpm typecheck       # Type check only
+pnpm lint            # Lint code
 ```
+
+Or from the monorepo root: `pnpm --filter @open20/spellbook <script>`
 
 ### Key Files to Read First
 

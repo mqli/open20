@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# Open20 Spellbook
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A D&D 5e 2024 spellbook web app — spell search, preparation tracking, and spell slot management.
 
-Currently, two official plugins are available:
+Part of the [open20 monorepo](../../README.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+- React 19 + TypeScript + Vite
+- Zustand (state), Radix UI (components), Tailwind CSS v3
+- `open20-core` (workspace) — all game logic
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Development
 
-## Expanding the ESLint configuration
+From the monorepo root:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm --filter @open20/spellbook dev      # dev server
+pnpm --filter @open20/spellbook build    # production build
+pnpm --filter @open20/spellbook test     # run tests
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Or from this directory:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm dev
+pnpm build
+pnpm test
+pnpm typecheck
+pnpm lint
 ```
+
+> `open20-core` must be built first. Running `pnpm install` from the monorepo root handles this automatically via the `prepare` hook.
+
+## Deploy
+
+Deployed to GitHub Pages via `.github/workflows/deploy-spellbook.yml` on push to `main`.
+
+## Documentation
+
+- [`PRD.md`](./PRD.md) — Product requirements
+- [`UI_Design_Spec.md`](./UI_Design_Spec.md) — Visual design and color tokens
+- [`docs/tech-design/`](./docs/tech-design/) — Technical architecture docs
+- [`requirements/`](./requirements/) — Feature requirement specs (FR-001 onwards)
+- [`agent.md`](./agent.md) — Guide for AI agents

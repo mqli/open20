@@ -4,11 +4,20 @@
 
 ---
 
+## 0. Monorepo Context
+
+This package lives at `packages/core/` inside the [open20 monorepo](../../agent.md). Read `../../agent.md` for repo-wide conventions (turbo pipeline, shared configs, CI).
+
+**Working directory**: `packages/core/` (or use `--filter open20-core` from root).  
+**Release tags**: `core-v*` (e.g. `core-v0.2.2`) — not bare `v*`.
+
+---
+
 ## 1. Project Overview
 
 **Project**: Open20 Core - Headless D&D 5e 2024 Game Engine
 **Goal**: A TypeScript library for D&D 5e 2024 rules engine, spell management, and character management. No UI - pure logic, testable via unit tests, usable by any framework.
-**Status**: S1-S21 complete (753+ tests passing)
+**Status**: S1-S21 complete (826 tests passing)
 
 ### Key Design Decisions
 - **Headless**: Zero UI dependency. Pure functions, immutable state.
@@ -58,7 +67,7 @@ types/, dice/        engine/, spells/    character/,        rolls/
 ## 3. Directory Structure
 
 ```
-open20-core/
+packages/core/                  # path inside monorepo
 ├── agent.md                    # This file
 ├── PRD.md                     # Product Requirements Document
 ├── package.json                # ESM, vitest, typescript
@@ -353,68 +362,65 @@ const knows = knowsSpellForClass(char, 'wizard', 'fireball');
 
 ## 6. How to Run Tests & Build
 
-> **CRITICAL**: Before committing, you MUST run the same validation steps as CI (see `.github/workflows/ci.yml`).
+> **CRITICAL**: Before committing, you MUST run the same validation steps as CI (see `../../.github/workflows/ci.yml`).
+
+Run from `packages/core/` or from the monorepo root with `--filter open20-core`:
 
 ```bash
-cd /workspaces/open20-core
+# Install dependencies (first time, from monorepo root)
+pnpm install
 
-# Install dependencies (first time only)
-npm install
-
-# Run all tests (same as CI Step 5)
-npm test
+# Run all tests
+pnpm test
 
 # Run specific test file
-npx vitest run tests/engine/ability-modifier.test.ts
+pnpm exec vitest run tests/engine/ability-modifier.test.ts
 
-# Lint (MUST pass before committing - same as CI Step 4)
-npm run lint
-# or with auto-fix:
-npm run lint:fix
+# Lint (MUST pass before committing)
+pnpm run lint
+pnpm run lint:fix
 
-# Type check (MUST pass before committing - same as CI Step 3)
-npm run typecheck
+# Type check (MUST pass before committing)
+pnpm run typecheck
 
 # Run tests with coverage
-npm test -- --coverage
+pnpm run test:coverage
 
-# Build Node.js bundle (same as CI Step 6)
-npm run build
+# Build Node.js bundle
+pnpm run build
 
-# Build browser bundles (same as CI Step 7)
-npm run build:bundle
+# Build browser bundles
+pnpm run build:bundle
 
-# Test Node.js artifact (same as CI Step 8)
-npm run test:artifact
+# Test Node.js artifact
+pnpm run test:artifact
 
-# Test browser artifact (same as CI Step 9)
-npm run test:browser-artifact
+# Test browser artifact
+pnpm run test:browser-artifact
 
-# Minimum required before commit (Steps 3-5):
-npm run typecheck && npm run lint && npm test
+# Minimum required before commit:
+pnpm run typecheck && pnpm run lint && pnpm test
 
-# Full CI validation (run before committing):
-npm run typecheck && npm run lint && npm test && npm run build && npm run build:bundle && npm run test:artifact && npm run test:browser-artifact
+# Full CI validation:
+pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run build:bundle && pnpm run test:artifact && pnpm run test:browser-artifact
 ```
 
 ### 6.1 CI Validation Steps
 
-These are the **exact steps** run in CI (see `.github/workflows/ci.yml`). Run them locally before committing:
+| Step | Command |
+|------|---------|
+| 1 | `pnpm install` (from monorepo root) |
+| 2 | `pnpm run typecheck` |
+| 3 | `pnpm run lint` |
+| 4 | `pnpm test` |
+| 5 | `pnpm run build` |
+| 6 | `pnpm run build:bundle` |
+| 7 | `pnpm run test:artifact` |
+| 8 | `pnpm run test:browser-artifact` |
 
-| Step | Command | CI Step |
-|------|---------|---------|
-| 1 | `npm ci` | Install deps |
-| 2 | `npm run typecheck` | Type check |
-| 3 | `npm run lint` | Lint |
-| 4 | `npm test` | Run tests |
-| 5 | `npm run build` | Build Node.js |
-| 6 | `npm run build:bundle` | Build browser bundle |
-| 7 | `npm run test:artifact` | Test Node.js artifact |
-| 8 | `npm run test:browser-artifact` | Test browser artifact |
-
-**Minimum required before commit** (Steps 2-4):
+**Minimum required before commit**:
 ```bash
-npm run typecheck && npm run lint && npm test
+pnpm run typecheck && pnpm run lint && pnpm test
 ```
 
 **Target**: 100% coverage for `engine/` and `character/` modules.
@@ -746,21 +752,23 @@ Examples:
 [Spells] Import 560+ SRD spells from dnd-data repo
 ```
 
+**Release tags**: Use `core-v<version>` (e.g. `core-v0.2.2`), not bare `v<version>`. This is a monorepo — bare version tags are reserved for the root.
+
 ---
 
 ## 13. Quick Reference
 
 | Task | Command |
 |------|---------|
-| Lint | `npm run lint` |
-| Lint with auto-fix | `npm run lint:fix` |
-| Type check | `npm run typecheck` |
-| Run all tests | `npm test` |
-| Run single test | `npx vitest run tests/path/to/test.test.ts` |
-| Install deps | `npm install` |
-| Check coverage | `npm test -- --coverage` |
+| Lint | `pnpm run lint` |
+| Lint with auto-fix | `pnpm run lint:fix` |
+| Type check | `pnpm run typecheck` |
+| Run all tests | `pnpm test` |
+| Run single test | `pnpm exec vitest run tests/path/to/test.test.ts` |
+| Install deps | `pnpm install` (from monorepo root) |
+| Check coverage | `pnpm run test:coverage` |
 | Import spells | `python3 scripts/import_srd_spells.py` |
-| Full CI validation | `npm run typecheck && npm run lint && npm test && npm run build && npm run build:bundle && npm run test:artifact && npm run test:browser-artifact` |
+| Full CI validation | `pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run build:bundle && pnpm run test:artifact && pnpm run test:browser-artifact` |
 
 | File | Purpose |
 |------|---------|
@@ -789,5 +797,5 @@ If you're stuck or unsure:
 
 ---
 
-*Last updated: 2026-05-10 (updated CI validation steps, test count to 753+, added section 6.1)*
+*Last updated: 2026-05-25 (monorepo migration: pnpm, turbo, core-v* tags, test count 826)*
 *Maintained by: AI agents working on this project*
