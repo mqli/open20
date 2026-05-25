@@ -1,13 +1,10 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
+import { slotPipStateVariants } from '../styles/design-tokens';
 
 const pipVariants = cva('cursor-pointer rounded-md border transition-all duration-150 hover:scale-110', {
   variants: {
-    state: {
-      available: 'bg-primary-500 border-primary-600 shadow-sm shadow-primary-500/30',
-      used: 'border-gray-400 bg-gray-300',
-      empty: 'border-border/50 border-dashed bg-transparent',
-    },
+    state: slotPipStateVariants,
     size: {
       sm: 'h-3 w-3',
       md: 'h-4 w-4',

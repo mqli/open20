@@ -108,6 +108,35 @@ export const iconButtonSizeVariants = {
   lg: 'p-2',
 } as const;
 
+export const iconButtonVariants = {
+  secondary: 'bg-bg-tertiary text-text-tertiary hover:bg-bg-secondary border-border',
+  primary: 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border-primary-500/30 hover:bg-primary-500/25',
+  info: 'bg-info/15 text-info border-info/30 hover:bg-info/25',
+  warning: 'bg-warning/15 text-warning border-warning/30 hover:bg-warning/25',
+  danger: 'bg-danger/15 text-danger border-danger/30 hover:bg-danger/25',
+  success: 'bg-success/15 text-success border-success/30 hover:bg-success/25',
+} as const;
+
+export const iconButtonActiveVariants = {
+  secondary: 'bg-bg-secondary text-text-primary border-border/80',
+  primary: 'bg-primary-500/30 text-primary-700 dark:text-primary-300 border-primary-500/50 shadow-sm shadow-primary-500/10',
+  info: 'bg-info/30 text-info border-info/50 shadow-sm',
+  warning: 'bg-warning/30 text-warning border-warning/50 shadow-sm',
+  danger: 'bg-danger/30 text-danger border-danger/50 shadow-sm',
+  success: 'bg-success/30 text-success border-success/50 shadow-sm',
+} as const;
+
+export const sliderTrackClasses = 'relative h-2 w-full grow overflow-hidden rounded-full bg-bg-tertiary';
+export const sliderRangeClasses = 'absolute h-full bg-primary-600';
+export const sliderThumbClasses =
+  'block h-5 w-5 rounded-full border-2 border-primary-600 bg-bg-primary ring-offset-bg-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+
+export const slotPipStateVariants = {
+  available: 'bg-primary-500 border-primary-600 shadow-sm shadow-primary-500/30',
+  used: 'border-border bg-bg-tertiary',
+  empty: 'border-border/50 border-dashed bg-transparent',
+} as const;
+
 export const surfaceVariants = {
   default: 'bg-bg-secondary border-border',
   primary: 'bg-bg-primary border-primary-200',
