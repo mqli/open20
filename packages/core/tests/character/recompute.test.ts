@@ -620,7 +620,7 @@ describe('recomputeDerivedStats', () => {
   describe('knownSpells for class_list casters (SRD 5.2)', () => {
     it('should auto-populate all level 1+ spells from class list for Sorcerer', () => {
       const data = createSpellTestDataLoader();
-      let char = createCharacter(
+      const char = createCharacter(
         {
           name: 'Test Sorcerer',
           speciesId: 'Human',

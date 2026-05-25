@@ -81,7 +81,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
 
   describe('Session 16: Spell Slot Management', () => {
     it('should track spell slot usage and recovery', () => {
-      let wizard = createCharacter(
+      const wizard = createCharacter(
         {
           name: 'Melara',
           speciesId: 'Gnome',
@@ -116,7 +116,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
     });
 
     it('should handle Pact Magic slots separately', () => {
-      let warlock = createCharacter(
+      const warlock = createCharacter(
         {
           name: 'Shadow',
           speciesId: 'Tiefling',

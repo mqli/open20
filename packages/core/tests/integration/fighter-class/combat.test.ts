@@ -44,7 +44,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
         vulnerabilities: [],
       };
 
-      let result = applyTypedDamage(fighter, 25, 'Slashing', defenses);
+      const result = applyTypedDamage(fighter, 25, 'Slashing', defenses);
       fighter = result.char;
       expect(fighter.hitPoints.current).toBeLessThan(initialHP);
 
@@ -68,7 +68,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
     });
 
     it('should simulate Eldritch Knight spell combat', () => {
-      let ek = createCharacter(
+      const ek = createCharacter(
         {
           name: 'Battle Mage',
           speciesId: 'Human',

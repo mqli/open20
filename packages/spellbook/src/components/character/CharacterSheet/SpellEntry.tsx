@@ -22,6 +22,8 @@ export function SpellEntry({
 
   const activeCharacter = useCharacterStore(s => s.activeCharacter);
   const castSpell = useCharacterStore(s => s.castSpell);
+  const startConcentration = useCharacterStore(s => s.startConcentration);
+  const endConcentration = useCharacterStore(s => s.endConcentration);
   const addRoll = useRollStore(s => s.addRoll);
 
   const handleCast = () => {
@@ -124,9 +126,6 @@ export function SpellEntry({
           const isConcentratingOnThis = activeCharacter.conditions.some(
             c => c.id === 'Concentrating' && (c as any).source === spell.id
           );
-          const startConcentration = useCharacterStore(s => s.startConcentration);
-          const endConcentration = useCharacterStore(s => s.endConcentration);
-
           return (
             <Button
               variant={isConcentratingOnThis ? "warning" : "ghost"}

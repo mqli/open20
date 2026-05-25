@@ -14,7 +14,7 @@ const dataLoader = createDataLoader();
 describe('D&D Player Behavior - Adventure Arc', () => {
   describe('Session 17: Barbarian Rage and Reckless Attack', () => {
     it('should simulate a raging barbarian in combat', () => {
-      let barbarian = createCharacter(
+      const barbarian = createCharacter(
         {
           name: 'Grommash',
           speciesId: 'Half-Orc',

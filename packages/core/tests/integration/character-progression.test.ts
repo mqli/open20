@@ -36,7 +36,7 @@ describe('D&D Player Behavior - Character Progression', () => {
 
     it('should fully recover after Long Rest', () => {
       const damageAmount = wizard.hitPoints.current - 1;
-      let char = modifyHP(wizard, -damageAmount);
+      const char = modifyHP(wizard, -damageAmount);
       expect(char.hitPoints.current).toBe(1);
 
       const afterRest = longRest(char, dataLoader);

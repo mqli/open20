@@ -109,7 +109,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
     });
 
     it('should simulate a wizard casting multiple spells then resting', () => {
-      let wizard = createCharacter(
+      const wizard = createCharacter(
         {
           name: 'Zara',
           speciesId: 'Elf',
@@ -147,7 +147,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
 
   describe('Session 13: Polymorph and Transformation Effects', () => {
     it('should handle temp HP from abilities', () => {
-      let fighter = createCharacter(
+      const fighter = createCharacter(
         {
           name: 'Grimjaw',
           speciesId: 'Dwarf',
@@ -181,7 +181,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
     });
 
     it('should track conditions that affect gameplay', () => {
-      let ranger = createCharacter(
+      const ranger = createCharacter(
         {
           name: 'Sylara',
           speciesId: 'Elf',
@@ -209,7 +209,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
 
   describe('Session 14: Multi-Enemy Combat Scenario', () => {
     it('should handle multiple attacks from different enemies', () => {
-      let hero = createCharacter(
+      const hero = createCharacter(
         {
           name: 'Aldric',
           speciesId: 'Human',
@@ -250,7 +250,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
     });
 
     it('should handle resistance reducing multiple attacks', () => {
-      let tank = createCharacter(
+      const tank = createCharacter(
         {
           name: 'Thordin',
           speciesId: 'Dwarf',

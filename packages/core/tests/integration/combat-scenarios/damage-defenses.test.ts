@@ -147,21 +147,21 @@ describe('Combat Scenarios - Damage Defense Modifications', () => {
   });
 
   it('should add resistance to monster during combat', () => {
-    let updatedMonster = addMonsterDamageResistance(monster, 'Slashing');
+    const updatedMonster = addMonsterDamageResistance(monster, 'Slashing');
 
     const result = applyMonsterTypedDamage(updatedMonster, 10, 'Slashing');
     expect(result.result.effectiveDamage).toBe(5);
   });
 
   it('should add immunity to monster during combat', () => {
-    let updatedMonster = addMonsterDamageImmunity(monster, 'Poison');
+    const updatedMonster = addMonsterDamageImmunity(monster, 'Poison');
 
     const result = applyMonsterTypedDamage(updatedMonster, 20, 'Poison');
     expect(result.result.effectiveDamage).toBe(0);
   });
 
   it('should add vulnerability to monster during combat', () => {
-    let updatedMonster = addMonsterDamageVulnerability(monster, 'Fire');
+    const updatedMonster = addMonsterDamageVulnerability(monster, 'Fire');
 
     const result = applyMonsterTypedDamage(updatedMonster, 10, 'Fire');
     expect(result.result.effectiveDamage).toBe(20);

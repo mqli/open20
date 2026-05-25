@@ -163,7 +163,7 @@ describe('Combat Scenarios - Multi-Round Combat', () => {
     let round = 1;
     let currentFighter = fighter;
     let currentGoblin1 = goblin1;
-    let currentGoblin2 = goblin2;
+    const currentGoblin2 = goblin2;
 
     while (round <= 3 && !isMonsterDefeated(currentGoblin1) && !isMonsterDefeated(currentGoblin2)) {
       combatLog.push(`Round ${round}`);
