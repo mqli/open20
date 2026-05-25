@@ -14,6 +14,7 @@ const meta: Meta<typeof SpellCard> = {
     showDescription: {
       control: 'boolean',
     },
+    onClick: { action: 'clicked' },
   },
 };
 

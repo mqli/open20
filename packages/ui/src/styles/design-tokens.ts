@@ -239,7 +239,7 @@ export const spellSchoolVariants = {
 export const chipBase = 'inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold';
 
 // ── Generic inline metadata item (icon + text) ──
-export const inlineMeta = 'inline-flex items-center gap-1 text-[11px] text-text-tertiary';
+export const inlineMeta = 'inline-flex items-center gap-1 whitespace-nowrap text-[10px] text-text-tertiary';
 
 // ── Generic section divider (thin border-top + padding) ──
 export const sectionDivider = 'pt-2 border-t border-border/50';

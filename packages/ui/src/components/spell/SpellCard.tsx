@@ -28,6 +28,7 @@ import {
   sectionDivider,
 } from '../../styles/design-tokens';
 import { Surface } from '../Surface';
+import type { SurfaceProps } from '../Surface';
 import { Text } from '../Text';
 
 import type { Spell } from 'open20-core';
@@ -96,12 +97,22 @@ function levelLabel(level: number): string {
 /* -------------------------------------------------------------------------- */
 
 export interface SpellCardProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'color'>,
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'onClick' | 'color'>,
     VariantProps<typeof cardVariants> {
   /** The spell data from @open20/core */
   spell: Spell;
   /** Show full description or collapse it */
   showDescription?: boolean;
+  /** Called when the card is clicked, receives the spell as argument */
+  onClick?: (spell: Spell) => void;
+  /** Override the Surface variant (e.g. 'selected', 'warning', 'info') */
+  surfaceVariant?: SurfaceProps['variant'];
+  /** Slot for action buttons rendered in the bottom row (click events are stopPropagation'd) */
+  renderActions?: () => ReactNode;
+  /** Slot for badge chips rendered next to the school badge (e.g. "Known", "Prepared") */
+  renderBadges?: () => ReactNode;
+  /** Show decorative sparkle glow in the background (e.g. when spell is prepared) */
+  glow?: boolean;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -113,6 +124,11 @@ export function SpellCard({
   emphasis,
   density,
   showDescription: showDescProp,
+  onClick,
+  surfaceVariant,
+  renderActions,
+  renderBadges,
+  glow,
   className,
   ...props
 }: SpellCardProps) {
@@ -129,17 +145,36 @@ export function SpellCard({
   const isCantrip = spell.level === 0;
   const higherLevelText = spell.usingAHigherLevelSpellSlot;
   const cantripUpgrades = spell.cantripUpgrade;
+  const isClickable = !!onClick;
+  const isDefaultVariant = !surfaceVariant || surfaceVariant === 'default';
 
   return (
     <Surface
-      className={cn(cardVariants({ emphasis, density }), className)}
+      variant={surfaceVariant}
+      className={cn(
+        cardVariants({ emphasis, density }),
+        glow && 'relative overflow-hidden',
+        isClickable && isDefaultVariant && 'cursor-pointer hover:shadow-md hover:border-primary-300',
+        className,
+      )}
       padding={isCompact ? 'sm' : 'md'}
+      onClick={onClick ? () => onClick(spell) : undefined}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(spell); } : undefined}
       {...props}
     >
+      {/* ── Background glow ────────────────────────────────────────────── */}
+      {glow && (
+        <div className="absolute -top-1 -right-1 p-2 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+          <Sparkles className="w-12 h-12 text-primary-500" />
+        </div>
+      )}
+
       {/* ── Header Row ─────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
-          <Text as="h3" variant="headingSm" className="truncate text-text-primary">
+          <Text as="h3" variant="heading" size="lg" className="truncate">
             {spell.name}
           </Text>
 
@@ -150,6 +185,8 @@ export function SpellCard({
           <span className={cn(chipBase, spellSchoolVariants[spell.school])}>
             {spell.school}
           </span>
+
+          {renderBadges?.()}
         </div>
 
         {/* Ritual / Concentration tags */}
@@ -229,7 +266,7 @@ export function SpellCard({
 
       {/* ── Collapse toggle (compact mode) ──────────────────────────────── */}
       {isCompact && (
-        <button type="button" onClick={() => setShowDesc((prev) => !prev)} className={collapseToggle}>
+        <button type="button" onClick={(e) => { e.stopPropagation(); setShowDesc((prev) => !prev); }} className={collapseToggle}>
           {showDesc ? (
             <><ChevronUp className={I.xs} /> Less</>
           ) : (
@@ -274,6 +311,18 @@ export function SpellCard({
             ))}
           </div>
         )}
+
+      {/* ── Source / Actions Row ─────────────────────────────────────────── */}
+      <div className="flex items-center justify-between mt-auto pt-1">
+        <Text variant="caption" as="p" className="uppercase opacity-70">
+          {spell.source}
+        </Text>
+        {renderActions && (
+          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            {renderActions()}
+          </div>
+        )}
+      </div>
     </Surface>
   );
 }

@@ -10,12 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   IconButton,
-  Surface,
-  Text,
+  SpellCard as SpellCardUI,
 } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { getCasterType } from '@/core/character-service';
-import { Sparkles, BookMarked, Star, ChevronDown } from 'lucide-react';
+import { BookMarked, Star, ChevronDown } from 'lucide-react';
 
 interface SpellCardProps {
   spell: Spell;
@@ -160,55 +159,24 @@ export function SpellCard({ spell }: SpellCardProps) {
     : 'default';
 
   return (
-    <Surface
-      variant={surfaceVariant}
-      padding="md"
+    <SpellCardUI
+      spell={spell}
+      surfaceVariant={surfaceVariant}
       onClick={() => selectSpell(spell)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') selectSpell(spell); }}
-      className={`w-full text-left relative overflow-hidden ${
-        !isConcentratingOnThis && !isPrepared && !isKnown && !isCantripKnown
-          ? 'cursor-pointer hover:shadow-md hover:border-primary-300'
-          : ''
-      }`}
-    >
-      {/* Background glow for prepared */}
-      {isPrepared && (
-        <div className="absolute -top-1 -right-1 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-          <Sparkles className="w-12 h-12 text-primary-500" />
-        </div>
+      showDescription={false}
+      glow={isPrepared}
+      renderBadges={() => (
+        <>
+          {(isKnown || isCantripKnown) && !isPrepared && (
+            <Badge variant="info" size="sm">Known</Badge>
+          )}
+          {isPrepared && (
+            <Badge variant="primary" size="sm">Prepared</Badge>
+          )}
+        </>
       )}
-
-      <div className="flex justify-between items-start mb-2">
-        <Text as="h3" variant="heading" className="group-hover:text-primary-600 transition-colors leading-tight pr-8">
-          {spell.name}
-        </Text>
-        <div className="flex gap-1">
-          {spell.ritual && <Badge variant="info" size="sm">R</Badge>}
-          {spell.concentration && <Badge variant="warning" size="sm">C</Badge>}
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <Badge variant={spell.level === 0 ? 'secondary' : 'primary'} size="sm" className="font-black">
-          {spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`}
-        </Badge>
-        <Text variant="labelSm">{spell.school}</Text>
-        {(isKnown || isCantripKnown) && !isPrepared && (
-          <Badge variant="info" size="sm">Known</Badge>
-        )}
-        {isPrepared && (
-          <Badge variant="primary" size="sm">Prepared</Badge>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between mt-auto">
-        <Text variant="caption">
-          {spell.castingTime} • <span className="uppercase opacity-70">{spell.source}</span>
-        </Text>
-
-        <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+      renderActions={() => (
+        <>
           {/* Learn toggle — cantrips for all casters, regular spells only for "learn" casters */}
           {isClassSpell && (spell.level === 0 || casterType.canLearn) && (
             spell.level === 0 ? (
@@ -300,8 +268,8 @@ export function SpellCard({ spell }: SpellCardProps) {
               </IconButton>
             )
           )}
-        </div>
-      </div>
-    </Surface>
+        </>
+      )}
+    />
   );
 }
