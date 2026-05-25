@@ -45,10 +45,15 @@ jobs:
         env:
           DEPLOY_TARGET: github-pages
 
+      - name: Prepare Pages artifact under spellbook path
+        run: |
+          mkdir -p pages/spellbook
+          cp -R packages/spellbook/dist/. pages/spellbook/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: packages/spellbook/dist
+          path: pages
 
   deploy:
     runs-on: ubuntu-latest
