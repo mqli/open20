@@ -1,12 +1,15 @@
 import { defineConfig } from 'vitest/config';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { createVitestConfig } from '@open20/config/vitest';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseConfig = createVitestConfig({
+  importMetaUrl: import.meta.url,
+  aliasPath: './src',
+});
 
 export default defineConfig({
+  ...baseConfig,
   test: {
-    globals: true,
+    ...baseConfig.test,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -15,10 +18,5 @@ export default defineConfig({
     },
     include: ['tests/**/*.test.ts'],
     exclude: ['node_modules', 'dist', 'tests/artifact', 'tests/browser-artifact'],
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-    },
   },
 });

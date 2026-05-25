@@ -1,0 +1,33 @@
+{
+  "name": "@open20/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run build:types",
+    "build:types": "tsc -p tsconfig.build.json"
+  },
+  "exports": {
+    "./eslint": "./eslint/index.js",
+    "./vite": {
+      "types": "./types/vite/index.d.ts",
+      "default": "./vite/index.js"
+    },
+    "./vitest": {
+      "types": "./types/vitest/index.d.ts",
+      "default": "./vitest/index.js"
+    },
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/react-app.json": "./tsconfig/react-app.json",
+    "./tsconfig/library.json": "./tsconfig/library.json"
+  },
+  "dependencies": {
+    "@eslint/js": "catalog:",
+    "globals": "catalog:",
+    "typescript-eslint": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

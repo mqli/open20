@@ -1,10 +1,10 @@
-import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
-import baseConfig from '../../eslint.config.base.mjs';
+import { baseConfig, browserConfig } from '@open20/config/eslint';
 
 export default [
   ...baseConfig,
+  browserConfig,
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
@@ -14,9 +14,6 @@ export default [
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-    },
-    languageOptions: {
-      globals: globals.browser,
     },
   },
 ];

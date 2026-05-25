@@ -1,5 +1,5 @@
 // @ts-check
-import baseConfig from '../../eslint.config.base.mjs';
+import { baseConfig } from '@open20/config/eslint';
 
 export default [
   ...baseConfig,

@@ -47,10 +47,9 @@ pnpm typecheck   # type check all packages
 ```
 open20/
 ├── packages/
+│   ├── config/        # @open20/config (shared tsconfig + eslint presets)
 │   ├── core/          # open20-core (npm-publishable library)
 │   └── spellbook/     # @open20/spellbook (web app)
-├── tsconfig.base.json          # shared TypeScript base
-├── eslint.config.base.mjs      # shared ESLint base
 ├── turbo.json                  # build pipeline
 ├── pnpm-workspace.yaml
 └── package.json

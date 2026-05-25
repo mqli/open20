@@ -1,12 +1,6 @@
-import globals from 'globals';
-import baseConfig from '../../eslint.config.base.mjs';
+import { baseConfig, browserConfig } from '@open20/config/eslint';
 
 export default [
   ...baseConfig,
-  {
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      globals: globals.browser,
-    },
-  },
+  browserConfig,
 ];

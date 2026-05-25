@@ -1,22 +1,21 @@
 import { defineConfig } from 'vitest/config';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { createVitestConfig } from '@open20/config/vitest';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseConfig = createVitestConfig({
+  importMetaUrl: import.meta.url,
+  aliasPath: './dist',
+  resolve: {
+    conditions: ['node', 'import', 'default'],
+  },
+});
 
 export default defineConfig({
+  ...baseConfig,
   test: {
-    globals: true,
+    ...baseConfig.test,
     include: ['tests/artifact/**/*.test.ts'],
     exclude: ['node_modules', 'src'],
     environment: 'node',
     name: 'artifact-node',
-    // Import from dist/ instead of src/
-    alias: {
-      '@': path.resolve(__dirname, 'dist'),
-    },
-  },
-  resolve: {
-    conditions: ['node', 'import', 'default'],
   },
 });

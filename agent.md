@@ -9,10 +9,9 @@ This is a pnpm monorepo for D&D 5e 2024 tools. Read this before touching anythin
 ```
 open20/
 ├── packages/
+│   ├── config/        # @open20/config: shared tsconfig + eslint presets
 │   ├── core/          # open20-core: headless TS game engine (npm-publishable)
 │   └── spellbook/     # @open20/spellbook: React web app (GitHub Pages)
-├── tsconfig.base.json          # shared TS base (both packages extend this)
-├── eslint.config.base.mjs      # shared ESLint base (both packages import this)
 ├── turbo.json                  # build pipeline
 ├── pnpm-workspace.yaml
 └── package.json                # root — turbo scripts only, no runtime code
@@ -63,18 +62,18 @@ All package scripts use `pnpm run <script>` — identical to running from root w
 
 ## Shared Configs
 
-### `tsconfig.base.json`
-Both packages extend it. Contains: `module`, `moduleResolution: bundler`, `esModuleInterop`, `skipLibCheck`, `forceConsistentCasingInFileNames`, `resolveJsonModule`.
+### `@open20/config/tsconfig/base.json`
+All packages extend this base via package exports. Contains: `module`, `moduleResolution: bundler`, `esModuleInterop`, `skipLibCheck`, `forceConsistentCasingInFileNames`, `resolveJsonModule`.
 
-Each package's own tsconfig adds what's unique: `core` adds `strict`, `noUncheckedIndexedAccess`, `declaration`, `outDir`; `spellbook` adds `jsx`, `noEmit`, `lib: [DOM]`.
+Each package's own tsconfig adds what's unique: `core` adds `types`, `outDir`; `spellbook` adds `jsx`, `noEmit`, `lib: [DOM]`.
 
-### `eslint.config.base.mjs`
-Both packages import it. Contains: `@eslint/js` recommended + `typescript-eslint` recommended + shared rules.
+### `@open20/config/eslint`
+All packages import from this shared preset package. Contains: `@eslint/js` recommended + `typescript-eslint` recommended + shared rules, plus `browserConfig`.
 
 `packages/core/eslint.config.js` — adds test-file rules.  
 `packages/spellbook/eslint.config.js` — adds React hooks + react-refresh plugins.
 
-Shared ESLint devDeps (`@eslint/js`, `typescript-eslint`, `globals`, `eslint`) live in root `package.json` devDependencies.
+Shared ESLint preset deps (`@eslint/js`, `typescript-eslint`, `globals`) live in `packages/config/package.json`.
 
 ---
 
@@ -113,12 +112,12 @@ The workspace version of `open20-core` removed `Spellcasting.type` in favour of 
 
 ### Adding a new package
 1. Create `packages/<name>/` with its own `package.json`
-2. Add `"extends": "../../tsconfig.base.json"` to its tsconfig
-3. Import `../../eslint.config.base.mjs` in its eslint config
+2. Add `"extends": "@open20/config/tsconfig/base.json"` (or another exported tsconfig) to its tsconfig
+3. Import shared presets from `@open20/config/eslint` in its eslint config
 4. Add turbo `build`/`test` scripts to its `package.json`
 5. Run `pnpm install` from root
 
-### Modifying shared config (`tsconfig.base.json` / `eslint.config.base.mjs`)
+### Modifying shared config (`packages/config/**`)
 Changes affect all packages — run `pnpm build && pnpm test` from root to verify nothing broke.
 
 ### Releasing `open20-core`

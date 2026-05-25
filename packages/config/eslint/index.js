@@ -1,8 +1,8 @@
-// @ts-check
 import js from '@eslint/js';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export const baseConfig = tseslint.config(
   js.configs.recommended,
   tseslint.configs.recommended,
   {
@@ -16,3 +16,10 @@ export default tseslint.config(
     ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
   },
 );
+
+export const browserConfig = {
+  files: ['**/*.{ts,tsx}'],
+  languageOptions: {
+    globals: globals.browser,
+  },
+};

@@ -1,19 +1,14 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@open20/config/tsconfig/library.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "ES2023"],
     "types": ["node"],
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "isolatedModules": true
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

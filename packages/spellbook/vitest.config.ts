@@ -1,16 +1,16 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import { createVitestConfig } from '@open20/config/vitest';
+
+const baseConfig = createVitestConfig({
+  importMetaUrl: import.meta.url,
+});
 
 export default defineConfig({
+  ...baseConfig,
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
   test: {
-    globals: true,
+    ...baseConfig.test,
     // Use node environment by default
     environment: 'node',
     setupFiles: ['./src/test/setup.ts'],
