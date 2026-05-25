@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { AppCharacter, CharacterCreationParams } from '@/core/types';
 import { characterService } from '@/core/character-service';
 import { storageService } from '@/core/storage-service';
+import type { SpellLevel } from 'open20-core/types';
 
 interface CharacterState {
   activeCharacter: AppCharacter | null;
@@ -13,7 +14,7 @@ interface CharacterState {
   createCharacter: (params: CharacterCreationParams) => void;
   updateCharacter: (character: AppCharacter) => void;
   deleteCharacter: (id: string) => void;
-  
+
   prepareSpell: (spellId: string) => void;
   unprepareSpell: (spellId: string) => void;
   prepareSpellForClass: (classId: string, spellId: string) => void;
@@ -23,14 +24,14 @@ interface CharacterState {
   learnCantrip: (classId: string, spellId: string) => void;
   unlearnCantrip: (classId: string, spellId: string) => void;
   replaceCantrip: (classId: string, oldSpellId: string, newSpellId: string) => void;
-  castSpell: (spellId: string, level: number) => void;
-  consumeSpellSlot: (level: number) => void;
-  recoverSpellSlot: (level: number) => void;
+  castSpell: (spellId: string, level: SpellLevel) => void;
+  consumeSpellSlot: (level: SpellLevel) => void;
+  recoverSpellSlot: (level: SpellLevel) => void;
   longRest: () => void;
   shortRest: () => void;
   startConcentration: (spellId: string) => void;
   endConcentration: () => void;
-  
+
   loadCharacters: () => void;
   saveCharacters: () => void;
 }
@@ -150,7 +151,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     get().updateCharacter(updated);
   },
 
-  castSpell: (spellId, level) => {
+  castSpell: (spellId, level: SpellLevel) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
     const updated = characterService.castSpell(activeCharacter, spellId, level);
@@ -160,7 +161,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   consumeSpellSlot: (level) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
+
     const updated = characterService.consumeSpellSlot(activeCharacter, level);
     get().updateCharacter(updated);
   },
@@ -168,7 +169,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   recoverSpellSlot: (level) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
+
     const updated = characterService.recoverSpellSlot(activeCharacter, level);
     get().updateCharacter(updated);
   },
@@ -176,7 +177,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   longRest: () => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
+
     const updated = characterService.longRest(activeCharacter);
     get().updateCharacter(updated);
   },
@@ -184,7 +185,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   shortRest: () => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
+
     const updated = characterService.shortRest(activeCharacter);
     get().updateCharacter(updated);
   },
@@ -192,7 +193,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   startConcentration: (spellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
+
     const updated = characterService.startConcentration(activeCharacter, spellId);
     get().updateCharacter(updated);
   },
@@ -200,7 +201,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   endConcentration: () => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    
+
     const updated = characterService.endConcentration(activeCharacter);
     get().updateCharacter(updated);
   },

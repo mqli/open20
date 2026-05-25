@@ -17,6 +17,7 @@ import {
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
 import { Plus, User, Moon, FileText, Users, ChevronRight } from 'lucide-react';
+import type { SpellLevel } from 'open20-core/types';
 
 const CLASS_NAME_MAP = Object.fromEntries(
   dataLoader.getAllClasses().map(c => [c.id, c.name || c.id])
@@ -124,7 +125,7 @@ export function CharacterBar() {
                   {Object.entries(activeCharacter.spells.spellSlots)
                     .sort(([a], [b]) => parseInt(a) - parseInt(b))
                     .map(([level, slot]) => {
-                      const lvl = parseInt(level);
+                      const lvl = parseInt(level) as SpellLevel;
                       if (lvl === 0 || slot.total === 0) return null;
                       return (
                         <SlotPips

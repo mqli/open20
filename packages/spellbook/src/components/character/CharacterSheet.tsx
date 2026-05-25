@@ -14,6 +14,7 @@ import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { SpellSlotsSection } from './CharacterSheet/SpellSlotsSection';
 import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
+import type { SpellLevel } from 'open20-core/data';
 
 interface ConcentrationCondition {
   id: string;
@@ -33,7 +34,7 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const classSpellcasting = spells.classSpellcasting ?? {};
 
   const slotEntries = Object.entries(spells.spellSlots ?? {})
-    .map(([lvl, slot]) => ({ lvl: parseInt(lvl, 10), slot: slot as { total: number; used: number } }))
+    .map(([lvl, slot]) => ({ lvl: parseInt(lvl, 10) as SpellLevel, slot: slot as { total: number; used: number } }))
     .filter(({ lvl, slot }) => lvl > 0 && slot.total > 0);
 
   const isMulticlass = (classes?.length ?? 0) > 1;

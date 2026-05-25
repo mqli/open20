@@ -1,18 +1,19 @@
 import { Flame } from 'lucide-react';
 import { SectionHeader, SlotPips, Text } from '@open20/ui';
+import type { SpellLevel } from 'open20-core/types';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
 
 interface SlotEntry {
-  lvl: number;
+  lvl: SpellLevel;
   slot: { total: number; used: number };
 }
 
 interface SpellSlotsSectionProps {
   slotEntries: SlotEntry[];
   isMulticlass: boolean;
-  onConsumeSlot: (level: number) => void;
-  onRecoverSlot: (level: number) => void;
+  onConsumeSlot: (level: SpellLevel) => void;
+  onRecoverSlot: (level: SpellLevel) => void;
 }
 
 export function SpellSlotsSection({
