@@ -5,7 +5,7 @@ import { createAlias, createGithubPagesBase } from '@open20/config/vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: createGithubPagesBase(),
+  base: createGithubPagesBase({ pagesBase: '/open20/spellbook/' }),
   resolve: {
     alias: createAlias(import.meta.url, './src'),
   },
