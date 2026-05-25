@@ -1,0 +1,68 @@
+name: Release Core
+
+on:
+  push:
+    tags:
+      - 'core-v*'
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Typecheck
+        run: pnpm --filter open20-core typecheck
+
+      - name: Lint
+        run: pnpm --filter open20-core lint
+
+      - name: Test
+        run: pnpm --filter open20-core test
+
+      - name: Build
+        run: pnpm --filter open20-core build
+
+      - name: Build browser bundle
+        run: pnpm --filter open20-core build:bundle
+
+      - name: Test Node.js artifact
+        run: pnpm --filter open20-core test:artifact
+
+      - name: Test browser artifact
+        run: pnpm --filter open20-core test:browser-artifact
+
+      - name: Pack
+        run: pnpm pack
+        working-directory: packages/core
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/core-v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: core-v${{ steps.get_version.outputs.VERSION }}
+          files: packages/core/open20-core-*.tgz
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
