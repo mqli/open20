@@ -17,6 +17,10 @@
       "types": "./types/vitest/index.d.ts",
       "default": "./vitest/index.js"
     },
+    "./storybook": {
+      "types": "./types/storybook/index.d.ts",
+      "default": "./storybook/index.js"
+    },
     "./tsconfig/base.json": "./tsconfig/base.json",
     "./tsconfig/react-app.json": "./tsconfig/react-app.json",
     "./tsconfig/library.json": "./tsconfig/library.json"

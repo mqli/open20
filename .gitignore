@@ -8,3 +8,4 @@ coverage/
 .turbo/
 .claude/
 .pnpm-store/
+packages/ui/storybook-static/

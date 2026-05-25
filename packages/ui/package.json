@@ -11,9 +11,11 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "build-storybook": "CI=1 storybook build",
     "dev": "tsc --watch -p tsconfig.build.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "storybook": "storybook dev -p 6006"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "catalog:",
@@ -35,8 +37,16 @@
   },
   "devDependencies": {
     "@open20/config": "workspace:*",
+    "@storybook/addon-essentials": "catalog:",
+    "@storybook/addon-links": "catalog:",
+    "@storybook/react": "catalog:",
+    "@storybook/react-vite": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "autoprefixer": "catalog:",
+    "postcss": "catalog:",
+    "storybook": "catalog:",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }
 }

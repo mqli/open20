@@ -8,7 +8,9 @@
   },
   "scripts": {
     "build": "turbo run build",
+    "build-storybook": "turbo run build-storybook",
     "dev": "turbo run dev --parallel",
+    "storybook": "pnpm --filter @open20/ui storybook",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck"
