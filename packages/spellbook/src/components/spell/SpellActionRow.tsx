@@ -49,6 +49,9 @@ export function SpellActionRow({
   onDamageRoll,
 }: SpellActionRowProps) {
   const showsUpcastSelect = spell.level > 0 && availableCastLevels.length > 1 && (showCastAction || showDamageActions);
+  const showsStaticLevel = spell.level > 0 && availableCastLevels.length === 1 && (showCastAction || showDamageActions);
+  const staticLevelSlot = spellSlots?.[effectiveCastLevel];
+  const staticLevelRemaining = staticLevelSlot ? staticLevelSlot.total - staticLevelSlot.used : 0;
 
   return (
     <div className="flex items-center gap-1.5 shrink-0">
@@ -77,7 +80,7 @@ export function SpellActionRow({
         )
       )}
 
-      {showsUpcastSelect && (
+      {showsUpcastSelect ? (
         <CastLevelSelect
           selectedCastLevel={selectedCastLevel}
           onCastLevelChange={onCastLevelChange}
@@ -88,7 +91,14 @@ export function SpellActionRow({
             : 'h-auto py-1 px-2 border-input bg-background hover:bg-accent text-sm w-auto'
           }
         />
-      )}
+      ) : showsStaticLevel ? (
+        <span className={isIconStyle
+          ? 'h-5 px-1 text-[10px] w-auto inline-flex items-center text-text-muted'
+          : 'h-auto py-1 px-2 text-sm w-auto inline-flex items-center text-text-muted'
+        }>
+          {SPELL_LEVEL_LABELS[effectiveCastLevel]} ({staticLevelRemaining})
+        </span>
+      ) : null}
 
       {showAttackAction && spell.attack && (
         isIconStyle ? (
