@@ -40,9 +40,9 @@ export function ClassActionDropdown({
           title={hasActive ? `Manage ${label}` : `Add ${label}`}
         >
           {variant === 'info' ? (
-            <BookMarked className="w-3.5 h-3.5" />
+            <BookMarked />
           ) : (
-            <Star className={`w-3.5 h-3.5 ${active ? 'fill-current' : ''}`} />
+            <Star className={active ? 'fill-current' : ''} />
           )}
           <ChevronDown className="w-2.5 h-2.5 ml-0.5" />
         </IconButton>

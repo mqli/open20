@@ -54,7 +54,7 @@ export function SpellbookControls({
             onClick={onCantripSingleClick}
             title={isCantripKnown ? 'Unlearn Cantrip' : 'Learn Cantrip'}
           >
-            <BookMarked className="w-3.5 h-3.5" />
+            <BookMarked />
           </IconButton>
         )
       )}
@@ -66,7 +66,7 @@ export function SpellbookControls({
           onClick={onLearnToggle}
           title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
         >
-          <BookMarked className="w-3.5 h-3.5" />
+          <BookMarked />
         </IconButton>
       )}
 
@@ -98,7 +98,7 @@ export function SpellbookControls({
                   : 'Prepare Spell'
             }
           >
-            <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
+            <Star className={isPrepared ? 'fill-current' : ''} />
           </IconButton>
         )
       )}
