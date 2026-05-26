@@ -1,20 +1,40 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import type { Spell } from 'open20-core';
-import { SpellCard } from './SpellCard';
+import { Badge } from '../Badge/Badge';
+import { Button } from '../Button/Button';
+import { surfaceVariants } from '../../styles/design-tokens';
+import { SpellCard, type SpellCardProps } from './SpellCard';
+
+const surfaceVariantOptions = Object.keys(surfaceVariants) as Array<
+  NonNullable<SpellCardProps['surfaceVariant']>
+>;
 
 const meta: Meta<typeof SpellCard> = {
   title: 'Spell/SpellCard',
   component: SpellCard,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'padded',
+  },
   argTypes: {
     density: {
       control: 'select',
       options: ['default', 'compact'],
     },
+    surfaceVariant: {
+      control: 'select',
+      options: surfaceVariantOptions,
+    },
+    glow: {
+      control: 'boolean',
+    },
     showDescription: {
       control: 'boolean',
     },
     onClick: { action: 'clicked' },
+    renderActions: { control: false },
+    renderBadges: { control: false },
+    renderDescription: { control: false },
   },
 };
 
@@ -120,6 +140,37 @@ const cureWoundsSpell: Spell = {
   ],
 };
 
+const renderPreparedBadges: NonNullable<SpellCardProps['renderBadges']> = () => (
+  <>
+    <Badge variant="success" size="sm">
+      Prepared
+    </Badge>
+    <Badge variant="info" size="sm">
+      Known
+    </Badge>
+  </>
+);
+
+const renderKnownActions: NonNullable<SpellCardProps['renderActions']> = () => (
+  <>
+    <Button size="sm" variant="secondary">
+      Cast
+    </Button>
+    <Button size="sm" variant="ghost">
+      Details
+    </Button>
+  </>
+);
+
+const renderHighlightedDescription: NonNullable<SpellCardProps['renderDescription']> = (
+  paragraph: string,
+) => {
+  if (paragraph.includes('saving throw')) {
+    return <strong>{paragraph}</strong>;
+  }
+  return paragraph;
+};
+
 export const Default: Story = {
   args: {
     spell: fireballSpell,
@@ -161,4 +212,49 @@ export const DescriptionCollapsed: Story = {
     density: 'default',
     showDescription: false,
   },
+};
+
+export const ClickableWithSlots: Story = {
+  args: {
+    spell: fireballSpell,
+    density: 'default',
+    onClick: () => undefined,
+    glow: true,
+    surfaceVariant: 'tint',
+    renderBadges: renderPreparedBadges,
+    renderActions: renderKnownActions,
+  },
+};
+
+export const CustomDescription: Story = {
+  args: {
+    spell: fireballSpell,
+    density: 'default',
+    renderDescription: renderHighlightedDescription,
+  },
+};
+
+export const SurfaceVariantsPreview: Story = {
+  args: {
+    spell: fireballSpell,
+    density: 'compact',
+    showDescription: false,
+  },
+  render: (args) => (
+    <div className="grid gap-3 md:grid-cols-2">
+      {surfaceVariantOptions.map((variant) => (
+        <SpellCard
+          key={variant}
+          {...args}
+          spell={{ ...args.spell, id: `${args.spell.id}-${variant}` }}
+          surfaceVariant={variant}
+          renderBadges={() => (
+            <Badge variant="secondary" size="sm">
+              {variant}
+            </Badge>
+          )}
+        />
+      ))}
+    </div>
+  ),
 };
