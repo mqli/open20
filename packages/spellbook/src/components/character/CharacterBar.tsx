@@ -159,20 +159,21 @@ export function CharacterBar() {
       )}
 
       {/* Right: less common actions */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="ml-auto flex items-center gap-2 flex-shrink-0">
         {/* Switch / create character — less prominent */}
-        {characters.length > 0 && (
-          <DropdownMenuRoot open={isSwitchOpen} onOpenChange={setIsSwitchOpen}>
-            <DropdownMenuTrigger asChild>
-              <IconButton
-                size="sm"
-                title="Switch character"
-                className="text-text-tertiary hover:text-primary-600"
-              >
-                <Users className="w-3.5 h-3.5" />
-              </IconButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48">
+        <DropdownMenuRoot open={isSwitchOpen} onOpenChange={setIsSwitchOpen}>
+          <DropdownMenuTrigger asChild>
+            <IconButton
+              size="sm"
+              title={characters.length > 0 ? 'Switch character' : 'Create character'}
+              className="text-text-tertiary hover:text-primary-600"
+            >
+              <Users className="w-3.5 h-3.5" />
+            </IconButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48">
+            {characters.length > 0 && (
+              <>
               {characters.map(char => (
                 <DropdownMenuItem
                   key={char.id}
@@ -195,13 +196,14 @@ export function CharacterBar() {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
+              </>
+            )}
               <DropdownMenuItem onSelect={handleCreate}>
                 <Plus className="w-3 h-3 mr-2" />
                 Add character
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenuRoot>
-        )}
+          </DropdownMenuContent>
+        </DropdownMenuRoot>
 
         {/* Long Rest */}
         <Button

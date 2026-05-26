@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, Shield, Plus, X } from 'lucide-react';
+import { Shield, Plus, X } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -23,15 +23,12 @@ const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th',
 
 interface ClassSpellSectionProps {
   classId: string;
-  classLevel: number;
-  subclassId?: string | null;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChange }: ClassSpellSectionProps) {
+export function ClassSpellSection({ classId, onOpenChange }: ClassSpellSectionProps) {
   const { activeCharacter } = useCharacterStore();
   const { selectSpell } = useSpellStore();
-  const [isExpanded, setIsExpanded] = useState(true);
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
   const [cantripToReplace, setCantripToReplace] = useState<string | null>(null);
 
@@ -53,8 +50,6 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
   const allPrepared = [...prepared, ...alwaysPrepared];
   const allPreparedIds = new Set(allPrepared);
   const maxPrepared = classData.maxPrepared;
-
-  const subclassDisplay = subclassId ? subclassId : null;
 
   // Only show prepared (or always-prepared) spells
   const inventorySpells = known
@@ -96,42 +91,7 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
 
   return (
     <Surface variant="default" padding="none" className="overflow-hidden">
-      {/* Class Header */}
-      <Button
-        variant="ghost"
-        onClick={() => setIsExpanded(prev => !prev)}
-        className="w-full p-4 bg-bg-primary hover:bg-bg-tertiary transition-colors flex items-center justify-between gap-3"
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-500/10 text-primary-600">
-            {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </div>
-          <div className="text-left">
-            <div className="flex items-center gap-2">
-              <Text as="span" weight="black" className="capitalize">{classId} {classLevel}</Text>
-              {subclassDisplay && (
-                <span className="text-[10px] font-normal text-primary-600 bg-primary-500/10 px-2 py-0.5 rounded-full">
-                  {subclassDisplay}
-                </span>
-              )}
-            </div>
-            <Text variant="caption" className="uppercase tracking-widest text-[9px]">
-              {ability.substring(0, 3)} • DC {spellSaveDC} • +{spellAttack}
-            </Text>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {casterType.canPrepare && (
-            <Badge variant="primary" size="sm">
-              {allPrepared.length}/{maxPrepared}
-            </Badge>
-          )}
-        </div>
-      </Button>
-
-      {/* Class Content */}
-      {isExpanded && (
-        <div className="p-4 space-y-4 border-t border-border">
+      <div className="p-4 space-y-4">
           {/* Class Stats */}
           <div className="grid grid-cols-3 gap-2">
             <Surface variant="default" padding="sm" className="text-center">
@@ -292,8 +252,7 @@ export function ClassSpellSection({ classId, classLevel, subclassId, onOpenChang
               </div>
             ))}
           </div>
-        </div>
-      )}
+      </div>
     </Surface>
   );
 }

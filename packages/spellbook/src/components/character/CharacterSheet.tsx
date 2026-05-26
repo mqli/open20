@@ -8,6 +8,7 @@ import {
   SheetHeader,
   SheetRoot,
   SheetTitle,
+  Tabs,
   Text,
 } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
@@ -42,6 +43,10 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   const concentratingSpellId = (conditions?.find(c => c.id === 'Concentrating') as ConcentrationCondition | undefined)?.source;
 
   const spellcastingClasses = classes?.filter(c => classSpellcasting[c.classId]) ?? [];
+  const classTabEntries = spellcastingClasses.map((spellcastingClass, index) => ({
+    ...spellcastingClass,
+    tabValue: `${spellcastingClass.classId}-${index}`,
+  }));
 
   return (
     <SheetRoot open={open} onOpenChange={onOpenChange}>
@@ -97,17 +102,32 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
               <Text as="h3" variant="labelSm" weight="black" className="tracking-[0.2em] mb-4 flex items-center gap-2">
                 Class Spellcasting
               </Text>
-              <div className="space-y-3">
-                {spellcastingClasses.map(c => (
-                  <ClassSpellSection
-                    key={c.classId}
-                    classId={c.classId}
-                    classLevel={c.level}
-                    subclassId={c.subclassId}
-                    onOpenChange={onOpenChange}
-                  />
+              <Tabs.Root defaultValue={classTabEntries[0]?.tabValue}>
+                <Tabs.List variant="pills" className="mb-3">
+                  {classTabEntries.map(spellcastingClass => (
+                    <Tabs.Trigger
+                      key={spellcastingClass.tabValue}
+                      value={spellcastingClass.tabValue}
+                      variant="pills"
+                    >
+                      {spellcastingClass.classId} {spellcastingClass.level}
+                    </Tabs.Trigger>
+                  ))}
+                </Tabs.List>
+
+                {classTabEntries.map(spellcastingClass => (
+                  <Tabs.Content
+                    key={spellcastingClass.tabValue}
+                    value={spellcastingClass.tabValue}
+                    className="mt-0"
+                  >
+                    <ClassSpellSection
+                      classId={spellcastingClass.classId}
+                      onOpenChange={onOpenChange}
+                    />
+                  </Tabs.Content>
                 ))}
-              </div>
+              </Tabs.Root>
             </section>
           )}
         </SheetBody>

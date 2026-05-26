@@ -2,14 +2,18 @@ import * as RadixTabs from '@radix-ui/react-tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/cn';
 
-const tabsListVariants = cva('flex overflow-x-auto border-b border-border hide-scrollbar', {
+const tabsListVariants = cva('flex border-b border-border', {
   variants: {
     variant: {
       default: '',
       pills: 'gap-1 border-b-0',
     },
+    scrollable: {
+      true: 'overflow-x-auto hide-scrollbar',
+      false: '',
+    },
   },
-  defaultVariants: { variant: 'default' },
+  defaultVariants: { variant: 'default', scrollable: false },
 });
 
 const tabsTriggerVariants = cva(
@@ -30,8 +34,13 @@ const tabsTriggerVariants = cva(
 export const Tabs = {
   Root: RadixTabs.Root,
 
-  List: ({ variant, className, ...props }: VariantProps<typeof tabsListVariants> & RadixTabs.TabsListProps) => (
-    <RadixTabs.List className={cn(tabsListVariants({ variant }), className)} {...props} />
+  List: ({
+    variant,
+    scrollable,
+    className,
+    ...props
+  }: VariantProps<typeof tabsListVariants> & RadixTabs.TabsListProps) => (
+    <RadixTabs.List className={cn(tabsListVariants({ variant, scrollable }), className)} {...props} />
   ),
 
   Trigger: ({
