@@ -35,7 +35,6 @@ export function SearchBar() {
       {localQuery && (
         <Button
           variant="ghost"
-          size="icon" 
           onClick={() => setLocalQuery('')}
           className="absolute right-3 p-1 rounded-full text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary focus:outline-none"
           aria-label="Clear search"

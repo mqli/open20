@@ -1,6 +1,50 @@
 import { create } from 'zustand';
 import type { Spell } from 'open20-core';
 
+const STORAGE_KEY = 'spell-library-filters';
+
+interface FilterState {
+  searchQuery: string;
+  selectedLevel: number | null;
+  selectedClasses: string[];
+  selectedSchools: string[];
+  showRitualOnly: boolean;
+  showConcentrationOnly: boolean;
+  showPreparedOnly: boolean;
+  showKnownOnly: boolean;
+}
+
+function loadFilters(): FilterState {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return {
+    searchQuery: '',
+    selectedLevel: null,
+    selectedClasses: [],
+    selectedSchools: [],
+    showRitualOnly: false,
+    showConcentrationOnly: false,
+    showPreparedOnly: false,
+    showKnownOnly: false,
+  };
+}
+
+function saveFilters(state: FilterState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+const initialFilters = loadFilters();
+
 interface SpellLibraryState {
   spells: Spell[];
   filteredSpells: Spell[];
@@ -12,7 +56,7 @@ interface SpellLibraryState {
   showConcentrationOnly: boolean;
   showPreparedOnly: boolean;
   showKnownOnly: boolean;
-  
+
   selectedSpell: Spell | null;
   isDetailOpen: boolean;
 
@@ -28,26 +72,27 @@ interface SpellLibraryState {
   clearAllFilters: () => void;
   selectSpell: (spell: Spell | null) => void;
   closeDetail: () => void;
-  
+
   applyFilters: () => void;
 }
 
 export const useSpellStore = create<SpellLibraryState>((set, get) => ({
   spells: [],
   filteredSpells: [],
-  searchQuery: '',
-  selectedLevel: null,
-  selectedClasses: [],
-  selectedSchools: [],
-  showRitualOnly: false,
-  showConcentrationOnly: false,
-  showPreparedOnly: false,
-  showKnownOnly: false,
+  searchQuery: initialFilters.searchQuery,
+  selectedLevel: initialFilters.selectedLevel,
+  selectedClasses: initialFilters.selectedClasses,
+  selectedSchools: initialFilters.selectedSchools,
+  showRitualOnly: initialFilters.showRitualOnly,
+  showConcentrationOnly: initialFilters.showConcentrationOnly,
+  showPreparedOnly: initialFilters.showPreparedOnly,
+  showKnownOnly: initialFilters.showKnownOnly,
   selectedSpell: null,
   isDetailOpen: false,
 
   setSpells: (spells) => {
-    set({ spells, filteredSpells: spells });
+    set({ spells });
+    get().applyFilters();
   },
 
   setSearchQuery: (query) => {
@@ -116,26 +161,26 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
 
   applyFilters: () => {
     const { spells, searchQuery, selectedLevel, selectedClasses, selectedSchools, showRitualOnly, showConcentrationOnly, showPreparedOnly } = get();
-    
+
     let filtered = [...spells];
-    
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(s => 
+      filtered = filtered.filter(s =>
         s.name.toLowerCase().includes(query)
       );
     }
-    
+
     if (selectedLevel !== null) {
       filtered = filtered.filter(s => s.level === selectedLevel);
     }
-    
+
     if (selectedClasses.length > 0) {
       filtered = filtered.filter(s =>
         s.classes?.some((c: string) => selectedClasses.includes(c))
       );
     }
-    
+
     if (selectedSchools.length > 0) {
       filtered = filtered.filter(s => selectedSchools.includes(s.school));
     }
@@ -151,14 +196,15 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
     if (showPreparedOnly) {
       // We need to check against the active character's prepared spells.
       // This requires the character store. We can import it or pass it.
-      // For now, let's assume we'll use the character store directly here if possible, 
+      // For now, let's assume we'll use the character store directly here if possible,
       // but Zustand stores shouldn't usually depend on each other directly like this.
       // A better way is to filter in the component or use a selector.
       // However, for simplicity in this architecture, we'll keep it here and let the UI handle the "prepared" check.
       // Wait, if I do it here, I need access to the character store.
     }
-    
+
     set({ filteredSpells: filtered });
+    saveFilters(get());
   },
 
   selectSpell: (spell) => {
