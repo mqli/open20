@@ -69,7 +69,17 @@ export function CharacterModal({
 
       if (editingCharacter) {
         const rebuilt = characterService.createCharacter(params);
-        updateCharacter({ ...rebuilt, id: editingCharacter.id });
+        // Preserve existing spell data: known cantrips, known spells (spellbook casters),
+        // prepared spells, spell slot usage, pact magic usage, and feat spell choices.
+        // The recompute pipeline inside updateCharacter will use these as `existing`
+        // data and properly recompute derived stats (spell DCs, max slots, etc.),
+        // dropping any stale data for classes that were removed.
+        updateCharacter({
+          ...rebuilt,
+          id: editingCharacter.id,
+          spells: editingCharacter.spells,
+          feats: editingCharacter.feats,
+        });
       } else {
         createCharacter(params);
       }
