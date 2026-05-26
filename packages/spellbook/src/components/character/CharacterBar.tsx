@@ -73,8 +73,9 @@ export function CharacterBar() {
       {activeCharacter && (
         <div className="flex items-center gap-3 min-w-0">
           {/* Character identity — click to open sheet */}
-          <button
+          <Button
             onClick={() => setIsSheetOpen(true)}
+            variant="ghost"
             className="flex items-center gap-1.5 flex-shrink-0 hover:bg-bg-tertiary rounded-md px-1.5 py-0.5 transition-colors cursor-pointer"
             title="Open character sheet"
           >
@@ -86,7 +87,7 @@ export function CharacterBar() {
               {classInfo}
             </Text>
             <ChevronRight className="w-3 h-3 text-text-tertiary opacity-60" />
-          </button>
+          </Button>
 
           {/* Spellcasting stats + slots */}
           {hasSpellcasting && (

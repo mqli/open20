@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useSpellStore } from '@/stores/spell-store';
-import { Input } from '@open20/ui';
+import { Input, Button } from '@open20/ui';
 
 export function SearchBar() {
   const { searchQuery, setSearchQuery } = useSpellStore();
@@ -33,13 +33,15 @@ export function SearchBar() {
         onChange={(e) => setLocalQuery(e.target.value)}
       />
       {localQuery && (
-        <button
+        <Button
+          variant="ghost"
+          size="icon" 
           onClick={() => setLocalQuery('')}
           className="absolute right-3 p-1 rounded-full text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary focus:outline-none"
           aria-label="Clear search"
         >
           <X className="w-4 h-4" />
-        </button>
+        </Button>
       )}
     </div>
   );

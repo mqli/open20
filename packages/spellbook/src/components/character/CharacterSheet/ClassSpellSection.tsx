@@ -212,13 +212,15 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
               </div>
               <div className="space-y-1 max-h-64 overflow-y-auto">
                 {getAvailableCantrips().map((spell: Spell) => (
-                  <button
+                  <Button 
+                    variant="ghost"
+                    size="sm"
                     key={spell.id}
                     onClick={() => handleCantripSelect(spell.id)}
                     className="w-full text-left px-3 py-2 rounded hover:bg-bg-tertiary transition-colors"
                   >
                     <Text size="sm" weight="medium">{spell.name}</Text>
-                  </button>
+                  </Button>
                 ))}
                 {getAvailableCantrips().length === 0 && (
                   <Text variant="caption" className="text-text-tertiary">
