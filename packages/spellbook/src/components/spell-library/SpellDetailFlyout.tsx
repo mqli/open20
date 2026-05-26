@@ -1,4 +1,4 @@
-import { ArrowLeft, X } from 'lucide-react';
+import { Activity, ArrowLeft, BookMarked, ChevronDown, Star, X } from 'lucide-react';
 import {
   rollDiceExpression,
   defaultRandom,
@@ -7,21 +7,113 @@ import { useSpellStore } from '@/stores/spell-store';
 import { useCharacterStore } from '@/stores/character-store';
 import { useRollStore } from '@/stores/roll-store';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
-import { Button, SheetBody, SheetClose, SheetContent, SheetHeader, SheetRoot } from '@open20/ui';
+import {
+  Badge,
+  Button,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRoot,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  IconButton,
+  SheetBody,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetRoot,
+  SpellCard as SpellCardUI,
+} from '@open20/ui';
 import { characterService } from '@/core/character-service';
 
-// Sub-components
-import { SpellHeader } from './details/SpellHeader';
-import { SpellStatsGrid } from './details/SpellStatsGrid';
 import { SpellActionPanel } from './details/SpellActionPanel';
-import { SpellContent } from './details/SpellContent';
+
+/**
+ * Reusable dropdown for multi-class spell actions (learn cantrip / prepare spell)
+ */
+function ClassActionDropdown({
+  matchingClassIds,
+  activeClassIds,
+  label,
+  onToggle,
+  variant = 'info',
+  active = false,
+}: {
+  matchingClassIds: string[];
+  activeClassIds: string[];
+  label: string;
+  onToggle: (classId: string) => void;
+  variant?: 'info' | 'primary';
+  active?: boolean;
+}) {
+  const hasActive = activeClassIds.length > 0;
+  const hasInactive = matchingClassIds.some(id => !activeClassIds.includes(id));
+
+  return (
+    <DropdownMenuRoot>
+      <DropdownMenuTrigger asChild>
+        <IconButton
+          variant={variant}
+          active={active}
+          title={hasActive ? `Manage ${label}` : `Add ${label}`}
+        >
+          {variant === 'info' ? (
+            <BookMarked className="w-3.5 h-3.5" />
+          ) : (
+            <Star className={`w-3.5 h-3.5 ${active ? 'fill-current' : ''}`} />
+          )}
+          <ChevronDown className="w-2.5 h-2.5 ml-0.5" />
+        </IconButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-40">
+        {hasActive && (
+          <>
+            <DropdownMenuLabel>{label} for</DropdownMenuLabel>
+            {activeClassIds.map(classId => (
+              <DropdownMenuItem
+                key={`remove-${classId}`}
+                onSelect={() => onToggle(classId)}
+              >
+                <span className="flex-1">{classId}</span>
+                <span className="text-text-tertiary text-xs ml-2">
+                  {label === 'Cantrip' ? 'Unlearn' : 'Unprepare'}
+                </span>
+              </DropdownMenuItem>
+            ))}
+            {hasInactive && <DropdownMenuSeparator />}
+          </>
+        )}
+        {hasInactive && (
+          <>
+            {!hasActive && <DropdownMenuLabel>Add {label} for</DropdownMenuLabel>}
+            {matchingClassIds
+              .filter(classId => !activeClassIds.includes(classId))
+              .map(classId => (
+                <DropdownMenuItem
+                  key={`add-${classId}`}
+                  onSelect={() => onToggle(classId)}
+                >
+                  <span className="flex-1">{classId}</span>
+                  <span className="text-text-tertiary text-xs ml-2">
+                    {label === 'Cantrip' ? 'Learn' : 'Prepare'}
+                  </span>
+                </DropdownMenuItem>
+              ))}
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenuRoot>
+  );
+}
 
 export function SpellDetailFlyout() {
   const { selectedSpell, isDetailOpen, closeDetail } = useSpellStore();
-  const { 
-    activeCharacter, 
-    prepareSpell, unprepareSpell, 
-    learnSpell, unlearnSpell, 
+  const {
+    activeCharacter,
+    prepareSpell, unprepareSpell,
+    prepareSpellForClass, unprepareSpellForClass,
+    learnSpell, unlearnSpell,
+    learnCantrip, unlearnCantrip,
     startConcentration, endConcentration,
     castSpell,
   } = useCharacterStore();
@@ -31,11 +123,29 @@ export function SpellDetailFlyout() {
 
   if (!selectedSpell) return null;
 
-  const { isKnown, isPrepared, isClassSpell, isConcentratingOnThis } = caps;
+  const {
+    isKnown,
+    isPrepared,
+    isCantripKnown,
+    isConcentratingOnThis,
+    showCantripButton,
+    showLearnButton,
+    showPrepareButton,
+    matchingClassIds,
+    preparedClassIds,
+    cantripKnownClassIds,
+  } = caps;
+
+  const surfaceVariant = isConcentratingOnThis
+    ? 'warning'
+    : isPrepared
+    ? 'selected'
+    : (isKnown || isCantripKnown)
+    ? 'info'
+    : 'default';
 
   // Handlers
   const handleLearnToggle = () => isKnown ? unlearnSpell(selectedSpell.id) : learnSpell(selectedSpell.id);
-  const handlePrepareToggle = () => isPrepared ? unprepareSpell(selectedSpell.id) : prepareSpell(selectedSpell.id);
   const handleConcentrationToggle = () => isConcentratingOnThis ? endConcentration() : startConcentration(selectedSpell.id);
 
   const handleAttackRoll = () => {
@@ -75,18 +185,6 @@ export function SpellDetailFlyout() {
           
           <div className="w-12 h-1.5 bg-border rounded-full mx-auto md:hidden absolute left-1/2 -translate-x-1/2 top-2" />
 
-          <SpellHeader 
-            spell={selectedSpell}
-            character={activeCharacter}
-            isKnown={isKnown}
-            isPrepared={isPrepared}
-            isClassSpell={isClassSpell}
-            isConcentratingOnThis={isConcentratingOnThis}
-            onLearnToggle={handleLearnToggle}
-            onPrepareToggle={handlePrepareToggle}
-            onConcentrationToggle={handleConcentrationToggle}
-          />
-
           <SheetClose asChild>
             <Button
               variant="ghost"
@@ -99,18 +197,123 @@ export function SpellDetailFlyout() {
         </SheetHeader>
 
         <SheetBody>
-          <SpellContent spell={selectedSpell} />
-          
-          <div className="my-8">
-            <SpellStatsGrid spell={selectedSpell} />
+          <div className="mb-6">
+            <SpellCardUI
+              spell={selectedSpell}
+              showDescription
+              surfaceVariant={surfaceVariant}
+              glow={isPrepared}
+              renderBadges={() => (
+                <>
+                  {(isKnown || isCantripKnown) && !isPrepared && (
+                    <Badge variant="info" size="sm">Known</Badge>
+                  )}
+                  {isPrepared && (
+                    <Badge variant="primary" size="sm">Prepared</Badge>
+                  )}
+                </>
+              )}
+              renderActions={() => (
+                <>
+                  {selectedSpell.concentration && activeCharacter && (
+                    <IconButton
+                      variant="warning"
+                      active={isConcentratingOnThis}
+                      title={isConcentratingOnThis ? 'End Concentration' : 'Start Concentration'}
+                      onClick={handleConcentrationToggle}
+                    >
+                      <Activity className={`w-3.5 h-3.5 ${isConcentratingOnThis ? 'animate-pulse' : ''}`} />
+                    </IconButton>
+                  )}
+
+                  {showCantripButton && (
+                    matchingClassIds.length > 1 ? (
+                      <ClassActionDropdown
+                        matchingClassIds={matchingClassIds}
+                        activeClassIds={cantripKnownClassIds}
+                        label="Cantrip"
+                        onToggle={(classId) => {
+                          if (cantripKnownClassIds.includes(classId)) {
+                            unlearnCantrip(classId, selectedSpell.id);
+                          } else {
+                            learnCantrip(classId, selectedSpell.id);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <IconButton
+                        variant="info"
+                        active={isCantripKnown}
+                        onClick={() => {
+                          const classId = matchingClassIds[0];
+                          if (!classId) return;
+                          if (isCantripKnown) {
+                            unlearnCantrip(classId, selectedSpell.id);
+                          } else {
+                            learnCantrip(classId, selectedSpell.id);
+                          }
+                        }}
+                        title={isCantripKnown ? 'Unlearn Cantrip' : 'Learn Cantrip'}
+                      >
+                        <BookMarked className="w-3.5 h-3.5" />
+                      </IconButton>
+                    )
+                  )}
+
+                  {showLearnButton && (
+                    <IconButton
+                      variant="info"
+                      active={isKnown}
+                      onClick={handleLearnToggle}
+                      title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
+                    >
+                      <BookMarked className="w-3.5 h-3.5" />
+                    </IconButton>
+                  )}
+
+                  {showPrepareButton && (
+                    matchingClassIds.length > 1 ? (
+                      <ClassActionDropdown
+                        matchingClassIds={matchingClassIds}
+                        activeClassIds={preparedClassIds}
+                        label="Spell"
+                        onToggle={(classId) => {
+                          if (preparedClassIds.includes(classId)) {
+                            unprepareSpellForClass(classId, selectedSpell.id);
+                          } else {
+                            prepareSpellForClass(classId, selectedSpell.id);
+                          }
+                        }}
+                        variant="primary"
+                        active={isPrepared}
+                      />
+                    ) : (
+                      <IconButton
+                        variant="primary"
+                        active={isPrepared}
+                        onClick={() => {
+                          if (isPrepared) {
+                            unprepareSpell(selectedSpell.id);
+                          } else {
+                            prepareSpell(selectedSpell.id);
+                          }
+                        }}
+                        title={isPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
+                      >
+                        <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
+                      </IconButton>
+                    )
+                  )}
+                </>
+              )}
+            />
           </div>
 
-          <SpellActionPanel 
+          <SpellActionPanel
             spell={selectedSpell}
             onCast={() => castSpell(selectedSpell.id, selectedSpell.level)}
             onAttackRoll={handleAttackRoll}
             onDamageRoll={handleDamageRoll}
-            onPrepareToggle={handlePrepareToggle}
           />
         </SheetBody>
       </SheetContent>
