@@ -10,14 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   IconButton,
-  SlotPips,
   Surface,
   Text,
 } from '@open20/ui';
+import { SpellSlots } from '@/components/spell-slots/SpellSlots';
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
 import { Plus, User, Moon, FileText, Users, ChevronRight } from 'lucide-react';
-import type { SpellLevel } from 'open20-core/types';
+
 
 const CLASS_NAME_MAP = Object.fromEntries(
   dataLoader.getAllClasses().map(c => [c.id, c.name || c.id])
@@ -119,37 +119,18 @@ export function CharacterBar() {
                 ))}
               </div>
 
-              {/* Spell Slots — hidden on mobile, sorted by level ascending */}
+              {/* Spell Slots — hidden on mobile */}
               {activeCharacter.spells?.spellSlots && (
                 <div className="hidden sm:flex items-center gap-1.5">
-                  {Object.entries(activeCharacter.spells.spellSlots)
-                    .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                    .map(([level, slot]) => {
-                      const lvl = parseInt(level) as SpellLevel;
-                      if (lvl === 0 || slot.total === 0) return null;
-                      return (
-                        <SlotPips
-                          key={level}
-                          total={slot.total}
-                          used={slot.used}
-                          onPipClick={(_index, isUsed) => isUsed ? recoverSpellSlot(lvl) : consumeSpellSlot(lvl)}
-                        />
-                      );
-                    })}
-                </div>
-              )}
-
-              {/* Pact Magic Slots (Warlock) — hidden on mobile */}
-              {activeCharacter.spells?.pactMagicSlots && (
-                <div className="hidden sm:flex items-center gap-1.5">
-                  <div className="w-px h-5 bg-border/60" />
-                  <Text variant="label" className="text-text-tertiary mr-0.5">
-                    Pact Lvl {activeCharacter.spells.pactMagicSlots.level}
-                  </Text>
-                  <SlotPips
-                    total={activeCharacter.spells.pactMagicSlots.total}
-                    used={activeCharacter.spells.pactMagicSlots.used}
-                    onPipClick={(_index, isUsed) => isUsed ? recoverPactMagicSlot() : consumePactMagicSlot()}
+                  <SpellSlots
+                    slots={activeCharacter.spells.spellSlots}
+                    pactMagicSlots={activeCharacter.spells.pactMagicSlots}
+                    onConsumeSlot={consumeSpellSlot}
+                    onRecoverSlot={recoverSpellSlot}
+                    onConsumePactSlot={consumePactMagicSlot}
+                    onRecoverPactSlot={recoverPactMagicSlot}
+                    density="compact"
+                    showLabels={false}
                   />
                 </div>
               )}

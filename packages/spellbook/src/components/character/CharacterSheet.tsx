@@ -13,9 +13,9 @@ import {
 } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
-import { SpellSlotsSection } from './CharacterSheet/SpellSlotsSection';
 import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
-import type { SpellLevel } from 'open20-core/data';
+import { SpellSlots } from '@/components/spell-slots/SpellSlots';
+
 
 interface ConcentrationCondition {
   id: string;
@@ -27,16 +27,19 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
 }) {
-  const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
+  const {
+    activeCharacter,
+    consumeSpellSlot,
+    recoverSpellSlot,
+    consumePactMagicSlot,
+    recoverPactMagicSlot,
+  } = useCharacterStore();
 
   if (!activeCharacter) return null;
 
+ 
   const { spells, classes, conditions } = activeCharacter;
   const classSpellcasting = spells.classSpellcasting ?? {};
-
-  const slotEntries = Object.entries(spells.spellSlots ?? {})
-    .map(([lvl, slot]) => ({ lvl: parseInt(lvl, 10) as SpellLevel, slot: slot as { total: number; used: number } }))
-    .filter(({ lvl, slot }) => lvl > 0 && slot.total > 0);
 
   const isMulticlass = (classes?.length ?? 0) > 1;
 
@@ -89,12 +92,17 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
           )}
 
           {/* Combined Spell Slots */}
-          <SpellSlotsSection
-            slotEntries={slotEntries}
-            isMulticlass={isMulticlass}
-            onConsumeSlot={consumeSpellSlot}
-            onRecoverSlot={recoverSpellSlot}
-          />
+          {(spells.spellSlots || spells.pactMagicSlots) && (
+            <SpellSlots
+              slots={spells.spellSlots ?? {}}
+              pactMagicSlots={spells.pactMagicSlots}
+              onConsumeSlot={consumeSpellSlot}
+              onRecoverSlot={recoverSpellSlot}
+              onConsumePactSlot={consumePactMagicSlot}
+              onRecoverPactSlot={recoverPactMagicSlot}
+              isMulticlass={isMulticlass}
+            />
+          )}
 
           {/* Per-Class Spellcasting Sections */}
           {spellcastingClasses.length > 0 && (
