@@ -32,6 +32,7 @@ export interface SpellCapabilities {
   // Class matching (for multi-class dropdowns)
   matchingClassIds: string[];
   preparedClassIds: string[];
+  alwaysPreparedClassIds: string[];
   cantripKnownClassIds: string[];
 
   // Derived stats
@@ -67,6 +68,7 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
       isWarlock: false,
       matchingClassIds: [],
       preparedClassIds: [],
+      alwaysPreparedClassIds: [],
       cantripKnownClassIds: [],
       spellAttackBonus: 0,
       preparedCount: 0,
@@ -79,16 +81,23 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     const matchingClassIds = (character.classes?.map(c => c.classId) ?? [])
       .filter(id => spell.classes?.includes(id) ?? false);
 
-    // ── prepared / cantripKnown ──
+    // ── prepared / always prepared / cantripKnown ──
+    const alwaysPreparedClassIds = matchingClassIds.filter(classId => {
+      const classData = character.spells.classSpellcasting[classId];
+      return classData?.alwaysPreparedSpells?.includes(spell.id) ?? false;
+    });
+
     const preparedClassIds = matchingClassIds.filter(classId => {
       const classData = character.spells.classSpellcasting[classId];
-      return classData?.preparedSpells.includes(spell.id) ?? false;
+      const isPrepared = classData?.preparedSpells?.includes(spell.id) ?? false;
+      const isAlwaysPrepared = classData?.alwaysPreparedSpells?.includes(spell.id) ?? false;
+      return isPrepared || isAlwaysPrepared;
     });
 
     const cantripKnownClassIds = spell.level === 0
       ? matchingClassIds.filter(classId => {
           const classData = character.spells.classSpellcasting[classId];
-          return classData?.knownCantrips.includes(spell.id) ?? false;
+          return classData?.knownCantrips?.includes(spell.id) ?? false;
         })
       : [];
 
@@ -172,6 +181,7 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
       isWarlock,
       matchingClassIds,
       preparedClassIds,
+      alwaysPreparedClassIds,
       cantripKnownClassIds,
       spellAttackBonus,
       preparedCount,

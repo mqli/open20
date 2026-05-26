@@ -34,6 +34,7 @@ import { SpellActionPanel } from './details/SpellActionPanel';
 function ClassActionDropdown({
   matchingClassIds,
   activeClassIds,
+  disabledActiveClassIds = [],
   label,
   onToggle,
   variant = 'info',
@@ -41,6 +42,7 @@ function ClassActionDropdown({
 }: {
   matchingClassIds: string[];
   activeClassIds: string[];
+  disabledActiveClassIds?: string[];
   label: string;
   onToggle: (classId: string) => void;
   variant?: 'info' | 'primary';
@@ -72,11 +74,16 @@ function ClassActionDropdown({
             {activeClassIds.map(classId => (
               <DropdownMenuItem
                 key={`remove-${classId}`}
+                disabled={disabledActiveClassIds.includes(classId)}
                 onSelect={() => onToggle(classId)}
               >
                 <span className="flex-1">{classId}</span>
                 <span className="text-text-tertiary text-xs ml-2">
-                  {label === 'Cantrip' ? 'Unlearn' : 'Unprepare'}
+                  {disabledActiveClassIds.includes(classId)
+                    ? 'Always'
+                    : label === 'Cantrip'
+                    ? 'Unlearn'
+                    : 'Unprepare'}
                 </span>
               </DropdownMenuItem>
             ))}
@@ -133,6 +140,7 @@ export function SpellDetailFlyout() {
     showPrepareButton,
     matchingClassIds,
     preparedClassIds,
+    alwaysPreparedClassIds,
     cantripKnownClassIds,
   } = caps;
 
@@ -276,8 +284,10 @@ export function SpellDetailFlyout() {
                       <ClassActionDropdown
                         matchingClassIds={matchingClassIds}
                         activeClassIds={preparedClassIds}
+                        disabledActiveClassIds={alwaysPreparedClassIds}
                         label="Spell"
                         onToggle={(classId) => {
+                          if (alwaysPreparedClassIds.includes(classId)) return;
                           if (preparedClassIds.includes(classId)) {
                             unprepareSpellForClass(classId, selectedSpell.id);
                           } else {
@@ -291,14 +301,35 @@ export function SpellDetailFlyout() {
                       <IconButton
                         variant="primary"
                         active={isPrepared}
+                        disabled={
+                          matchingClassIds.length === 1
+                            && alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
+                        }
                         onClick={() => {
+                          const classId = matchingClassIds[0];
                           if (isPrepared) {
-                            unprepareSpell(selectedSpell.id);
+                            if (classId && alwaysPreparedClassIds.includes(classId)) return;
+                            const preparedClassId = preparedClassIds[0] ?? classId;
+                            if (preparedClassId) {
+                              unprepareSpellForClass(preparedClassId, selectedSpell.id);
+                            } else {
+                              unprepareSpell(selectedSpell.id);
+                            }
                           } else {
-                            prepareSpell(selectedSpell.id);
+                            if (classId) {
+                              prepareSpellForClass(classId, selectedSpell.id);
+                            } else {
+                              prepareSpell(selectedSpell.id);
+                            }
                           }
                         }}
-                        title={isPrepared ? 'Unprepare Spell' : 'Prepare Spell'}
+                        title={
+                          matchingClassIds.length === 1 && alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
+                            ? 'Always Prepared'
+                            : isPrepared
+                            ? 'Unprepare Spell'
+                            : 'Prepare Spell'
+                        }
                       >
                         <Star className={`w-3.5 h-3.5 ${isPrepared ? 'fill-current' : ''}`} />
                       </IconButton>
