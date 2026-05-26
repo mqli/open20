@@ -1,5 +1,4 @@
-import { BookOpen, Shield } from 'lucide-react';
-import { Badge, Button } from '@open20/ui';
+import { Badge, Button, RitualIcon, DefenseIcon } from '@open20/ui';
 import { useSpellStore } from '@/stores/spell-store';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
@@ -43,7 +42,7 @@ export function SpellEntry({
         <>
           {isAlwaysPrepared && (
             <Badge variant="info" size="sm">
-              <Shield className="w-3 h-3 mr-1" />
+              <DefenseIcon size="xs" className="mr-1" />
               Always
             </Badge>
           )}
@@ -58,7 +57,7 @@ export function SpellEntry({
             title="Open Spell Details"
             className="p-1.5"
           >
-            <BookOpen className="w-3 h-3" />
+            <RitualIcon size="xs" />
           </Button>
         </>
       )}

@@ -1,4 +1,4 @@
-import { Shield, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Surface,
   Text,
+  DefenseIcon,
 } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
@@ -141,7 +142,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
           {alwaysPrepared.length > 0 && (
             <div>
               <Text as="div" variant="label" className="mb-2 flex items-center gap-1">
-                <Shield className="w-2.5 h-2.5 text-info" />
+                <DefenseIcon className="w-2.5 h-2.5 text-info" />
                 Always Prepared
               </Text>
               <div className="flex flex-wrap gap-1">

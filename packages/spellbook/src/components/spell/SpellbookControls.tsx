@@ -1,5 +1,5 @@
-import { BookMarked, Star } from 'lucide-react';
 import { IconButton } from '@open20/ui';
+import { PrepareSpellIcon, KnownSpellIcon } from '@open20/ui';
 import { ClassActionDropdown } from './ClassActionDropdown';
 
 interface SpellbookControlsProps {
@@ -54,7 +54,7 @@ export function SpellbookControls({
             onClick={onCantripSingleClick}
             title={isCantripKnown ? 'Unlearn Cantrip' : 'Learn Cantrip'}
           >
-            <BookMarked />
+            <PrepareSpellIcon />
           </IconButton>
         )
       )}
@@ -66,7 +66,7 @@ export function SpellbookControls({
           onClick={onLearnToggle}
           title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
         >
-          <BookMarked />
+          <PrepareSpellIcon />
         </IconButton>
       )}
 
@@ -98,7 +98,7 @@ export function SpellbookControls({
                   : 'Prepare Spell'
             }
           >
-            <Star className={isPrepared ? 'fill-current' : ''} />
+            <KnownSpellIcon className={isPrepared ? 'fill-current' : ''} />
           </IconButton>
         )
       )}

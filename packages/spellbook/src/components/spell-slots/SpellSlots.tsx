@@ -1,5 +1,4 @@
-import { Flame } from 'lucide-react';
-import { SlotPips, Text, SectionHeader } from '@open20/ui';
+import { SlotPips, Text, SectionHeader, SpellSlotIcon } from '@open20/ui';
 import type { SpellLevel } from 'open20-core/types';
 
 const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
@@ -78,7 +77,7 @@ export function SpellSlots({
     <section>
       {showLabels && (
         <SectionHeader
-          icon={<Flame className="w-3 h-3" />}
+          icon={<SpellSlotIcon size="xs" />}
           title="Spell Slots"
           action={isMulticlass ? <Text size="xs">(Combined)</Text> : undefined}
         />

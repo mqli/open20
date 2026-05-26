@@ -2,23 +2,25 @@ import { useEffect, useState } from 'react';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
-  BookOpen,
-  Brain,
   Clock,
-  Crosshair,
-  Hand,
-  Heart,
   Hourglass,
-  MessageSquare,
-  Package,
-  Shield,
-  Sparkles,
-  Swords,
-  Zap,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
 import { cn } from '../../lib/cn';
+import {
+  RitualIcon,
+  ConcentrationIcon,
+  RangeIcon,
+  VerbalIcon,
+  SomaticIcon,
+  MaterialIcon,
+  DefenseIcon,
+  MagicIcon,
+  AttackIcon,
+  HealIcon,
+  CastSpellIcon,
+} from '../..';
 import {
   chipBase,
   collapseToggle,
@@ -74,11 +76,11 @@ type SpellComponent = Spell['components'][number];
 function componentIcon(c: SpellComponent) {
   switch (c) {
     case 'V':
-      return <MessageSquare className={I.xs} aria-hidden />;
+      return <VerbalIcon size="xs" aria-hidden />;
     case 'S':
-      return <Hand className={I.xs} aria-hidden />;
+      return <SomaticIcon size="xs" aria-hidden />;
     case 'M':
-      return <Package className={I.xs} aria-hidden />;
+      return <MaterialIcon size="xs" aria-hidden />;
     default:
       return null;
   }
@@ -170,7 +172,7 @@ export function SpellCard({
       {/* ── Background glow ────────────────────────────────────────────── */}
       {glow && (
         <div className="absolute -top-1 -right-1 p-2 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
-          <Sparkles className="w-12 h-12 text-primary-500" />
+          <MagicIcon className="w-12 h-12 text-primary-500" />
         </div>
       )}
 
@@ -196,12 +198,12 @@ export function SpellCard({
         <div className="flex items-center gap-1 shrink-0">
           {spell.ritual && (
             <span title="Ritual" className="text-text-tertiary">
-              <BookOpen className={I.md} aria-label="Ritual" />
+              <RitualIcon size="md" aria-label="Ritual" />
             </span>
           )}
           {spell.concentration && (
             <span title="Concentration" className="text-text-tertiary">
-              <Brain className={I.md} aria-label="Concentration" />
+              <ConcentrationIcon size="md" aria-label="Concentration" />
             </span>
           )}
         </div>
@@ -210,7 +212,7 @@ export function SpellCard({
       {/* ── Meta Row ───────────────────────────────────────────────────── */}
       <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', isCompact && 'gap-x-2')}>
         <MetaItem icon={<Clock className={I.sm} />} label={spell.castingTime} />
-        <MetaItem icon={<Crosshair className={I.sm} />} label={spell.range} />
+        <MetaItem icon={<RangeIcon size="sm" />} label={spell.range} />
 
         <MetaItem
           icon={
@@ -287,25 +289,25 @@ export function SpellCard({
             <div className={cn('mt-2 flex flex-wrap items-center gap-x-3 gap-y-1', sectionDivider)}>
               {spell.damage && (
                 <MetaItem
-                  icon={<Zap className={cn(I.sm, 'text-amber-500')} />}
+                  icon={<CastSpellIcon size="sm" className="text-amber-500" />}
                   label={spell.damage.entries.map((e) => `${e.dice} ${e.type}`).join(' + ')}
                 />
               )}
               {spell.heal && (
                 <MetaItem
-                  icon={<Heart className={cn(I.sm, 'text-rose-500')} />}
+                  icon={<HealIcon size="sm" className="text-rose-500" />}
                   label={spell.heal.dice}
                 />
               )}
               {spell.save && (
                 <MetaItem
-                  icon={<Shield className={cn(I.sm, 'text-text-tertiary')} />}
+                  icon={<DefenseIcon size="sm" className="text-text-tertiary" />}
                   label={`${spell.save} save`}
                 />
               )}
               {spell.attack && (
                 <MetaItem
-                  icon={<Swords className={cn(I.sm, 'text-text-tertiary')} />}
+                  icon={<AttackIcon size="sm" className="text-text-tertiary" />}
                   label="Attack roll"
                 />
               )}
@@ -319,7 +321,7 @@ export function SpellCard({
         higherLevelText && higherLevelText.length > 0 && (
           <div className={cn(sectionDivider, 'space-y-1')}>
             <Text variant="labelSm" as="p" className="flex items-center gap-1">
-              <Sparkles className={I.xs} />
+              <MagicIcon size="xs" />
               At Higher Levels
             </Text>
             {higherLevelText.map((text, i) => (
@@ -335,7 +337,7 @@ export function SpellCard({
         cantripUpgrades && cantripUpgrades.length > 0 && (
           <div className={cn(sectionDivider, 'space-y-1')}>
             <Text variant="labelSm" as="p" className="flex items-center gap-1">
-              <Sparkles className={I.xs} />
+              <MagicIcon size="xs" />
               Cantrip Upgrade
             </Text>
             {cantripUpgrades.map((u, i) => (

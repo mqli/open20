@@ -1,5 +1,11 @@
-import { Flame, Heart, Sparkles, Swords, Zap } from 'lucide-react';
 import type { Spell } from 'open20-core';
+import {
+  DamageIcon,
+  HealIcon,
+  MagicIcon,
+  AttackIcon,
+  CastSpellIcon,
+} from '@open20/ui';
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Button } from '@open20/ui';
 import { CastLevelSelect } from './CastLevelSelect';
@@ -71,7 +77,7 @@ export function SpellActionRow({
             disabled={!availableCastLevels.includes(effectiveCastLevel)}
             className="p-1.5"
           >
-            <Zap className="w-3 h-3" />
+            <CastSpellIcon size="xs" />
           </Button>
         ) : (
           <Button
@@ -80,7 +86,7 @@ export function SpellActionRow({
             onClick={onCast}
             disabled={!availableCastLevels.includes(effectiveCastLevel)}
           >
-            <Sparkles className="w-3 h-3 mr-1" />
+            <MagicIcon size="xs" className="mr-1" />
             Cast
           </Button>
         )
@@ -115,7 +121,7 @@ export function SpellActionRow({
             title="Roll Attack"
             className="p-1.5"
           >
-            <Swords className="w-3 h-3" />
+            <AttackIcon size="xs" />
           </Button>
         ) : (
           <Button
@@ -123,7 +129,7 @@ export function SpellActionRow({
             size="sm"
             onClick={onAttackRoll}
           >
-            <Swords className="w-3.5 h-3.5 mr-1.5" />
+            <AttackIcon size="sm" className="mr-1.5" />
             Attack {spellAttackBonus >= 0 ? `+${spellAttackBonus}` : spellAttackBonus}
           </Button>
         )
@@ -141,7 +147,7 @@ export function SpellActionRow({
                   title="Roll Damage"
                   className="p-1.5"
                 >
-                  <Flame className="w-3 h-3" />
+                  <DamageIcon size="xs" />
                 </Button>
                 {effectiveDamageEntries.slice(1).map((entry, index) => (
                   <Button
@@ -165,7 +171,7 @@ export function SpellActionRow({
                 title={healDice ? `Roll ${healDice} Healing` : 'Roll Healing'}
                 className="p-1.5"
               >
-                <Heart className="w-3 h-3" />
+                <HealIcon size="xs" />
               </Button>
             )}
           </>
@@ -187,7 +193,7 @@ export function SpellActionRow({
                 size="sm"
                 onClick={onHealRoll}
               >
-                <Heart className="w-3.5 h-3.5 mr-1.5" />
+                <HealIcon size="sm" className="mr-1.5" />
                 {healDice ? `${healDice} Heal` : 'Heal'}
               </Button>
             )}
