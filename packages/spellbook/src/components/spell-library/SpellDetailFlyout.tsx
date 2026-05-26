@@ -27,6 +27,7 @@ import {
 import { characterService } from '@/core/character-service';
 
 import { SpellActionPanel } from './details/SpellActionPanel';
+import { renderInlineMarkdown } from '@/utils/inline-markdown';
 
 /**
  * Reusable dropdown for multi-class spell actions (learn cantrip / prepare spell)
@@ -211,6 +212,7 @@ export function SpellDetailFlyout() {
               showDescription
               surfaceVariant={surfaceVariant}
               glow={isPrepared}
+              renderDescription={renderInlineMarkdown}
               renderBadges={() => (
                 <>
                   {(isKnown || isCantripKnown) && !isPrepared && (

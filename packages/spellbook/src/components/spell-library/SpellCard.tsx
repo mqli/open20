@@ -14,6 +14,7 @@ import {
   SpellCard as SpellCardUI,
 } from '@open20/ui';
 import { BookMarked, Star, ChevronDown } from 'lucide-react';
+import { renderInlineMarkdown } from '@/utils/inline-markdown';
 
 interface SpellCardProps {
   spell: Spell;
@@ -135,6 +136,7 @@ export function SpellCard({ spell }: SpellCardProps) {
       onClick={() => selectSpell(spell)}
       showDescription={false}
       glow={isPrepared}
+      renderDescription={renderInlineMarkdown}
       renderBadges={() => (
         <>
           {(isKnown || isCantripKnown) && !isPrepared && (

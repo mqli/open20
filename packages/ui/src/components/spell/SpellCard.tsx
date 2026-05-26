@@ -111,6 +111,8 @@ export interface SpellCardProps
   renderActions?: () => ReactNode;
   /** Slot for badge chips rendered next to the school badge (e.g. "Known", "Prepared") */
   renderBadges?: () => ReactNode;
+  /** Slot for description rendered below the header (e.g. "Known", "Prepared") */
+  renderDescription?: (string: string) => ReactNode;
   /** Show decorative sparkle glow in the background (e.g. when spell is prepared) */
   glow?: boolean;
 }
@@ -128,6 +130,7 @@ export function SpellCard({
   surfaceVariant,
   renderActions,
   renderBadges,
+  renderDescription = (p: string) => p,
   glow,
   className,
   ...props
@@ -228,7 +231,7 @@ export function SpellCard({
         <div className="space-y-1.5">
           {spell.description.map((p, i) => (
             <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
-              {p}
+              {renderDescription(p)}
             </Text>
           ))}
 

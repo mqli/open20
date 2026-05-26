@@ -112,25 +112,24 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     // ── caster type ──
     const casterType = getCasterType(character);
 
+    const classSpellcasting = character.spells.classSpellcasting;
+    const primaryClassId = Object.keys(classSpellcasting)[0] ?? null;
+    const statsClassId = matchingClassIds[0] ?? primaryClassId;
+
     // ── prepare count ──
     let preparedCount = 0;
     let maxPrepared = 0;
-    if (isClassSpell) {
-      const spellClasses = spell.classes ?? [];
-      const matchingClassId = Object.keys(character.spells.classSpellcasting).find(cls =>
-        spellClasses.includes(cls)
-      );
-      if (matchingClassId && character.spells.classSpellcasting[matchingClassId]) {
-        const classData = character.spells.classSpellcasting[matchingClassId];
+    if (statsClassId && classSpellcasting[statsClassId]) {
+      const classData = classSpellcasting[statsClassId];
+      if (isClassSpell) {
         preparedCount = (classData.preparedSpells?.length ?? 0) + (classData.alwaysPreparedSpells?.length ?? 0);
         maxPrepared = classData.maxPrepared ?? 0;
       }
     }
 
     // ── spell attack bonus ──
-    const primaryClassId = Object.keys(character.spells.classSpellcasting)[0] ?? null;
-    const spellAttackBonus = primaryClassId
-      ? character.spells.classSpellcasting[primaryClassId]?.spellAttackBonus ?? 0
+    const spellAttackBonus = statsClassId
+      ? classSpellcasting[statsClassId]?.spellAttackBonus ?? 0
       : 0;
 
     // ── slots ──
@@ -153,12 +152,12 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
       || !!(pactMagic && spell.level <= pactMagic.level);
 
     // ── canCast ──
-    const canCast = (knows || spell.level === 0) && (spell.level === 0 || isPrepared) && (
+    const canCast = isClassSpell && (knows || spell.level === 0) && (spell.level === 0 || isPrepared) && (
       hasRegularSlot || hasPactSlot
     );
 
     // ── button visibility ──
-    const showPrepareButton = casterType.canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
+    const showPrepareButton = isClassSpell && casterType.canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
     // Learn toggle: cantrips for all casters, regular spells only for spellbook casters
     // Spellbook casters also need high enough level to learn spells of this level
     const showLearnButton = isClassSpell && spell.level > 0 && casterType.canLearn && canAccessSpellLevel;
