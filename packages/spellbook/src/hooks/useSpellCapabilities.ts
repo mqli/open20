@@ -138,16 +138,22 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     // ── knows (spellbook-caster-aware) ──
     const knows = casterType.isSpellbookCaster ? isKnown : true;
 
+    // Character must be high enough level to access this spell level (slots exist at all)
+    const canAccessSpellLevel = spell.level === 0
+      || (spellSlots[spell.level]?.total ?? 0) > 0
+      || !!(pactMagic && spell.level <= pactMagic.level);
+
     // ── canCast ──
     const canCast = (knows || spell.level === 0) && (spell.level === 0 || isPrepared) && (
       hasRegularSlot || hasPactSlot
     );
 
     // ── button visibility ──
-    const showPrepareButton = casterType.canPrepare && spell.level > 0 && knows;
+    const showPrepareButton = casterType.canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
     // Learn toggle: cantrips for all casters, regular spells only for spellbook casters
+    // Spellbook casters also need high enough level to learn spells of this level
+    const showLearnButton = isClassSpell && spell.level > 0 && casterType.canLearn && canAccessSpellLevel;
     const showCantripButton = isClassSpell && spell.level === 0;
-    const showLearnButton = isClassSpell && spell.level > 0 && casterType.canLearn;
 
     return {
       isKnown,
