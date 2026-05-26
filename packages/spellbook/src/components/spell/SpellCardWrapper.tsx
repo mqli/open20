@@ -82,8 +82,10 @@ export function SpellCardWrapper({
   } = useSpellCapabilities(spell);
 
   const damageEntries = spell.damage?.entries ?? [];
+  const healDice = spell.heal?.dice;
   const isIconStyle = actionStyle === 'icon';
   const hasDamageEntries = damageEntries.length > 0;
+  const hasHealEntry = !!healDice;
   const canShowConcentrationAction = showConcentrationAction && spell.concentration && !!activeCharacter;
   const shouldUseSpellbookStateStyling = showSpellbookActions || showSpellbookBadges;
 
@@ -99,7 +101,7 @@ export function SpellCardWrapper({
     showSpellbookActions
     || showCastAction
     || (showAttackAction && !!spell.attack)
-    || (showDamageActions && hasDamageEntries)
+    || (showDamageActions && (hasDamageEntries || hasHealEntry))
     || canShowConcentrationAction
   );
   const shouldRenderActions = hasSharedActions || !!renderActions;
@@ -197,6 +199,17 @@ export function SpellCardWrapper({
     addRoll({
       label: damageType ? `${damageType} Damage` : 'Damage',
       expression: `${diceExpr}${modExpr}`,
+      total: result.total,
+    });
+  };
+
+  const handleHealRoll = () => {
+    if (!healDice) return;
+
+    const result = rollDiceExpression(defaultRandom, healDice);
+    addRoll({
+      label: 'Healing',
+      expression: healDice,
       total: result.total,
     });
   };
@@ -312,7 +325,9 @@ export function SpellCardWrapper({
             showAttackAction={showAttackAction}
             showDamageActions={showDamageActions}
             hasDamageEntries={hasDamageEntries}
+            hasHealEntry={hasHealEntry}
             effectiveDamageEntries={effectiveDamageEntries}
+            healDice={healDice}
             availableCastLevels={availableCastLevels}
             effectiveCastLevel={effectiveCastLevel}
             selectedCastLevel={selectedCastLevel}
@@ -322,6 +337,7 @@ export function SpellCardWrapper({
             onCast={handleCast}
             onAttackRoll={handleAttackRoll}
             onDamageRoll={handleDamageRoll}
+            onHealRoll={handleHealRoll}
           />
 
           {canShowConcentrationAction && (

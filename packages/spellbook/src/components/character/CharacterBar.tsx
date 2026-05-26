@@ -16,7 +16,7 @@ import {
 import { SpellSlots } from '@/components/spell-slots/SpellSlots';
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
-import { Plus, User, Moon, FileText, Users, ChevronRight } from 'lucide-react';
+import { Plus, User, Moon, Sun, FileText, Users, ChevronRight } from 'lucide-react';
 
 
 const CLASS_NAME_MAP = Object.fromEntries(
@@ -33,7 +33,7 @@ function formatClassInfo(
 }
 
 export function CharacterBar() {
-  const { characters, activeCharacter, setActiveCharacter, longRest, consumeSpellSlot, recoverSpellSlot, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
+  const { characters, activeCharacter, setActiveCharacter, longRest, shortRest, consumeSpellSlot, recoverSpellSlot, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
@@ -187,6 +187,17 @@ export function CharacterBar() {
           </DropdownMenuContent>
         </DropdownMenuRoot>
 
+        {/* Short Rest */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => shortRest()}
+          className="text-text-secondary hover:text-primary-600 h-7 px-1.5"
+        >
+          <Sun className="w-3.5 h-3.5 md:mr-1" />
+          <Text size="sm" className="hidden md:inline">Short</Text>
+        </Button>
+
         {/* Long Rest */}
         <Button
           variant="ghost"
@@ -195,7 +206,7 @@ export function CharacterBar() {
           className="text-text-secondary hover:text-primary-600 h-7 px-1.5"
         >
           <Moon className="w-3.5 h-3.5 md:mr-1" />
-          <Text size="sm" className="hidden md:inline">Rest</Text>
+          <Text size="sm" className="hidden md:inline">Long</Text>
         </Button>
       </div>
 

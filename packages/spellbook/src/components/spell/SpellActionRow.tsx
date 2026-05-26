@@ -1,4 +1,4 @@
-import { Flame, Sparkles, Swords, Zap } from 'lucide-react';
+import { Flame, Heart, Sparkles, Swords, Zap } from 'lucide-react';
 import type { Spell } from 'open20-core';
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Button } from '@open20/ui';
@@ -18,7 +18,9 @@ interface SpellActionRowProps {
   showAttackAction: boolean;
   showDamageActions: boolean;
   hasDamageEntries: boolean;
+  hasHealEntry: boolean;
   effectiveDamageEntries: readonly DamageEntry[];
+  healDice?: string;
   availableCastLevels: SpellLevel[];
   effectiveCastLevel: SpellLevel;
   selectedCastLevel: SpellLevel;
@@ -28,6 +30,7 @@ interface SpellActionRowProps {
   onCast: () => void;
   onAttackRoll: () => void;
   onDamageRoll: (index: number) => void;
+  onHealRoll: () => void;
 }
 
 export function SpellActionRow({
@@ -37,7 +40,9 @@ export function SpellActionRow({
   showAttackAction,
   showDamageActions,
   hasDamageEntries,
+  hasHealEntry,
   effectiveDamageEntries,
+  healDice,
   availableCastLevels,
   effectiveCastLevel,
   selectedCastLevel,
@@ -47,6 +52,7 @@ export function SpellActionRow({
   onCast,
   onAttackRoll,
   onDamageRoll,
+  onHealRoll,
 }: SpellActionRowProps) {
   const showsUpcastSelect = spell.level > 0 && availableCastLevels.length > 1 && (showCastAction || showDamageActions);
   const showsStaticLevel = spell.level > 0 && availableCastLevels.length === 1 && (showCastAction || showDamageActions);
@@ -123,34 +129,49 @@ export function SpellActionRow({
         )
       )}
 
-      {showDamageActions && hasDamageEntries && (
+      {showDamageActions && (hasDamageEntries || hasHealEntry) && (
         isIconStyle ? (
           <>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDamageRoll(0)}
-              title="Roll Damage"
-              className="p-1.5"
-            >
-              <Flame className="w-3 h-3" />
-            </Button>
-            {effectiveDamageEntries.slice(1).map((entry, index) => (
+            {hasDamageEntries && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDamageRoll(0)}
+                  title="Roll Damage"
+                  className="p-1.5"
+                >
+                  <Flame className="w-3 h-3" />
+                </Button>
+                {effectiveDamageEntries.slice(1).map((entry, index) => (
+                  <Button
+                    key={`alt-damage-${index}-${entry.dice}-${entry.type ?? 'none'}`}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDamageRoll(index + 1)}
+                    title={`Roll ${entry.dice} ${entry.type} Damage`}
+                    className="p-1.5 text-[10px] font-bold"
+                  >
+                    {entry.dice}
+                  </Button>
+                ))}
+              </>
+            )}
+            {hasHealEntry && (
               <Button
-                key={`alt-damage-${index}-${entry.dice}-${entry.type ?? 'none'}`}
                 variant="ghost"
                 size="sm"
-                onClick={() => onDamageRoll(index + 1)}
-                title={`Roll ${entry.dice} ${entry.type} Damage`}
-                className="p-1.5 text-[10px] font-bold"
+                onClick={onHealRoll}
+                title={healDice ? `Roll ${healDice} Healing` : 'Roll Healing'}
+                className="p-1.5"
               >
-                {entry.dice}
+                <Heart className="w-3 h-3" />
               </Button>
-            ))}
+            )}
           </>
         ) : (
           <>
-            {effectiveDamageEntries.map((entry, index) => (
+            {hasDamageEntries && effectiveDamageEntries.map((entry, index) => (
               <Button
                 key={`${entry.dice}-${entry.type ?? 'none'}-${index}`}
                 variant="outline"
@@ -160,6 +181,16 @@ export function SpellActionRow({
                 {entry.dice} {entry.type}
               </Button>
             ))}
+            {hasHealEntry && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onHealRoll}
+              >
+                <Heart className="w-3.5 h-3.5 mr-1.5" />
+                {healDice ? `${healDice} Heal` : 'Heal'}
+              </Button>
+            )}
           </>
         )
       )}
