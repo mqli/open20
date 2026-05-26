@@ -46,7 +46,7 @@ const cardVariants = cva('flex flex-col gap-3 transition-all', {
 });
 
 const levelBadgeVariants = cva(
-  cn(chipBase, 'tracking-wide uppercase'),
+  cn(chipBase, 'tracking-wide'),
   {
     variants: {
       isCantrip: {
@@ -89,7 +89,7 @@ function formatComponents(components: readonly SpellComponent[]): string {
 }
 
 function levelLabel(level: number): string {
-  return level === 0 ? 'Cantrip' : `Level ${level}`;
+  return level === 0 ? 'Cantrip' : `Lv. ${level}`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -227,7 +227,12 @@ export function SpellCard({
       </div>
 
       {/* ── Source / Actions Row ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between pt-1">
+      <div
+        className={cn(
+          'flex items-center pt-1',
+          renderActions ? 'justify-between' : 'justify-start',
+        )}
+      >
         <div className="flex items-center gap-2">
           <Text variant="caption" as="p" className="uppercase opacity-70">
             {spell.source}
@@ -256,7 +261,13 @@ export function SpellCard({
           )}
         </div>
         {renderActions && (
-          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <div
+            className={cn(
+              'flex items-center gap-1.5',
+              !isCompact && 'flex-wrap justify-end',
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
             {renderActions()}
           </div>
         )}

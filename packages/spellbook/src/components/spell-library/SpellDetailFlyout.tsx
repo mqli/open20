@@ -1,4 +1,4 @@
-import { Activity, ArrowLeft, BookMarked, ChevronDown, Star, X } from 'lucide-react';
+import { Activity, ArrowLeft, BookMarked, ChevronDown, Sparkles, Star, Swords, X } from 'lucide-react';
 import {
   rollDiceExpression,
   defaultRandom,
@@ -26,7 +26,6 @@ import {
 } from '@open20/ui';
 import { characterService } from '@/core/character-service';
 
-import { SpellActionPanel } from './details/SpellActionPanel';
 import { renderInlineMarkdown } from '@/utils/inline-markdown';
 
 /**
@@ -143,6 +142,8 @@ export function SpellDetailFlyout() {
     preparedClassIds,
     alwaysPreparedClassIds,
     cantripKnownClassIds,
+    canCast,
+    spellAttackBonus,
   } = caps;
 
   const surfaceVariant = isConcentratingOnThis
@@ -337,17 +338,42 @@ export function SpellDetailFlyout() {
                       </IconButton>
                     )
                   )}
+
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => castSpell(selectedSpell.id, selectedSpell.level)}
+                    disabled={!canCast}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                    Cast
+                  </Button>
+
+                  {selectedSpell.attack && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleAttackRoll}
+                    >
+                      <Swords className="w-3.5 h-3.5 mr-1.5" />
+                      Attack {spellAttackBonus >= 0 ? `+${spellAttackBonus}` : spellAttackBonus}
+                    </Button>
+                  )}
+
+                  {selectedSpell.damage?.entries.map((entry, index) => (
+                    <Button
+                      key={`${entry.dice}-${entry.type}-${index}`}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDamageRoll(index, `${entry.type} Damage`)}
+                    >
+                      {entry.dice} {entry.type}
+                    </Button>
+                  ))}
                 </>
               )}
             />
           </div>
-
-          <SpellActionPanel
-            spell={selectedSpell}
-            onCast={() => castSpell(selectedSpell.id, selectedSpell.level)}
-            onAttackRoll={handleAttackRoll}
-            onDamageRoll={handleDamageRoll}
-          />
         </SheetBody>
       </SheetContent>
     </SheetRoot>
