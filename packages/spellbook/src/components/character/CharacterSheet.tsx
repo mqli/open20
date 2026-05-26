@@ -123,7 +123,6 @@ export function CharacterSheet({ open, onOpenChange, onEdit }: {
                   >
                     <ClassSpellSection
                       classId={spellcastingClass.classId}
-                      onOpenChange={onOpenChange}
                     />
                   </Tabs.Content>
                 ))}

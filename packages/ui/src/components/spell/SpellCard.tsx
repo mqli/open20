@@ -226,6 +226,42 @@ export function SpellCard({
         <MetaItem icon={<Hourglass className={I.sm} />} label={spell.duration} />
       </div>
 
+      {/* ── Source / Actions Row ─────────────────────────────────────────── */}
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-2">
+          <Text variant="caption" as="p" className="uppercase opacity-70">
+            {spell.source}
+          </Text>
+          {isCompact && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDesc((prev) => !prev);
+              }}
+              className={collapseToggle}
+            >
+              {showDesc ? (
+                <>
+                  <ChevronUp className={I.xs} />
+                  Less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className={I.xs} />
+                  Details
+                </>
+              )}
+            </button>
+          )}
+        </div>
+        {renderActions && (
+          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            {renderActions()}
+          </div>
+        )}
+      </div>
+
       {/* ── Description ────────────────────────────────────────────────── */}
       {effectiveShowDesc && spell.description.length > 0 && (
         <div className="space-y-1.5">
@@ -267,17 +303,6 @@ export function SpellCard({
         </div>
       )}
 
-      {/* ── Collapse toggle (compact mode) ──────────────────────────────── */}
-      {isCompact && (
-        <button type="button" onClick={(e) => { e.stopPropagation(); setShowDesc((prev) => !prev); }} className={collapseToggle}>
-          {showDesc ? (
-            <><ChevronUp className={I.xs} /> Less</>
-          ) : (
-            <><ChevronDown className={I.xs} /> Details</>
-          )}
-        </button>
-      )}
-
       {/* ── At Higher Levels ───────────────────────────────────────────── */}
       {effectiveShowDesc &&
         higherLevelText && higherLevelText.length > 0 && (
@@ -315,17 +340,6 @@ export function SpellCard({
           </div>
         )}
 
-      {/* ── Source / Actions Row ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mt-auto pt-1">
-        <Text variant="caption" as="p" className="uppercase opacity-70">
-          {spell.source}
-        </Text>
-        {renderActions && (
-          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-            {renderActions()}
-          </div>
-        )}
-      </div>
     </Surface>
   );
 }

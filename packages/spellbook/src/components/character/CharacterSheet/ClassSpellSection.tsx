@@ -23,10 +23,9 @@ const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th',
 
 interface ClassSpellSectionProps {
   classId: string;
-  onOpenChange: (open: boolean) => void;
 }
 
-export function ClassSpellSection({ classId, onOpenChange }: ClassSpellSectionProps) {
+export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
   const { activeCharacter } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
@@ -242,10 +241,7 @@ export function ClassSpellSection({ classId, onOpenChange }: ClassSpellSectionPr
                     <SpellEntry
                       key={spell.id}
                       spell={spell}
-                      classId={classId}
                       alwaysPrepared={alwaysPrepared}
-                      onSelectSpell={(s) => selectSpell(s)}
-                      onCloseSheet={onOpenChange}
                     />
                   ))}
                 </div>
