@@ -277,7 +277,7 @@ export class CharacterService {
     });
   }
 
-  rollSpellDamage(character: AppCharacter, spellId: string, damageIndex: number): DamageRollResult {
+  rollSpellDamage(character: AppCharacter, spellId: string, damageIndex: number, slotLevel?: SpellLevel): DamageRollResult {
     void damageIndex;
     const spell = this.spellService.getSpell(spellId);
     if (!spell) throw new Error(`Spell not found: ${spellId}`);
@@ -285,7 +285,7 @@ export class CharacterService {
     return rollSpellDamage({
       character,
       spell,
-      slotLevel: spell.level,
+      slotLevel: slotLevel ?? spell.level,
       rng: defaultRandom
     });
   }
