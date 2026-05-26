@@ -302,10 +302,8 @@ export function createDataLoader(): DataLoader {
     },
 
     getSpellSlots(classId: string, classLevel: number): Record<number, number> {
-      const classSlots = lookupTablesTyped.spellSlots[classId];
-      if (!classSlots) return emptySlotRecord();
-
-      const slotsArray = classSlots[classLevel];
+      const cls = classesData.find(c => c.id === classId);
+      const slotsArray = cls?.spellSlotsByLevel?.[classLevel];
       if (!slotsArray) return emptySlotRecord();
 
       const result: Record<number, number> = {};

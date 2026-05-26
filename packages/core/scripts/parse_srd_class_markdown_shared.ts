@@ -21,7 +21,6 @@ type ClassLevelEntry = {
 export interface ParsedClassDocument {
   classData: Class;
   subclasses: Subclass[];
-  spellSlotsByLevel?: Record<string, number[]>;
 }
 
 export const CLASS_MARKDOWN_FILE_ORDER = [
@@ -311,10 +310,10 @@ export function parseClassMarkdownContent(content: string, spellByNameKey: Map<s
     });
   }
 
-  const spellSlotsByLevel: Record<string, number[]> = {};
+  const spellSlotsByLevel: Record<number, number[]> = {};
   for (const [level, tableRow] of byLevelTable.entries()) {
     if (tableRow.spellSlots) {
-      spellSlotsByLevel[String(level)] = tableRow.spellSlots;
+      spellSlotsByLevel[level] = tableRow.spellSlots;
     }
   }
 
@@ -329,6 +328,7 @@ export function parseClassMarkdownContent(content: string, spellByNameKey: Map<s
     weaponMastery: core.weaponMastery,
     featuresByLevel: Array.from(levels.values()).sort((a, b) => a.level - b.level),
     spellcasting: getClassSpellcasting(classId),
+    ...(Object.keys(spellSlotsByLevel).length > 0 ? { spellSlotsByLevel } : {}),
   };
 
   const subclasses = parseSubclasses(lines, classId, spellByNameKey);
@@ -336,7 +336,6 @@ export function parseClassMarkdownContent(content: string, spellByNameKey: Map<s
   return {
     classData,
     subclasses,
-    spellSlotsByLevel: Object.keys(spellSlotsByLevel).length > 0 ? spellSlotsByLevel : undefined,
   };
 }
 

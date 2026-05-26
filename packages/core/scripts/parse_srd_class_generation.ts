@@ -4,11 +4,6 @@ import {
   parseClassMarkdownContent,
 } from './parse_srd_class_markdown_shared';
 
-export type LookupTables = {
-  spellSlots?: Record<string, Record<string, number[]>>;
-  [key: string]: unknown;
-};
-
 export type ClassDocumentInput = {
   readonly content: string;
 };
@@ -16,20 +11,16 @@ export type ClassDocumentInput = {
 export function generateClassesFromDocuments(
   docs: readonly ClassDocumentInput[],
   spells: Array<{ id: string; name: string }>,
-): { classes: Class[]; spellSlotsUpdates: Record<string, Record<string, number[]>> } {
+): { classes: Class[] } {
   const spellByNameKey = buildSpellNameKeyMap(spells);
   const classes: Class[] = [];
-  const spellSlotsUpdates: Record<string, Record<string, number[]>> = {};
 
   for (const doc of docs) {
     const parsed = parseClassMarkdownContent(doc.content, spellByNameKey);
     classes.push(parsed.classData);
-    if (parsed.spellSlotsByLevel) {
-      spellSlotsUpdates[parsed.classData.id] = parsed.spellSlotsByLevel;
-    }
   }
 
-  return { classes, spellSlotsUpdates };
+  return { classes };
 }
 
 export function generateSubclassesFromDocuments(
@@ -65,20 +56,3 @@ export function mergeSubclasses(existing: Subclass[], generated: Subclass[]): Su
   });
 }
 
-export function updateLookupTables(
-  existing: LookupTables,
-  spellSlotsUpdates: Record<string, Record<string, number[]>>,
-): LookupTables {
-  const current = (existing.spellSlots ?? {}) as Record<string, Record<string, number[]>>;
-  const merged: Record<string, Record<string, number[]>> = { ...current };
-  for (const [classId, levels] of Object.entries(spellSlotsUpdates)) {
-    merged[classId] = {
-      ...(current[classId] ?? {}),
-      ...levels,
-    };
-  }
-  return {
-    ...existing,
-    spellSlots: merged,
-  };
-}

@@ -10,8 +10,6 @@ import {
 import {
   generateClassesFromDocuments,
   mergeClasses,
-  updateLookupTables,
-  type LookupTables,
 } from './parse_srd_class_generation';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,7 +18,6 @@ const projectRoot = resolve(__dirname, '..');
 const classesDir = resolve(projectRoot, 'requirements', '02-character-creation', 'classes');
 const classesOutputPath = resolve(projectRoot, 'static', 'srd', 'classes.json');
 const spellsPath = resolve(projectRoot, 'static', 'srd', 'spells.json');
-const lookupTablesPath = resolve(projectRoot, 'static', 'srd', 'lookup-tables.json');
 
 function listClassMarkdownFiles(): string[] {
   return CLASS_MARKDOWN_FILE_ORDER.map(name => resolve(classesDir, name));
@@ -29,7 +26,7 @@ function listClassMarkdownFiles(): string[] {
 function main(): void {
   const spellList = JSON.parse(readFileSync(spellsPath, 'utf-8')) as Array<{ id: string; name: string }>;
   const classDocs = listClassMarkdownFiles().map(path => ({ content: readFileSync(path, 'utf-8') }));
-  const { classes: generatedClasses, spellSlotsUpdates } = generateClassesFromDocuments(classDocs, spellList);
+  const { classes: generatedClasses } = generateClassesFromDocuments(classDocs, spellList);
 
   const existingClasses = existsSync(classesOutputPath)
     ? (JSON.parse(readFileSync(classesOutputPath, 'utf-8')) as Class[])
@@ -37,12 +34,7 @@ function main(): void {
   const mergedClasses = mergeClasses(existingClasses, generatedClasses);
   writeFileSync(classesOutputPath, `${JSON.stringify(mergedClasses, null, 2)}\n`, 'utf-8');
 
-  const existingLookup = JSON.parse(readFileSync(lookupTablesPath, 'utf-8')) as LookupTables;
-  const updatedLookup = updateLookupTables(existingLookup, spellSlotsUpdates);
-  writeFileSync(lookupTablesPath, `${JSON.stringify(updatedLookup, null, 2)}\n`, 'utf-8');
-
   console.log(`Generated ${generatedClasses.length} classes -> ${classesOutputPath}`);
-  console.log(`Updated lookup tables -> ${lookupTablesPath}`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -68,6 +68,9 @@ export interface Class {
     readonly features: readonly Feature[];
   }[];
   readonly spellcasting: Spellcasting | null;
+  // 职业法术位表：classLevel → [1环, 2环, ... 9环]
+  // 仅使用常规法术位体系的职业有此字段；Warlock 使用 pactMagic，不在此表内。
+  readonly spellSlotsByLevel?: Readonly<Record<number, ReadonlyArray<number>>>;
 }
 
 // 子职业类型
@@ -94,12 +97,4 @@ export interface Subclass {
   }[];
   // 来源（如 'SRD 5.2', '2024 PHB' 等）
   readonly source?: string;
-}
-
-// 多维职业法术位查询表条目
-export interface MulticlassSpellSlotEntry {
-  readonly totalSpellcastingLevel: number;
-  // slotsByLevel: indexed by spell level (1-9), index 0 = level 1 slots, index 8 = level 9 slots.
-  // Cantrips (level 0) are not included since they don't consume slots.
-  readonly slotsByLevel: ReadonlyArray<number>;
 }
