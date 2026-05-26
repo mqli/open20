@@ -1,12 +1,11 @@
-#!/usr/bin/env node
-/**
- * Parse SRD 5.2 spell list markdown into spells.json.
- * Reads requirements/05-spell-management/srd-5.2-spell-list.md
- */
-
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import {
+  collapseParagraphLines,
+  parseParentheticalCommaList,
+  slugify,
+  stripBold,
+  stripItalic,
+  stripMarkdownHeading,
+} from './srd_markdown_helpers';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -51,23 +50,6 @@ interface Spell {
   attack?: boolean;
   source: string;
   classes?: string[];
-}
-
-// ── Helpers ────────────────────────────────────────────────────
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const projectRoot = resolve(__dirname, '..');
-const markdownPath = resolve(projectRoot, 'requirements', '05-spell-management', 'srd-5.2-spell-list.md');
-const outputPath = resolve(projectRoot, 'static', 'srd', 'spells.json');
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
 }
 
 export function parseComponents(compStr: string): string[] {
@@ -214,7 +196,6 @@ export function parseMarkdown(content: string): ParsedSpell[] {
   let currentSpell: Partial<ParsedSpell> | null = null;
   let inDescription = false;
   let descriptionLines: string[] = [];
-  let currentSection = '';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -241,11 +222,10 @@ export function parseMarkdown(content: string): ParsedSpell[] {
       }
 
       // Start new spell
-      const name = line.replace(/^#+\s*/, '').replace(/\*\*/g, '').trim();
+      const name = stripBold(stripMarkdownHeading(line));
       currentSpell = { name, descriptionLines: [] };
       inDescription = false;
       descriptionLines = [];
-      currentSection = '';
       continue;
     }
 
@@ -253,7 +233,7 @@ export function parseMarkdown(content: string): ParsedSpell[] {
 
     // Parse level/school line: *Level 2 Evocation (Wizard)* or *Evocation Cantrip (Sorcerer, Wizard)*
     if (line.startsWith('*') && line.includes('(') && !line.includes('**')) {
-      const text = line.replace(/[*]/g, '').trim();
+      const text = stripItalic(line).trim();
 
       // Check if cantrip
       const cantripMatch = text.match(/(\w+)\s+Cantrip/i);
@@ -270,25 +250,22 @@ export function parseMarkdown(content: string): ParsedSpell[] {
       }
 
       // Extract classes
-      const classMatch = text.match(/\(([^)]+)\)/);
-      if (classMatch) {
-        currentSpell.classes = classMatch[1].split(',').map(c => c.trim());
-      }
+      currentSpell.classes = parseParentheticalCommaList(text);
 
       continue;
     }
 
     // Parse bold fields
     if (line.includes('**Casting Time:**')) {
-      currentSpell.castingTime = line.replace(/\*\*/g, '').replace('Casting Time:', '').trim();
+      currentSpell.castingTime = stripBold(line).replace('Casting Time:', '').trim();
       continue;
     }
     if (line.includes('**Range:**')) {
-      currentSpell.range = line.replace(/\*\*/g, '').replace('Range:', '').trim();
+      currentSpell.range = stripBold(line).replace('Range:', '').trim();
       continue;
     }
     if (line.includes('**Components:**')) {
-      const compLine = line.replace(/\*\*/g, '').replace('Components:', '').trim();
+      const compLine = stripBold(line).replace('Components:', '').trim();
       currentSpell.components = compLine;
       // Extract material component
       const matMatch = compLine.match(/M\s*\(([^)]+)\)/i);
@@ -296,7 +273,7 @@ export function parseMarkdown(content: string): ParsedSpell[] {
       continue;
     }
     if (line.includes('**Duration:**')) {
-      currentSpell.duration = line.replace(/\*\*/g, '').replace('Duration:', '').trim();
+      currentSpell.duration = stripBold(line).replace('Duration:', '').trim();
       currentSpell.ritual = /ritual/i.test(currentSpell.duration || '');
       continue;
     }
@@ -352,28 +329,11 @@ export function parseMarkdown(content: string): ParsedSpell[] {
 
 export function transformSpell(parsed: ParsedSpell): Spell {
   const descLines = parsed.descriptionLines || [];
-  const mainDescription: string[] = [];
-  let cantripUpgradeText = parsed.cantripUpgradeText || '';
-  let usingAHigherLevelSpellSlotText = parsed.usingAHigherLevelSpellSlotText || '';
+  const cantripUpgradeText = parsed.cantripUpgradeText || '';
+  const usingAHigherLevelSpellSlotText = parsed.usingAHigherLevelSpellSlotText || '';
 
-  // Process description lines (parseMarkdown already extracted Cantrip Upgrade /
-  // Using a Higher-Level Spell Slot sections, so this loop just builds the description).
-  for (const line of descLines) {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      if (mainDescription.length > 0 && mainDescription[mainDescription.length - 1] !== '') {
-        mainDescription.push('');
-      }
-      continue;
-    }
-
-    mainDescription.push(trimmed);
-  }
-
-  // Filter out empty strings at the end
-  while (mainDescription.length > 0 && mainDescription[mainDescription.length - 1] === '') {
-    mainDescription.pop();
-  }
+  const descriptionJoined = collapseParagraphLines(descLines);
+  const mainDescription = descriptionJoined ? [descriptionJoined] : [];
 
   const durationInfo = parseDuration(parsed.duration || '');
   const fullDesc = mainDescription.join(' ');
@@ -445,47 +405,3 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   return spell;
 }
 
-// ── Main ──────────────────────────────────────────────────────
-
-function main(): void {
-  console.log(`Reading ${markdownPath}...`);
-  const content = readFileSync(markdownPath, 'utf-8');
-
-  const parsed = parseMarkdown(content);
-  console.log(`Parsed ${parsed.length} spells from markdown`);
-
-  const spells = parsed.map(p => transformSpell(p));
-
-  // Load existing spells and merge
-  let existing: Spell[] = [];
-  if (existsSync(outputPath)) {
-    existing = JSON.parse(readFileSync(outputPath, 'utf-8')) as Spell[];
-    console.log(`Loaded ${existing.length} existing spells`);
-  }
-
-  // Merge: prefer new parsed spells, keep existing non-SRD spells
-  const merged = new Map<string, Spell>();
-  for (const s of spells) merged.set(s.id, s);
-  for (const s of existing) {
-    if (!merged.has(s.id)) merged.set(s.id, s);
-  }
-
-  const allSpells = Array.from(merged.values()).sort((a, b) => {
-    if (a.level !== b.level) return a.level - b.level;
-    return a.name.localeCompare(b.name);
-  });
-
-  writeFileSync(outputPath, JSON.stringify(allSpells, null, 2), 'utf-8');
-  console.log(`Saved ${allSpells.length} spells to ${outputPath}`);
-
-  // Stats
-  const withCantrip = allSpells.filter(s => s.cantripUpgrade).length;
-  const withHigherLevel = allSpells.filter(s => s.usingAHigherLevelSpellSlot).length;
-  console.log(`Spells with cantripUpgrade: ${withCantrip}`);
-  console.log(`Spells with usingAHigherLevelSpellSlot: ${withHigherLevel}`);
-}
-
-// Only run as CLI when invoked directly (not when imported by tests).
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
