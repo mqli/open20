@@ -4,7 +4,7 @@ import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
 import { LevelTabs } from '@/components/spell-library/LevelTabs';
 import { FilterChips } from '@/components/spell-library/FilterChips';
-import { SpellCard } from '@/components/spell-library/SpellCard';
+import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
 import { EmptyState, Surface, Toggle } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
@@ -16,6 +16,7 @@ export function SpellLibraryLayout() {
     setSpells, filteredSpells,
     showPreparedOnly, setShowPreparedOnly,
     showKnownOnly, setShowKnownOnly,
+    selectSpell,
   } = useSpellStore();
   const { activeCharacter, loadCharacters } = useCharacterStore();
 
@@ -99,7 +100,14 @@ export function SpellLibraryLayout() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
           {spellsToDisplay.map(spell => (
-            <SpellCard key={spell.id} spell={spell} />
+            <SpellCardWrapper
+              key={spell.id}
+              spell={spell}
+              showDescription={false}
+              showSpellbookActions
+              showSpellbookBadges
+              onClick={() => selectSpell(spell)}
+            />
           ))}
         </div>
 
