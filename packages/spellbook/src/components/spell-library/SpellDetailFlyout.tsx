@@ -6,20 +6,15 @@ import {
 import { useSpellStore } from '@/stores/spell-store';
 import { useCharacterStore } from '@/stores/character-store';
 import { useRollStore } from '@/stores/roll-store';
+import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { Button, SheetBody, SheetClose, SheetContent, SheetHeader, SheetRoot } from '@open20/ui';
 import { characterService } from '@/core/character-service';
-import { spellService } from '@/core/spell-service';
 
 // Sub-components
 import { SpellHeader } from './details/SpellHeader';
 import { SpellStatsGrid } from './details/SpellStatsGrid';
 import { SpellActionPanel } from './details/SpellActionPanel';
 import { SpellContent } from './details/SpellContent';
-
-interface ConcentrationCondition {
-  id: string;
-  source?: string;
-}
 
 export function SpellDetailFlyout() {
   const { selectedSpell, isDetailOpen, closeDetail } = useSpellStore();
@@ -32,48 +27,21 @@ export function SpellDetailFlyout() {
   } = useCharacterStore();
   const { addRoll } = useRollStore();
 
+  const caps = useSpellCapabilities(selectedSpell);
+
   if (!selectedSpell) return null;
 
-  // Derived state
-  const isKnown = activeCharacter ? spellService.isSpellKnown(activeCharacter, selectedSpell.id) : false;
-  const isPrepared = activeCharacter ? spellService.isSpellPrepared(activeCharacter, selectedSpell.id) : false;
-  const isClassSpell = activeCharacter
-    ? spellService.isSpellForCharacter(activeCharacter, selectedSpell)
-    : false;
-  const isConcentratingOnThis = activeCharacter?.conditions.some(
-    c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === selectedSpell.id
-  ) ?? false;
-
-  // Calculate prepared count and max prepared for the spell's class
-  let preparedCount = 0;
-  let maxPrepared = 0;
-  if (activeCharacter) {
-    const classSpellcasting = activeCharacter.spells.classSpellcasting;
-    // Find the class this spell belongs to
-    const spellClasses = selectedSpell.classes ?? [];
-    const matchingClassId = Object.keys(classSpellcasting).find(cls => 
-      spellClasses.includes(cls)
-    );
-    if (matchingClassId && classSpellcasting[matchingClassId]) {
-      const classData = classSpellcasting[matchingClassId];
-      preparedCount = (classData.preparedSpells?.length ?? 0) + (classData.alwaysPreparedSpells?.length ?? 0);
-      maxPrepared = classData.maxPrepared ?? 0;
-    }
-  }
+  const { isKnown, isPrepared, isClassSpell, isConcentratingOnThis } = caps;
 
   // Handlers
   const handleLearnToggle = () => isKnown ? unlearnSpell(selectedSpell.id) : learnSpell(selectedSpell.id);
   const handlePrepareToggle = () => isPrepared ? unprepareSpell(selectedSpell.id) : prepareSpell(selectedSpell.id);
   const handleConcentrationToggle = () => isConcentratingOnThis ? endConcentration() : startConcentration(selectedSpell.id);
 
-  const handleRoll = (expression: string, label: string) => {
-    const result = rollDiceExpression(defaultRandom, expression);
-    addRoll({ label, expression, total: result.total });
-  };
-
   const handleAttackRoll = () => {
     if (!activeCharacter) {
-      handleRoll(`1d20 + 0`, 'Attack');
+      const result = rollDiceExpression(defaultRandom, '1d20 + 0');
+      addRoll({ label: 'Attack', expression: '1d20 + 0', total: result.total });
       return;
     }
     const result = characterService.rollSpellAttack(activeCharacter, selectedSpell.name);
@@ -139,11 +107,6 @@ export function SpellDetailFlyout() {
 
           <SpellActionPanel 
             spell={selectedSpell}
-            character={activeCharacter}
-            isKnown={isKnown}
-            isPrepared={isPrepared}
-            preparedCount={preparedCount}
-            maxPrepared={maxPrepared}
             onCast={() => castSpell(selectedSpell.id, selectedSpell.level)}
             onAttackRoll={handleAttackRoll}
             onDamageRoll={handleDamageRoll}

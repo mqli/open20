@@ -1,16 +1,10 @@
 import { Sparkles, BookOpen } from 'lucide-react';
 import { Button, Surface, Text } from '@open20/ui';
 import type { Spell } from 'open20-core';
-import type { AppCharacter } from '@/core/types';
-import { getCasterType } from '@/core/character-service';
+import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 
 interface SpellActionPanelProps {
   spell: Spell;
-  character: AppCharacter | null;
-  isKnown: boolean;
-  isPrepared: boolean;
-  preparedCount: number;
-  maxPrepared: number;
   onCast: () => void;
   onAttackRoll: () => void;
   onDamageRoll: (index: number, label: string) => void;
@@ -19,39 +13,19 @@ interface SpellActionPanelProps {
 
 export function SpellActionPanel({
   spell,
-  character,
-  isKnown,
-  isPrepared,
-  preparedCount,
-  maxPrepared,
   onCast,
   onAttackRoll,
   onDamageRoll,
   onPrepareToggle,
 }: SpellActionPanelProps) {
-  if (!character) return null;
-
-  const spells = character.spells ?? { classSpellcasting: {}, spellSlots: {} };
-  const classSpellcasting = spells.classSpellcasting;
-  const primaryClassId = Object.keys(classSpellcasting)[0] ?? null;
-  const spellAttackBonus = primaryClassId
-    ? classSpellcasting[primaryClassId]?.spellAttackBonus ?? 0
-    : 0;
-
-  const casterType = getCasterType(character);
-  const canPrepare = casterType.canPrepare;
-
-  const spellSlots = spells.spellSlots;
-  const canCast = (isKnown || spell.level === 0) && (spell.level === 0 || isPrepared) && (
-    spell.level === 0 ||
-    (spellSlots[spell.level]?.total ?? 0) > (spellSlots[spell.level]?.used ?? 0)
-  );
+  const caps = useSpellCapabilities(spell);
+  const { isPrepared, canCast, showPrepareButton, spellAttackBonus, preparedCount, maxPrepared } = caps;
 
   return (
     <Surface variant="tint" padding="lg" className="mb-8 flex flex-wrap gap-4 items-center">
       <Text size="sm" weight="black" className="uppercase tracking-widest mr-2 text-primary-700">Quick Actions</Text>
 
-      {canPrepare && (isKnown || spell.level === 0) && (
+      {showPrepareButton && (
         <Button
           variant={isPrepared ? 'primary' : 'outline'}
           size="sm"

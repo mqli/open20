@@ -33,7 +33,7 @@ function formatClassInfo(
 }
 
 export function CharacterBar() {
-  const { characters, activeCharacter, setActiveCharacter, longRest, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
+  const { characters, activeCharacter, setActiveCharacter, longRest, consumeSpellSlot, recoverSpellSlot, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
@@ -136,6 +136,21 @@ export function CharacterBar() {
                         />
                       );
                     })}
+                </div>
+              )}
+
+              {/* Pact Magic Slots (Warlock) — hidden on mobile */}
+              {activeCharacter.spells?.pactMagicSlots && (
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <div className="w-px h-5 bg-border/60" />
+                  <Text variant="label" className="text-text-tertiary mr-0.5">
+                    Pact Lvl {activeCharacter.spells.pactMagicSlots.level}
+                  </Text>
+                  <SlotPips
+                    total={activeCharacter.spells.pactMagicSlots.total}
+                    used={activeCharacter.spells.pactMagicSlots.used}
+                    onPipClick={(_index, isUsed) => isUsed ? recoverPactMagicSlot() : consumePactMagicSlot()}
+                  />
                 </div>
               )}
             </>

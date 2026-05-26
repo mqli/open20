@@ -126,6 +126,14 @@ export class CharacterService {
     return { ...open20RecoverSpellSlot(character, level), id: character.id } as AppCharacter;
   }
 
+  consumePactMagicSlot(character: AppCharacter): AppCharacter {
+    return { ...open20ConsumeSpellSlot(character, 'pact'), id: character.id } as AppCharacter;
+  }
+
+  recoverPactMagicSlot(character: AppCharacter): AppCharacter {
+    return { ...open20RecoverSpellSlot(character, 'pact'), id: character.id } as AppCharacter;
+  }
+
   longRest(character: AppCharacter): AppCharacter {
     return { ...open20LongRest(character, dataLoader as unknown as DataLoader), id: character.id } as AppCharacter;
   }

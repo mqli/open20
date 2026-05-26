@@ -1,6 +1,7 @@
 import type { Spell } from 'open20-core';
 import { useSpellStore } from '@/stores/spell-store';
 import { useCharacterStore } from '@/stores/character-store';
+import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import {
   Badge,
   DropdownMenuContent,
@@ -12,17 +13,10 @@ import {
   IconButton,
   SpellCard as SpellCardUI,
 } from '@open20/ui';
-import { spellService } from '@/core/spell-service';
-import { getCasterType } from '@/core/character-service';
 import { BookMarked, Star, ChevronDown } from 'lucide-react';
 
 interface SpellCardProps {
   spell: Spell;
-}
-
-interface ConcentrationCondition {
-  id: string;
-  source?: string;
 }
 
 /**
@@ -106,49 +100,18 @@ function ClassActionDropdown({
 export function SpellCard({ spell }: SpellCardProps) {
   const { selectSpell } = useSpellStore();
   const {
-    activeCharacter,
     learnSpell, unlearnSpell,
     learnCantrip, unlearnCantrip,
     prepareSpell, unprepareSpell,
     prepareSpellForClass, unprepareSpellForClass,
   } = useCharacterStore();
 
-  // Get ALL matching classIds for this spell (for multiclass)
-  const matchingClassIds = activeCharacter
-    ? (activeCharacter.classes?.map(c => c.classId) ?? [])
-        .filter(id => spell.classes?.includes(id) ?? false)
-    : [];
-
-  // Get classes that have this spell prepared
-  const preparedClassIds = matchingClassIds.filter(classId => {
-    const classData = activeCharacter?.spells.classSpellcasting[classId];
-    return classData?.preparedSpells.includes(spell.id) ?? false;
-  });
-
-  // Get classes that have this cantrip known
-  const cantripKnownClassIds = spell.level === 0
-    ? matchingClassIds.filter(classId => {
-        const classData = activeCharacter?.spells.classSpellcasting[classId];
-        return classData?.knownCantrips.includes(spell.id) ?? false;
-      })
-    : [];
-
-  const isKnown = activeCharacter ? spellService.isSpellKnown(activeCharacter, spell.id) : false;
-  const isPrepared = preparedClassIds.length > 0;
-  const isCantripKnown = cantripKnownClassIds.length > 0;
-  const isConcentratingOnThis = activeCharacter?.conditions.some(
-    c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === spell.id
-  ) ?? false;
-
-  // A spell is "actionable" if there's an active character whose class includes it
-  const isClassSpell = activeCharacter
-    ? spellService.isSpellForCharacter(activeCharacter, spell)
-    : false;
-
-  // Show Learn/Prepare buttons based on character's caster type
-  const casterType = activeCharacter
-    ? getCasterType(activeCharacter)
-    : { canLearn: false, canPrepare: false, isSpellbookCaster: false };
+  const caps = useSpellCapabilities(spell);
+  const {
+    isKnown, isPrepared, isCantripKnown, isConcentratingOnThis,
+    showCantripButton, showLearnButton, showPrepareButton,
+    matchingClassIds, preparedClassIds, cantripKnownClassIds,
+  } = caps;
 
   const surfaceVariant = isConcentratingOnThis
     ? 'warning'
@@ -177,64 +140,63 @@ export function SpellCard({ spell }: SpellCardProps) {
       )}
       renderActions={() => (
         <>
-          {/* Learn toggle — cantrips for all casters, regular spells only for "learn" casters */}
-          {isClassSpell && (spell.level === 0 || casterType.canLearn) && (
-            spell.level === 0 ? (
-              /* Cantrip */
-              matchingClassIds.length > 1 ? (
-                <ClassActionDropdown
-                  matchingClassIds={matchingClassIds}
-                  activeClassIds={cantripKnownClassIds}
-                  label="Cantrip"
-                  onToggle={(classId) => {
-                    if (cantripKnownClassIds.includes(classId)) {
-                      unlearnCantrip(classId, spell.id);
-                    } else {
-                      learnCantrip(classId, spell.id);
-                    }
-                  }}
-                />
-              ) : (
-                <IconButton
-                  variant="info"
-                  active={isCantripKnown}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const classId = matchingClassIds[0];
-                    if (!classId) return;
-                    if (isCantripKnown) {
-                      unlearnCantrip(classId, spell.id);
-                    } else {
-                      learnCantrip(classId, spell.id);
-                    }
-                  }}
-                  title={isCantripKnown ? 'Unlearn Cantrip' : 'Learn Cantrip'}
-                >
-                  <BookMarked className="w-3.5 h-3.5" />
-                </IconButton>
-              )
-            ) : (
-              /* Regular spell - simple toggle */
-              <IconButton
-                variant="info"
-                active={isKnown}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (isKnown) {
-                    unlearnSpell(spell.id);
+          {/* Cantrip learn/unlearn */}
+          {showCantripButton && (
+            matchingClassIds.length > 1 ? (
+              <ClassActionDropdown
+                matchingClassIds={matchingClassIds}
+                activeClassIds={cantripKnownClassIds}
+                label="Cantrip"
+                onToggle={(classId) => {
+                  if (cantripKnownClassIds.includes(classId)) {
+                    unlearnCantrip(classId, spell.id);
                   } else {
-                    learnSpell(spell.id);
+                    learnCantrip(classId, spell.id);
                   }
                 }}
-                title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
+              />
+            ) : (
+              <IconButton
+                variant="info"
+                active={isCantripKnown}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const classId = matchingClassIds[0];
+                  if (!classId) return;
+                  if (isCantripKnown) {
+                    unlearnCantrip(classId, spell.id);
+                  } else {
+                    learnCantrip(classId, spell.id);
+                  }
+                }}
+                title={isCantripKnown ? 'Unlearn Cantrip' : 'Learn Cantrip'}
               >
                 <BookMarked className="w-3.5 h-3.5" />
               </IconButton>
             )
           )}
 
+          {/* Regular spell learn/unlearn (spellbook casters only) */}
+          {showLearnButton && (
+            <IconButton
+              variant="info"
+              active={isKnown}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isKnown) {
+                  unlearnSpell(spell.id);
+                } else {
+                  learnSpell(spell.id);
+                }
+              }}
+              title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
+            >
+              <BookMarked className="w-3.5 h-3.5" />
+            </IconButton>
+          )}
+
           {/* Prepare toggle — only for casters who prepare spells (not cantrips) */}
-          {isClassSpell && casterType.canPrepare && spell.level > 0 && (
+          {showPrepareButton && (
             matchingClassIds.length > 1 ? (
               <ClassActionDropdown
                 matchingClassIds={matchingClassIds}

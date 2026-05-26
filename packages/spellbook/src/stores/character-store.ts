@@ -27,6 +27,8 @@ interface CharacterState {
   castSpell: (spellId: string, level: SpellLevel) => void;
   consumeSpellSlot: (level: SpellLevel) => void;
   recoverSpellSlot: (level: SpellLevel) => void;
+  consumePactMagicSlot: () => void;
+  recoverPactMagicSlot: () => void;
   longRest: () => void;
   shortRest: () => void;
   startConcentration: (spellId: string) => void;
@@ -171,6 +173,22 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (!activeCharacter) return;
 
     const updated = characterService.recoverSpellSlot(activeCharacter, level);
+    get().updateCharacter(updated);
+  },
+
+  consumePactMagicSlot: () => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+
+    const updated = characterService.consumePactMagicSlot(activeCharacter);
+    get().updateCharacter(updated);
+  },
+
+  recoverPactMagicSlot: () => {
+    const { activeCharacter } = get();
+    if (!activeCharacter) return;
+
+    const updated = characterService.recoverPactMagicSlot(activeCharacter);
     get().updateCharacter(updated);
   },
 
