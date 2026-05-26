@@ -1,7 +1,7 @@
 import { canUpcast, defaultRandom, rollDiceExpression, type Spell } from 'open20-core';
 import type { SpellLevel } from 'open20-core/types';
 import type { ComponentProps, ReactNode } from 'react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { SpellCard as SpellCardUI } from '@open20/ui';
 import { characterService } from '@/core/character-service';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
