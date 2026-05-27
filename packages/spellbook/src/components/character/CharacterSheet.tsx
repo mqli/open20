@@ -10,11 +10,25 @@ import {
   SheetRoot,
   SheetTitle,
   Tabs,
+  SlotPips,
+  Text,
 } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
-import { SpellSlots } from '@/components/spell-slots/SpellSlots';
+
+const SPELL_LEVEL_LABELS = [
+  'Cantrip',
+  '1st',
+  '2nd',
+  '3rd',
+  '4th',
+  '5th',
+  '6th',
+  '7th',
+  '8th',
+  '9th',
+];
 
 interface ConcentrationCondition {
   id: string;
@@ -30,20 +44,12 @@ export function CharacterSheet({
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
 }) {
-  const {
-    activeCharacter,
-    consumeSpellSlot,
-    recoverSpellSlot,
-    consumePactMagicSlot,
-    recoverPactMagicSlot,
-  } = useCharacterStore();
+  const { activeCharacter, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
 
   if (!activeCharacter) return null;
 
   const { spells, classes, conditions } = activeCharacter;
   const classSpellcasting = spells.classSpellcasting ?? {};
-
-  const isMulticlass = (classes?.length ?? 0) > 1;
 
   const concentratingSpellId = (
     conditions?.find((c) => c.id === 'Concentrating') as ConcentrationCondition | undefined
@@ -101,17 +107,27 @@ export function CharacterSheet({
             <ConcentrationBanner concentratingSpellId={concentratingSpellId} />
           )}
 
-          {/* Combined Spell Slots */}
-          {(spells.spellSlots || spells.pactMagicSlots) && (
-            <SpellSlots
-              slots={spells.spellSlots ?? {}}
-              pactMagicSlots={spells.pactMagicSlots}
-              onConsumeSlot={consumeSpellSlot}
-              onRecoverSlot={recoverSpellSlot}
-              onConsumePactSlot={consumePactMagicSlot}
-              onRecoverPactSlot={recoverPactMagicSlot}
-              isMulticlass={isMulticlass}
-            />
+          {/* Pact Magic Slots - shown separately */}
+          {spells.pactMagicSlots && (
+            <section>
+              <SectionHeader title="Pact Magic" />
+              <div className="flex items-center gap-3">
+                <Text variant="label" className="w-10 flex-shrink-0">
+                  Pact {SPELL_LEVEL_LABELS[spells.pactMagicSlots.level]}
+                </Text>
+                <SlotPips
+                  total={spells.pactMagicSlots.total}
+                  used={spells.pactMagicSlots.used}
+                  onPipClick={(_index, isUsed) =>
+                    isUsed ? recoverPactMagicSlot() : consumePactMagicSlot()
+                  }
+                />
+                <Text variant="caption" weight="bold" className="flex-shrink-0 w-8 text-right">
+                  {spells.pactMagicSlots.total - spells.pactMagicSlots.used}/
+                  {spells.pactMagicSlots.total}
+                </Text>
+              </div>
+            </section>
           )}
 
           {/* Per-Class Spellcasting Sections */}

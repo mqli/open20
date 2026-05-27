@@ -9,13 +9,15 @@ import {
   Surface,
   Text,
   DefenseIcon,
+  SlotPips,
+  Divider,
 } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
 import { getCasterTypeForClass } from '@/core/character-service';
 import { useCharacterStore } from '@/stores/character-store';
 import { useSpellStore } from '@/stores/spell-store';
-import type { Spell } from '@/core/types';
+import type { SpellLevel, Spell } from 'open20-core/types';
 import { SpellEntry } from './SpellEntry';
 import { useState, type ReactNode } from 'react';
 
@@ -55,7 +57,7 @@ interface ClassSpellSectionProps {
 }
 
 export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
-  const { activeCharacter } = useCharacterStore();
+  const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
   const [cantripToReplace, setCantripToReplace] = useState<string | null>(null);
@@ -121,6 +123,9 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
     setCantripToReplace(null);
   };
 
+  // Get spell slots for this class (for multiclass, slots are combined in activeCharacter.spells.spellSlots)
+  const spellSlots = activeCharacter.spells.spellSlots ?? {};
+
   return (
     <Surface variant="default" padding="none" className="overflow-hidden">
       <div className="p-4 space-y-4">
@@ -135,20 +140,22 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
           <StatTile label="Attack" value={`+${spellAttack}`} />
         </div>
 
+        <Divider />
+
         {/* Preparation Progress */}
-        {casterType.canPrepare && (
+        {casterType.canPrepare && maxPrepared != null && (
           <div>
             <div className="flex items-center justify-between mb-2">
               <Text variant="label">Preparation Slots</Text>
               <Text weight="bold" size="sm" color="accent">
-                {allPrepared.length}/{maxPrepared}
+                {prepared.length}/{maxPrepared}
               </Text>
             </div>
             <div className="h-2.5 bg-bg-tertiary rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary-400 transition-all duration-500 rounded-full"
                 style={{
-                  width: `${Math.min(100, (allPrepared.length / Math.max(1, maxPrepared || 1)) * 100)}%`,
+                  width: `${Math.min(100, (prepared.length / maxPrepared) * 100)}%`,
                 }}
               />
             </div>
@@ -265,20 +272,43 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
           </DialogContent>
         </DialogRoot>
 
-        {/* Spell List */}
+        {/* Spell List with Inline Spell Slots */}
         <div className="space-y-4">
-          {Object.entries(spellsByLevel).map(([level, spellsAtLevel]) => (
-            <div key={level} className="space-y-1">
-              <Text as="div" variant="label" className="text-[8px] px-1">
-                {SPELL_LEVEL_LABELS[parseInt(level, 10)]}
-              </Text>
-              <div className="grid gap-1">
-                {spellsAtLevel.map((spell) => (
-                  <SpellEntry key={spell.id} spell={spell} alwaysPrepared={alwaysPrepared} />
-                ))}
+          {Object.entries(spellsByLevel).map(([level, spellsAtLevel]) => {
+            const lvl = parseInt(level, 10) as SpellLevel;
+            const slot = spellSlots[lvl];
+            const hasSlot = slot && slot.total > 0;
+
+            return (
+              <div key={level} className="space-y-1">
+                <div className="flex items-center justify-between px-1">
+                  <Text as="div" variant="label" className="text-[8px]">
+                    {SPELL_LEVEL_LABELS[lvl]}
+                  </Text>
+                  {hasSlot && (
+                    <div className="flex items-center gap-2">
+                      <SlotPips
+                        total={slot.total}
+                        used={slot.used}
+                        onPipClick={(_index, isUsed) =>
+                          isUsed ? recoverSpellSlot(lvl) : consumeSpellSlot(lvl)
+                        }
+                        size="sm"
+                      />
+                      <Text variant="caption" weight="bold" className="text-right text-[10px] w-8">
+                        {slot.total - slot.used}/{slot.total}
+                      </Text>
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-1">
+                  {spellsAtLevel.map((spell) => (
+                    <SpellEntry key={spell.id} spell={spell} alwaysPrepared={alwaysPrepared} />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </Surface>
