@@ -103,9 +103,9 @@ export const buttonSizeVariants = {
 } as const;
 
 export const iconButtonSizeVariants = {
-  sm: 'p-1',
-  md: 'p-1.5',
-  lg: 'p-2',
+  sm: 'p-1 [&>svg]:w-3.5 [&>svg]:h-3.5',
+  md: 'p-1.5 [&>svg]:w-4 [&>svg]:h-4',
+  lg: 'p-2 [&>svg]:w-5 [&>svg]:h-5',
 } as const;
 
 export const iconButtonVariants = {

@@ -150,7 +150,7 @@ export function CharacterBar() {
               title={characters.length > 0 ? 'Switch character' : 'Create character'}
               className="text-text-tertiary hover:text-primary-600"
             >
-              <Users className="w-3.5 h-3.5" />
+              <Users />
             </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48">

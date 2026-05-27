@@ -1,5 +1,5 @@
-import { Activity } from 'lucide-react';
 import { Button } from '@open20/ui';
+import { ConcentrationToggleIcon } from '@open20/ui';
 
 interface ConcentrationToggleProps {
   isConcentrating: boolean;
@@ -20,7 +20,7 @@ export function ConcentrationToggle({
       title={isConcentrating ? 'End Concentration' : 'Start Concentration'}
       className="p-1.5"
     >
-      <Activity className="w-3 h-3" />
+      <ConcentrationToggleIcon size="xs" />
     </Button>
   ) : (
     <Button
@@ -29,7 +29,7 @@ export function ConcentrationToggle({
       onClick={onToggle}
       title={isConcentrating ? 'End Concentration' : 'Start Concentration'}
     >
-      <Activity className={`w-3.5 h-3.5 mr-1.5 ${isConcentrating ? 'animate-pulse' : ''}`} />
+      <ConcentrationToggleIcon size="sm" className={`mr-1.5 ${isConcentrating ? 'animate-pulse' : ''}`} />
       {isConcentrating ? 'Stop' : 'Concentrate'}
     </Button>
   );

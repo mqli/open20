@@ -33,6 +33,8 @@ export { Toggle } from './components/Toggle/index';
 export type { ToggleProps } from './components/Toggle/index';
 export { Tooltip, TooltipProvider } from './components/Tooltip/index';
 
+export * from './components/icons';
+
 // Shadcn-style aliases for easier incremental migration.
 export const DialogRoot = Dialog.Root;
 export const DialogTrigger = Dialog.Trigger;
