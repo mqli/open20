@@ -1,9 +1,8 @@
-// ── Spell Components ──────────────────────────────────────
+// ── SpellEditor Component ─────────────────────────────────
+// A reusable spell editor for creating and editing D&D 5e spells
 
-export { SpellCard } from './SpellCard';
-
+export { SpellEditor } from './SpellEditor';
 export {
-  SpellEditor,
   type SpellEditorProps,
   type SpellFormData,
   type SpellFormDamage,
@@ -18,4 +17,4 @@ export {
   DEFAULT_SPELL_FORM_DATA,
   spellToFormData,
   formDataToSpell,
-} from './editor';
+} from './SpellEditor.types';
