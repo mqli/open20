@@ -1,4 +1,4 @@
-import type { SpellFormData } from '../SpellEditor.types';
+import type { SpellFormData, SpellFormDamage } from '../SpellEditor.types';
 import { Input } from '../../../Input/Input';
 import { Select } from '../../../Select/Select';
 import { Switch } from '../../../Switch/Switch';
@@ -23,7 +23,7 @@ export function DamageHealSection({ formData, onChange, disabled }: DamageHealSe
       damage: {
         ...formData.damage,
         [field]: updated,
-      },
+      } as SpellFormDamage,
     });
   };
 
@@ -34,19 +34,19 @@ export function DamageHealSection({ formData, onChange, disabled }: DamageHealSe
       damage: {
         ...formData.damage,
         [field]: [...current, { dice: '', type: '' }],
-      },
+      } as SpellFormDamage,
     });
   };
 
   const removeDamageEntry = (field: 'entries' | 'additional' | 'perSlot', index: number) => {
     const damage = formData.damage as any;
     const current = damage?.[field] || [];
-    const updated = current.filter((_, i) => i !== index);
+    const updated = current.filter((_item: unknown, i: number) => i !== index);
     onChange({
       damage: {
         ...formData.damage,
         [field]: updated,
-      },
+      } as SpellFormDamage,
     });
   };
 

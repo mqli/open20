@@ -80,7 +80,7 @@ const SAMPLE_HEALING: Partial<Spell> = {
 // ── Meta Configuration ──────────────────────────────
 
 const meta: Meta<typeof SpellEditor> = {
-  title: 'Components/SpellEditor',
+  title: 'Spell/SpellEditor',
   component: SpellEditor,
   parameters: {
     layout: 'padded',

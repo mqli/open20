@@ -1,6 +1,6 @@
 // ── Spell Components ──────────────────────────────────────
 
-export { SpellCard } from './SpellCard';
+export { SpellCard, type SpellCardProps } from './SpellCard';
 
 export {
   SpellEditor,
