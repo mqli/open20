@@ -38,43 +38,43 @@ export function CharacterModalForm({
   setFormData,
   isSubmitting,
   onSubmit,
-  onCancel
+  onCancel,
 }: CharacterModalFormProps) {
   const handleAbilityChange = (abilityName: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      abilities: { ...prev.abilities, [abilityName]: parseInt(value) || 0 }
+      abilities: { ...prev.abilities, [abilityName]: parseInt(value) || 0 },
     }));
   };
 
   const handleAddAdditionalClass = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       additionalClasses: [
         ...prev.additionalClasses,
-        { 
-          id: `additional-class-${Date.now()}`, 
-          classId: 'Fighter', 
-          level: 1, 
-          subclassId: undefined 
-        }
-      ]
+        {
+          id: `additional-class-${Date.now()}`,
+          classId: 'Fighter',
+          level: 1,
+          subclassId: undefined,
+        },
+      ],
     }));
   };
 
   const handleUpdateAdditionalClass = (id: string, updates: Partial<AdditionalClassEntry>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      additionalClasses: prev.additionalClasses.map(ac => 
-        ac.id === id ? { ...ac, ...updates } : ac
-      )
+      additionalClasses: prev.additionalClasses.map((ac) =>
+        ac.id === id ? { ...ac, ...updates } : ac,
+      ),
     }));
   };
 
   const handleRemoveAdditionalClass = (id: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      additionalClasses: prev.additionalClasses.filter(ac => ac.id !== id)
+      additionalClasses: prev.additionalClasses.filter((ac) => ac.id !== id),
     }));
   };
 
@@ -86,18 +86,13 @@ export function CharacterModalForm({
 
   return (
     <DialogRoot open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+      <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="flex justify-between items-center mb-8">
           <DialogTitle className="text-2xl font-black text-text-primary uppercase tracking-tight">
             {editingCharacter ? 'Edit Character' : 'Create Your Hero'}
           </DialogTitle>
           <DialogClose asChild>
-            <Button 
-              variant="ghost"
-              size="sm"
-              className="p-2 rounded-full"
-              disabled={isSubmitting}
-            >
+            <Button variant="ghost" size="sm" className="p-2 rounded-full" disabled={isSubmitting}>
               <X className="w-6 h-6" />
             </Button>
           </DialogClose>
@@ -107,86 +102,96 @@ export function CharacterModalForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
-                <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
+                <Text as="label" variant="formLabel">
                   Character Name
                 </Text>
-                <Input 
-                  value={formData.name} 
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))} 
-                  placeholder="e.g. Melf the Archmage" 
-                  required 
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g. Melf the Archmage"
+                  required
                   className="text-lg font-medium"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
+                  <Text as="label" variant="formLabel">
                     Class
                   </Text>
-                  <SelectRoot 
-                    value={formData.charClass} 
-                    onValueChange={(value) => { 
-                      setFormData(prev => ({ ...prev, charClass: value, subclassId: '' })); 
+                  <SelectRoot
+                    value={formData.charClass}
+                    onValueChange={(value) => {
+                      setFormData((prev) => ({ ...prev, charClass: value, subclassId: '' }));
                     }}
                   >
                     <SelectTrigger />
                     <SelectContent>
-                      {CLASSES.map(c => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      {CLASSES.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </SelectRoot>
                 </div>
                 <div>
-                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
+                  <Text as="label" variant="formLabel">
                     Level
                   </Text>
-                  <Input 
-                    type="number" 
-                    min={1} 
-                    max={20} 
-                    value={formData.level} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, level: parseInt(e.target.value) || 1 }))} 
+                  <Input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={formData.level}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, level: parseInt(e.target.value) || 1 }))
+                    }
                   />
                 </div>
               </div>
 
-              <SubclassSelect 
+              <SubclassSelect
                 classId={formData.charClass}
                 value={formData.subclassId}
-                onChange={(value) => setFormData(prev => ({ ...prev, subclassId: value }))}
+                onChange={(value) => setFormData((prev) => ({ ...prev, subclassId: value }))}
               />
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
+                  <Text as="label" variant="formLabel">
                     Species
                   </Text>
-                  <SelectRoot 
-                    value={formData.species} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, species: value }))}
+                  <SelectRoot
+                    value={formData.species}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, species: value }))}
                   >
                     <SelectTrigger />
                     <SelectContent>
-                      {SPECIES.map(s => (
-                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      {SPECIES.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </SelectRoot>
                 </div>
                 <div>
-                  <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
+                  <Text as="label" variant="formLabel">
                     Background
                   </Text>
-                  <SelectRoot 
-                    value={formData.background} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, background: value }))}
+                  <SelectRoot
+                    value={formData.background}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, background: value }))
+                    }
                   >
                     <SelectTrigger />
                     <SelectContent>
-                      {BACKGROUNDS.map(b => (
-                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                      {BACKGROUNDS.map((b) => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </SelectRoot>
@@ -199,17 +204,17 @@ export function CharacterModalForm({
                   <Text as="label" variant="labelSm" weight="black" className="tracking-[0.2em]">
                     Multiclass
                   </Text>
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={handleAddAdditionalClass}
                     className="h-7 text-[9px]"
                   >
                     + Add Class
                   </Button>
                 </div>
-                
+
                 {formData.additionalClasses.map((ac) => (
                   <AdditionalClassEntryComponent
                     key={ac.id}
@@ -221,32 +226,26 @@ export function CharacterModalForm({
               </div>
             </div>
 
-            <AbilityScoresSection 
-              abilities={formData.abilities}
-              onChange={handleAbilityChange}
-            />
+            <AbilityScoresSection abilities={formData.abilities} onChange={handleAbilityChange} />
           </div>
 
           <div className="pt-6 border-t border-border flex justify-end gap-4">
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="lg" 
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
               disabled={isSubmitting}
               onClick={onCancel}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              variant="primary" 
-              size="lg" 
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
               disabled={!formData.name || isSubmitting}
             >
-              {isSubmitting 
-                ? 'Saving...' 
-                : editingCharacter ? 'Save Changes' : 'Summon Hero'
-              }
+              {isSubmitting ? 'Saving...' : editingCharacter ? 'Save Changes' : 'Summon Hero'}
             </Button>
           </div>
         </form>

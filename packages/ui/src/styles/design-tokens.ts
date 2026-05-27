@@ -110,7 +110,8 @@ export const iconButtonSizeVariants = {
 
 export const iconButtonVariants = {
   secondary: 'bg-bg-tertiary text-text-tertiary hover:bg-bg-secondary border-border',
-  primary: 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border-primary-500/30 hover:bg-primary-500/25',
+  primary:
+    'bg-primary-500/15 text-primary-600 dark:text-primary-400 border-primary-500/30 hover:bg-primary-500/25',
   info: 'bg-info/15 text-info border-info/30 hover:bg-info/25',
   warning: 'bg-warning/15 text-warning border-warning/30 hover:bg-warning/25',
   danger: 'bg-danger/15 text-danger border-danger/30 hover:bg-danger/25',
@@ -119,14 +120,16 @@ export const iconButtonVariants = {
 
 export const iconButtonActiveVariants = {
   secondary: 'bg-bg-secondary text-text-primary border-border/80',
-  primary: 'bg-primary-500/30 text-primary-700 dark:text-primary-300 border-primary-500/50 shadow-sm shadow-primary-500/10',
+  primary:
+    'bg-primary-500/30 text-primary-700 dark:text-primary-300 border-primary-500/50 shadow-sm shadow-primary-500/10',
   info: 'bg-info/30 text-info border-info/50 shadow-sm',
   warning: 'bg-warning/30 text-warning border-warning/50 shadow-sm',
   danger: 'bg-danger/30 text-danger border-danger/50 shadow-sm',
   success: 'bg-success/30 text-success border-success/50 shadow-sm',
 } as const;
 
-export const sliderTrackClasses = 'relative h-2 w-full grow overflow-hidden rounded-full bg-bg-tertiary';
+export const sliderTrackClasses =
+  'relative h-2 w-full grow overflow-hidden rounded-full bg-bg-tertiary';
 export const sliderRangeClasses = 'absolute h-full bg-primary-600';
 export const sliderThumbClasses =
   'block h-5 w-5 rounded-full border-2 border-primary-600 bg-bg-primary ring-offset-bg-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
@@ -167,6 +170,7 @@ export const surfaceShadowVariants = {
 export const textVariants = {
   label: 'text-[9px] font-black text-text-tertiary uppercase tracking-widest',
   labelSm: 'text-[10px] font-bold text-text-tertiary uppercase tracking-widest',
+  formLabel: 'block text-[10px] font-black text-text-tertiary uppercase tracking-[0.2em] mb-2',
   caption: 'text-[10px] text-text-tertiary',
   bodySm: 'text-xs text-text-secondary',
   body: 'text-sm text-text-secondary',
@@ -214,8 +218,7 @@ export const overlayClasses =
 export const sheetSideClasses = {
   right:
     'inset-y-0 right-0 h-full w-full md:w-[540px] transition-transform data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
-  left:
-    'inset-y-0 left-0 h-full w-full md:w-[540px] transition-transform data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
+  left: 'inset-y-0 left-0 h-full w-full md:w-[540px] transition-transform data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
   bottom:
     'inset-x-0 bottom-0 h-[85vh] w-full rounded-t-2xl transition-transform data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
 } as const;
@@ -231,7 +234,8 @@ export const spellSchoolVariants = {
   Enchantment: 'bg-pink-500/15 text-pink-600 dark:text-pink-400 border border-pink-500/20',
   Evocation: 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20',
   Illusion: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20',
-  Necromancy: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+  Necromancy:
+    'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
   Transmutation: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20',
 } as const;
 
@@ -239,7 +243,8 @@ export const spellSchoolVariants = {
 export const chipBase = 'inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold';
 
 // ── Generic inline metadata item (icon + text) ──
-export const inlineMeta = 'inline-flex items-center gap-1 whitespace-nowrap text-[10px] text-text-tertiary';
+export const inlineMeta =
+  'inline-flex items-center gap-1 whitespace-nowrap text-[10px] text-text-tertiary';
 
 // ── Generic section divider (thin border-top + padding) ──
 export const sectionDivider = 'pt-2 border-t border-border/50';

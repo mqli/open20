@@ -9,6 +9,8 @@ export type { BadgeProps } from './components/Badge/index';
 export { Button } from './components/Button/index';
 export type { ButtonProps } from './components/Button/index';
 export { Dialog };
+export { Divider } from './components/Divider/index';
+export type { DividerProps } from './components/Divider/index';
 export { DropdownMenu };
 export { EmptyState } from './components/EmptyState/index';
 export { FilterChip } from './components/FilterChip/index';

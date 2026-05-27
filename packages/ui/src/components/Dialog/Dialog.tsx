@@ -6,7 +6,7 @@ import { closeButtonClasses } from '../../styles/design-tokens';
 import { Text } from '../Text';
 
 const dialogVariants = cva(
-  'fixed z-50 max-h-[85vh] overflow-y-auto rounded-lg bg-bg-secondary p-6 shadow-xl outline-none',
+  'fixed z-50 w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-lg bg-bg-secondary p-6 shadow-xl outline-none',
   {
     variants: {
       position: {
@@ -14,8 +14,14 @@ const dialogVariants = cva(
         left: 'top-0 left-0 h-full',
         right: 'top-0 right-0 h-full',
       },
+      size: {
+        sm: 'max-w-md',
+        md: 'max-w-lg',
+        lg: 'max-w-2xl',
+        xl: 'max-w-4xl',
+      },
     },
-    defaultVariants: { position: 'center' },
+    defaultVariants: { position: 'center', size: 'md' },
   },
 );
 
@@ -43,19 +49,27 @@ export const Dialog = {
 
   Content: ({
     position,
+    size,
     className,
     children,
     ...props
   }: VariantProps<typeof dialogVariants> & RadixDialog.DialogContentProps) => (
     <RadixDialog.Portal>
       <Dialog.Overlay />
-      <RadixDialog.Content className={cn(dialogVariants({ position }), className)} {...props}>
+      <RadixDialog.Content className={cn(dialogVariants({ position, size }), className)} {...props}>
         {children}
       </RadixDialog.Content>
     </RadixDialog.Portal>
   ),
 
-  Header: ({ className, children, ...props }: { className?: string; children: React.ReactNode }) => (
+  Header: ({
+    className,
+    children,
+    ...props
+  }: {
+    className?: string;
+    children: React.ReactNode;
+  }) => (
     <div className={cn('mb-4 border-b border-border pb-4', className)} {...props}>
       {children}
     </div>

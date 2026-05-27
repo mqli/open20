@@ -1,7 +1,18 @@
-import { SlotPips, Text, SectionHeader, SpellSlotIcon } from '@open20/ui';
+import { Divider, SlotPips, Text, SectionHeader, SpellSlotIcon } from '@open20/ui';
 import type { SpellLevel } from 'open20-core/types';
 
-const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
+const SPELL_LEVEL_LABELS = [
+  'Cantrip',
+  '1st',
+  '2nd',
+  '3rd',
+  '4th',
+  '5th',
+  '6th',
+  '7th',
+  '8th',
+  '9th',
+];
 
 interface SpellSlot {
   total: number;
@@ -50,7 +61,7 @@ export function SpellSlots({
                 key={lvl}
                 total={slot.total}
                 used={slot.used}
-                onPipClick={(_index, isUsed) => isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl)}
+                onPipClick={(_index, isUsed) => (isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl))}
               />
             ))}
           </div>
@@ -58,14 +69,14 @@ export function SpellSlots({
 
         {pactMagicSlots && onConsumePactSlot && onRecoverPactSlot && (
           <>
-            <div className="w-px h-5 bg-border/60" />
+            <Divider orientation="vertical" />
             <Text variant="label" className="text-text-tertiary mr-0.5">
               Pact Lvl {pactMagicSlots.level}
             </Text>
             <SlotPips
               total={pactMagicSlots.total}
               used={pactMagicSlots.used}
-              onPipClick={(_index, isUsed) => isUsed ? onRecoverPactSlot() : onConsumePactSlot()}
+              onPipClick={(_index, isUsed) => (isUsed ? onRecoverPactSlot() : onConsumePactSlot())}
             />
           </>
         )}
@@ -91,7 +102,7 @@ export function SpellSlots({
             <SlotPips
               total={slot.total}
               used={slot.used}
-              onPipClick={(_index, isUsed) => isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl)}
+              onPipClick={(_index, isUsed) => (isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl))}
             />
             <Text variant="caption" weight="bold" className="flex-shrink-0 w-8 text-right">
               {slot.total - slot.used}/{slot.total}
@@ -107,7 +118,7 @@ export function SpellSlots({
             <SlotPips
               total={pactMagicSlots.total}
               used={pactMagicSlots.used}
-              onPipClick={(_index, isUsed) => isUsed ? onRecoverPactSlot() : onConsumePactSlot()}
+              onPipClick={(_index, isUsed) => (isUsed ? onRecoverPactSlot() : onConsumePactSlot())}
             />
             <Text variant="caption" weight="bold" className="flex-shrink-0 w-8 text-right">
               {pactMagicSlots.total - pactMagicSlots.used}/{pactMagicSlots.total}

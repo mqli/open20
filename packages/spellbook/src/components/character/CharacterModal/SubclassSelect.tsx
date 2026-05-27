@@ -9,32 +9,21 @@ interface SubclassSelectProps {
   label?: string;
 }
 
-export function SubclassSelect({ 
-  classId, 
-  value, 
-  onChange,
-  label 
-}: SubclassSelectProps) {
-  const subclasses = useMemo(() => 
-    dataLoader.getSubclassesForClass(classId),
-    [classId]
-  );
-  
+export function SubclassSelect({ classId, value, onChange, label }: SubclassSelectProps) {
+  const subclasses = useMemo(() => dataLoader.getSubclassesForClass(classId), [classId]);
+
   if (subclasses.length === 0) return null;
-  
+
   // Radix Select doesn't allow empty string as item value
   // Use a sentinel value and convert to/from it
   const selectValue = value || '_none';
-  
+
   return (
     <div>
-      <Text as="label" variant="labelSm" weight="black" className="block tracking-[0.2em] mb-2">
+      <Text as="label" variant="formLabel">
         {label || 'Subclass'}
       </Text>
-      <SelectRoot 
-        value={selectValue} 
-        onValueChange={(val) => onChange(val === '_none' ? '' : val)}
-      >
+      <SelectRoot value={selectValue} onValueChange={(val) => onChange(val === '_none' ? '' : val)}>
         <SelectTrigger />
         <SelectContent>
           <SelectItem value="_none">None</SelectItem>
