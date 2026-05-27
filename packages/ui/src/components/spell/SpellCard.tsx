@@ -1,25 +1,19 @@
 import { useEffect, useState } from 'react';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import {
-  Clock,
-  Hourglass,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import { Clock, Hourglass, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import {
   RitualIcon,
   ConcentrationIcon,
   RangeIcon,
-  VerbalIcon,
-  SomaticIcon,
   MaterialIcon,
   DefenseIcon,
   MagicIcon,
   AttackIcon,
   HealIcon,
   CastSpellIcon,
+  Button,
 } from '../..';
 import {
   chipBase,
@@ -47,18 +41,16 @@ const cardVariants = cva('flex flex-col gap-3 transition-all', {
   defaultVariants: { emphasis: 'default', density: 'default' },
 });
 
-const levelBadgeVariants = cva(
-  cn(chipBase, 'tracking-wide'),
-  {
-    variants: {
-      isCantrip: {
-        true: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
-        false: 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
-      },
+const levelBadgeVariants = cva(cn(chipBase, 'tracking-wide'), {
+  variants: {
+    isCantrip: {
+      true: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+      false:
+        'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
     },
-    defaultVariants: { isCantrip: false },
   },
-);
+  defaultVariants: { isCantrip: false },
+});
 
 /* -------------------------------------------------------------------------- */
 /*  Constants                                                                 */
@@ -73,19 +65,6 @@ const I = iconSizes;
 
 type SpellComponent = Spell['components'][number];
 
-function componentIcon(c: SpellComponent) {
-  switch (c) {
-    case 'V':
-      return <VerbalIcon size="xs" aria-hidden />;
-    case 'S':
-      return <SomaticIcon size="xs" aria-hidden />;
-    case 'M':
-      return <MaterialIcon size="xs" aria-hidden />;
-    default:
-      return null;
-  }
-}
-
 function formatComponents(components: readonly SpellComponent[]): string {
   return components.join(', ');
 }
@@ -99,7 +78,8 @@ function levelLabel(level: number): string {
 /* -------------------------------------------------------------------------- */
 
 export interface SpellCardProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onClick' | 'color'>,
+  extends
+    Omit<HTMLAttributes<HTMLDivElement>, 'onClick' | 'color'>,
     VariantProps<typeof cardVariants> {
   /** The spell data from @open20/core */
   spell: Spell;
@@ -159,14 +139,22 @@ export function SpellCard({
       className={cn(
         cardVariants({ emphasis, density }),
         glow && 'relative overflow-hidden',
-        isClickable && isDefaultVariant && 'cursor-pointer hover:shadow-md hover:border-primary-300',
+        isClickable &&
+          isDefaultVariant &&
+          'cursor-pointer hover:shadow-md hover:border-primary-300',
         className,
       )}
       padding={isCompact ? 'sm' : 'md'}
       onClick={onClick ? () => onClick(spell) : undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(spell); } : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') onClick(spell);
+            }
+          : undefined
+      }
       {...props}
     >
       {/* ── Background glow ────────────────────────────────────────────── */}
@@ -183,13 +171,9 @@ export function SpellCard({
             {spell.name}
           </Text>
 
-          <span className={levelBadgeVariants({ isCantrip })}>
-            {levelLabel(spell.level)}
-          </span>
+          <span className={levelBadgeVariants({ isCantrip })}>{levelLabel(spell.level)}</span>
 
-          <span className={cn(chipBase, spellSchoolVariants[spell.school])}>
-            {spell.school}
-          </span>
+          <span className={cn(chipBase, spellSchoolVariants[spell.school])}>{spell.school}</span>
 
           {renderBadges?.()}
         </div>
@@ -213,18 +197,7 @@ export function SpellCard({
       <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', isCompact && 'gap-x-2')}>
         <MetaItem icon={<Clock className={I.sm} />} label={spell.castingTime} />
         <MetaItem icon={<RangeIcon size="sm" />} label={spell.range} />
-
-        <MetaItem
-          icon={
-            <span className="flex items-center gap-0.5">
-              {spell.components.map((c) => (
-                <span key={c}>{componentIcon(c)}</span>
-              ))}
-            </span>
-          }
-          label={formatComponents(spell.components)}
-        />
-
+        <MetaItem icon={<MaterialIcon size="sm" />} label={formatComponents(spell.components)} />
         <MetaItem icon={<Hourglass className={I.sm} />} label={spell.duration} />
       </div>
 
@@ -240,7 +213,9 @@ export function SpellCard({
             {spell.source}
           </Text>
           {isCompact && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -259,15 +234,12 @@ export function SpellCard({
                   Details
                 </>
               )}
-            </button>
+            </Button>
           )}
         </div>
         {renderActions && (
           <div
-            className={cn(
-              'flex items-center gap-1.5',
-              !isCompact && 'flex-wrap justify-end',
-            )}
+            className={cn('flex items-center gap-1.5', !isCompact && 'flex-wrap justify-end')}
             onClick={(e) => e.stopPropagation()}
           >
             {renderActions()}
@@ -317,42 +289,37 @@ export function SpellCard({
       )}
 
       {/* ── At Higher Levels ───────────────────────────────────────────── */}
-      {effectiveShowDesc &&
-        higherLevelText && higherLevelText.length > 0 && (
-          <div className={cn(sectionDivider, 'space-y-1')}>
-            <Text variant="labelSm" as="p" className="flex items-center gap-1">
-              <MagicIcon size="xs" />
-              At Higher Levels
+      {effectiveShowDesc && higherLevelText && higherLevelText.length > 0 && (
+        <div className={cn(sectionDivider, 'space-y-1')}>
+          <Text variant="labelSm" as="p" className="flex items-center gap-1">
+            <MagicIcon size="xs" />
+            At Higher Levels
+          </Text>
+          {higherLevelText.map((text, i) => (
+            <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
+              {text}
             </Text>
-            {higherLevelText.map((text, i) => (
-              <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
-                {text}
-              </Text>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
+      )}
 
       {/* ── Cantrip Upgrade ─────────────────────────────────────────────── */}
-      {effectiveShowDesc &&
-        cantripUpgrades && cantripUpgrades.length > 0 && (
-          <div className={cn(sectionDivider, 'space-y-1')}>
-            <Text variant="labelSm" as="p" className="flex items-center gap-1">
-              <MagicIcon size="xs" />
-              Cantrip Upgrade
+      {effectiveShowDesc && cantripUpgrades && cantripUpgrades.length > 0 && (
+        <div className={cn(sectionDivider, 'space-y-1')}>
+          <Text variant="labelSm" as="p" className="flex items-center gap-1">
+            <MagicIcon size="xs" />
+            Cantrip Upgrade
+          </Text>
+          {cantripUpgrades.map((u, i) => (
+            <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
+              <span className="font-semibold text-text-primary">Level {u.atCharacterLevel}:</span>{' '}
+              {u.damage
+                ? u.damage.map((d) => `${d.dice} ${d.type}`).join(' + ')
+                : (spell.cantripUpgradeText ?? '')}
             </Text>
-            {cantripUpgrades.map((u, i) => (
-              <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
-                <span className="font-semibold text-text-primary">
-                  Level {u.atCharacterLevel}:
-                </span>{' '}
-                {u.damage
-                  ? u.damage.map((d) => `${d.dice} ${d.type}`).join(' + ')
-                  : spell.cantripUpgradeText ?? ''}
-              </Text>
-            ))}
-          </div>
-        )}
-
+          ))}
+        </div>
+      )}
     </Surface>
   );
 }
@@ -362,5 +329,10 @@ export function SpellCard({
 /* -------------------------------------------------------------------------- */
 
 function MetaItem({ icon, label }: { icon: ReactNode; label: string }) {
-  return <span className={inlineMeta}>{icon}<span>{label}</span></span>;
+  return (
+    <span className={inlineMeta}>
+      {icon}
+      <span>{label}</span>
+    </span>
+  );
 }
