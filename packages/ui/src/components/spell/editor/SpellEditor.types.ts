@@ -95,6 +95,38 @@ export const SPELL_COMPONENTS: SpellComponent[] = ['V', 'S', 'M'];
 
 export const SPELL_LEVELS: SpellLevel[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+export const DND_CLASSES: string[] = [
+  'Artificer',
+  'Barbarian',
+  'Bard',
+  'Cleric',
+  'Druid',
+  'Fighter',
+  'Monk',
+  'Paladin',
+  'Ranger',
+  'Rogue',
+  'Sorcerer',
+  'Warlock',
+  'Wizard',
+];
+
+export const DAMAGE_TYPES: string[] = [
+  'Acid',
+  'Bludgeoning',
+  'Cold',
+  'Fire',
+  'Force',
+  'Lightning',
+  'Necrotic',
+  'Piercing',
+  'Poison',
+  'Psychic',
+  'Radiant',
+  'Slashing',
+  'Thunder',
+];
+
 // ── 默认值 ─────────────────────────────────────────
 
 export const DEFAULT_SPELL_FORM_DATA: SpellFormData = {

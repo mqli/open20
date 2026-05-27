@@ -1,9 +1,10 @@
 import type { SpellFormData } from '../SpellEditor.types';
+import { useState } from 'react';
 import { Input } from '../../../Input/Input';
 import { Select } from '../../../Select/Select';
 import { Text } from '../../../Text/Text';
 import { Surface } from '../../../Surface/Surface';
-import { SPELL_SCHOOLS, SPELL_LEVELS } from '../SpellEditor.types';
+import { SPELL_SCHOOLS, SPELL_LEVELS, DND_CLASSES } from '../SpellEditor.types';
 
 interface BasicInfoSectionProps {
   formData: SpellFormData;
@@ -12,6 +13,8 @@ interface BasicInfoSectionProps {
 }
 
 export function BasicInfoSection({ formData, onChange, disabled }: BasicInfoSectionProps) {
+  const [addClassValue, setAddClassValue] = useState('');
+
   return (
     <Surface variant="default" padding="md" className="space-y-4">
       <Text as="h3" variant="heading" size="lg" className="text-text-primary">
@@ -98,7 +101,7 @@ export function BasicInfoSection({ formData, onChange, disabled }: BasicInfoSect
         <Text as="label" variant="formLabel">
           Available Classes
         </Text>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           {formData.classes?.map((className, index) => (
             <div
               key={index}
@@ -119,21 +122,34 @@ export function BasicInfoSection({ formData, onChange, disabled }: BasicInfoSect
               </button>
             </div>
           ))}
-          <button
-            type="button"
-            onClick={() => {
-              const newClass = prompt('Enter class name:');
-              if (newClass && newClass.trim()) {
-                onChange({
-                  classes: [...(formData.classes || []), newClass.trim()],
-                });
+          <Select.Root
+            value={addClassValue}
+            onValueChange={(value) => {
+              setAddClassValue(value);
+              if (!value) return;
+              const current = formData.classes || [];
+              if (!current.includes(value)) {
+                onChange({ classes: [...current, value] });
               }
+              // reset to re-enable selection of the same item
+              setTimeout(() => setAddClassValue(''), 0);
             }}
             disabled={disabled}
-            className="px-2 py-1 border border-dashed border-border rounded-md text-sm text-text-tertiary hover:text-text-primary hover:border-text-tertiary transition-colors"
           >
-            + Add Class
-          </button>
+            <Select.Trigger placeholder="+ Add Class" />
+            <Select.Content>
+              <Select.Item value="__pick__">
+                + Add Class...
+              </Select.Item>
+              {DND_CLASSES.filter(
+                (c) => !(formData.classes || []).includes(c),
+              ).map((cls) => (
+                <Select.Item key={cls} value={cls}>
+                  {cls}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Root>
         </div>
       </div>
     </Surface>

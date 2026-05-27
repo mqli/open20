@@ -5,7 +5,7 @@ import { Switch } from '../../../Switch/Switch';
 import { Text } from '../../../Text/Text';
 import { Surface } from '../../../Surface/Surface';
 import { Button } from '../../../Button/Button';
-import { ABILITY_NAMES } from '../SpellEditor.types';
+import { ABILITY_NAMES, DAMAGE_TYPES } from '../SpellEditor.types';
 
 interface DamageHealSectionProps {
   formData: SpellFormData;
@@ -70,13 +70,20 @@ export function DamageHealSection({ formData, onChange, disabled }: DamageHealSe
               disabled={disabled}
               className="w-32"
             />
-            <Input
+            <Select.Root
               value={entry.type}
-              onChange={(e) => updateDamage('entries', index, 'type', e.target.value)}
-              placeholder="Damage type"
+              onValueChange={(value) => updateDamage('entries', index, 'type', value)}
               disabled={disabled}
-              className="flex-1"
-            />
+            >
+              <Select.Trigger placeholder="Type" />
+              <Select.Content>
+                {DAMAGE_TYPES.map((type) => (
+                  <Select.Item key={type} value={type}>
+                    {type}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
             <Button
               type="button"
               variant="ghost"
@@ -115,13 +122,20 @@ export function DamageHealSection({ formData, onChange, disabled }: DamageHealSe
               disabled={disabled}
               className="w-32"
             />
-            <Input
+            <Select.Root
               value={entry.type}
-              onChange={(e) => updateDamage('additional', index, 'type', e.target.value)}
-              placeholder="Damage type"
+              onValueChange={(value) => updateDamage('additional', index, 'type', value)}
               disabled={disabled}
-              className="flex-1"
-            />
+            >
+              <Select.Trigger placeholder="Type" />
+              <Select.Content>
+                {DAMAGE_TYPES.map((type) => (
+                  <Select.Item key={type} value={type}>
+                    {type}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
             <Button
               type="button"
               variant="ghost"
@@ -160,13 +174,20 @@ export function DamageHealSection({ formData, onChange, disabled }: DamageHealSe
               disabled={disabled}
               className="w-32"
             />
-            <Input
+            <Select.Root
               value={entry.type}
-              onChange={(e) => updateDamage('perSlot', index, 'type', e.target.value)}
-              placeholder="Damage type"
+              onValueChange={(value) => updateDamage('perSlot', index, 'type', value)}
               disabled={disabled}
-              className="flex-1"
-            />
+            >
+              <Select.Trigger placeholder="Type" />
+              <Select.Content>
+                {DAMAGE_TYPES.map((type) => (
+                  <Select.Item key={type} value={type}>
+                    {type}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
             <Button
               type="button"
               variant="ghost"
