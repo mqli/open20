@@ -6,7 +6,6 @@ import {
   isConcentrating,
   getConcentratingSpellId,
   calculateConcentrationDC,
-  type ConcentrationCheckResult,
 } from '../../src/engine/concentration';
 
 // ── Tests for pure functions (no character creation needed) ──

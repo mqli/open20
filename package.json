@@ -13,13 +13,31 @@
     "storybook": "pnpm --filter @open20/ui storybook",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck"
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "fix": "pnpm lint:fix && pnpm format",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,scss,html,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@open20/config": "workspace:*",
     "@eslint/js": "catalog:",
     "eslint": "catalog:",
     "globals": "catalog:",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.8.3",
     "turbo": "latest",
     "typescript-eslint": "catalog:"
   },

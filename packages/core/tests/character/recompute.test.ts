@@ -15,12 +15,9 @@ import {
   DWARF_SPECIES,
   SOLDIER_BACKGROUND,
   SAGE_BACKGROUND,
-  FIGHTER_FEATURES_L1,
-  FIGHTER_FEATURES_L5,
   FIGHTER_CLASS,
   BARBARIAN_CLASS,
   WIZARD_CLASS,
-  CHAMPION_SUBCLASS,
 } from '../fixtures/characters';
 
 // ── Additional Test Data ─────────────────────────
@@ -35,7 +32,8 @@ const MOCK_SORCERER_CLASS: Class = {
   weaponProficiencies: ['Simple'],
   weaponMastery: false,
   featuresByLevel: [],
-  spellcasting: {    ability: 'Charisma' as any,
+  spellcasting: {
+    ability: 'Charisma' as any,
     knownSource: 'class_list',
     preparationTiming: 'level_up',
     changesPerPreparation: 'all',
@@ -52,7 +50,8 @@ const MOCK_CLERIC_CLASS: Class = {
   weaponProficiencies: ['Simple'],
   weaponMastery: false,
   featuresByLevel: [],
-  spellcasting: {    ability: 'Wisdom' as any,
+  spellcasting: {
+    ability: 'Wisdom' as any,
     knownSource: 'class_list',
     preparationTiming: 'long_rest',
     changesPerPreparation: 'all',
@@ -94,11 +93,12 @@ const WARLOCK_CLASS: Class = {
   armorTraining: ['Light'],
   weaponMastery: false,
   featuresByLevel: [{ level: 1, features: WARLOCK_FEATURES_L1 }],
-  spellcasting: {     ability: 'Charisma' as any,
+  spellcasting: {
+    ability: 'Charisma' as any,
     knownSource: 'class_list',
     preparationTiming: 'level_up',
     changesPerPreparation: 'all',
-    pactMagic: true 
+    pactMagic: true,
   },
 };
 
@@ -564,15 +564,141 @@ describe('recomputeDerivedStats', () => {
 
   // Mock spells for testing knownSpells filtering
   const mockSpellsForFiltering = [
-    { id: 'acid-splash', name: 'Acid Splash', level: 0, school: 'Conjuration', castingTime: 'Action', range: '60 ft.', components: ['V', 'S'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Wizard', 'Sorcerer'] },
-    { id: 'fire-bolt', name: 'Fire Bolt', level: 0, school: 'Evocation', castingTime: 'Action', range: '120 ft.', components: ['V', 'S'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Wizard', 'Sorcerer'] },
-    { id: 'ray-of-frost', name: 'Ray of Frost', level: 0, school: 'Evocation', castingTime: 'Action', range: '60 ft.', components: ['V', 'S'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Wizard', 'Sorcerer'] },
-    { id: 'magic-missile', name: 'Magic Missile', level: 1, school: 'Evocation', castingTime: 'Action', range: '120 ft.', components: ['V', 'S'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Wizard', 'Sorcerer'] },
-    { id: 'shield', name: 'Shield', level: 1, school: 'Abjuration', castingTime: 'Reaction', range: 'Self', components: ['V', 'S'], duration: '1 round', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Wizard', 'Sorcerer'] },
-    { id: 'invisibility', name: 'Invisibility', level: 2, school: 'Illusion', castingTime: 'Action', range: 'Touch', components: ['V', 'S', 'M'], duration: 'Concentration, up to 1 hour', description: 'Test', source: 'Test', concentration: true, ritual: false, classes: ['Wizard', 'Sorcerer', 'Bard'] },
-    { id: 'fireball', name: 'Fireball', level: 3, school: 'Evocation', castingTime: 'Action', range: '150 ft.', components: ['V', 'S', 'M'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Wizard', 'Sorcerer'] },
-    { id: 'polymorph', name: 'Polymorph', level: 4, school: 'Transmutation', castingTime: 'Action', range: '60 ft.', components: ['V', 'S', 'M'], duration: 'Concentration, up to 1 hour', description: 'Test', source: 'Test', concentration: true, ritual: false, classes: ['Wizard', 'Bard', 'Druid'] },
-    { id: 'hold-monster', name: 'Hold Monster', level: 5, school: 'Abjuration', castingTime: 'Action', range: '90 ft.', components: ['V', 'S', 'M'], duration: 'Concentration, up to 1 minute', description: 'Test', source: 'Test', concentration: true, ritual: false, classes: ['Wizard', 'Bard'] },
+    {
+      id: 'acid-splash',
+      name: 'Acid Splash',
+      level: 0,
+      school: 'Conjuration',
+      castingTime: 'Action',
+      range: '60 ft.',
+      components: ['V', 'S'],
+      duration: 'Instantaneous',
+      description: 'Test',
+      source: 'Test',
+      concentration: false,
+      ritual: false,
+      classes: ['Wizard', 'Sorcerer'],
+    },
+    {
+      id: 'fire-bolt',
+      name: 'Fire Bolt',
+      level: 0,
+      school: 'Evocation',
+      castingTime: 'Action',
+      range: '120 ft.',
+      components: ['V', 'S'],
+      duration: 'Instantaneous',
+      description: 'Test',
+      source: 'Test',
+      concentration: false,
+      ritual: false,
+      classes: ['Wizard', 'Sorcerer'],
+    },
+    {
+      id: 'ray-of-frost',
+      name: 'Ray of Frost',
+      level: 0,
+      school: 'Evocation',
+      castingTime: 'Action',
+      range: '60 ft.',
+      components: ['V', 'S'],
+      duration: 'Instantaneous',
+      description: 'Test',
+      source: 'Test',
+      concentration: false,
+      ritual: false,
+      classes: ['Wizard', 'Sorcerer'],
+    },
+    {
+      id: 'magic-missile',
+      name: 'Magic Missile',
+      level: 1,
+      school: 'Evocation',
+      castingTime: 'Action',
+      range: '120 ft.',
+      components: ['V', 'S'],
+      duration: 'Instantaneous',
+      description: 'Test',
+      source: 'Test',
+      concentration: false,
+      ritual: false,
+      classes: ['Wizard', 'Sorcerer'],
+    },
+    {
+      id: 'shield',
+      name: 'Shield',
+      level: 1,
+      school: 'Abjuration',
+      castingTime: 'Reaction',
+      range: 'Self',
+      components: ['V', 'S'],
+      duration: '1 round',
+      description: 'Test',
+      source: 'Test',
+      concentration: false,
+      ritual: false,
+      classes: ['Wizard', 'Sorcerer'],
+    },
+    {
+      id: 'invisibility',
+      name: 'Invisibility',
+      level: 2,
+      school: 'Illusion',
+      castingTime: 'Action',
+      range: 'Touch',
+      components: ['V', 'S', 'M'],
+      duration: 'Concentration, up to 1 hour',
+      description: 'Test',
+      source: 'Test',
+      concentration: true,
+      ritual: false,
+      classes: ['Wizard', 'Sorcerer', 'Bard'],
+    },
+    {
+      id: 'fireball',
+      name: 'Fireball',
+      level: 3,
+      school: 'Evocation',
+      castingTime: 'Action',
+      range: '150 ft.',
+      components: ['V', 'S', 'M'],
+      duration: 'Instantaneous',
+      description: 'Test',
+      source: 'Test',
+      concentration: false,
+      ritual: false,
+      classes: ['Wizard', 'Sorcerer'],
+    },
+    {
+      id: 'polymorph',
+      name: 'Polymorph',
+      level: 4,
+      school: 'Transmutation',
+      castingTime: 'Action',
+      range: '60 ft.',
+      components: ['V', 'S', 'M'],
+      duration: 'Concentration, up to 1 hour',
+      description: 'Test',
+      source: 'Test',
+      concentration: true,
+      ritual: false,
+      classes: ['Wizard', 'Bard', 'Druid'],
+    },
+    {
+      id: 'hold-monster',
+      name: 'Hold Monster',
+      level: 5,
+      school: 'Abjuration',
+      castingTime: 'Action',
+      range: '90 ft.',
+      components: ['V', 'S', 'M'],
+      duration: 'Concentration, up to 1 minute',
+      description: 'Test',
+      source: 'Test',
+      concentration: true,
+      ritual: false,
+      classes: ['Wizard', 'Bard'],
+    },
   ];
 
   function createSpellTestDataLoader(spells: any[] = mockSpellsForFiltering) {
@@ -672,9 +798,9 @@ describe('recomputeDerivedStats', () => {
 
       const knownSpells = char.spells.classSpellcasting['Sorcerer']!.knownSpells;
       // Should contain all level 1-3 Sorcerer spells
-      expect(knownSpells).toContain('magic-missile');  // 1st level
-      expect(knownSpells).toContain('invisibility');    // 2nd level
-      expect(knownSpells).toContain('fireball');        // 3rd level
+      expect(knownSpells).toContain('magic-missile'); // 1st level
+      expect(knownSpells).toContain('invisibility'); // 2nd level
+      expect(knownSpells).toContain('fireball'); // 3rd level
       // Level 5 Sorcerer cannot cast 4th level spells, so polymorph should NOT be in class list
       // (but will appear in spellbook if manually added as a Wizard would)
     });
@@ -707,11 +833,14 @@ describe('recomputeDerivedStats', () => {
       wizardSpellData.knownSpells = [
         'acid-splash',
         'magic-missile',
-        'fireball',      // 3rd level - should KEEP in spellbook
-        'polymorph',     // 4th level - should KEEP in spellbook
-        'hold-monster',  // 5th level - should KEEP in spellbook
+        'fireball', // 3rd level - should KEEP in spellbook
+        'polymorph', // 4th level - should KEEP in spellbook
+        'hold-monster', // 5th level - should KEEP in spellbook
       ];
-      mutated.spells = { ...mutated.spells, classSpellcasting: { ...mutated.spells.classSpellcasting, Wizard: wizardSpellData } };
+      mutated.spells = {
+        ...mutated.spells,
+        classSpellcasting: { ...mutated.spells.classSpellcasting, Wizard: wizardSpellData },
+      };
 
       char = recomputeDerivedStats(mutated, data);
 
@@ -719,9 +848,9 @@ describe('recomputeDerivedStats', () => {
       const knownSpells = char.spells.classSpellcasting['Wizard']!.knownSpells;
       expect(knownSpells).toContain('acid-splash');
       expect(knownSpells).toContain('magic-missile');
-      expect(knownSpells).toContain('fireball');      // Kept in spellbook
-      expect(knownSpells).toContain('polymorph');     // Kept in spellbook
-      expect(knownSpells).toContain('hold-monster');  // Kept in spellbook
+      expect(knownSpells).toContain('fireball'); // Kept in spellbook
+      expect(knownSpells).toContain('polymorph'); // Kept in spellbook
+      expect(knownSpells).toContain('hold-monster'); // Kept in spellbook
     });
   });
 
@@ -730,12 +859,96 @@ describe('recomputeDerivedStats', () => {
       const data = createSpellTestDataLoader();
       // Add Cleric spells to mock data
       const clericSpells = [
-        { id: 'guidance', name: 'Guidance', level: 0, school: 'Divination', castingTime: 'Action', range: 'Touch', components: ['V', 'S'], duration: 'Concentration, up to 1 minute', description: 'Test', source: 'Test', concentration: true, ritual: false, classes: ['Cleric', 'Druid'] },
-        { id: 'toll-the-dead', name: 'Toll the Dead', level: 0, school: 'Necromancy', castingTime: 'Action', range: '60 ft.', components: ['V', 'S'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Cleric', 'Wizard'] },
-        { id: 'cure-wounds', name: 'Cure Wounds', level: 1, school: 'Evocation', castingTime: 'Action', range: 'Touch', components: ['V', 'S'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] },
-        { id: 'healing-word', name: 'Healing Word', level: 1, school: 'Evocation', castingTime: 'Bonus Action', range: '60 ft.', components: ['V'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Bard', 'Cleric', 'Druid'] },
-        { id: 'spiritual-weapon', name: 'Spiritual Weapon', level: 2, school: 'Evocation', castingTime: 'Bonus Action', range: '60 ft.', components: ['V', 'S'], duration: '1 minute', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Cleric'] },
-        { id: 'revivify', name: 'Revivify', level: 3, school: 'Necromancy', castingTime: 'Action', range: 'Touch', components: ['V', 'S', 'M'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Cleric', 'Paladin', 'Bard'] },
+        {
+          id: 'guidance',
+          name: 'Guidance',
+          level: 0,
+          school: 'Divination',
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'],
+          duration: 'Concentration, up to 1 minute',
+          description: 'Test',
+          source: 'Test',
+          concentration: true,
+          ritual: false,
+          classes: ['Cleric', 'Druid'],
+        },
+        {
+          id: 'toll-the-dead',
+          name: 'Toll the Dead',
+          level: 0,
+          school: 'Necromancy',
+          castingTime: 'Action',
+          range: '60 ft.',
+          components: ['V', 'S'],
+          duration: 'Instantaneous',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Cleric', 'Wizard'],
+        },
+        {
+          id: 'cure-wounds',
+          name: 'Cure Wounds',
+          level: 1,
+          school: 'Evocation',
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'],
+          duration: 'Instantaneous',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'],
+        },
+        {
+          id: 'healing-word',
+          name: 'Healing Word',
+          level: 1,
+          school: 'Evocation',
+          castingTime: 'Bonus Action',
+          range: '60 ft.',
+          components: ['V'],
+          duration: 'Instantaneous',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Bard', 'Cleric', 'Druid'],
+        },
+        {
+          id: 'spiritual-weapon',
+          name: 'Spiritual Weapon',
+          level: 2,
+          school: 'Evocation',
+          castingTime: 'Bonus Action',
+          range: '60 ft.',
+          components: ['V', 'S'],
+          duration: '1 minute',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Cleric'],
+        },
+        {
+          id: 'revivify',
+          name: 'Revivify',
+          level: 3,
+          school: 'Necromancy',
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S', 'M'],
+          duration: 'Instantaneous',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Cleric', 'Paladin', 'Bard'],
+        },
       ];
       const allSpells = [...mockSpellsForFiltering, ...clericSpells];
       const dataWithCleric = createSpellTestDataLoader(allSpells);
@@ -765,19 +978,75 @@ describe('recomputeDerivedStats', () => {
       // Cantrips are in knownCantrips (must be learned, not auto-populated)
       // knownSpells only contains level 1+ spells
       const knownSpells = classSpellData.knownSpells;
-      expect(classSpellData.knownCantrips).toEqual([]);  // starts empty, player must choose
-      expect(knownSpells).toContain('cure-wounds');     // 1st level
-      expect(knownSpells).toContain('healing-word');    // 1st level
-      expect(knownSpells).not.toContain('spiritual-weapon');  // 2nd level - cannot cast
-      expect(knownSpells).not.toContain('revivify');         // 3rd level - cannot cast
+      expect(classSpellData.knownCantrips).toEqual([]); // starts empty, player must choose
+      expect(knownSpells).toContain('cure-wounds'); // 1st level
+      expect(knownSpells).toContain('healing-word'); // 1st level
+      expect(knownSpells).not.toContain('spiritual-weapon'); // 2nd level - cannot cast
+      expect(knownSpells).not.toContain('revivify'); // 3rd level - cannot cast
     });
 
     it('should include higher level spells after level up for Cleric', () => {
       const clericSpells = [
-        { id: 'guidance', name: 'Guidance', level: 0, school: 'Divination', castingTime: 'Action', range: 'Touch', components: ['V', 'S'], duration: 'Concentration, up to 1 minute', description: 'Test', source: 'Test', concentration: true, ritual: false, classes: ['Cleric', 'Druid'] },
-        { id: 'cure-wounds', name: 'Cure Wounds', level: 1, school: 'Evocation', castingTime: 'Action', range: 'Touch', components: ['V', 'S'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] },
-        { id: 'spiritual-weapon', name: 'Spiritual Weapon', level: 2, school: 'Evocation', castingTime: 'Bonus Action', range: '60 ft.', components: ['V', 'S'], duration: '1 minute', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Cleric'] },
-        { id: 'revivify', name: 'Revivify', level: 3, school: 'Necromancy', castingTime: 'Action', range: 'Touch', components: ['V', 'S', 'M'], duration: 'Instantaneous', description: 'Test', source: 'Test', concentration: false, ritual: false, classes: ['Cleric', 'Paladin', 'Bard'] },
+        {
+          id: 'guidance',
+          name: 'Guidance',
+          level: 0,
+          school: 'Divination',
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'],
+          duration: 'Concentration, up to 1 minute',
+          description: 'Test',
+          source: 'Test',
+          concentration: true,
+          ritual: false,
+          classes: ['Cleric', 'Druid'],
+        },
+        {
+          id: 'cure-wounds',
+          name: 'Cure Wounds',
+          level: 1,
+          school: 'Evocation',
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'],
+          duration: 'Instantaneous',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'],
+        },
+        {
+          id: 'spiritual-weapon',
+          name: 'Spiritual Weapon',
+          level: 2,
+          school: 'Evocation',
+          castingTime: 'Bonus Action',
+          range: '60 ft.',
+          components: ['V', 'S'],
+          duration: '1 minute',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Cleric'],
+        },
+        {
+          id: 'revivify',
+          name: 'Revivify',
+          level: 3,
+          school: 'Necromancy',
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S', 'M'],
+          duration: 'Instantaneous',
+          description: 'Test',
+          source: 'Test',
+          concentration: false,
+          ritual: false,
+          classes: ['Cleric', 'Paladin', 'Bard'],
+        },
       ];
       const allSpells = [...mockSpellsForFiltering, ...clericSpells];
       const dataWithCleric = createSpellTestDataLoader(allSpells);
@@ -808,10 +1077,10 @@ describe('recomputeDerivedStats', () => {
       const classSpellData = char.spells.classSpellcasting['Cleric']!;
       // Cantrips are in knownCantrips, knownSpells only contains level 1+ spells
       const knownSpells = classSpellData.knownSpells;
-      expect(classSpellData.knownCantrips).toEqual([]);  // starts empty
-      expect(knownSpells).toContain('cure-wounds');        // 1st level
-      expect(knownSpells).toContain('spiritual-weapon');   // 2nd level - can cast
-      expect(knownSpells).toContain('revivify');           // 3rd level - can cast
+      expect(classSpellData.knownCantrips).toEqual([]); // starts empty
+      expect(knownSpells).toContain('cure-wounds'); // 1st level
+      expect(knownSpells).toContain('spiritual-weapon'); // 2nd level - can cast
+      expect(knownSpells).toContain('revivify'); // 3rd level - can cast
     });
   });
 
@@ -840,8 +1109,20 @@ describe('recomputeDerivedStats', () => {
       // Mutate to Sorcerer 3 / Wizard 2
       const mutated = mutate(char);
       mutated.classes = [
-        { classId: 'Sorcerer', level: 3, subclassId: null, subclassLevel: 0, hitDice: { die: 'd6', used: 0 } },
-        { classId: 'Wizard', level: 2, subclassId: null, subclassLevel: 0, hitDice: { die: 'd6', used: 0 } },
+        {
+          classId: 'Sorcerer',
+          level: 3,
+          subclassId: null,
+          subclassLevel: 0,
+          hitDice: { die: 'd6', used: 0 },
+        },
+        {
+          classId: 'Wizard',
+          level: 2,
+          subclassId: null,
+          subclassLevel: 0,
+          hitDice: { die: 'd6', used: 0 },
+        },
       ];
 
       // Manually set up Sorcerer knownSpells with some higher level spells
@@ -850,10 +1131,13 @@ describe('recomputeDerivedStats', () => {
         sorcererSpellData.knownSpells = [
           'acid-splash',
           'magic-missile',
-          'invisibility',  // 2nd level - Sorcerer 3 can cast this
-          'fireball',      // 3rd level - Sorcerer 3 CANNOT cast this (needs level 5)
+          'invisibility', // 2nd level - Sorcerer 3 can cast this
+          'fireball', // 3rd level - Sorcerer 3 CANNOT cast this (needs level 5)
         ];
-        mutated.spells = { ...mutated.spells, classSpellcasting: { ...mutated.spells.classSpellcasting, Sorcerer: sorcererSpellData } };
+        mutated.spells = {
+          ...mutated.spells,
+          classSpellcasting: { ...mutated.spells.classSpellcasting, Sorcerer: sorcererSpellData },
+        };
       }
 
       char = recomputeDerivedStats(mutated, data);
@@ -861,8 +1145,8 @@ describe('recomputeDerivedStats', () => {
       // Sorcerer is level 3 with class_list - auto-populates ALL level 1+ Sorcerer spells
       // (filtering by spell level happens at prepare time, not here)
       const sorcererKnown = char.spells.classSpellcasting['Sorcerer']!.knownSpells;
-      expect(sorcererKnown).toContain('invisibility');  // 2nd level - on class list
-      expect(sorcererKnown).toContain('fireball');     // 3rd level - on class list (available to prepare)
+      expect(sorcererKnown).toContain('invisibility'); // 2nd level - on class list
+      expect(sorcererKnown).toContain('fireball'); // 3rd level - on class list (available to prepare)
     });
 
     it('should not filter Wizard spellbook in multiclass', () => {
@@ -889,8 +1173,20 @@ describe('recomputeDerivedStats', () => {
       // Mutate to Sorcerer 3 / Wizard 2
       const mutated = mutate(char);
       mutated.classes = [
-        { classId: 'Sorcerer', level: 3, subclassId: null, subclassLevel: 0, hitDice: { die: 'd6', used: 0 } },
-        { classId: 'Wizard', level: 2, subclassId: null, subclassLevel: 0, hitDice: { die: 'd6', used: 0 } },
+        {
+          classId: 'Sorcerer',
+          level: 3,
+          subclassId: null,
+          subclassLevel: 0,
+          hitDice: { die: 'd6', used: 0 },
+        },
+        {
+          classId: 'Wizard',
+          level: 2,
+          subclassId: null,
+          subclassLevel: 0,
+          hitDice: { die: 'd6', used: 0 },
+        },
       ];
 
       // Add high level spells to Wizard spellbook
@@ -898,18 +1194,21 @@ describe('recomputeDerivedStats', () => {
         const wizardSpellData = mutate(mutated.spells.classSpellcasting['Wizard']!);
         wizardSpellData.knownSpells = [
           ...wizardSpellData.knownSpells,
-          'fireball',      // 3rd level - should KEEP in spellbook
-          'polymorph',     // 4th level - should KEEP in spellbook
+          'fireball', // 3rd level - should KEEP in spellbook
+          'polymorph', // 4th level - should KEEP in spellbook
         ];
-        mutated.spells = { ...mutated.spells, classSpellcasting: { ...mutated.spells.classSpellcasting, Wizard: wizardSpellData } };
+        mutated.spells = {
+          ...mutated.spells,
+          classSpellcasting: { ...mutated.spells.classSpellcasting, Wizard: wizardSpellData },
+        };
       }
 
       char = recomputeDerivedStats(mutated, data);
 
       // Wizard spellbook should keep all spells regardless of level
       const wizardKnown = char.spells.classSpellcasting['Wizard']!.knownSpells;
-      expect(wizardKnown).toContain('fireball');      // Kept in spellbook
-      expect(wizardKnown).toContain('polymorph');     // Kept in spellbook
+      expect(wizardKnown).toContain('fireball'); // Kept in spellbook
+      expect(wizardKnown).toContain('polymorph'); // Kept in spellbook
     });
   });
 });

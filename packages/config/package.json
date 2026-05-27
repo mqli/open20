@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "pnpm run build:types",
-    "build:types": "tsc -p tsconfig.build.json"
+    "build:types": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "exports": {
     "./eslint": "./eslint/index.js",
@@ -30,11 +35,14 @@
   },
   "dependencies": {
     "@eslint/js": "catalog:",
+    "eslint-plugin-unused-imports": "catalog:",
     "globals": "catalog:",
     "typescript-eslint": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "^3.8.3",
     "typescript": "catalog:"
   }
 }

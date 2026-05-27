@@ -7,7 +7,6 @@ import {
   castAsRitual,
   getRitualCastingTime,
   isCantrip,
-  canCastCantrip,
   canUpcast,
   getUpcastDescription,
   castSpell,
@@ -59,7 +58,9 @@ const mockUpcastSpell: Spell = {
   concentration: false,
   ritual: false,
   description: ['A bright streak flashes from your pointing finger...'],
-  usingAHigherLevelSpellSlot: ['When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.'],
+  usingAHigherLevelSpellSlot: [
+    'When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd.',
+  ],
   classes: ['wizard', 'sorcerer'],
   source: 'SRD 5.2',
 };
@@ -72,8 +73,10 @@ const mockDataLoader = {
     return undefined;
   },
   getClass: (id: string) => {
-    if (id === 'wizard') return { id: 'wizard', name: 'Wizard', savingThrowProficiencies: ['Intelligence', 'Wisdom'] };
-    if (id === 'bard') return { id: 'bard', name: 'Bard', savingThrowProficiencies: ['Dexterity', 'Charisma'] };
+    if (id === 'wizard')
+      return { id: 'wizard', name: 'Wizard', savingThrowProficiencies: ['Intelligence', 'Wisdom'] };
+    if (id === 'bard')
+      return { id: 'bard', name: 'Bard', savingThrowProficiencies: ['Dexterity', 'Charisma'] };
     return undefined;
   },
 } as any;
@@ -84,12 +87,48 @@ const mockWizardChar = {
   species: 'human',
   speciesSubtype: null,
   background: 'sage',
-  classes: [{ classId: 'Wizard', level: 3, subclassId: null, subclassLevel: null, hitDice: { die: 6 as const, used: 0 } }],
+  classes: [
+    {
+      classId: 'Wizard',
+      level: 3,
+      subclassId: null,
+      subclassLevel: null,
+      hitDice: { die: 6 as const, used: 0 },
+    },
+  ],
   abilityScores: {
-    base: { Strength: 10, Dexterity: 14, Constitution: 13, Intelligence: 15, Wisdom: 12, Charisma: 10 },
-    racialBonuses: { Strength: 0, Dexterity: 0, Constitution: 0, Intelligence: 0, Wisdom: 0, Charisma: 0 },
-    featBonuses: { Strength: 0, Dexterity: 0, Constitution: 0, Intelligence: 0, Wisdom: 0, Charisma: 0 },
-    temporaryBonuses: { Strength: 0, Dexterity: 0, Constitution: 0, Intelligence: 0, Wisdom: 0, Charisma: 0 },
+    base: {
+      Strength: 10,
+      Dexterity: 14,
+      Constitution: 13,
+      Intelligence: 15,
+      Wisdom: 12,
+      Charisma: 10,
+    },
+    racialBonuses: {
+      Strength: 0,
+      Dexterity: 0,
+      Constitution: 0,
+      Intelligence: 0,
+      Wisdom: 0,
+      Charisma: 0,
+    },
+    featBonuses: {
+      Strength: 0,
+      Dexterity: 0,
+      Constitution: 0,
+      Intelligence: 0,
+      Wisdom: 0,
+      Charisma: 0,
+    },
+    temporaryBonuses: {
+      Strength: 0,
+      Dexterity: 0,
+      Constitution: 0,
+      Intelligence: 0,
+      Wisdom: 0,
+      Charisma: 0,
+    },
   },
   skills: {
     athletics: { proficient: false, expertise: false },
@@ -141,7 +180,12 @@ const mockWizardChar = {
     pactMagicSlots: null,
   },
   resources: [],
-  hitPoints: { max: 20, current: 20, temporary: 0, deathSaves: { successes: 0, failures: 0, isStable: false } },
+  hitPoints: {
+    max: 20,
+    current: 20,
+    temporary: 0,
+    deathSaves: { successes: 0, failures: 0, isStable: false },
+  },
   combatStats: {
     AC: 12,
     initiative: 2,
@@ -169,7 +213,18 @@ describe('spell-casting', () => {
     });
 
     it('should return false if character cannot cast rituals', () => {
-      const nonCasterChar = { ...mockWizardChar, classes: [{ classId: 'fighter', level: 3, subclassId: null, subclassLevel: null, hitDice: { die: 'd10' as const, used: 0 } }] };
+      const nonCasterChar = {
+        ...mockWizardChar,
+        classes: [
+          {
+            classId: 'fighter',
+            level: 3,
+            subclassId: null,
+            subclassLevel: null,
+            hitDice: { die: 'd10' as const, used: 0 },
+          },
+        ],
+      };
       expect(canCastAsRitual(nonCasterChar, mockSpell, mockDataLoader)).toBe(false);
     });
   });

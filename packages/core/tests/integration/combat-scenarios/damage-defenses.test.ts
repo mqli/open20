@@ -7,7 +7,6 @@ import {
   initializeMonsterForCombat,
   modifyMonsterHP,
   applyMonsterTypedDamage,
-  isMonsterDefeated,
   addMonsterDamageResistance,
   addMonsterDamageImmunity,
   addMonsterDamageVulnerability,
@@ -16,7 +15,6 @@ import {
   applyTypedDamageToHP,
   addDamageResistance,
   addDamageImmunity,
-  addDamageVulnerability,
   emptyDefenses,
   mergeDefenses,
   getCharacterCurrentHP,
@@ -123,14 +121,7 @@ describe('Combat Scenarios - Damage Types and Defenses', () => {
       vulnerabilities: ['Fire'],
     };
 
-    const result = applyTypedDamageToHP(
-      100,
-      100,
-      0,
-      10,
-      'Fire',
-      conflictingDefenses
-    );
+    const result = applyTypedDamageToHP(100, 100, 0, 10, 'Fire', conflictingDefenses);
 
     expect(result.result.effectiveDamage).toBe(10);
     expect(result.result.modifiers).toHaveLength(0);

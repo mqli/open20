@@ -1,7 +1,7 @@
 // tests/spells/query.test.ts
 // Tests for spell query functions
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   getSpell,
   searchSpells,
@@ -110,7 +110,8 @@ const MOCK_WIZARD_CLASS: Class = {
   weaponProficiencies: [],
   weaponMastery: false,
   featuresByLevel: [],
-  spellcasting: {    ability: 'Intelligence' as any,
+  spellcasting: {
+    ability: 'Intelligence' as any,
     knownSource: 'spellbook',
     preparationTiming: 'long_rest',
     changesPerPreparation: 'all',
@@ -127,7 +128,8 @@ const MOCK_CLERIC_CLASS: Class = {
   weaponProficiencies: ['Simple'],
   weaponMastery: false,
   featuresByLevel: [],
-  spellcasting: {    ability: 'Wisdom' as any,
+  spellcasting: {
+    ability: 'Wisdom' as any,
     knownSource: 'class_list',
     preparationTiming: 'long_rest',
     changesPerPreparation: 'all',
@@ -144,7 +146,8 @@ const MOCK_BARD_CLASS: Class = {
   weaponProficiencies: ['Simple', 'Hand Crossbow', 'Longsword', 'Rapier', 'Shortsword'],
   weaponMastery: false,
   featuresByLevel: [],
-  spellcasting: {    ability: 'Charisma' as any,
+  spellcasting: {
+    ability: 'Charisma' as any,
     knownSource: 'class_list',
     preparationTiming: 'level_up',
     changesPerPreparation: 'all',
@@ -508,7 +511,8 @@ const MOCK_SORCERER_CLASS: Class = {
   weaponProficiencies: ['Simple'],
   weaponMastery: false,
   featuresByLevel: [],
-  spellcasting: {    ability: 'Charisma' as any,
+  spellcasting: {
+    ability: 'Charisma' as any,
     preparationTiming: 'level_up',
     changesPerPreparation: 1,
   },
@@ -519,13 +523,13 @@ const MOCK_SORCERER_CLASS: Class = {
 describe('getKnownSpellsForClass', () => {
   // Create a data loader with spells of various levels
   const allSpells = [
-    MOCK_CANTRIP,      // level 0
-    MOCK_L1_SPELL,     // level 1
-    MOCK_SHIELD,       // level 1
-    MOCK_L2_SPELL,     // level 2
-    MOCK_L3_SPELL,     // level 3
-    MOCK_FIREBALL,     // level 3
-    MOCK_L5_SPELL,     // level 5
+    MOCK_CANTRIP, // level 0
+    MOCK_L1_SPELL, // level 1
+    MOCK_SHIELD, // level 1
+    MOCK_L2_SPELL, // level 2
+    MOCK_L3_SPELL, // level 3
+    MOCK_FIREBALL, // level 3
+    MOCK_L5_SPELL, // level 5
   ];
 
   function createTestDataLoader(spells: Spell[] = allSpells): DataLoader {
@@ -575,7 +579,13 @@ describe('getKnownSpellsForClass', () => {
             spellcastingAbility: 'Charisma' as const,
             spellSaveDC: 13,
             spellAttackBonus: 5,
-            knownSpells: ['acid-splash', 'charm-person', 'mirror-image', 'dispel-magic', 'hold-monster'],
+            knownSpells: [
+              'acid-splash',
+              'charm-person',
+              'mirror-image',
+              'dispel-magic',
+              'hold-monster',
+            ],
             preparedSpells: [],
             alwaysPreparedSpells: [],
             maxPrepared: 0,
@@ -594,11 +604,11 @@ describe('getKnownSpellsForClass', () => {
     const result = getKnownSpellsForClass(char as any, 'Sorcerer', data);
     const resultIds = result.map(s => s.id);
 
-    expect(resultIds).toContain('acid-splash');  // cantrip
-    expect(resultIds).toContain('charm-person');  // 1st level
-    expect(resultIds).toContain('mirror-image');  // 2nd level
-    expect(resultIds).not.toContain('dispel-magic');  // 3rd level - cannot cast
-    expect(resultIds).not.toContain('hold-monster');  // 5th level - cannot cast
+    expect(resultIds).toContain('acid-splash'); // cantrip
+    expect(resultIds).toContain('charm-person'); // 1st level
+    expect(resultIds).toContain('mirror-image'); // 2nd level
+    expect(resultIds).not.toContain('dispel-magic'); // 3rd level - cannot cast
+    expect(resultIds).not.toContain('hold-monster'); // 5th level - cannot cast
   });
 
   it('should return empty array for non-existent class', () => {
@@ -633,7 +643,7 @@ describe('getKnownSpellsForClass', () => {
           },
         },
         spellSlots: {
-          1: { total: 3, used: 0 },  // multiclass slots
+          1: { total: 3, used: 0 }, // multiclass slots
           2: { total: 0, used: 0 },
         },
         pactMagicSlots: null,
@@ -644,8 +654,8 @@ describe('getKnownSpellsForClass', () => {
     const result = getKnownSpellsForClass(char as any, 'Sorcerer', data);
     const resultIds = result.map(s => s.id);
 
-    expect(resultIds).toContain('mirror-image');  // 2nd level - can cast
-    expect(resultIds).not.toContain('dispel-magic');  // 3rd level - cannot cast
+    expect(resultIds).toContain('mirror-image'); // 2nd level - can cast
+    expect(resultIds).not.toContain('dispel-magic'); // 3rd level - cannot cast
   });
 
   it('should include cantrips regardless of level', () => {
@@ -675,8 +685,8 @@ describe('getKnownSpellsForClass', () => {
     const result = getKnownSpellsForClass(char as any, 'Sorcerer', data);
     const resultIds = result.map(s => s.id);
 
-    expect(resultIds).toContain('acid-splash');  // cantrip - always included
-    expect(resultIds).toContain('charm-person');  // 1st level - can cast
-    expect(resultIds).not.toContain('dispel-magic');  // 3rd level - cannot cast
+    expect(resultIds).toContain('acid-splash'); // cantrip - always included
+    expect(resultIds).toContain('charm-person'); // 1st level - can cast
+    expect(resultIds).not.toContain('dispel-magic'); // 3rd level - cannot cast
   });
 });

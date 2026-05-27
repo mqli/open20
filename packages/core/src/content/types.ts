@@ -1,7 +1,7 @@
 // content/types.ts
 // ContentPack and ContentPackMeta interfaces for content management (R26)
 
-import type { Species, SpeciesSubtype } from '../types/species';
+import type { Species } from '../types/species';
 import type { Background } from '../types/background';
 import type { Class, Subclass } from '../types/class';
 import type { Feat } from '../types/feat';
@@ -15,13 +15,13 @@ import type { Monster } from '../monster/types';
  * or `meta` field for unified ContentPack objects.
  */
 export interface ContentPackMeta {
-  id: string;              // Unique content pack ID (e.g., 'srd-5.2', 'phb-2024')
-  name: string;            // Display name (e.g., 'SRD 5.2')
-  version: string;         // SemVer (e.g., '1.0.0')
-  source: string;          // Tag for all content in this pack (e.g., 'SRD 5.2')
-  author?: string;         // Author name
-  url?: string;            // Link to source
-  priority?: number;       // Higher = wins ID conflicts (default: 0)
+  id: string; // Unique content pack ID (e.g., 'srd-5.2', 'phb-2024')
+  name: string; // Display name (e.g., 'SRD 5.2')
+  version: string; // SemVer (e.g., '1.0.0')
+  source: string; // Tag for all content in this pack (e.g., 'SRD 5.2')
+  author?: string; // Author name
+  url?: string; // Link to source
+  priority?: number; // Higher = wins ID conflicts (default: 0)
 }
 
 /**

@@ -14,7 +14,7 @@ import type {
 } from '../../src/types/spell';
 import { ResetType } from '../../src/types/resource';
 import type { DataLoader } from '../../src/data/loader';
-import type { Class, Feature } from '../../src/types/class';
+import type { Class } from '../../src/types/class';
 
 import { shortRest, longRest } from '../../src/character/rest';
 import type { RandomProvider } from '../../src/character/rest';
@@ -22,10 +22,7 @@ import type { RandomProvider } from '../../src/character/rest';
 // ── Helper ─────────────────────────────────────────
 
 /** Create CharacterSpells with per-class tracking (new structure) */
-function makeCharSpells(
-  classId: string,
-  overrides?: Partial<ClassSpellData>
-): CharacterSpells {
+function makeCharSpells(classId: string, overrides?: Partial<ClassSpellData>): CharacterSpells {
   return {
     classSpellcasting: {
       [classId]: {
@@ -59,7 +56,15 @@ function makeMockClass(id: string, hitDie: DieType): Class {
     armorTraining: [],
     weaponMastery: false,
     featuresByLevel: [],
-    spellcasting: id === 'Warlock' ? {ability: 'Charisma', preparationTiming: 'level_up', changesPerPreparation: 1, pactMagic: true } : null,
+    spellcasting:
+      id === 'Warlock'
+        ? {
+            ability: 'Charisma',
+            preparationTiming: 'level_up',
+            changesPerPreparation: 1,
+            pactMagic: true,
+          }
+        : null,
   };
 }
 
@@ -218,7 +223,7 @@ function makeFighterWithResources(): Character {
       },
     ],
     resources: {
-      'Fighter': {
+      Fighter: {
         classId: 'Fighter',
         resources: [shortRestResource, longRestResource, perTurnResource],
       },

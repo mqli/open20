@@ -3,7 +3,7 @@
 // Handles feat selection, feat choices, and feat removal
 
 import type { Character } from '../types/character';
-import type { Feat, FeatSpellSelection, CharacterFeatEntry } from '../types/feat';
+import type { FeatSpellSelection, CharacterFeatEntry } from '../types/feat';
 import type { DataLoader } from '../data/loader';
 import { validateFeatPrerequisites, canTakeFeat } from './feat-validator';
 import { recomputeDerivedStats } from './recompute';
@@ -88,16 +88,12 @@ export function addFeat(
   // Validate prerequisites
   const validation = validateFeatPrerequisites(char, feat, data);
   if (!validation.valid) {
-    throw new Error(
-      `Cannot take feat "${feat.name ?? featId}": ${validation.reasons.join(', ')}`
-    );
+    throw new Error(`Cannot take feat "${feat.name ?? featId}": ${validation.reasons.join(', ')}`);
   }
 
   // Check if feat can be taken (not already taken, or repeatable)
   if (!canTakeFeat(char, feat)) {
-    throw new Error(
-      `Feat "${feat.name ?? featId}" cannot be taken again (not repeatable)`
-    );
+    throw new Error(`Feat "${feat.name ?? featId}" cannot be taken again (not repeatable)`);
   }
 
   const { skillChoices, abilityChoices, spellSelection } = options ?? {};
@@ -133,11 +129,7 @@ export function addFeat(
  * @param data - DataLoader
  * @returns New Character with the feat removed
  */
-export function removeFeat(
-  char: Character,
-  featId: string,
-  data: DataLoader
-): Character {
+export function removeFeat(char: Character, featId: string, data: DataLoader): Character {
   if (!hasFeat(char, featId)) {
     throw new Error(`Feat "${featId}" not found on character`);
   }
@@ -271,10 +263,7 @@ export function updateFeatSpellChoices(
  * @param data - DataLoader
  * @returns Array of special ability names
  */
-export function getFeatSpecialAbilities(
-  char: Character,
-  data: DataLoader
-): string[] {
+export function getFeatSpecialAbilities(char: Character, data: DataLoader): string[] {
   const abilities: string[] = [];
 
   for (const entry of char.feats) {

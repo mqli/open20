@@ -7,11 +7,14 @@ import {
   rollDice,
   rollWithAdvantage,
   rollWithDisadvantage,
-  rollAttack,
   defaultRandom,
   type RandomProvider,
 } from '../../src/dice';
-import { rollCharacterAttack, rollCharacterSkillCheck, rollCharacterSavingThrow } from '../../src/rolls/character';
+import {
+  rollCharacterAttack,
+  rollCharacterSkillCheck,
+  rollCharacterSavingThrow,
+} from '../../src/rolls/character';
 import { rollCharacterWeaponDamage } from '../../src/rolls/character';
 import { rollSpellDamage } from '../../src/rolls/character';
 import type { Character } from '../../src/types/character';

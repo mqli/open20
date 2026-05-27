@@ -3,7 +3,6 @@
 
 import { describe, it, expect } from 'vitest';
 import { calculateInitiative } from '../../src/engine/initiative';
-import type { Feature } from '../../src/types/class';
 import { createAbilityScores, createAbilityScoresWithBonuses } from '../fixtures/ability-scores';
 
 describe('calculateInitiative', () => {

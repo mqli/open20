@@ -6,8 +6,7 @@ import type { DataLoader, LookupTables, SpellLevel } from './loader';
 import type { ContentPack, ContentPackMeta } from '../content/types';
 import type { Species, SpeciesSubtype } from '../types/species';
 import type { Background } from '../types/background';
-import type { Class, Subclass, Feature } from '../types/class';
-import type { AbilityName } from '../types/ability';
+import type { Class, Subclass } from '../types/class';
 import type { Feat, FeatCategory } from '../types/feat';
 import type { Weapon, Armor, GearItem } from '../types/equipment';
 import type { Spell } from '../types/spell';
@@ -68,10 +67,10 @@ function registerData(pack: ContentPack): void {
   if (pack.species) speciesData = [...speciesData, ...pack.species];
   if (pack.backgrounds) backgroundsData = [...backgroundsData, ...pack.backgrounds];
   if (pack.classes) {
-    classesData = [...classesData, ...pack.classes as unknown as Class[]];
+    classesData = [...classesData, ...(pack.classes as unknown as Class[])];
   }
   if (pack.subclasses) {
-    subclassesData = [...subclassesData, ...pack.subclasses as unknown as Subclass[]];
+    subclassesData = [...subclassesData, ...(pack.subclasses as unknown as Subclass[])];
   }
   if (pack.feats) featsData = [...featsData, ...pack.feats];
   if (pack.weapons) weaponsData = [...weaponsData, ...pack.weapons];

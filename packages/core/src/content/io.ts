@@ -3,7 +3,7 @@
 // R26.2: Separate files for maintainability, unified format for distribution
 
 import { createRequire } from 'node:module';
-import { mkdirSync, writeFileSync, readdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import type { ContentPack, ContentPackMeta } from './types';

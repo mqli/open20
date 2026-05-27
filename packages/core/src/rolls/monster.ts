@@ -4,17 +4,9 @@
 
 import type { Monster } from '../monster/types';
 import type { MonsterAttack } from '../types/monster';
-import type { DamageType } from '../types/damage';
 import type { RandomProvider } from '../dice/core';
 import type { AttackRollResult, DamageRollResult, RollResult } from '../dice/mechanics';
-import {
-  rollAttack,
-  rollDamage,
-  rollInitiative,
-  type AttackRollParams,
-  type DamageRollParams,
-  type InitiativeRollParams,
-} from '../dice/mechanics';
+import { rollAttack, rollDamage, rollInitiative, type DamageRollParams } from '../dice/mechanics';
 import { defaultRandom, parseDiceExpression } from '../dice/core';
 import { calculateMonsterAttackBonus } from '../monster/calculator';
 
@@ -31,9 +23,7 @@ export interface MonsterAttackParams {
 /**
  * Roll an attack for a monster
  */
-export function rollMonsterAttack(
-  params: MonsterAttackParams
-): AttackRollResult {
+export function rollMonsterAttack(params: MonsterAttackParams): AttackRollResult {
   return rollAttack({
     attackBonus: params.attackBonus,
     rollModifier: params.rollModifier ?? 'none',
@@ -53,9 +43,7 @@ export interface MonsterDamageParams {
 /**
  * Roll damage for a monster attack
  */
-export function rollMonsterDamage(
-  params: MonsterDamageParams
-): DamageRollResult {
+export function rollMonsterDamage(params: MonsterDamageParams): DamageRollResult {
   return rollDamage({
     entries: params.entries,
     isCritical: params.isCritical,
@@ -114,7 +102,7 @@ function estimateDamageFromString(damageStr: string): number {
   const modifier = match[4] ? parseInt(match[4]) * sign : 0;
 
   // Return average damage for deterministic calculation
-  const avgDice = count * (sides + 1) / 2;
+  const avgDice = (count * (sides + 1)) / 2;
   return Math.floor(avgDice + modifier);
 }
 
@@ -134,9 +122,11 @@ export interface MonsterFullAttackParams {
  * @param params - Attack parameters
  * @returns Attack roll result (d20 + bonus)
  */
-export function rollMonsterFullAttack(
-  params: MonsterFullAttackParams
-): { d20: number; total: number; critical: boolean } {
+export function rollMonsterFullAttack(params: MonsterFullAttackParams): {
+  d20: number;
+  total: number;
+  critical: boolean;
+} {
   const { attack, monster, data, rng = defaultRandom } = params;
   const attackBonus = attack.attackBonus ?? calculateMonsterAttackBonus(monster, attack, data);
 
@@ -164,9 +154,7 @@ export interface MonsterInitiativeParams {
 /**
  * Roll initiative for a monster
  */
-export function rollMonsterInitiative(
-  params: MonsterInitiativeParams
-): RollResult {
+export function rollMonsterInitiative(params: MonsterInitiativeParams): RollResult {
   const { monster, rollModifier = 'none', rng } = params;
 
   // Monster initiative is typically based on DEX

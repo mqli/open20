@@ -20,7 +20,7 @@ import {
   emptyDefenses,
   mergeDefenses,
 } from '../../src/engine/combat';
-import type { DamageDefenses, DamageType } from '../../src/types/damage';
+import type { DamageDefenses } from '../../src/types/damage';
 
 describe('applyHPChange', () => {
   it('damage: reduces current HP', () => {

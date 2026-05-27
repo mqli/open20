@@ -7,12 +7,10 @@ import type { DieType } from '../types/dice';
 import type { RollModifier } from './core';
 import {
   rollD20WithModifier,
-  rollDice,
   rollExpression,
   parseDiceExpression,
   isCriticalHit as detectCrit,
   isCriticalFail as detectCritFail,
-  type DiceRollResult,
   type RandomProvider,
 } from './core';
 
@@ -71,14 +69,7 @@ export interface SkillCheckParams {
  * });
  */
 export function rollSkillCheck(params: SkillCheckParams): CheckResult {
-  const {
-    abilityMod,
-    proficiencyBonus,
-    hasExpertise,
-    rollModifier = 'none',
-    dc,
-    rng,
-  } = params;
+  const { abilityMod, proficiencyBonus, hasExpertise, rollModifier = 'none', dc, rng } = params;
 
   // Calculate bonus
   let bonus = abilityMod;
@@ -133,14 +124,7 @@ export interface SavingThrowParams {
  * });
  */
 export function rollSavingThrow(params: SavingThrowParams): CheckResult {
-  const {
-    abilityMod,
-    proficiencyBonus,
-    isProficient,
-    rollModifier = 'none',
-    dc,
-    rng,
-  } = params;
+  const { abilityMod, proficiencyBonus, isProficient, rollModifier = 'none', dc, rng } = params;
 
   // Calculate bonus
   let bonus = abilityMod;
@@ -199,12 +183,7 @@ export interface AttackRollResult extends RollResult {
  * });
  */
 export function rollAttack(params: AttackRollParams): AttackRollResult {
-  const {
-    attackBonus,
-    rollModifier = 'none',
-    targetAC,
-    rng,
-  } = params;
+  const { attackBonus, rollModifier = 'none', targetAC, rng } = params;
 
   // Roll d20 with modifier
   const d20Result = rollD20WithModifier(rng, rollModifier);
@@ -307,12 +286,7 @@ export interface DamageRollResult {
  * });
  */
 export function rollDamage(params: DamageRollParams): DamageRollResult {
-  const {
-    entries: entryParams,
-    modifiers = [],
-    isCritical = false,
-    rng,
-  } = params;
+  const { entries: entryParams, modifiers = [], isCritical = false, rng } = params;
 
   const allEntries: DamageEntry[] = [];
   const typedDamage: Record<string, number> = {};
@@ -394,12 +368,7 @@ export interface InitiativeRollParams {
  * @returns RollResult
  */
 export function rollInitiative(params: InitiativeRollParams): RollResult {
-  const {
-    dexterityMod,
-    bonus = 0,
-    rollModifier = 'none',
-    rng,
-  } = params;
+  const { dexterityMod, bonus = 0, rollModifier = 'none', rng } = params;
 
   const d20Result = rollD20WithModifier(rng, rollModifier);
   const totalBonus = dexterityMod + bonus;

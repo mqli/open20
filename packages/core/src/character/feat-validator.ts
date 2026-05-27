@@ -3,7 +3,7 @@
 // Pure function — returns validation result without modifying state
 
 import type { Character } from '../types/character';
-import type { Feat, FeatPrerequisite } from '../types/feat';
+import type { Feat } from '../types/feat';
 import type { DataLoader } from '../data/loader';
 import type { AbilityName } from '../types/ability';
 import { getTotalScore } from '../engine/ability-modifier';
@@ -57,9 +57,7 @@ export function validateFeatPrerequisites(
     for (const [ability, minValue] of Object.entries(prereq.ability)) {
       const totalScore = getTotalAbilityScore(char, ability as AbilityName);
       if (totalScore < (minValue as number)) {
-        reasons.push(
-          `${ability} score must be at least ${minValue} (current: ${totalScore})`
-        );
+        reasons.push(`${ability} score must be at least ${minValue} (current: ${totalScore})`);
       }
     }
   }
@@ -122,11 +120,7 @@ function getTotalAbilityScore(char: Character, ability: AbilityName): number {
  * Checks if a character has a specific feature (by name).
  * Used for prerequisites like "Fighting Style Feature".
  */
-function checkFeaturePrerequisite(
-  char: Character,
-  featureName: string,
-  data: DataLoader
-): boolean {
+function checkFeaturePrerequisite(char: Character, featureName: string, data: DataLoader): boolean {
   // Check all classes and their features
   for (const charClass of char.classes) {
     const classData = data.getClass(charClass.classId);
@@ -172,10 +166,7 @@ function checkFeaturePrerequisite(
  * @param feat - The feat to check
  * @returns True if the feat is repeatable or not yet taken
  */
-export function canTakeFeat(
-  char: Character,
-  feat: Feat
-): boolean {
+export function canTakeFeat(char: Character, feat: Feat): boolean {
   // If feat is not in character's feat list, can take it
   if (!char.feats.some(f => f.featId === feat.id)) {
     return true;

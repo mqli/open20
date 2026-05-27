@@ -1,0 +1,9 @@
+node_modules
+pnpm-lock.yaml
+.turbo
+coverage
+**/dist
+**/storybook-static
+**/agent.md
+**/docs
+**/requirements

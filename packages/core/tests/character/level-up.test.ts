@@ -5,18 +5,20 @@ import { describe, it, expect } from 'vitest';
 import { levelUp } from '../../src/character/level-up';
 import type { RandomProvider } from '../../src/character/level-up';
 import type { Character } from '../../src/types/character';
-import type { Class, Feature } from '../../src/types/class';
+import type { Class } from '../../src/types/class';
 import type { DataLoader } from '../../src/data/loader';
 
 // ── Helpers ──────────────────────────────────────────────
 
-import type { ClassSpellData, CharacterSpells, SpellLevel, SpellSlotEntry } from '../../src/types/spell';
+import type {
+  ClassSpellData,
+  CharacterSpells,
+  SpellLevel,
+  SpellSlotEntry,
+} from '../../src/types/spell';
 
 /** Create CharacterSpells with per-class tracking (new structure) */
-function makeCharSpells(
-  classId: string,
-  overrides?: Partial<ClassSpellData>
-): CharacterSpells {
+function makeCharSpells(classId: string, overrides?: Partial<ClassSpellData>): CharacterSpells {
   return {
     classSpellcasting: {
       [classId]: {
@@ -50,10 +52,39 @@ function makeFighterClass(): Class {
     armorTraining: ['Light', 'Medium', 'Heavy', 'Shield'],
     weaponMastery: true,
     featuresByLevel: [
-      { level: 1, features: [{ name: 'Fighting Style', description: 'Choose a Fighting Style', resourceId: 'Second Wind' }] },
-      { level: 2, features: [{ name: 'Action Surge', description: 'Push beyond normal limits', resourceId: 'Action Surge' }] },
-      { level: 3, features: [{ name: 'Martial Archetype', description: 'Choose a Martial Archetype' }] },
-      { level: 4, features: [{ name: 'Ability Score Improvement', description: 'Increase ability scores or take a feat' }] },
+      {
+        level: 1,
+        features: [
+          {
+            name: 'Fighting Style',
+            description: 'Choose a Fighting Style',
+            resourceId: 'Second Wind',
+          },
+        ],
+      },
+      {
+        level: 2,
+        features: [
+          {
+            name: 'Action Surge',
+            description: 'Push beyond normal limits',
+            resourceId: 'Action Surge',
+          },
+        ],
+      },
+      {
+        level: 3,
+        features: [{ name: 'Martial Archetype', description: 'Choose a Martial Archetype' }],
+      },
+      {
+        level: 4,
+        features: [
+          {
+            name: 'Ability Score Improvement',
+            description: 'Increase ability scores or take a feat',
+          },
+        ],
+      },
     ],
     spellcasting: null,
   };
@@ -69,10 +100,24 @@ function makeWizardClass(): Class {
     armorTraining: [],
     weaponMastery: false,
     featuresByLevel: [
-      { level: 1, features: [{ name: 'Spellcasting', description: 'Cast wizard spells', resourceId: 'Arcane Recovery' }] },
+      {
+        level: 1,
+        features: [
+          {
+            name: 'Spellcasting',
+            description: 'Cast wizard spells',
+            resourceId: 'Arcane Recovery',
+          },
+        ],
+      },
       { level: 2, features: [{ name: 'Scholar', description: 'Gain expertise in a skill' }] },
     ],
-    spellcasting: {ability: 'Intelligence', knownSource: 'spellbook', preparationTiming: 'long_rest', changesPerPreparation: 'all' },
+    spellcasting: {
+      ability: 'Intelligence',
+      knownSource: 'spellbook',
+      preparationTiming: 'long_rest',
+      changesPerPreparation: 'all',
+    },
   };
 }
 
@@ -167,7 +212,7 @@ function makeLevel1Fighter(_overrides?: Partial<Character>): Character {
       pactMagicSlots: null,
     },
     resources: {
-      'Fighter': {
+      Fighter: {
         classId: 'fighter',
         resources: [
           {
@@ -499,11 +544,15 @@ describe('levelUp', () => {
   it('does not duplicate existing resources', () => {
     let char = makeLevel1Fighter();
     // Level 1 has Second Wind
-    expect(char.resources['Fighter']!.resources.filter(r => r.id === 'Second Wind')).toHaveLength(1);
+    expect(char.resources['Fighter']!.resources.filter(r => r.id === 'Second Wind')).toHaveLength(
+      1
+    );
 
     // Level up to 2 and back down conceptually — let's just verify
     // that if the same resource appeared again it wouldn't duplicate
     char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
-    expect(char.resources['Fighter']!.resources.filter(r => r.id === 'Second Wind')).toHaveLength(1);
+    expect(char.resources['Fighter']!.resources.filter(r => r.id === 'Second Wind')).toHaveLength(
+      1
+    );
   });
 });

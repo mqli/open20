@@ -1,6 +1,6 @@
 // tests/monsters/calculator.test.ts
 // Unit tests for monster calculator functions
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 import type { MonsterAttack } from '../../src/types/monster';
 import {
@@ -8,10 +8,10 @@ import {
   calculateMonsterAttackBonus,
   calculateMonsterSaveDC,
   calculateMonsterAC,
-  calculateMonsterHP
+  calculateMonsterHP,
 } from '../../src/monster/calculator';
 import { createMockDataLoader } from '../fixtures/data-loader';
-import { MOCK_GOBLIN, MOCK_ORC, ADULT_RED_DRAGON } from '../fixtures/monsters';
+import { MOCK_GOBLIN, ADULT_RED_DRAGON } from '../fixtures/monsters';
 
 // ── Tests ───────────────────────────────────────
 
@@ -57,7 +57,7 @@ describe('calculateMonsterAttackBonus', () => {
       attackBonus: 4,
       damage: '1d6+2',
       damageType: 'Slashing',
-      damageEntries: [{ dice: '1d6', type: 'Slashing', bonus: 2 }]
+      damageEntries: [{ dice: '1d6', type: 'Slashing', bonus: 2 }],
     };
 
     const result = calculateMonsterAttackBonus(MOCK_GOBLIN, attack, createMockDataLoader());
@@ -92,8 +92,8 @@ describe('calculateMonsterAC', () => {
       ...MOCK_GOBLIN,
       armorClass: [
         { value: 13, type: 'natural armor' },
-        { value: 15, type: 'natural armor', condition: 'while not incapacitated' }
-      ]
+        { value: 15, type: 'natural armor', condition: 'while not incapacitated' },
+      ],
     };
 
     const result = calculateMonsterAC(monsterWithMultipleAC);
@@ -103,7 +103,7 @@ describe('calculateMonsterAC', () => {
   it('should return default AC 10 if no AC entries', () => {
     const monsterNoAC = {
       ...MOCK_GOBLIN,
-      armorClass: []
+      armorClass: [],
     };
 
     const result = calculateMonsterAC(monsterNoAC);
