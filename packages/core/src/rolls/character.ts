@@ -8,7 +8,12 @@ import type { Spell, SpellLevel } from '../types/spell';
 import type { AbilityName } from '../types/ability';
 import type { SkillName } from '../types/skill';
 import type { RandomProvider } from '../dice/core';
-import type { CheckResult, AttackRollResult, DamageRollResult, RollResult } from '../dice/mechanics';
+import type {
+  CheckResult,
+  AttackRollResult,
+  DamageRollResult,
+  RollResult,
+} from '../dice/mechanics';
 import {
   rollSkillCheck,
   rollSavingThrow,
@@ -92,9 +97,7 @@ export interface CharacterSavingThrowParams {
  * Roll a saving throw for a character
  * Wraps Layer 2 with character-specific logic
  */
-export function rollCharacterSavingThrow(
-  params: CharacterSavingThrowParams
-): CheckResult {
+export function rollCharacterSavingThrow(params: CharacterSavingThrowParams): CheckResult {
   const { character, ability, dc, rollModifier = 'none', getClass, rng } = params;
 
   const abilityMod = getModifier(getTotalScore(character.abilityScores, ability));
@@ -124,7 +127,7 @@ export function rollCharacterSavingThrow(
 
 export interface CharacterAttackParams {
   character: Character;
-  attackBonus: number;
+  weapon: Weapon;
   rollModifier?: 'none' | 'advantage' | 'disadvantage';
   targetAC?: number;
   rng: RandomProvider;
@@ -134,10 +137,12 @@ export interface CharacterAttackParams {
  * Roll an attack for a character
  * Wraps Layer 2 with character-specific logic
  */
-export function rollCharacterAttack(
-  params: CharacterAttackParams
-): AttackRollResult {
-  const { character, attackBonus, rollModifier = 'none', targetAC, rng } = params;
+export function rollCharacterAttack(params: CharacterAttackParams): AttackRollResult {
+  const { character, weapon, rollModifier = 'none', targetAC, rng } = params;
+
+  const abilityMod = getModifier(getTotalScore(character.abilityScores, weapon.damage.ability));
+  const proficiencyBonus = character.combatStats.proficiencyBonus;
+  const attackBonus = abilityMod + proficiencyBonus + weapon.damage.bonus;
 
   return rollAttack({
     attackBonus,
@@ -160,9 +165,7 @@ export interface CharacterWeaponDamageParams {
  * Roll weapon damage for a character
  * Supports multiple damage types and critical hits
  */
-export function rollCharacterWeaponDamage(
-  params: CharacterWeaponDamageParams
-): DamageRollResult {
+export function rollCharacterWeaponDamage(params: CharacterWeaponDamageParams): DamageRollResult {
   const { character, weapon, isCritical = false, rng } = params;
 
   // Build damage entries from weapon (do NOT double dice here - rollDamage handles it)
@@ -177,13 +180,18 @@ export function rollCharacterWeaponDamage(
   }
 
   // Calculate ability modifier
-  const abilityMod = getModifier(
-    getTotalScore(character.abilityScores, weapon.damage.ability)
-  );
+  const abilityMod = getModifier(getTotalScore(character.abilityScores, weapon.damage.ability));
 
-  const modifiers = abilityMod !== 0
-    ? [{ value: abilityMod, type: 'ability' as const, description: `${weapon.damage.ability} modifier` } as { value: number; type: string; description: string }]
-    : [];
+  const modifiers =
+    abilityMod !== 0
+      ? [
+          {
+            value: abilityMod,
+            type: 'ability' as const,
+            description: `${weapon.damage.ability} modifier`,
+          } as { value: number; type: string; description: string },
+        ]
+      : [];
 
   // Add weapon bonus
   if (weapon.damage.bonus !== 0) {
@@ -211,9 +219,7 @@ export interface SpellAttackParams {
 /**
  * Roll a spell attack for a character
  */
-export function rollSpellAttack(
-  params: SpellAttackParams
-): AttackRollResult {
+export function rollSpellAttack(params: SpellAttackParams): AttackRollResult {
   const { character, spellcastingAbility, rollModifier = 'none', targetAC, rng } = params;
 
   const abilityMod = getModifier(getTotalScore(character.abilityScores, spellcastingAbility));
@@ -231,7 +237,6 @@ export function rollSpellAttack(
 // ── Spell Damage Roll ───────────────────────────────────────────
 
 export interface SpellDamageParams {
-  character: Character;
   spell: Spell;
   slotLevel: SpellLevel;
   isCritical?: boolean;
@@ -242,10 +247,8 @@ export interface SpellDamageParams {
  * Roll spell damage for a character
  * Supports upcasting (higher level damage)
  */
-export function rollSpellDamage(
-  params: SpellDamageParams
-): DamageRollResult {
-  const { character, spell, slotLevel, rng } = params;
+export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
+  const { spell, slotLevel, rng } = params;
 
   if (!spell.damage) {
     return {
@@ -264,7 +267,12 @@ export function rollSpellDamage(
     let diceStr = entry.dice;
 
     // Handle upcasting: add perSlot damage for each slot level above base
-    if (i === 0 && slotLevel > spell.level && spell.damage.perSlot && spell.damage.perSlot.length > 0) {
+    if (
+      i === 0 &&
+      slotLevel > spell.level &&
+      spell.damage.perSlot &&
+      spell.damage.perSlot.length > 0
+    ) {
       const perSlotDice = spell.damage.perSlot[0]!.dice; // e.g., "1d6"
       const numLevels = slotLevel - spell.level;
       const baseMatch = diceStr.match(/(\d+)d(\d+)/);
@@ -294,36 +302,8 @@ export function rollSpellDamage(
     }
   }
 
-  // Add spellcasting ability modifier if it's a spell attack
-  const modifiers = [];
-  if (spell.attack) {
-    // Find the class that can cast this spell
-    let spellcastingAbility: AbilityName | undefined;
-    for (const [classId, classSpellData] of Object.entries(character.spells.classSpellcasting)) {
-      const classIdLower = classId.toLowerCase();
-      if (spell.classes?.some(c => c.toLowerCase() === classIdLower)) {
-        spellcastingAbility = classSpellData.spellcastingAbility;
-        break;
-      }
-    }
-
-    if (spellcastingAbility) {
-      const abilityMod = getModifier(
-        getTotalScore(character.abilityScores, spellcastingAbility)
-      );
-      if (abilityMod !== 0) {
-        modifiers.push({
-          value: abilityMod,
-          type: 'ability' as const,
-          description: `${spellcastingAbility} modifier`,
-        });
-      }
-    }
-  }
-
   return rollDamage({
     entries: damageEntries,
-    modifiers,
     isCritical: false, // Spells don't normally crit (unless specific feature)
     rng,
   });
@@ -340,14 +320,10 @@ export interface CharacterInitiativeParams {
 /**
  * Roll initiative for a character
  */
-export function rollCharacterInitiative(
-  params: CharacterInitiativeParams
-): RollResult {
+export function rollCharacterInitiative(params: CharacterInitiativeParams): RollResult {
   const { character, rollModifier = 'none', rng } = params;
 
-  const dexterityMod = getModifier(
-    getTotalScore(character.abilityScores, 'Dexterity')
-  );
+  const dexterityMod = getModifier(getTotalScore(character.abilityScores, 'Dexterity'));
 
   return rollInitiative({
     dexterityMod,

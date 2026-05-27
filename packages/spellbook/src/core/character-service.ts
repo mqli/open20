@@ -22,24 +22,26 @@ import {
   type AttackRollResult,
   type DamageRollResult,
   type DataLoader,
-} from 'open20-core';
-import type { AppCharacter } from './types';
-import { SpellService } from './spell-service';
+} from "open20-core";
+import type { AppCharacter } from "./types";
+import { SpellService } from "./spell-service";
 
-import { dataLoader } from './data-loader';
-import type { SpellLevel } from 'open20-core/data';
+import { dataLoader } from "./data-loader";
+import type { SpellLevel } from "open20-core/data";
 
 export function getCasterType(character: AppCharacter): {
   canLearn: boolean;
   canPrepare: boolean;
   isSpellbookCaster: boolean;
 } {
-  const classIds = character.classes?.map(c => c.classId) ?? [];
+  const classIds = character.classes?.map((c) => c.classId) ?? [];
   const classes = classIds
-    .map(id => dataLoader.getClass(id))
+    .map((id) => dataLoader.getClass(id))
     .filter((c): c is NonNullable<typeof c> => c != null);
 
-  const canPrepare = classes.some(c => canChangeSpellsOnLongRest(c) || canChangeSpellsOnLevelUp(c));
+  const canPrepare = classes.some(
+    (c) => canChangeSpellsOnLongRest(c) || canChangeSpellsOnLevelUp(c),
+  );
   // D&D 2024: only spellbook casters (Wizard) "learn" spells; others prepare from full class list
   const canLearn = classes.some(isSpellbookCaster);
   const spellbookCaster = canLearn;
@@ -60,11 +62,11 @@ export function getCasterTypeForClass(classId: string): {
   return {
     // D&D 2024: only spellbook casters (Wizard) "learn" spells
     canLearn: isSpellbookCaster(classDef),
-    canPrepare: canChangeSpellsOnLongRest(classDef) || canChangeSpellsOnLevelUp(classDef),
+    canPrepare:
+      canChangeSpellsOnLongRest(classDef) || canChangeSpellsOnLevelUp(classDef),
     isSpellbookCaster: isSpellbookCaster(classDef),
   };
 }
-
 
 export class CharacterService {
   private spellService: SpellService;
@@ -73,17 +75,29 @@ export class CharacterService {
     this.spellService = spellService;
   }
 
-  createCharacter(params: Parameters<typeof open20CreateCharacter>[0]): AppCharacter {
-    const raw = open20CreateCharacter(params, dataLoader as unknown as DataLoader);
+  createCharacter(
+    params: Parameters<typeof open20CreateCharacter>[0],
+  ): AppCharacter {
+    const raw = open20CreateCharacter(
+      params,
+      dataLoader as unknown as DataLoader,
+    );
     const char = open20Recompute(raw, dataLoader as unknown as DataLoader);
     return { ...char, id: crypto.randomUUID() } as AppCharacter;
   }
 
   recompute(character: AppCharacter): AppCharacter {
-    if (!character.classes || !character.abilityScores?.base || !character.hitPoints) {
+    if (
+      !character.classes ||
+      !character.abilityScores?.base ||
+      !character.hitPoints
+    ) {
       return character;
     }
-    const recomputed = open20Recompute(character, dataLoader as unknown as DataLoader);
+    const recomputed = open20Recompute(
+      character,
+      dataLoader as unknown as DataLoader,
+    );
     return { ...recomputed, id: character.id } as AppCharacter;
   }
 
@@ -91,63 +105,110 @@ export class CharacterService {
     const spell = this.spellService.getSpell(spellId);
     if (!spell) return character;
 
-    const classIds = character.classes?.map(c => c.classId) ?? [];
+    const classIds = character.classes?.map((c) => c.classId) ?? [];
     const spellClasses = spell.classes ?? [];
-    const matchingClass = classIds.find(id => spellClasses.includes(id));
+    const matchingClass = classIds.find((id) => spellClasses.includes(id));
 
     if (!matchingClass) return character;
 
-    return { ...open20PrepareSpellForClass(character, matchingClass, spellId), id: character.id } as AppCharacter;
+    return {
+      ...open20PrepareSpellForClass(character, matchingClass, spellId),
+      id: character.id,
+    } as AppCharacter;
   }
 
   unprepareSpell(character: AppCharacter, spellId: string): AppCharacter {
     const classId = Object.keys(character.spells.classSpellcasting).find(
-      cls => character.spells.classSpellcasting[cls].preparedSpells.includes(spellId)
+      (cls) =>
+        character.spells.classSpellcasting[cls].preparedSpells.includes(
+          spellId,
+        ),
     );
 
     if (!classId) return character;
 
-    return { ...open20UnprepareSpellForClass(character, classId, spellId), id: character.id } as AppCharacter;
+    return {
+      ...open20UnprepareSpellForClass(character, classId, spellId),
+      id: character.id,
+    } as AppCharacter;
   }
 
-  prepareSpellForClass(character: AppCharacter, classId: string, spellId: string): AppCharacter {
-    return { ...open20PrepareSpellForClass(character, classId, spellId), id: character.id } as AppCharacter;
+  prepareSpellForClass(
+    character: AppCharacter,
+    classId: string,
+    spellId: string,
+  ): AppCharacter {
+    return {
+      ...open20PrepareSpellForClass(character, classId, spellId),
+      id: character.id,
+    } as AppCharacter;
   }
 
-  unprepareSpellForClass(character: AppCharacter, classId: string, spellId: string): AppCharacter {
-    return { ...open20UnprepareSpellForClass(character, classId, spellId), id: character.id } as AppCharacter;
+  unprepareSpellForClass(
+    character: AppCharacter,
+    classId: string,
+    spellId: string,
+  ): AppCharacter {
+    return {
+      ...open20UnprepareSpellForClass(character, classId, spellId),
+      id: character.id,
+    } as AppCharacter;
   }
 
   consumeSpellSlot(character: AppCharacter, level: number): AppCharacter {
-    return { ...open20ConsumeSpellSlot(character, level), id: character.id } as AppCharacter;
+    return {
+      ...open20ConsumeSpellSlot(character, level),
+      id: character.id,
+    } as AppCharacter;
   }
 
   recoverSpellSlot(character: AppCharacter, level: number): AppCharacter {
-    return { ...open20RecoverSpellSlot(character, level), id: character.id } as AppCharacter;
+    return {
+      ...open20RecoverSpellSlot(character, level),
+      id: character.id,
+    } as AppCharacter;
   }
 
   consumePactMagicSlot(character: AppCharacter): AppCharacter {
-    return { ...open20ConsumeSpellSlot(character, 'pact'), id: character.id } as AppCharacter;
+    return {
+      ...open20ConsumeSpellSlot(character, "pact"),
+      id: character.id,
+    } as AppCharacter;
   }
 
   recoverPactMagicSlot(character: AppCharacter): AppCharacter {
-    return { ...open20RecoverSpellSlot(character, 'pact'), id: character.id } as AppCharacter;
+    return {
+      ...open20RecoverSpellSlot(character, "pact"),
+      id: character.id,
+    } as AppCharacter;
   }
 
   longRest(character: AppCharacter): AppCharacter {
-    return { ...open20LongRest(character, dataLoader as unknown as DataLoader), id: character.id } as AppCharacter;
+    return {
+      ...open20LongRest(character, dataLoader as unknown as DataLoader),
+      id: character.id,
+    } as AppCharacter;
   }
 
   shortRest(character: AppCharacter): AppCharacter {
-    return { ...open20ShortRest(character, 0, dataLoader as unknown as DataLoader), id: character.id } as AppCharacter;
+    return {
+      ...open20ShortRest(character, 0, dataLoader as unknown as DataLoader),
+      id: character.id,
+    } as AppCharacter;
   }
 
   startConcentration(character: AppCharacter, spellId: string): AppCharacter {
-    return { ...open20StartConcentration(character, spellId), id: character.id } as AppCharacter;
+    return {
+      ...open20StartConcentration(character, spellId),
+      id: character.id,
+    } as AppCharacter;
   }
 
   endConcentration(character: AppCharacter): AppCharacter {
-    return { ...open20EndConcentration(character), id: character.id } as AppCharacter;
+    return {
+      ...open20EndConcentration(character),
+      id: character.id,
+    } as AppCharacter;
   }
 
   learnSpell(character: AppCharacter, spellId: string): AppCharacter {
@@ -156,15 +217,15 @@ export class CharacterService {
     const spell = this.spellService.getSpell(spellId);
     if (!spell) return character;
 
-    const classIds = character.classes?.map(c => c.classId) ?? [];
+    const classIds = character.classes?.map((c) => c.classId) ?? [];
     const spellClasses = spell.classes ?? [];
-    const matchingClass = classIds.find(id => spellClasses.includes(id));
+    const matchingClass = classIds.find((id) => spellClasses.includes(id));
 
     if (!matchingClass) return character;
 
     return {
       ...addKnownSpell(character, matchingClass, spellId),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     } as AppCharacter;
   }
 
@@ -172,22 +233,28 @@ export class CharacterService {
     if (!knowsSpell(character, spellId)) return character;
 
     const classId = Object.keys(character.spells.classSpellcasting).find(
-      cls => character.spells.classSpellcasting[cls].knownSpells.includes(spellId)
+      (cls) =>
+        character.spells.classSpellcasting[cls].knownSpells.includes(spellId),
     );
 
     if (!classId) return character;
 
     return {
       ...removeKnownSpell(character, classId, spellId),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     } as AppCharacter;
   }
 
-  learnCantrip(character: AppCharacter, classId: string, spellId: string): AppCharacter {
+  learnCantrip(
+    character: AppCharacter,
+    classId: string,
+    spellId: string,
+  ): AppCharacter {
     const classSpellData = character.spells.classSpellcasting[classId];
     if (!classSpellData) return character;
     if (classSpellData.knownCantrips.includes(spellId)) return character;
-    if (classSpellData.knownCantrips.length >= classSpellData.maxCantripsKnown) return character;
+    if (classSpellData.knownCantrips.length >= classSpellData.maxCantripsKnown)
+      return character;
 
     const updatedSpells = {
       ...character.spells,
@@ -207,7 +274,12 @@ export class CharacterService {
     } as AppCharacter;
   }
 
-  replaceCantrip(character: AppCharacter, classId: string, oldSpellId: string, newSpellId: string): AppCharacter {
+  replaceCantrip(
+    character: AppCharacter,
+    classId: string,
+    oldSpellId: string,
+    newSpellId: string,
+  ): AppCharacter {
     const classSpellData = character.spells.classSpellcasting[classId];
     if (!classSpellData) return character;
     if (!classSpellData.knownCantrips.includes(oldSpellId)) return character;
@@ -219,7 +291,9 @@ export class CharacterService {
         ...character.spells.classSpellcasting,
         [classId]: {
           ...classSpellData,
-          knownCantrips: classSpellData.knownCantrips.map(id => id === oldSpellId ? newSpellId : id),
+          knownCantrips: classSpellData.knownCantrips.map((id) =>
+            id === oldSpellId ? newSpellId : id,
+          ),
         },
       },
     };
@@ -231,7 +305,11 @@ export class CharacterService {
     } as AppCharacter;
   }
 
-  unlearnCantrip(character: AppCharacter, classId: string, spellId: string): AppCharacter {
+  unlearnCantrip(
+    character: AppCharacter,
+    classId: string,
+    spellId: string,
+  ): AppCharacter {
     const classSpellData = character.spells.classSpellcasting[classId];
     if (!classSpellData) return character;
     if (!classSpellData.knownCantrips.includes(spellId)) return character;
@@ -242,7 +320,9 @@ export class CharacterService {
         ...character.spells.classSpellcasting,
         [classId]: {
           ...classSpellData,
-          knownCantrips: classSpellData.knownCantrips.filter(id => id !== spellId),
+          knownCantrips: classSpellData.knownCantrips.filter(
+            (id) => id !== spellId,
+          ),
         },
       },
     };
@@ -254,8 +334,17 @@ export class CharacterService {
     } as AppCharacter;
   }
 
-  castSpell(character: AppCharacter, spellId: string, level: SpellLevel): AppCharacter {
-    const result = open20CastSpell(character, spellId, level, dataLoader as unknown as DataLoader);
+  castSpell(
+    character: AppCharacter,
+    spellId: string,
+    level: SpellLevel,
+  ): AppCharacter {
+    const result = open20CastSpell(
+      character,
+      spellId,
+      level,
+      dataLoader as unknown as DataLoader,
+    );
     if (!result.success) return character;
 
     const updated = { ...result.char, id: character.id } as AppCharacter;
@@ -263,13 +352,16 @@ export class CharacterService {
     return this.recompute(updated);
   }
 
-  rollSpellAttack(character: AppCharacter, spellName: string): AttackRollResult {
+  rollSpellAttack(
+    character: AppCharacter,
+    spellName: string,
+  ): AttackRollResult {
     void spellName;
     const classSpellcasting = character.spells.classSpellcasting;
     const primaryClassId = Object.keys(classSpellcasting)[0];
     const spellcastingAbility = primaryClassId
       ? classSpellcasting[primaryClassId].spellcastingAbility
-      : 'Intelligence';
+      : "Intelligence";
     return rollSpellAttack({
       character,
       spellcastingAbility,
@@ -277,16 +369,19 @@ export class CharacterService {
     });
   }
 
-  rollSpellDamage(character: AppCharacter, spellId: string, damageIndex: number, slotLevel?: SpellLevel): DamageRollResult {
+  rollSpellDamage(
+    spellId: string,
+    damageIndex: number,
+    slotLevel?: SpellLevel,
+  ): DamageRollResult {
     void damageIndex;
     const spell = this.spellService.getSpell(spellId);
     if (!spell) throw new Error(`Spell not found: ${spellId}`);
 
     return rollSpellDamage({
-      character,
       spell,
       slotLevel: slotLevel ?? spell.level,
-      rng: defaultRandom
+      rng: defaultRandom,
     });
   }
 }

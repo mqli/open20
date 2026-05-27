@@ -14,7 +14,6 @@ import {
 import { rollCharacterAttack, rollCharacterSkillCheck, rollCharacterSavingThrow } from '../../src/rolls/character';
 import { rollCharacterWeaponDamage } from '../../src/rolls/character';
 import { rollSpellDamage } from '../../src/rolls/character';
-import { getModifier, getTotalScore } from '../../src/engine/ability-modifier';
 import type { Character } from '../../src/types/character';
 import type { Weapon } from '../../src/types/equipment';
 import type { Spell } from '../../src/types/spell';
@@ -167,27 +166,34 @@ describe('rollWithDisadvantage', () => {
 });
 
 describe('rollAttack', () => {
+  const makeSword = (bonus = 0): Weapon => ({
+    id: 'longsword',
+    name: 'Longsword',
+    type: 'weapon',
+    category: 'Martial',
+    weight: 3,
+    equipped: true,
+    damage: { entries: [{ dice: '1d8', type: 'Slashing' }], ability: 'Strength', bonus },
+    properties: [],
+  });
+
   it('calculates attack roll correctly', () => {
     const rng = createMockRNG([15]); // Roll 15
     const character = createMockCharacter();
-    const attack = { attackBonus: 5, abilityModifier: 'Strength' as const };
-
-    // Calculate attack bonus: attack.attackBonus + ability modifier
-    const abilityMod = getModifier(getTotalScore(character.abilityScores, 'Strength'));
-    const attackBonus = attack.attackBonus + abilityMod;
+    // Str 18 (+4) + proficiency (+3) + weapon bonus (+2) = +9
+    const weapon = makeSword(2);
 
     const result = rollCharacterAttack({
       character,
-      attackBonus,
+      weapon,
       rollModifier: 'none',
       targetAC: 16,
       rng,
     });
 
-    // Roll 15 + Str mod (+4) + bonus (+5) = 24
     expect(result.rawRoll).toBe(15);
-    expect(result.bonus).toBe(attackBonus);
-    expect(result.total).toBe(15 + attackBonus);
+    expect(result.bonus).toBe(9);
+    expect(result.total).toBe(24);
     expect(result.hit).toBe(true);
     expect(result.isCritical).toBe(false);
     expect(result.isCriticalFail).toBe(false);
@@ -196,16 +202,12 @@ describe('rollAttack', () => {
   it('detects critical hit on roll of 20', () => {
     const rng = createMockRNG([20]);
     const character = createMockCharacter();
-    const attack = { attackBonus: 0, abilityModifier: 'Strength' as const };
-
-    const abilityMod = getModifier(getTotalScore(character.abilityScores, 'Strength'));
-    const attackBonus = attack.attackBonus + abilityMod;
 
     const result = rollCharacterAttack({
       character,
-      attackBonus,
+      weapon: makeSword(),
       rollModifier: 'none',
-      targetAC: 10, // Add AC so hit is calculated
+      targetAC: 10,
       rng,
     });
 
@@ -217,38 +219,28 @@ describe('rollAttack', () => {
   it('detects critical fail on roll of 1', () => {
     const rng = createMockRNG([1]);
     const character = createMockCharacter();
-    // Set attack bonus low so total is < AC
-    const attack = { attackBonus: 0, abilityModifier: 'Strength' as const };
-
-    const abilityMod = getModifier(getTotalScore(character.abilityScores, 'Strength'));
-    const attackBonus = attack.attackBonus + abilityMod;
 
     const result = rollCharacterAttack({
       character,
-      attackBonus,
+      weapon: makeSword(),
       rollModifier: 'none',
-      targetAC: 20, // AC 20
+      targetAC: 20,
       rng,
     });
 
     expect(result.rawRoll).toBe(1);
     expect(result.isCriticalFail).toBe(true);
-    // Natural 1 can still hit if bonuses are high enough (but usually misses)
-    // In this case: 1 + 4 = 5, which is < 20
+    // 1 + Str (+4) + prof (+3) = 8, which is < 20
     expect(result.hit).toBe(false);
   });
 
   it('handles advantage', () => {
     const rng = createMockRNG([5, 15]); // Roll twice, take higher = 15
     const character = createMockCharacter();
-    const attack = { attackBonus: 5, abilityModifier: 'Strength' as const };
-
-    const abilityMod = getModifier(getTotalScore(character.abilityScores, 'Strength'));
-    const attackBonus = attack.attackBonus + abilityMod;
 
     const result = rollCharacterAttack({
       character,
-      attackBonus,
+      weapon: makeSword(),
       rollModifier: 'advantage',
       rng,
     });
@@ -260,14 +252,10 @@ describe('rollAttack', () => {
   it('handles disadvantage', () => {
     const rng = createMockRNG([15, 5]); // Roll twice, take lower = 5
     const character = createMockCharacter();
-    const attack = { attackBonus: 5, abilityModifier: 'Strength' as const };
-
-    const abilityMod = getModifier(getTotalScore(character.abilityScores, 'Strength'));
-    const attackBonus = attack.attackBonus + abilityMod;
 
     const result = rollCharacterAttack({
       character,
-      attackBonus,
+      weapon: makeSword(),
       rollModifier: 'disadvantage',
       rng,
     });
@@ -505,7 +493,6 @@ describe('rollCharacterWeaponDamage', () => {
 describe('rollSpellDamage', () => {
   it('calculates spell damage correctly', () => {
     const rng = createMockRNG([5]); // 1d10
-    const character = createMockCharacter();
     const spell: Spell = {
       id: 'firebolt',
       name: 'Fire Bolt',
@@ -523,18 +510,16 @@ describe('rollSpellDamage', () => {
       source: '2024 PHB',
     };
 
-    const result = rollSpellDamage({ rng, character, spell, slotLevel: 0 });
+    const result = rollSpellDamage({ rng, spell, slotLevel: 0 });
 
     expect(result.entries).toHaveLength(1);
     expect(result.entries[0]?.die).toBe('d10');
     expect(result.entries[0]?.count).toBe(1);
-    // Character has Int 10, so modifier is 0 and not added
     expect(result.modifiers).toHaveLength(0);
   });
 
   it('scales damage with higher slot level', () => {
     const rng = createMockRNG([4, 5, 6, 3, 4]); // 5d6 at level 3
-    const character = createMockCharacter();
     const spell: Spell = {
       id: 'scorching-ray',
       name: 'Scorching Ray',
@@ -555,14 +540,13 @@ describe('rollSpellDamage', () => {
       source: '2024 PHB',
     };
 
-    const result = rollSpellDamage({ rng, character, spell, slotLevel: 3 }); // Cast at 3rd level
+    const result = rollSpellDamage({ rng, spell, slotLevel: 3 }); // Cast at 3rd level
 
     expect(result.entries[0]?.count).toBe(5); // 5d6 at level 3 (base 4d6 + 1 extra)
   });
 
   it('supports composed damage types (spell with additional damage)', () => {
     const rng = createMockRNG([4, 3]); // 2d6 piercing + 1d6 poison
-    const character = createMockCharacter();
     const spell: Spell = {
       id: 'melfs-acid-arrow',
       name: "Melf's Acid Arrow",
@@ -584,7 +568,7 @@ describe('rollSpellDamage', () => {
       source: '2024 PHB',
     };
 
-    const result = rollSpellDamage({ rng, character, spell, slotLevel: 2 });
+    const result = rollSpellDamage({ rng, spell, slotLevel: 2 });
 
     // Should have 2 roll entries: Piercing and Poison
     expect(result.entries).toHaveLength(2);

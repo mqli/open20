@@ -217,10 +217,9 @@ export function SpellCardWrapper({
   };
 
   const handleDamageRoll = (index: number) => {
-    if (!activeCharacter || !hasDamageEntries) return;
+    if (!hasDamageEntries) return;
 
     const result = characterService.rollSpellDamage(
-      activeCharacter,
       spell.id,
       index,
       effectiveCastLevel,
