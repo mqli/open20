@@ -1,6 +1,6 @@
 import * as RadixTabs from '@radix-ui/react-tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@open20/ui/lib/cn';
+import { cn } from '@/lib/cn';
 
 const tabsListVariants = cva('flex border-b border-border', {
   variants: {
@@ -40,7 +40,10 @@ export const Tabs = {
     className,
     ...props
   }: VariantProps<typeof tabsListVariants> & RadixTabs.TabsListProps) => (
-    <RadixTabs.List className={cn(tabsListVariants({ variant, scrollable }), className)} {...props} />
+    <RadixTabs.List
+      className={cn(tabsListVariants({ variant, scrollable }), className)}
+      {...props}
+    />
   ),
 
   Trigger: ({

@@ -8,16 +8,14 @@ const uiSrc = resolve(here, '../src');
 
 const config: StorybookConfig = {
   ...createStorybookMainConfig(),
-  // Storybook bundles via Vite. The `@open20/ui` package's `exports` field
-  // can't express directory/index resolution for paths like
-  // `@open20/ui/components/Button`, so we redirect those imports to the
-  // source directly and let Vite apply its own extension lookup.
+  // Storybook bundles via Vite. Resolve package-local `@` imports
+  // directly to source and let Vite apply extension lookup.
   viteFinal: async (cfg) => {
     cfg.resolve ??= {};
     const existing = cfg.resolve.alias;
     const extras = [
-      { find: /^@open20\/ui$/, replacement: `${uiSrc}/index.ts` },
-      { find: /^@open20\/ui\/(.*)$/, replacement: `${uiSrc}/$1` },
+      { find: /^@$/, replacement: `${uiSrc}/index.ts` },
+      { find: /^@\/(.*)$/, replacement: `${uiSrc}/$1` },
     ];
     cfg.resolve.alias = Array.isArray(existing)
       ? [...extras, ...existing]

@@ -1,11 +1,11 @@
-import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
-import { Input } from '@open20/ui/components/Input/Input';
-import { Select } from '@open20/ui/components/Select/Select';
-import { Switch } from '@open20/ui/components/Switch/Switch';
-import { Text } from '@open20/ui/components/Text/Text';
-import { Surface } from '@open20/ui/components/Surface/Surface';
-import { Button } from '@open20/ui/components/Button/Button';
-import { ABILITY_NAMES, DAMAGE_TYPES } from '@open20/ui/components/spell/editor/SpellEditor.types';
+import type { SpellFormData } from '@/components/spell/editor/SpellEditor.types';
+import { Input } from '@/components/Input/Input';
+import { Select } from '@/components/Select/Select';
+import { Switch } from '@/components/Switch/Switch';
+import { Text } from '@/components/Text/Text';
+import { Surface } from '@/components/Surface/Surface';
+import { Button } from '@/components/Button/Button';
+import { ABILITY_NAMES, DAMAGE_TYPES } from '@/components/spell/editor/SpellEditor.types';
 
 interface DamageHealSectionProps {
   formData: SpellFormData;

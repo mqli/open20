@@ -1,10 +1,10 @@
-import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
-import { Input } from '@open20/ui/components/Input/Input';
-import { Select } from '@open20/ui/components/Select/Select';
-import { Text } from '@open20/ui/components/Text/Text';
-import { Surface } from '@open20/ui/components/Surface/Surface';
-import { Button } from '@open20/ui/components/Button/Button';
-import { useArrayField } from '@open20/ui/hooks/useArrayField';
+import type { SpellFormData } from '@/components/spell/editor/SpellEditor.types';
+import { Input } from '@/components/Input/Input';
+import { Select } from '@/components/Select/Select';
+import { Text } from '@/components/Text/Text';
+import { Surface } from '@/components/Surface/Surface';
+import { Button } from '@/components/Button/Button';
+import { useArrayField } from '@/hooks/useArrayField';
 
 interface CantripUpgradeSectionProps {
   formData: SpellFormData;

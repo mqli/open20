@@ -6,10 +6,10 @@ import { CastingInfoSection } from './sections/CastingInfoSection';
 import { DescriptionSection } from './sections/DescriptionSection';
 import { DamageHealSection } from './sections/DamageHealSection';
 import { CantripUpgradeSection } from './sections/CantripUpgradeSection';
-import { Button } from '@open20/ui/components/Button/Button';
-import { Surface } from '@open20/ui/components/Surface/Surface';
-import { Text } from '@open20/ui/components/Text/Text';
-import { SpellCard } from '@open20/ui/components/spell/SpellCard';
+import { Button } from '@/components/Button/Button';
+import { Surface } from '@/components/Surface/Surface';
+import { Text } from '@/components/Text/Text';
+import { SpellCard } from '@/components/spell/SpellCard';
 
 export function SpellEditor({
   value,
@@ -23,7 +23,7 @@ export function SpellEditor({
 }: SpellEditorProps) {
   // ── State ────────────────────────────────────────
   const [formData, setFormData] = useState<SpellFormData>(() =>
-    spellToFormData(value || defaultValue || undefined)
+    spellToFormData(value || defaultValue || undefined),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,22 +36,25 @@ export function SpellEditor({
   }, [value]);
 
   // ── Handlers ──────────────────────────────────────
-  const handleChange = useCallback((updates: Partial<SpellFormData>) => {
-    setFormData(prev => {
-      const next = { ...prev, ...updates };
-      // Notify parent
-      if (onChange) {
-        onChange(formDataToSpell(next));
-      }
-      return next;
-    });
-    // Clear errors for changed fields
-    setErrors(prev => {
-      const next = { ...prev };
-      Object.keys(updates).forEach(key => delete next[key]);
-      return next;
-    });
-  }, [onChange]);
+  const handleChange = useCallback(
+    (updates: Partial<SpellFormData>) => {
+      setFormData((prev) => {
+        const next = { ...prev, ...updates };
+        // Notify parent
+        if (onChange) {
+          onChange(formDataToSpell(next));
+        }
+        return next;
+      });
+      // Clear errors for changed fields
+      setErrors((prev) => {
+        const next = { ...prev };
+        Object.keys(updates).forEach((key) => delete next[key]);
+        return next;
+      });
+    },
+    [onChange],
+  );
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -59,7 +62,8 @@ export function SpellEditor({
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.range.trim()) newErrors.range = 'Range is required';
     if (!formData.duration.trim()) newErrors.duration = 'Duration is required';
-    if (formData.components.length === 0) newErrors.components = 'At least one component is required';
+    if (formData.components.length === 0)
+      newErrors.components = 'At least one component is required';
     if (formData.description.length === 0 || !formData.description[0]?.trim()) {
       newErrors.description = 'Description is required';
     }
@@ -98,40 +102,20 @@ export function SpellEditor({
         )}
 
         {/* Basic Info */}
-        <BasicInfoSection
-          formData={formData}
-          onChange={handleChange}
-          disabled={disabled}
-        />
+        <BasicInfoSection formData={formData} onChange={handleChange} disabled={disabled} />
 
         {/* Casting Info */}
-        <CastingInfoSection
-          formData={formData}
-          onChange={handleChange}
-          disabled={disabled}
-        />
+        <CastingInfoSection formData={formData} onChange={handleChange} disabled={disabled} />
 
         {/* Description */}
-        <DescriptionSection
-          formData={formData}
-          onChange={handleChange}
-          disabled={disabled}
-        />
+        <DescriptionSection formData={formData} onChange={handleChange} disabled={disabled} />
 
         {/* Damage & Healing */}
-        <DamageHealSection
-          formData={formData}
-          onChange={handleChange}
-          disabled={disabled}
-        />
+        <DamageHealSection formData={formData} onChange={handleChange} disabled={disabled} />
 
         {/* Cantrip Upgrade (only for level 0) */}
         {formData.level === 0 && (
-          <CantripUpgradeSection
-            formData={formData}
-            onChange={handleChange}
-            disabled={disabled}
-          />
+          <CantripUpgradeSection formData={formData} onChange={handleChange} disabled={disabled} />
         )}
 
         {/* Form Errors */}
@@ -161,12 +145,7 @@ export function SpellEditor({
               Cancel
             </Button>
           )}
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            disabled={isSubmitting || disabled}
-          >
+          <Button type="submit" variant="primary" size="lg" disabled={isSubmitting || disabled}>
             {isSubmitting ? 'Saving...' : value ? 'Update Spell' : 'Create Spell'}
           </Button>
         </div>

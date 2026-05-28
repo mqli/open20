@@ -5,9 +5,9 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "@open20/ui/*": ["./src/*"],
-      "@open20/ui": ["./src/index.ts"],
-    },
+      "@/*": ["./src/*"],
+      "@": ["./src/index.ts"]
+    }
   },
-  "include": ["src"],
+  "include": ["src"]
 }

@@ -1,18 +1,21 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@open20/ui/lib/cn';
-import { slotPipStateVariants } from '@open20/ui/styles/design-tokens';
+import { cn } from '@/lib/cn';
+import { slotPipStateVariants } from '@/styles/design-tokens';
 
-const pipVariants = cva('cursor-pointer rounded-md border transition-all duration-150 hover:scale-110', {
-  variants: {
-    state: slotPipStateVariants,
-    size: {
-      sm: 'h-3 w-3',
-      md: 'h-4 w-4',
-      lg: 'h-5 w-5',
+const pipVariants = cva(
+  'cursor-pointer rounded-md border transition-all duration-150 hover:scale-110',
+  {
+    variants: {
+      state: slotPipStateVariants,
+      size: {
+        sm: 'h-3 w-3',
+        md: 'h-4 w-4',
+        lg: 'h-5 w-5',
+      },
     },
+    defaultVariants: { state: 'available', size: 'md' },
   },
-  defaultVariants: { state: 'available', size: 'md' },
-});
+);
 
 export interface SlotPipsProps extends VariantProps<typeof pipVariants> {
   total: number;

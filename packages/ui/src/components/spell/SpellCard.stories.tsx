@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import type { Spell } from 'open20-core';
-import { Badge } from '@open20/ui/components/Badge/Badge';
-import { Button } from '@open20/ui/components/Button/Button';
-import { surfaceVariants } from '@open20/ui/styles/design-tokens';
+import { Badge } from '@/components/Badge/Badge';
+import { Button } from '@/components/Button/Button';
+import { surfaceVariants } from '@/styles/design-tokens';
 import { SpellCard, type SpellCardProps } from './SpellCard';
 
 const surfaceVariantOptions = Object.keys(surfaceVariants) as Array<
@@ -56,7 +56,7 @@ const fireballSpell: Spell = {
   description: [
     'A bright streak flashes from your pointing finger to a point you choose within range and then blossoms with a low roar into an explosion of flame.',
     'Each creature in a 20-foot-radius sphere centered on that point must make a Dexterity saving throw. A target takes 8d6 fire damage on a failed save, or half as much damage on a successful one.',
-    'The fire spreads around corners. It ignites flammable objects in the area that aren\'t being worn or carried.',
+    "The fire spreads around corners. It ignites flammable objects in the area that aren't being worn or carried.",
   ],
   damage: {
     entries: [{ dice: '8d6', type: 'Fire' }],

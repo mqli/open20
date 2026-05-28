@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@open20/ui/lib/cn';
+import { cn } from '@/lib/cn';
 import {
   textColorVariants,
   textSizeVariants,
   textVariants as textVariantClasses,
   textWeightVariants,
-} from '@open20/ui/styles/design-tokens';
+} from '@/styles/design-tokens';
 
 const textVariants = cva('', {
   variants: {
@@ -41,5 +41,9 @@ const elementMap = {
 
 export function Text({ variant, size, color, weight, as = 'p', className, children }: TextProps) {
   const Component = elementMap[as] || 'p';
-  return <Component className={cn(textVariants({ variant, size, color, weight }), className)}>{children}</Component>;
+  return (
+    <Component className={cn(textVariants({ variant, size, color, weight }), className)}>
+      {children}
+    </Component>
+  );
 }

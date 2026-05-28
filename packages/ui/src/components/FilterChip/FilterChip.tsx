@@ -1,29 +1,32 @@
 import type { ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@open20/ui/lib/cn';
-import { Toggle } from '@open20/ui/components/Toggle';
+import { cn } from '@/lib/cn';
+import { Toggle } from '@/components/Toggle';
 
-const filterChipVariants = cva('inline-flex items-center font-medium transition-all duration-200 border', {
-  variants: {
-    variant: {
-      secondary: 'border-border/50',
-      primary: 'border-primary-500/30 shadow-sm shadow-primary-500/10',
-      success: 'border-success/30',
-      danger: 'border-danger/30',
-      warning: 'border-warning/30',
-      info: 'border-info/30',
+const filterChipVariants = cva(
+  'inline-flex items-center font-medium transition-all duration-200 border',
+  {
+    variants: {
+      variant: {
+        secondary: 'border-border/50',
+        primary: 'border-primary-500/30 shadow-sm shadow-primary-500/10',
+        success: 'border-success/30',
+        danger: 'border-danger/30',
+        warning: 'border-warning/30',
+        info: 'border-info/30',
+      },
+      size: {
+        sm: 'px-2 py-0.5 text-[10px] rounded-full',
+        md: 'px-2.5 py-0.5 text-xs rounded-full',
+        lg: 'px-3 py-1 text-sm rounded-lg',
+      },
     },
-    size: {
-      sm: 'px-2 py-0.5 text-[10px] rounded-full',
-      md: 'px-2.5 py-0.5 text-xs rounded-full',
-      lg: 'px-3 py-1 text-sm rounded-lg',
+    defaultVariants: {
+      variant: 'secondary',
+      size: 'md',
     },
   },
-  defaultVariants: {
-    variant: 'secondary',
-    size: 'md',
-  },
-});
+);
 
 export interface FilterChipProps extends Omit<VariantProps<typeof filterChipVariants>, 'active'> {
   children: ReactNode;

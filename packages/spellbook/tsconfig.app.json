@@ -11,9 +11,7 @@
 
     /* Path aliases */
     "paths": {
-      "@/*": ["./src/*"],
-      "@open20/ui": ["../ui/src/index.ts"],
-      "@open20/ui/*": ["../ui/src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]

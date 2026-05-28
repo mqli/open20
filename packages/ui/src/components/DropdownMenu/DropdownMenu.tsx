@@ -1,7 +1,7 @@
 import * as RadixDropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight } from 'lucide-react';
-import { cn } from '@open20/ui/lib/cn';
-import { dropdownContentClasses, dropdownItemBaseClasses } from '@open20/ui/styles/design-tokens';
+import { cn } from '@/lib/cn';
+import { dropdownContentClasses, dropdownItemBaseClasses } from '@/styles/design-tokens';
 
 export const DropdownMenu = {
   Root: RadixDropdownMenu.Root,
@@ -10,7 +10,11 @@ export const DropdownMenu = {
   Label: RadixDropdownMenu.Label,
   Separator: RadixDropdownMenu.Separator,
 
-  Content: ({ className, sideOffset = 4, ...props }: RadixDropdownMenu.DropdownMenuContentProps) => (
+  Content: ({
+    className,
+    sideOffset = 4,
+    ...props
+  }: RadixDropdownMenu.DropdownMenuContentProps) => (
     <RadixDropdownMenu.Portal>
       <RadixDropdownMenu.Content
         sideOffset={sideOffset}
@@ -24,12 +28,19 @@ export const DropdownMenu = {
   ),
 
   Item: ({ className, children, ...props }: RadixDropdownMenu.DropdownMenuItemProps) => (
-    <RadixDropdownMenu.Item className={cn(dropdownItemBaseClasses, 'px-2 py-1.5', className)} {...props}>
+    <RadixDropdownMenu.Item
+      className={cn(dropdownItemBaseClasses, 'px-2 py-1.5', className)}
+      {...props}
+    >
       {children}
     </RadixDropdownMenu.Item>
   ),
 
-  CheckboxItem: ({ className, children, ...props }: RadixDropdownMenu.DropdownMenuCheckboxItemProps) => (
+  CheckboxItem: ({
+    className,
+    children,
+    ...props
+  }: RadixDropdownMenu.DropdownMenuCheckboxItemProps) => (
     <RadixDropdownMenu.CheckboxItem
       className={cn(dropdownItemBaseClasses, 'py-1.5 pl-8 pr-2', className)}
       {...props}
@@ -46,7 +57,10 @@ export const DropdownMenu = {
   RadioGroup: RadixDropdownMenu.RadioGroup,
 
   RadioItem: ({ className, children, ...props }: RadixDropdownMenu.DropdownMenuRadioItemProps) => (
-    <RadixDropdownMenu.RadioItem className={cn(dropdownItemBaseClasses, 'py-1.5 pl-8 pr-2', className)} {...props}>
+    <RadixDropdownMenu.RadioItem
+      className={cn(dropdownItemBaseClasses, 'py-1.5 pl-8 pr-2', className)}
+      {...props}
+    >
       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
         <RadixDropdownMenu.ItemIndicator>
           <div className="h-2 w-2 rounded-full bg-primary-600" />
@@ -58,7 +72,11 @@ export const DropdownMenu = {
 
   Sub: RadixDropdownMenu.Sub,
 
-  SubTrigger: ({ className, children, ...props }: RadixDropdownMenu.DropdownMenuSubTriggerProps) => (
+  SubTrigger: ({
+    className,
+    children,
+    ...props
+  }: RadixDropdownMenu.DropdownMenuSubTriggerProps) => (
     <RadixDropdownMenu.SubTrigger
       className={cn(
         dropdownItemBaseClasses,

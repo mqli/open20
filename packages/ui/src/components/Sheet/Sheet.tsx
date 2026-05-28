@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@open20/ui/lib/cn';
-import { overlayClasses, sheetSideClasses } from '@open20/ui/styles/design-tokens';
-import { Text } from '@open20/ui/components/Text';
+import { cn } from '@/lib/cn';
+import { overlayClasses, sheetSideClasses } from '@/styles/design-tokens';
+import { Text } from '@/components/Text';
 
 const sheetVariants = cva('fixed z-50 flex flex-col bg-bg-secondary shadow-xl outline-none', {
   variants: {
@@ -30,8 +30,7 @@ Sheet.Trigger = RadixDialog.Trigger;
 Sheet.Close = RadixDialog.Close;
 
 interface SheetContentProps
-  extends RadixDialog.DialogContentProps,
-    VariantProps<typeof sheetVariants> {}
+  extends RadixDialog.DialogContentProps, VariantProps<typeof sheetVariants> {}
 
 Sheet.Content = ({ children, className, side = 'right', ...props }: SheetContentProps) => {
   return (

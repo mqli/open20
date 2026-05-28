@@ -3,15 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./styles": "./src/styles/design-tokens.ts",
-    "./*": "./src/*"
+    ".": "./dist/index.js",
+    "./styles": "./dist/styles/design-tokens.js",
+    "./*": "./dist/*"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/fix-dist-imports.mjs",
     "build-storybook": "CI=1 storybook build",
     "dev": "tsc --watch -p tsconfig.build.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",

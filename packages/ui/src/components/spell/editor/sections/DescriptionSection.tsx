@@ -1,8 +1,8 @@
-import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
-import { Text } from '@open20/ui/components/Text/Text';
-import { Surface } from '@open20/ui/components/Surface/Surface';
-import { Button } from '@open20/ui/components/Button/Button';
-import { useArrayField } from '@open20/ui/hooks/useArrayField';
+import type { SpellFormData } from '@/components/spell/editor/SpellEditor.types';
+import { Text } from '@/components/Text/Text';
+import { Surface } from '@/components/Surface/Surface';
+import { Button } from '@/components/Button/Button';
+import { useArrayField } from '@/hooks/useArrayField';
 
 interface DescriptionSectionProps {
   formData: SpellFormData;

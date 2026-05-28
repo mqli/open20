@@ -1,11 +1,11 @@
 import * as RadixSelect from '@radix-ui/react-select';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '@open20/ui/lib/cn';
+import { cn } from '@/lib/cn';
 import {
   dropdownContentClasses,
   dropdownItemBaseClasses,
   inputBaseClasses,
-} from '@open20/ui/styles/design-tokens';
+} from '@/styles/design-tokens';
 
 interface SelectTriggerProps extends RadixSelect.SelectTriggerProps {
   placeholder?: string;
@@ -17,7 +17,10 @@ export const Select = {
   Value: RadixSelect.Value,
 
   Trigger: ({ className, children, placeholder, ...props }: SelectTriggerProps) => (
-    <RadixSelect.Trigger className={cn(inputBaseClasses, 'items-center justify-between', className)} {...props}>
+    <RadixSelect.Trigger
+      className={cn(inputBaseClasses, 'items-center justify-between', className)}
+      {...props}
+    >
       <RadixSelect.Value placeholder={placeholder} />
       {children}
       <RadixSelect.Icon asChild>
@@ -28,7 +31,11 @@ export const Select = {
 
   Content: ({ className, children, ...props }: RadixSelect.SelectContentProps) => (
     <RadixSelect.Portal>
-      <RadixSelect.Content className={cn('relative', dropdownContentClasses, className)} position="popper" {...props}>
+      <RadixSelect.Content
+        className={cn('relative', dropdownContentClasses, className)}
+        position="popper"
+        {...props}
+      >
         <RadixSelect.ScrollUpButton className="flex h-6 cursor-default items-center justify-center bg-bg-secondary">
           <ChevronUp className="h-4 w-4" />
         </RadixSelect.ScrollUpButton>
@@ -41,7 +48,10 @@ export const Select = {
   ),
 
   Item: ({ className, children, ...props }: RadixSelect.SelectItemProps) => (
-    <RadixSelect.Item className={cn(dropdownItemBaseClasses, 'w-full py-1.5 pl-8 pr-2', className)} {...props}>
+    <RadixSelect.Item
+      className={cn(dropdownItemBaseClasses, 'w-full py-1.5 pl-8 pr-2', className)}
+      {...props}
+    >
       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
         <RadixSelect.ItemIndicator>
           <Check className="h-4 w-4" />
@@ -52,7 +62,10 @@ export const Select = {
   ),
 
   Label: ({ className, ...props }: RadixSelect.SelectLabelProps) => (
-    <RadixSelect.Label className={cn('py-1.5 pl-8 pr-2 text-sm font-semibold text-text-secondary', className)} {...props} />
+    <RadixSelect.Label
+      className={cn('py-1.5 pl-8 pr-2 text-sm font-semibold text-text-secondary', className)}
+      {...props}
+    />
   ),
 
   Separator: ({ className, ...props }: RadixSelect.SelectSeparatorProps) => (

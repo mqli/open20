@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Sparkles } from 'lucide-react';
-import { Button } from '@open20/ui/components/Button';
+import { Button } from '@/components/Button';
 import { SectionHeader } from './SectionHeader';
 
 const meta = {

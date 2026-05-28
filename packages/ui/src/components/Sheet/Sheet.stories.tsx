@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '@open20/ui/components/Button';
-import { Text } from '@open20/ui/components/Text';
+import { Button } from '@/components/Button';
+import { Text } from '@/components/Text';
 import { Sheet } from './Sheet';
 
 const meta = {
@@ -28,7 +28,8 @@ export const Playground: Story = {
         </Sheet.Header>
         <Sheet.Body>
           <Text variant="body">
-            This panel can hold options, forms, or details that should not interrupt the main layout.
+            This panel can hold options, forms, or details that should not interrupt the main
+            layout.
           </Text>
         </Sheet.Body>
       </Sheet.Content>

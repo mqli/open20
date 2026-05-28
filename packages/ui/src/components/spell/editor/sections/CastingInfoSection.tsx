@@ -1,11 +1,11 @@
-import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
-import { Input } from '@open20/ui/components/Input/Input';
-import { Select } from '@open20/ui/components/Select/Select';
-import { Switch } from '@open20/ui/components/Switch/Switch';
-import { Text } from '@open20/ui/components/Text/Text';
-import { Surface } from '@open20/ui/components/Surface/Surface';
-import { CASTING_TIMES, SPELL_COMPONENTS } from '@open20/ui/components/spell/editor/SpellEditor.types';
-import { cn } from '@open20/ui/lib/cn';
+import type { SpellFormData } from '@/components/spell/editor/SpellEditor.types';
+import { Input } from '@/components/Input/Input';
+import { Select } from '@/components/Select/Select';
+import { Switch } from '@/components/Switch/Switch';
+import { Text } from '@/components/Text/Text';
+import { Surface } from '@/components/Surface/Surface';
+import { CASTING_TIMES, SPELL_COMPONENTS } from '@/components/spell/editor/SpellEditor.types';
+import { cn } from '@/lib/cn';
 
 interface CastingInfoSectionProps {
   formData: SpellFormData;
@@ -35,7 +35,9 @@ export function CastingInfoSection({ formData, onChange, disabled }: CastingInfo
         </Text>
         <Select.Root
           value={formData.castingTime}
-          onValueChange={(value) => onChange({ castingTime: value as SpellFormData['castingTime'] })}
+          onValueChange={(value) =>
+            onChange({ castingTime: value as SpellFormData['castingTime'] })
+          }
           disabled={disabled}
         >
           <Select.Trigger />

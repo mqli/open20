@@ -1,10 +1,10 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@open20/ui/lib/cn';
+import { cn } from '@/lib/cn';
 import {
   badgeToggleSizeVariants as sizeVariantClasses,
   badgeVariants as badgeVariantClasses,
-} from '@open20/ui/styles/design-tokens';
+} from '@/styles/design-tokens';
 
 const badgeVariants = cva('inline-flex items-center font-medium transition-colors', {
   variants: {
@@ -18,8 +18,7 @@ const badgeVariants = cva('inline-flex items-center font-medium transition-color
 });
 
 export interface BadgeProps
-  extends HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof badgeVariants> {
+  extends HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {
   children: ReactNode;
 }
 

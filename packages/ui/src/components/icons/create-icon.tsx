@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { cn } from '@open20/ui/lib/cn';
+import { cn } from '@/lib/cn';
 
 export const iconSizeClasses = {
   xs: 'w-3 h-3',
@@ -18,9 +18,7 @@ export type IconSize = keyof typeof iconSizeClasses;
  */
 export function createDndIcon(
   BaseIcon: LucideIcon,
-): React.FC<
-  Omit<React.ComponentProps<LucideIcon>, 'size'> & { size?: IconSize }
-> {
+): React.FC<Omit<React.ComponentProps<LucideIcon>, 'size'> & { size?: IconSize }> {
   return function DndIcon({
     size,
     className,

@@ -1,4 +1,4 @@
-import { cn } from '@open20/ui/lib/cn';
+import { cn } from '@/lib/cn';
 
 export const colors = {
   primary: {

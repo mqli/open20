@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { Project } from 'ts-morph';
 
-// Revert @open20/ui/* internal imports back to relative paths
-// The @open20/ui/* tsconfig path alias only works within the ui package's own tsc,
-// but breaks when other packages (like spellbook) build with project references.
+// Rewrite UI package-local aliases back to relative imports.
+// `tsc` preserves path aliases in emitted JS, which breaks consumers when UI
+// is consumed via built dist artifacts.
 
 const project = new Project({ tsConfigFilePath: 'packages/ui/tsconfig.json' });
 const sourceFiles = project.getSourceFiles('packages/ui/src/**/*.{ts,tsx}');
@@ -17,8 +17,8 @@ for (const sourceFile of sourceFiles) {
   for (const imp of imports) {
     const moduleSpecifier = imp.getModuleSpecifierValue();
 
-    // Only fix @open20/ui/ deep imports (not the barrel @open20/ui)
-    if (!moduleSpecifier.startsWith('@open20/ui/')) continue;
+    // Only rewrite package-local aliases.
+    if (!(moduleSpecifier === '@' || moduleSpecifier.startsWith('@/'))) continue;
 
     // Resolve the target file
     const resolved = imp.getModuleSpecifierSourceFile();

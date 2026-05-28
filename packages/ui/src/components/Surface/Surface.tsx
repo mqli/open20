@@ -1,11 +1,11 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@open20/ui/lib/cn';
+import { cn } from '@/lib/cn';
 import {
   surfacePaddingVariants as paddingClasses,
   surfaceShadowVariants as shadowClasses,
   surfaceVariants as surfaceVariantClasses,
-} from '@open20/ui/styles/design-tokens';
+} from '@/styles/design-tokens';
 
 const surfaceVariants = cva('rounded-xl border transition-all', {
   variants: {
@@ -21,19 +21,11 @@ const surfaceVariants = cva('rounded-xl border transition-all', {
 });
 
 export interface SurfaceProps
-  extends HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof surfaceVariants> {
+  extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof surfaceVariants> {
   children: ReactNode;
 }
 
-export function Surface({
-  variant,
-  padding,
-  shadow,
-  className,
-  children,
-  ...props
-}: SurfaceProps) {
+export function Surface({ variant, padding, shadow, className, children, ...props }: SurfaceProps) {
   return (
     <div className={cn(surfaceVariants({ variant, padding, shadow }), className)} {...props}>
       {children}
