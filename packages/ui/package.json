@@ -11,6 +11,7 @@
     "./*": "./dist/*"
   },
   "scripts": {
+    "prepare": "pnpm run build",
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build-storybook": "CI=1 storybook build",
     "dev": "tsc --watch -p tsconfig.build.json & tsc-alias --watch -p tsconfig.build.json",

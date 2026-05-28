@@ -34,14 +34,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build core
-        run: pnpm --filter open20-core build
-
       - name: Test spellbook
-        run: pnpm --filter @open20/spellbook test
+        run: pnpm turbo run test --filter=@open20/spellbook
 
       - name: Build spellbook
-        run: pnpm --filter @open20/spellbook build
+        run: pnpm turbo run build --filter=@open20/spellbook
         env:
           DEPLOY_TARGET: github-pages
 
