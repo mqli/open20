@@ -39,10 +39,5 @@ export function createStorybookPreview(options?: StorybookPreviewOptions): {
       };
     };
   };
-  decorators: Array<
-    (
-      Story: () => unknown,
-      context: { globals: { theme: string } },
-    ) => unknown
-  >;
+  decorators: Array<(Story: () => any, context: { globals: Record<string, unknown> }) => any>;
 };

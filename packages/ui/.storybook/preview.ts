@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/react';
 import { createStorybookPreview } from '@open20/config/storybook';
-import '@open20/config/storybook/preview.css';
+import '../src/styles/index.css';
 
 const preview: Preview = createStorybookPreview();
 
