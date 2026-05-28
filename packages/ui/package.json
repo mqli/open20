@@ -11,9 +11,9 @@
     "./*": "./dist/*"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && node scripts/fix-dist-imports.mjs",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build-storybook": "CI=1 storybook build",
-    "dev": "tsc --watch -p tsconfig.build.json",
+    "dev": "tsc --watch -p tsconfig.build.json & tsc-alias --watch -p tsconfig.build.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
@@ -53,6 +53,7 @@
     "storybook": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
+    "tsc-alias": "^1.8.17",
     "eslint": "catalog:",
     "prettier": "^3.8.3"
   }
