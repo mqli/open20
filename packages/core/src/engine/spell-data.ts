@@ -2,10 +2,10 @@
 // Pure builders for per-class spell data (ClassSpellData).
 // Used as the single source of truth by character/recompute.ts.
 
-import type { AbilityScores } from '@open20/core/types/ability';
-import type { Subclass } from '@open20/core/types/class';
-import type { ClassSpellData, SpellSlotEntry } from '@open20/core/types/spell';
-import type { DataLoader } from '@open20/core/data/loader';
+import type { AbilityScores } from '@/types/ability';
+import type { Subclass } from '@/types/class';
+import type { ClassSpellData, SpellSlotEntry } from '@/types/spell';
+import type { DataLoader } from '@/data/loader';
 import { getModifier, getTotalScore } from './ability-modifier';
 import { calculateSpellSlots } from './spell-slots';
 

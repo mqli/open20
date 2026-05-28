@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { FilterChips } from '@open20/spellbook/components/spell-library/FilterChips';
+import { FilterChips } from '@/components/spell-library/FilterChips';
 
 // Mock the store - vi.mock is hoisted to top of file
 vi.mock('../../stores/spell-store', () => ({

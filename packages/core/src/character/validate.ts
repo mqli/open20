@@ -2,10 +2,10 @@
 // Character validation — checks a Character for rule violations
 // Returns structured errors/warnings without throwing
 
-import type { Character } from '@open20/core/types/character';
-import { ABILITY_NAMES } from '@open20/core/types/ability';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { SpellLevel } from '@open20/core/types/spell';
+import type { Character } from '@/types/character';
+import { ABILITY_NAMES } from '@/types/ability';
+import type { DataLoader } from '@/data/loader';
+import type { SpellLevel } from '@/types/spell';
 
 export interface ValidationError {
   field: string;

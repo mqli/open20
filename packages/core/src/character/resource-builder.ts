@@ -3,12 +3,12 @@
 // Returns Record<string, CharacterClassResources> keyed by classId.
 // Shared by create.ts, recompute.ts, and level-up.ts.
 
-import type { Feature, Class, Subclass } from '@open20/core/types/class';
-import type { Resource, CharacterClassResources } from '@open20/core/types/resource';
-import { ResetType } from '@open20/core/types/resource';
-import { getProficiencyBonus } from '@open20/core/engine/proficiency-bonus';
-import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
-import type { AbilityScores } from '@open20/core/types/ability';
+import type { Feature, Class, Subclass } from '@/types/class';
+import type { Resource, CharacterClassResources } from '@/types/resource';
+import { ResetType } from '@/types/resource';
+import { getProficiencyBonus } from '@/engine/proficiency-bonus';
+import { getModifier, getTotalScore } from '@/engine/ability-modifier';
+import type { AbilityScores } from '@/types/ability';
 
 /**
  * Extract per-class resources from all character classes.
@@ -21,7 +21,7 @@ import type { AbilityScores } from '@open20/core/types/ability';
 export function extractAllClassResources(
   charClasses: ReadonlyArray<{ classId: string; level: number; subclassId: string | null }>,
   abilityScores: AbilityScores,
-  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined },
+  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined }
 ): Record<string, CharacterClassResources> {
   const result: Record<string, CharacterClassResources> = {};
 
@@ -49,7 +49,7 @@ function buildResourcesForClass(
   classData: Class,
   subclassData: Subclass | undefined,
   level: number,
-  abilityScores: AbilityScores,
+  abilityScores: AbilityScores
 ): readonly Resource[] {
   const resources: Resource[] = [];
   const pb = getProficiencyBonus(level);
@@ -78,7 +78,7 @@ function buildResourcesForClass(
 function gatherFeaturesUpToLevel(
   classData: Class,
   subclassData: Subclass | undefined,
-  level: number,
+  level: number
 ): Feature[] {
   const features: Feature[] = [];
 
@@ -112,7 +112,7 @@ function buildResourceFromFeature(
   feature: Feature,
   level: number,
   pb: number,
-  abilityScores: AbilityScores,
+  abilityScores: AbilityScores
 ): Resource | null {
   const resourceId = feature.resourceId!;
   const chaMod = getModifier(getTotalScore(abilityScores, 'Charisma'));
@@ -147,7 +147,7 @@ function buildResourceFromFeature(
  */
 function resolveResourceMaxByLevel(
   table: Record<number, number> | Record<string, number>,
-  level: number,
+  level: number
 ): number {
   // Normalize to Record<string, number> for uniform access
   const normalized: Record<string, number> = {};
@@ -170,11 +170,7 @@ function resolveResourceMaxByLevel(
  * Compute default max for resources without explicit resourceMax/resourceMaxByLevel.
  * These are special cases where the formula depends on ability mods or PB.
  */
-function computeDefaultMax(
-  resourceId: string,
-  level: number,
-  chaMod: number,
-): number {
+function computeDefaultMax(resourceId: string, level: number, chaMod: number): number {
   switch (resourceId) {
     case 'Bardic Inspiration':
       // CHA modifier (minimum 1)
@@ -201,12 +197,18 @@ function parseResetType(value: string | ResetType | undefined): ResetType {
   if (value === undefined) return ResetType.LongRest;
   if (typeof value === 'string') {
     switch (value) {
-      case 'Short Rest': return ResetType.ShortRest;
-      case 'Long Rest': return ResetType.LongRest;
-      case 'Per Turn': return ResetType.PerTurn;
-      case 'Daily': return ResetType.Daily;
-      case 'Never': return ResetType.Never;
-      default: return ResetType.LongRest;
+      case 'Short Rest':
+        return ResetType.ShortRest;
+      case 'Long Rest':
+        return ResetType.LongRest;
+      case 'Per Turn':
+        return ResetType.PerTurn;
+      case 'Daily':
+        return ResetType.Daily;
+      case 'Never':
+        return ResetType.Never;
+      default:
+        return ResetType.LongRest;
     }
   }
   return value;
@@ -225,7 +227,7 @@ export function recomputeResources(
   resources: Record<string, CharacterClassResources> | readonly Resource[],
   charClasses: ReadonlyArray<{ classId: string; level: number; subclassId: string | null }>,
   abilityScores: AbilityScores,
-  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined },
+  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined }
 ): Record<string, CharacterClassResources> {
   // Always rebuild from scratch using current levels/features
   const newResources = extractAllClassResources(charClasses, abilityScores, data);
@@ -251,5 +253,3 @@ export function recomputeResources(
 
   return newResources;
 }
-
-

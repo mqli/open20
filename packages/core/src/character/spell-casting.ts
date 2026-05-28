@@ -4,10 +4,10 @@
 //
 // Lives in character/ (not engine/) because it operates on Character state.
 
-import type { Spell, SpellLevel, ClassSpellData } from '@open20/core/types';
-import type { FeatSpellsEntry } from '@open20/core/types/spell';
-import type { Character } from '@open20/core/types';
-import type { DataLoader } from '@open20/core/data/loader';
+import type { Spell, SpellLevel, ClassSpellData } from '@/types';
+import type { FeatSpellsEntry } from '@/types/spell';
+import type { Character } from '@/types';
+import type { DataLoader } from '@/data/loader';
 
 // ── Helper Functions ──────────────────────────────────────
 
@@ -15,7 +15,10 @@ import type { DataLoader } from '@open20/core/data/loader';
 function isFeatSpell(char: Character, spellId: string): boolean {
   if (!char.spells.featSpells) return false;
   for (const featSpellEntry of Object.values(char.spells.featSpells) as FeatSpellsEntry[]) {
-    if (featSpellEntry.cantrips.includes(spellId) || featSpellEntry.preparedSpells.includes(spellId)) {
+    if (
+      featSpellEntry.cantrips.includes(spellId) ||
+      featSpellEntry.preparedSpells.includes(spellId)
+    ) {
       return true;
     }
   }
@@ -29,7 +32,10 @@ function getFeatSpellEntriesForSpell(
 ): { featId: string; entry: FeatSpellsEntry }[] {
   if (!char.spells.featSpells) return [];
   const result: { featId: string; entry: FeatSpellsEntry }[] = [];
-  for (const [featId, entry] of Object.entries(char.spells.featSpells) as [string, FeatSpellsEntry][]) {
+  for (const [featId, entry] of Object.entries(char.spells.featSpells) as [
+    string,
+    FeatSpellsEntry,
+  ][]) {
     if (entry.cantrips.includes(spellId) || entry.preparedSpells.includes(spellId)) {
       result.push({ featId, entry });
     }
@@ -105,9 +111,11 @@ export function canCastCantrip(char: Character, spell: Spell, _data: DataLoader)
 // ── Upcasting ────────────────────────────────────────────
 
 export function canUpcast(spell: Spell): boolean {
-  return spell.usingAHigherLevelSpellSlot !== undefined
-    && spell.usingAHigherLevelSpellSlot !== null
-    && spell.usingAHigherLevelSpellSlot.length > 0;
+  return (
+    spell.usingAHigherLevelSpellSlot !== undefined &&
+    spell.usingAHigherLevelSpellSlot !== null &&
+    spell.usingAHigherLevelSpellSlot.length > 0
+  );
 }
 
 export function getUpcastDescription(spell: Spell, slotLevel: SpellLevel): string | undefined {

@@ -2,10 +2,10 @@
 // Damage type & defense calculation — pure functions (Layer 2: Mechanics)
 // Corresponds to PRD §4.5
 
-import type { Character } from '@open20/core/types/character';
-import type { DamageType, DamageDefenses, DamageDefenseSource, DamageResult } from '@open20/core/types/damage';
+import type { Character } from '@/types/character';
+import type { DamageType, DamageDefenses, DamageDefenseSource, DamageResult } from '@/types/damage';
 export type { DamageDefenses, DamageDefenseSource, DamageResult } from '../types/damage';
-import type { DataLoader } from '@open20/core/data/loader';
+import type { DataLoader } from '@/data/loader';
 
 /**
  * Check if character has a specific defense against a damage type
@@ -104,8 +104,8 @@ export function parseDamageType(value: string): DamageType | null {
     force: 'Force',
     necrotic: 'Necrotic',
     radiant: 'Radiant',
-    physical: 'Slashing',      // Generic physical, default to Slashing
-    magical: 'Force',          // Generic magical, default to Force
+    physical: 'Slashing', // Generic physical, default to Slashing
+    magical: 'Force', // Generic magical, default to Force
     'non-magical': 'Bludgeoning', // Generic physical
   };
 

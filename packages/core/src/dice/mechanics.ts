@@ -3,7 +3,7 @@
 // Uses Layer 1 (dice-core) for all dice operations
 // No dependencies on specific entity types (Character, Monster, etc.)
 
-import type { DieType } from '@open20/core/types/dice';
+import type { DieType } from '@/types/dice';
 import type { RollModifier } from './core';
 import {
   rollD20WithModifier,

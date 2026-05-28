@@ -2,7 +2,7 @@
 // Serialization utilities — serialize, deserialize, schema validation, filename sanitization
 
 import { z } from 'zod';
-import type { Character } from '@open20/core/types/character';
+import type { Character } from '@/types/character';
 
 // ── Schema Validation Result ──────────────────────────────────────
 

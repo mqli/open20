@@ -4,18 +4,13 @@
 //
 // 设计：只构建核心身份/来源数据，所有派生属性交给 recomputeDerivedStats 计算。
 
-import type { AbilityName, AbilityScores } from '@open20/core/types/ability';
-import type { SkillEntry } from '@open20/core/types/skill';
-import type {
-  Character,
-  CharacterClass,
-  Currency,
-  DamageDefenses,
-} from '@open20/core/types/character';
-import type { Class } from '@open20/core/types/class';
-import type { DataLoader } from '@open20/core/data/loader';
+import type { AbilityName, AbilityScores } from '@/types/ability';
+import type { SkillEntry } from '@/types/skill';
+import type { Character, CharacterClass, Currency, DamageDefenses } from '@/types/character';
+import type { Class } from '@/types/class';
+import type { DataLoader } from '@/data/loader';
 
-import { getProficiencyBonus } from '@open20/core/engine/proficiency-bonus';
+import { getProficiencyBonus } from '@/engine/proficiency-bonus';
 import { emptyCharacterSpells } from './spells-init';
 import { recomputeDerivedStats } from './recompute';
 import { extractAllClassResources } from './resource-builder';
@@ -56,7 +51,8 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
   if (!species) throw new Error(`Invalid speciesId: "${params.speciesId}" not found in data`);
 
   const backgroundData = data.getBackground(params.backgroundId);
-  if (!backgroundData) throw new Error(`Invalid backgroundId: "${params.backgroundId}" not found in data`);
+  if (!backgroundData)
+    throw new Error(`Invalid backgroundId: "${params.backgroundId}" not found in data`);
 
   const classData = data.getClass(params.classId);
   if (!classData) throw new Error(`Invalid classId: "${params.classId}" not found in data`);
@@ -118,14 +114,18 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
 
   // 6. Build Currency
   const currency: Currency = {
-    cp: 0, sp: 0, ep: 0,
+    cp: 0,
+    sp: 0,
+    ep: 0,
     gp: backgroundData.startingGold,
     pp: 0,
   };
 
   // 7. Empty defaults (recomputeDerivedStats will fill these)
   const emptyDamageDefenses: DamageDefenses = {
-    resistances: [], immunities: [], vulnerabilities: [],
+    resistances: [],
+    immunities: [],
+    vulnerabilities: [],
   };
 
   const now = new Date().toISOString();
@@ -143,14 +143,20 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
     feats: (params.featIds ?? []).map(featId => ({ featId })),
     equipment: [],
     spells: emptyCharacterSpells(),
-    resources,  // Record<string, CharacterClassResources>
+    resources, // Record<string, CharacterClassResources>
     hitPoints: {
-      max: 0, current: 0, temporary: 0,
+      max: 0,
+      current: 0,
+      temporary: 0,
       deathSaves: { successes: 0, failures: 0, isStable: false },
     },
     combatStats: {
-      AC: 10, initiative: 0, speed: species.speed,
-      passivePerception: 10, proficiencyBonus: pb, attacks: [],
+      AC: 10,
+      initiative: 0,
+      speed: species.speed,
+      passivePerception: 10,
+      proficiencyBonus: pb,
+      attacks: [],
     },
     currency,
     conditions: [],
@@ -201,10 +207,26 @@ function buildSkills(
   skillChoices: readonly string[]
 ): Record<string, SkillEntry> {
   const skills: Record<string, SkillEntry> = {};
-  for (const skillName of ['Athletics', 'Acrobatics', 'Animal Handling',
-    'Arcana', 'Deception', 'History', 'Insight', 'Intimidation',
-    'Investigation', 'Medicine', 'Nature', 'Perception', 'Performance',
-    'Persuasion', 'Religion', 'Sleight of Hand', 'Stealth', 'Survival']) {
+  for (const skillName of [
+    'Athletics',
+    'Acrobatics',
+    'Animal Handling',
+    'Arcana',
+    'Deception',
+    'History',
+    'Insight',
+    'Intimidation',
+    'Investigation',
+    'Medicine',
+    'Nature',
+    'Perception',
+    'Performance',
+    'Persuasion',
+    'Religion',
+    'Sleight of Hand',
+    'Stealth',
+    'Survival',
+  ]) {
     skills[skillName] = {
       proficient: isProficient(skillName, backgroundSkillProficiencies, classData, skillChoices),
       expertise: false,

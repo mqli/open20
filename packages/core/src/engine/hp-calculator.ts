@@ -3,9 +3,9 @@
 // 对应 HLD §6.1 + PRD v4.0 §10 附录E
 // ⚠️ 这是v1.0公式错误的修正版，必须100%准确
 
-import type { DieType } from '@open20/core/types/dice';
-import type { CharacterClass } from '@open20/core/types/character';
-import type { DataLoader } from '@open20/core/data/loader';
+import type { DieType } from '@/types/dice';
+import type { CharacterClass } from '@/types/character';
+import type { DataLoader } from '@/data/loader';
 
 /**
  * 生命骰固定值对照表

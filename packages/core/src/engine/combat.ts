@@ -3,7 +3,7 @@
 // Consolidates HP manipulation logic to ensure API consistency
 // Corresponds to PRD §4.5
 
-import type { DamageType, DamageDefenses, DamageResult } from '@open20/core/types/damage';
+import type { DamageType, DamageDefenses, DamageResult } from '@/types/damage';
 import { calculateTypedDamage } from './damage-calculator';
 
 // ── HP Manipulation Helpers ────────────────────────────────────────
@@ -137,7 +137,10 @@ export function getCharacterTemporaryHP(char: { hitPoints: { temporary: number }
 /**
  * Get current HP for a Monster.
  */
-export function getMonsterCurrentHP(monster: { currentHP?: number; hitPoints: { value: number } }): number {
+export function getMonsterCurrentHP(monster: {
+  currentHP?: number;
+  hitPoints: { value: number };
+}): number {
   return monster.currentHP ?? monster.hitPoints.value;
 }
 

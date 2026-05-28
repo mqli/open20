@@ -2,12 +2,12 @@
 // Spell query functions — filter, search, and retrieve spells
 // Corresponds to requirement R11
 
-import type { Spell, SpellLevel, SpellSchool, CastingTime, ClassSpellData } from '@open20/core/types/spell';
+import type { Spell, SpellLevel, SpellSchool, CastingTime, ClassSpellData } from '@/types/spell';
 
-import type { Character } from '@open20/core/types/character';
-import type { Class } from '@open20/core/types/class';
-import type { DataLoader } from '@open20/core/data/loader';
-import { calculateSpellSlots } from '@open20/core/engine/spell-slots';
+import type { Character } from '@/types/character';
+import type { Class } from '@/types/class';
+import type { DataLoader } from '@/data/loader';
+import { calculateSpellSlots } from '@/engine/spell-slots';
 
 // ── Spellcasting Type Helpers ──────────────────────────────
 
@@ -37,10 +37,10 @@ export interface SpellFilter {
   name?: string;
   level?: SpellLevel[];
   school?: SpellSchool[];
-  class?: string[];              // Filter by which class can cast
-  damageType?: string[];     // Filter by damage type
-  castingTime?: CastingTime[];  // Filter by casting time
-  range?: string;                // Filter by range
+  class?: string[]; // Filter by which class can cast
+  damageType?: string[]; // Filter by damage type
+  castingTime?: CastingTime[]; // Filter by casting time
+  range?: string; // Filter by range
   concentration?: boolean;
   ritual?: boolean;
   source?: string[];
@@ -99,9 +99,10 @@ export function searchSpells(filter: SpellFilter, data: DataLoader): Spell[] {
 
   if (filter.damageType && filter.damageType.length > 0) {
     const damageTypeSet = new Set<string>(filter.damageType);
-    spells = spells.filter(s =>
-      s.damage?.entries.some(e => damageTypeSet.has(e.type)) ||
-      s.damage?.additional?.some(e => damageTypeSet.has(e.type))
+    spells = spells.filter(
+      s =>
+        s.damage?.entries.some(e => damageTypeSet.has(e.type)) ||
+        s.damage?.additional?.some(e => damageTypeSet.has(e.type))
     );
   }
 
@@ -158,7 +159,7 @@ export function getSpellsForCharacter(char: Character, data: DataLoader): Spell[
   // Add class spells
   for (const classSpellData of Object.values(char.spells.classSpellcasting)) {
     // Add cantrips (level 0) from knownCantrips
-    for (const spellId of (classSpellData.knownCantrips ?? [])) {
+    for (const spellId of classSpellData.knownCantrips ?? []) {
       knownSpellIds.add(spellId);
     }
     // Add level 1+ spells from knownSpells (filtered by castable level)
@@ -210,7 +211,7 @@ export function getPreparedSpells(char: Character, data: DataLoader): Spell[] {
       allPreparedIds.add(spellId);
     }
     // Add always-prepared spells
-    for (const spellId of (classSpellData.alwaysPreparedSpells ?? [])) {
+    for (const spellId of classSpellData.alwaysPreparedSpells ?? []) {
       allPreparedIds.add(spellId);
     }
   }
@@ -315,10 +316,7 @@ export function canCastSpell(char: Character, spell: Spell): boolean {
  * @param classId - Class ID
  * @returns ClassSpellData or undefined
  */
-export function getClassSpellData(
-  char: Character,
-  classId: string
-): ClassSpellData | undefined {
+export function getClassSpellData(char: Character, classId: string): ClassSpellData | undefined {
   return char.spells.classSpellcasting[classId];
 }
 
@@ -331,11 +329,7 @@ export function getClassSpellData(
  * @param spellId - Spell ID
  * @returns True if the spell is known for that class
  */
-export function knowsSpellForClass(
-  char: Character,
-  classId: string,
-  spellId: string
-): boolean {
+export function knowsSpellForClass(char: Character, classId: string, spellId: string): boolean {
   const classSpellData = char.spells.classSpellcasting[classId];
   if (!classSpellData) return false;
   return (
@@ -413,7 +407,5 @@ export function getKnownSpellsForClass(
  * getSpellsByClass('wizard', data) // All wizard spells
  */
 export function getSpellsByClass(classId: string, data: DataLoader): Spell[] {
-  return data.getAllSpells().filter(s =>
-    s.classes?.includes(classId)
-  );
+  return data.getAllSpells().filter(s => s.classes?.includes(classId));
 }

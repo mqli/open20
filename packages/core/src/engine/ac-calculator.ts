@@ -3,11 +3,11 @@
 // 对应 HLD §6.1 + PRD v4.0 §10 附录D
 // 这是所有计算中最容易出错的，必须100%准确
 
-import type { AbilityScores } from '@open20/core/types/ability';
-import type { Armor, EquipmentItem } from '@open20/core/types/equipment';
-import type { Feature } from '@open20/core/types/class';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { FeatACBonus } from '@open20/core/types/feat';
+import type { AbilityScores } from '@/types/ability';
+import type { Armor, EquipmentItem } from '@/types/equipment';
+import type { Feature } from '@/types/class';
+import type { DataLoader } from '@/data/loader';
+import type { FeatACBonus } from '@/types/feat';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 /**
@@ -60,9 +60,7 @@ export function calculateAC(
   acOptions.push(unarmoredAC);
 
   // Mage Armor（13 + Dex，通过法术或状态触发）
-  const hasMageArmor = conditions.some(
-    c => c.source === 'Mage Armor' || c.id === 'mage-armor'
-  );
+  const hasMageArmor = conditions.some(c => c.source === 'Mage Armor' || c.id === 'mage-armor');
   if (hasMageArmor) {
     acOptions.push(13 + dexMod);
   }
@@ -80,8 +78,7 @@ export function calculateAC(
   // 2024 PHB: requires no armor AND no shield
   if (
     !hasShield &&
-    (featureNames.has('Unarmored Defense (Monk)') ||
-      featureNames.has('Unarmored Defense [Monk]'))
+    (featureNames.has('Unarmored Defense (Monk)') || featureNames.has('Unarmored Defense [Monk]'))
   ) {
     acOptions.push(10 + dexMod + wisMod);
   }
@@ -122,7 +119,7 @@ export function calculateAC(
           ac += bonus.heavyArmor;
         } else if (bonus.lightArmor || bonus.mediumArmor || bonus.heavyArmor) {
           // 如果只指定了一个通用加值，应用它
-          ac += (bonus.lightArmor ?? bonus.mediumArmor ?? bonus.heavyArmor ?? 0);
+          ac += bonus.lightArmor ?? bonus.mediumArmor ?? bonus.heavyArmor ?? 0;
         }
       }
     }

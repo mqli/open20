@@ -11,9 +11,10 @@
 
     /* Path aliases */
     "paths": {
-      "@open20/spellbook/*": ["./src/*"],
-      "@open20/spellbook": ["./src/main.tsx"],
-    },
+      "@/*": ["./src/*"],
+      "@open20/ui": ["../ui/src/index.ts"],
+      "@open20/ui/*": ["../ui/src/*"]
+    }
   },
-  "include": ["src"],
+  "include": ["src"]
 }

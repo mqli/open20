@@ -1,10 +1,10 @@
 // character/mutate/spells.ts
 // Spell-related character mutations
 
-import type { Character } from '@open20/core/types/character';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { SpellLevel } from '@open20/core/types/spell';
-import { isCantrip as isCantripSpell } from '@open20/core/character/spell-casting';
+import type { Character } from '@/types/character';
+import type { DataLoader } from '@/data/loader';
+import type { SpellLevel } from '@/types/spell';
+import { isCantrip as isCantripSpell } from '@/character/spell-casting';
 import { withUpdate } from './hp';
 
 // ── Spell Slot Mutations ────────────────────────────────
@@ -65,7 +65,11 @@ export function recoverSpellSlot(char: Character, level: number | 'pact'): Chara
 
 // ── Always-Prepared Spells ───────────────────────────
 
-export function addAlwaysPreparedSpell(char: Character, classId: string, spellId: string): Character {
+export function addAlwaysPreparedSpell(
+  char: Character,
+  classId: string,
+  spellId: string
+): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
 
@@ -87,7 +91,11 @@ export function addAlwaysPreparedSpell(char: Character, classId: string, spellId
   });
 }
 
-export function removeAlwaysPreparedSpell(char: Character, classId: string, spellId: string): Character {
+export function removeAlwaysPreparedSpell(
+  char: Character,
+  classId: string,
+  spellId: string
+): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
 
@@ -266,9 +274,7 @@ export function replaceCantripForClass(
 
   classSpellcasting[classId] = {
     ...classData,
-    knownCantrips: classData.knownCantrips.map(id =>
-      id === oldSpellId ? newSpellId : id
-    ),
+    knownCantrips: classData.knownCantrips.map(id => (id === oldSpellId ? newSpellId : id)),
   };
 
   return withUpdate(char, {

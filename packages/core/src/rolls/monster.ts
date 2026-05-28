@@ -2,13 +2,13 @@
 // Layer 4: Application — Apply game mechanics to Monster entities
 // Depends on: L1 (dice/core), L2 (dice/mechanics), L3 (monster/*)
 
-import type { Monster } from '@open20/core/monster/types';
-import type { MonsterAttack } from '@open20/core/types/monster';
-import type { RandomProvider } from '@open20/core/dice/core';
-import type { AttackRollResult, DamageRollResult, RollResult } from '@open20/core/dice/mechanics';
-import { rollAttack, rollDamage, rollInitiative, type DamageRollParams } from '@open20/core/dice/mechanics';
-import { defaultRandom, parseDiceExpression } from '@open20/core/dice/core';
-import { calculateMonsterAttackBonus } from '@open20/core/monster/calculator';
+import type { Monster } from '@/monster/types';
+import type { MonsterAttack } from '@/types/monster';
+import type { RandomProvider } from '@/dice/core';
+import type { AttackRollResult, DamageRollResult, RollResult } from '@/dice/mechanics';
+import { rollAttack, rollDamage, rollInitiative, type DamageRollParams } from '@/dice/mechanics';
+import { defaultRandom, parseDiceExpression } from '@/dice/core';
+import { calculateMonsterAttackBonus } from '@/monster/calculator';
 
 // ── Monster Attack Roll ─────────────────────────────────
 

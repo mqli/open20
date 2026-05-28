@@ -2,9 +2,9 @@
 // Feat-related mutations — pure functions that return new Character state
 // Handles feat selection, feat choices, and feat removal
 
-import type { Character } from '@open20/core/types/character';
-import type { FeatSpellSelection, CharacterFeatEntry } from '@open20/core/types/feat';
-import type { DataLoader } from '@open20/core/data/loader';
+import type { Character } from '@/types/character';
+import type { FeatSpellSelection, CharacterFeatEntry } from '@/types/feat';
+import type { DataLoader } from '@/data/loader';
 import { validateFeatPrerequisites, canTakeFeat } from './feat-validator';
 import { recomputeDerivedStats } from './recompute';
 

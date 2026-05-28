@@ -207,16 +207,16 @@ export function formDataToSpell(formData: SpellFormData): Spell {
     concentration: formData.concentration,
     ritual: formData.ritual,
     description: formData.description as readonly string[],
-    cantripUpgrade: formData.cantripUpgrade as readonly SpellFormCantripUpgrade[] | undefined,
+    cantripUpgrade: formData.cantripUpgrade as readonly any[] | undefined,
     cantripUpgradeText: formData.cantripUpgradeText,
     usingAHigherLevelSpellSlot: formData.usingAHigherLevelSpellSlot as
       | readonly string[]
       | undefined,
     damage: formData.damage
       ? {
-          entries: formData.damage.entries as readonly SpellFormDamageEntry[],
-          additional: formData.damage.additional as readonly SpellFormDamageEntry[] | undefined,
-          perSlot: formData.damage.perSlot as readonly SpellFormDamageEntry[] | undefined,
+          entries: formData.damage.entries as readonly any[],
+          additional: formData.damage.additional as readonly any[] | undefined,
+          perSlot: formData.damage.perSlot as readonly any[] | undefined,
         }
       : undefined,
     heal: formData.heal,

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useCharacterStore } from '@open20/spellbook/stores/character-store';
+import { useCharacterStore } from '@/stores/character-store';
 import { storageService } from '@/core/storage-service';
 import type { AppCharacter } from '@/core/types';
 import type { AbilityName } from 'open20-core';
@@ -14,7 +14,7 @@ vi.mock('@/core/storage-service', () => ({
     savePreferences: vi.fn(),
     loadPreferences: vi.fn(() => ({})),
     clearAll: vi.fn(),
-  }
+  },
 }));
 
 describe('CharacterStore', () => {
@@ -24,7 +24,7 @@ describe('CharacterStore', () => {
       activeCharacter: null,
       characters: [],
       isLoading: false,
-      error: null
+      error: null,
     });
     vi.clearAllMocks();
   });
@@ -53,12 +53,27 @@ describe('CharacterStore', () => {
     const mockChar = {
       id: '1',
       name: 'Test',
-      classes: [{ classId: 'Wizard', level: 1, subclassId: null, subclassLevel: null, hitDice: { die: 6, used: 0 } }],
+      classes: [
+        {
+          classId: 'Wizard',
+          level: 1,
+          subclassId: null,
+          subclassLevel: null,
+          hitDice: { die: 6, used: 0 },
+        },
+      ],
       abilityScores: {
-        base: { Intelligence: 16, Constitution: 10, Wisdom: 10, Charisma: 10, Strength: 10, Dexterity: 10 },
+        base: {
+          Intelligence: 16,
+          Constitution: 10,
+          Wisdom: 10,
+          Charisma: 10,
+          Strength: 10,
+          Dexterity: 10,
+        },
         racialBonuses: {},
         featBonuses: {},
-        temporaryBonuses: {}
+        temporaryBonuses: {},
       },
       spells: {
         classSpellcasting: {
@@ -69,8 +84,8 @@ describe('CharacterStore', () => {
             spellAttackBonus: 6,
             knownSpells: [],
             preparedSpells: [],
-            maxPrepared: 4
-          }
+            maxPrepared: 4,
+          },
         },
         spellSlots: {
           0: { total: 0, used: 0 },
@@ -82,13 +97,25 @@ describe('CharacterStore', () => {
           6: { total: 0, used: 0 },
           7: { total: 0, used: 0 },
           8: { total: 0, used: 0 },
-          9: { total: 0, used: 0 }
+          9: { total: 0, used: 0 },
         },
-        pactMagicSlots: null
+        pactMagicSlots: null,
       },
       resources: [],
-      hitPoints: { max: 8, current: 8, temporary: 0, deathSaves: { successes: 0, failures: 0, isStable: false } },
-      combatStats: { AC: 10, initiative: 0, speed: 30, passivePerception: 10, proficiencyBonus: 2, attacks: [] },
+      hitPoints: {
+        max: 8,
+        current: 8,
+        temporary: 0,
+        deathSaves: { successes: 0, failures: 0, isStable: false },
+      },
+      combatStats: {
+        AC: 10,
+        initiative: 0,
+        speed: 30,
+        passivePerception: 10,
+        proficiencyBonus: 2,
+        attacks: [],
+      },
       equipment: [],
       skills: {},
       feats: [],
@@ -100,7 +127,7 @@ describe('CharacterStore', () => {
       updatedAt: '',
       species: 'Human',
       speciesSubtype: null,
-      background: 'Acolyte'
+      background: 'Acolyte',
     } as unknown as AppCharacter;
 
     useCharacterStore.getState().setActiveCharacter(mockChar);
@@ -115,12 +142,27 @@ describe('CharacterStore', () => {
     const mockChar = {
       id: '1',
       name: 'Test',
-      classes: [{ classId: 'Wizard', level: 1, subclassId: null, subclassLevel: null, hitDice: { die: 6, used: 0 } }],
+      classes: [
+        {
+          classId: 'Wizard',
+          level: 1,
+          subclassId: null,
+          subclassLevel: null,
+          hitDice: { die: 6, used: 0 },
+        },
+      ],
       abilityScores: {
-        base: { Intelligence: 16, Constitution: 10, Wisdom: 10, Charisma: 10, Strength: 10, Dexterity: 10 },
+        base: {
+          Intelligence: 16,
+          Constitution: 10,
+          Wisdom: 10,
+          Charisma: 10,
+          Strength: 10,
+          Dexterity: 10,
+        },
         racialBonuses: {},
         featBonuses: {},
-        temporaryBonuses: {}
+        temporaryBonuses: {},
       },
       spells: {
         classSpellcasting: {
@@ -131,8 +173,8 @@ describe('CharacterStore', () => {
             spellAttackBonus: 6,
             knownSpells: ['magic-missile'],
             preparedSpells: [],
-            maxPrepared: 4
-          }
+            maxPrepared: 4,
+          },
         },
         spellSlots: {
           0: { total: 0, used: 0 },
@@ -144,13 +186,25 @@ describe('CharacterStore', () => {
           6: { total: 0, used: 0 },
           7: { total: 0, used: 0 },
           8: { total: 0, used: 0 },
-          9: { total: 0, used: 0 }
+          9: { total: 0, used: 0 },
         },
-        pactMagicSlots: null
+        pactMagicSlots: null,
       },
       resources: [],
-      hitPoints: { max: 8, current: 8, temporary: 0, deathSaves: { successes: 0, failures: 0, isStable: false } },
-      combatStats: { AC: 10, initiative: 0, speed: 30, passivePerception: 10, proficiencyBonus: 2, attacks: [] },
+      hitPoints: {
+        max: 8,
+        current: 8,
+        temporary: 0,
+        deathSaves: { successes: 0, failures: 0, isStable: false },
+      },
+      combatStats: {
+        AC: 10,
+        initiative: 0,
+        speed: 30,
+        passivePerception: 10,
+        proficiencyBonus: 2,
+        attacks: [],
+      },
       equipment: [],
       skills: {},
       feats: [],
@@ -162,13 +216,15 @@ describe('CharacterStore', () => {
       updatedAt: '',
       species: 'Human',
       speciesSubtype: null,
-      background: 'Acolyte'
+      background: 'Acolyte',
     } as unknown as AppCharacter;
-    
+
     useCharacterStore.getState().setActiveCharacter(mockChar);
     useCharacterStore.getState().prepareSpell('magic-missile');
-    
+
     const updatedChar = useCharacterStore.getState().activeCharacter;
-    expect(updatedChar?.spells.classSpellcasting['Wizard'].preparedSpells).toContain('magic-missile');
+    expect(updatedChar?.spells.classSpellcasting['Wizard'].preparedSpells).toContain(
+      'magic-missile',
+    );
   });
 });

@@ -2,14 +2,14 @@
 // Short Rest and Long Rest functions — DND 2024 rules
 // Corresponds to HLD §6.2
 
-import type { Character, CharacterClass } from '@open20/core/types/character';
-import type { Resource, CharacterClassResources } from '@open20/core/types/resource';
-import { ResetType } from '@open20/core/types/resource';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { SpellLevel, FeatSpellsEntry } from '@open20/core/types/spell';
+import type { Character, CharacterClass } from '@/types/character';
+import type { Resource, CharacterClassResources } from '@/types/resource';
+import { ResetType } from '@/types/resource';
+import type { DataLoader } from '@/data/loader';
+import type { SpellLevel, FeatSpellsEntry } from '@/types/spell';
 
-import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
-import { getHitDieFixedValue } from '@open20/core/engine/hp-calculator';
+import { getModifier, getTotalScore } from '@/engine/ability-modifier';
+import { getHitDieFixedValue } from '@/engine/hp-calculator';
 
 import { withUpdate } from './mutate';
 import { getDieMax } from './level-up';
@@ -20,7 +20,7 @@ import { getDieMax } from './level-up';
  */
 function resetClassResources(
   classResources: Record<string, CharacterClassResources>,
-  shouldReset: (r: Resource) => boolean,
+  shouldReset: (r: Resource) => boolean
 ): Record<string, CharacterClassResources> {
   const result: Record<string, CharacterClassResources> = {};
   for (const [classId, ccr] of Object.entries(classResources)) {
@@ -103,7 +103,8 @@ export function shortRest(
   }
 
   // 2. Reset short rest resources (per-class model)
-  const resetShortRest = resetClassResources(result.resources,
+  const resetShortRest = resetClassResources(
+    result.resources,
     (r: Resource) => r.resetOn === ResetType.ShortRest
   );
   result = withUpdate(result, { resources: resetShortRest });
@@ -163,7 +164,8 @@ export function longRest(char: Character, _data: DataLoader): Character {
   }
 
   // 5. Reset Long Rest and Short Rest resources (per-class model)
-  const resetLongRest = resetClassResources(result.resources,
+  const resetLongRest = resetClassResources(
+    result.resources,
     (r: Resource) => r.resetOn === ResetType.LongRest || r.resetOn === ResetType.ShortRest
   );
   result = withUpdate(result, { resources: resetLongRest });

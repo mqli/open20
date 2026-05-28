@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SearchBar } from '@open20/spellbook/components/spell-library/SearchBar';
+import { SearchBar } from '@/components/spell-library/SearchBar';
 
 // Mock the store
 vi.mock('../../stores/spell-store', () => ({
@@ -28,10 +28,10 @@ describe('FR-004: Spell Search', () => {
   it('should show clear button when query is not empty', () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Search spells...');
-    
+
     // Initially no clear button
     expect(screen.queryByLabelText('Clear search')).not.toBeInTheDocument();
-    
+
     // Type something
     fireEvent.change(input, { target: { value: 'fire' } });
     expect(screen.getByLabelText('Clear search')).toBeInTheDocument();
@@ -40,11 +40,11 @@ describe('FR-004: Spell Search', () => {
   it('should clear query when clear button is clicked', () => {
     render(<SearchBar />);
     const input = screen.getByPlaceholderText('Search spells...');
-    
+
     fireEvent.change(input, { target: { value: 'fire' } });
     const clearButton = screen.getByLabelText('Clear search');
     fireEvent.click(clearButton);
-    
+
     expect(input).toHaveValue('');
   });
 

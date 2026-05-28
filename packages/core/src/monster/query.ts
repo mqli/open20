@@ -1,10 +1,16 @@
 // monsters/query.ts
 // Monster query functions — filter, search, and retrieve monsters
 
-import type { Monster, MonsterAction, MonsterFeature, MonsterReaction, MonsterLegendaryAction } from './types';
-import type { MonsterSize, MonsterType, ChallengeRating, AttackNotation } from '@open20/core/types/monster';
-import type { DamageType } from '@open20/core/types/damage';
-import type { DataLoader } from '@open20/core/data/loader';
+import type {
+  Monster,
+  MonsterAction,
+  MonsterFeature,
+  MonsterReaction,
+  MonsterLegendaryAction,
+} from './types';
+import type { MonsterSize, MonsterType, ChallengeRating, AttackNotation } from '@/types/monster';
+import type { DamageType } from '@/types/damage';
+import type { DataLoader } from '@/data/loader';
 
 // ── MonsterFilter Interface ─────────────────────────────────────
 
@@ -16,10 +22,10 @@ export interface MonsterFilter {
   maxCR?: ChallengeRating;
   environment?: string[];
   source?: string[];
-  damageResistances?: DamageType[];    // Filter by damage resistances
-  damageImmunities?: DamageType[];     // Filter by damage immunities
+  damageResistances?: DamageType[]; // Filter by damage resistances
+  damageImmunities?: DamageType[]; // Filter by damage immunities
   damageVulnerabilities?: DamageType[]; // Filter by damage vulnerabilities
-  conditionImmunities?: string[];      // Filter by condition immunities
+  conditionImmunities?: string[]; // Filter by condition immunities
 }
 
 // ── Query Functions ────────────────────────────────────────────
@@ -54,8 +60,7 @@ export function searchMonsters(filter: MonsterFilter, data: DataLoader): Monster
   if (filter.name) {
     const searchLower = filter.name.toLowerCase();
     monsters = monsters.filter(
-      m => m.id.toLowerCase().includes(searchLower) || 
-           m.name.toLowerCase().includes(searchLower)
+      m => m.id.toLowerCase().includes(searchLower) || m.name.toLowerCase().includes(searchLower)
     );
   }
 
@@ -79,9 +84,7 @@ export function searchMonsters(filter: MonsterFilter, data: DataLoader): Monster
 
   if (filter.environment && filter.environment.length > 0) {
     const envSet = new Set(filter.environment);
-    monsters = monsters.filter(m => 
-      m.environments?.some(e => envSet.has(e))
-    );
+    monsters = monsters.filter(m => m.environments?.some(e => envSet.has(e)));
   }
 
   if (filter.source && filter.source.length > 0) {
@@ -91,30 +94,22 @@ export function searchMonsters(filter: MonsterFilter, data: DataLoader): Monster
 
   if (filter.damageResistances && filter.damageResistances.length > 0) {
     const resSet = new Set(filter.damageResistances);
-    monsters = monsters.filter(m =>
-      m.resistances?.some(r => resSet.has(r))
-    );
+    monsters = monsters.filter(m => m.resistances?.some(r => resSet.has(r)));
   }
 
   if (filter.damageImmunities && filter.damageImmunities.length > 0) {
     const immSet = new Set(filter.damageImmunities);
-    monsters = monsters.filter(m =>
-      m.damageDefenses?.immunities.some(i => immSet.has(i))
-    );
+    monsters = monsters.filter(m => m.damageDefenses?.immunities.some(i => immSet.has(i)));
   }
 
   if (filter.damageVulnerabilities && filter.damageVulnerabilities.length > 0) {
     const vulnSet = new Set(filter.damageVulnerabilities);
-    monsters = monsters.filter(m =>
-      m.vulnerabilities?.some(v => vulnSet.has(v))
-    );
+    monsters = monsters.filter(m => m.vulnerabilities?.some(v => vulnSet.has(v)));
   }
 
   if (filter.conditionImmunities && filter.conditionImmunities.length > 0) {
     const condSet = new Set(filter.conditionImmunities);
-    monsters = monsters.filter(m =>
-      m.conditionImmunities?.some(c => condSet.has(c))
-    );
+    monsters = monsters.filter(m => m.conditionImmunities?.some(c => condSet.has(c)));
   }
 
   return monsters;
@@ -129,8 +124,8 @@ export function searchMonsters(filter: MonsterFilter, data: DataLoader): Monster
  * @returns Array of monsters within CR range
  */
 export function getMonstersByCR(
-  minCR: ChallengeRating, 
-  maxCR: ChallengeRating, 
+  minCR: ChallengeRating,
+  maxCR: ChallengeRating,
   data: DataLoader
 ): Monster[] {
   return searchMonsters({ minCR, maxCR }, data);
@@ -156,8 +151,8 @@ export function getMonstersByType(type: MonsterType, data: DataLoader): Monster[
  * @returns Array of monsters with appropriate CR
  */
 export function getMonstersForParty(
-  partyLevel: number, 
-  partySize: number = 4, 
+  partyLevel: number,
+  partySize: number = 4,
   data: DataLoader
 ): Monster[] {
   // Simple CR filter: monster CR should be around partyLevel - 2 to partyLevel + 1
@@ -184,10 +179,14 @@ function compareCR(a: ChallengeRating, b: ChallengeRating): number {
 function crToNumber(cr: ChallengeRating): number {
   if (typeof cr === 'number') return cr;
   switch (cr) {
-    case '1/8': return 0.125;
-    case '1/4': return 0.25;
-    case '1/2': return 0.5;
-    default: return 0;
+    case '1/8':
+      return 0.125;
+    case '1/4':
+      return 0.25;
+    case '1/2':
+      return 0.5;
+    default:
+      return 0;
   }
 }
 
@@ -201,36 +200,46 @@ function crToNumber(cr: ChallengeRating): number {
  * @param description - Action description
  * @returns Limited usage object or undefined if no limited usage found
  */
-export function parseLimitedUsage(actionName: string, description?: string): { type: 'x_per_day' | 'recharge' | 'recharge_after_rest'; uses?: number; rechargeRange?: [number, number]; rechargeOn?: 'short_rest' | 'long_rest' } | undefined {
+export function parseLimitedUsage(
+  actionName: string,
+  description?: string
+):
+  | {
+      type: 'x_per_day' | 'recharge' | 'recharge_after_rest';
+      uses?: number;
+      rechargeRange?: [number, number];
+      rechargeOn?: 'short_rest' | 'long_rest';
+    }
+  | undefined {
   const text = `${actionName} ${description || ''}`;
-  
+
   // Check for "Recharge X-Y"
   const rechargeMatch = text.match(/Recharge\s+(\d+)\s*-\s*(\d+)/i);
   if (rechargeMatch) {
     return {
       type: 'recharge',
-      rechargeRange: [parseInt(rechargeMatch[1]!, 10), parseInt(rechargeMatch[2]!, 10)]
+      rechargeRange: [parseInt(rechargeMatch[1]!, 10), parseInt(rechargeMatch[2]!, 10)],
     };
   }
-  
+
   // Check for "X/Day"
   const xPerDayMatch = text.match(/(\d+)\s*\/\s*Day/i);
   if (xPerDayMatch) {
     return {
       type: 'x_per_day',
-      uses: parseInt(xPerDayMatch[1]!, 10)
+      uses: parseInt(xPerDayMatch[1]!, 10),
     };
   }
-  
+
   // Check for "Recharge after Short/Long Rest"
   if (text.toLowerCase().includes('recharge after')) {
     const restType = text.toLowerCase().includes('short') ? 'short_rest' : 'long_rest';
     return {
       type: 'recharge_after_rest',
-      rechargeOn: restType
+      rechargeOn: restType,
     };
   }
-  
+
   return undefined;
 }
 
@@ -246,23 +255,34 @@ export function getActionLimitedUsage(
   monsterId: string,
   actionName: string,
   data: DataLoader
-): { type: 'x_per_day' | 'recharge' | 'recharge_after_rest'; uses?: number; rechargeRange?: [number, number]; rechargeOn?: 'short_rest' | 'long_rest' } | undefined {
+):
+  | {
+      type: 'x_per_day' | 'recharge' | 'recharge_after_rest';
+      uses?: number;
+      rechargeRange?: [number, number];
+      rechargeOn?: 'short_rest' | 'long_rest';
+    }
+  | undefined {
   const actions = getMonsterActions(monsterId, data);
-  const action = actions.find(a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()));
-  
+  const action = actions.find(
+    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+  );
+
   if (!action) return undefined;
-  
+
   // If limitedUsage is already parsed and stored, return it
   if (action.limitedUsage) {
     // Explicitly create a new object with mutable tuple for return type compatibility
     return {
       type: action.limitedUsage.type,
       uses: action.limitedUsage.uses,
-      rechargeRange: action.limitedUsage.rechargeRange ? [...action.limitedUsage.rechargeRange] as [number, number] : undefined,
-      rechargeOn: action.limitedUsage.rechargeOn
+      rechargeRange: action.limitedUsage.rechargeRange
+        ? ([...action.limitedUsage.rechargeRange] as [number, number])
+        : undefined,
+      rechargeOn: action.limitedUsage.rechargeOn,
     };
   }
-    
+
   // Otherwise, try to parse from action name and description
   return parseLimitedUsage(action.name, action.description);
 }
@@ -280,13 +300,15 @@ export function getActionLimitedUsage(
  * parseDamageNotation("13 (1d10 + 8) Slashing damage")
  * // { fixedValue: 13, dieExpression: "1d10 + 8" }
  */
-export function parseDamageNotation(description: string): { fixedValue?: number; dieExpression?: string } | undefined {
+export function parseDamageNotation(
+  description: string
+): { fixedValue?: number; dieExpression?: string } | undefined {
   if (!description) return undefined;
 
   // Look for pattern: "N (XdY + Z)" or "N (XdY)" or "N (XdY - Z)"
   const damageNotationRegex = /(\d+)\s*\(\s*(\d*d\d+(?:\s*[+-]\s*\d+)?)\s*\)/;
   const match = description.match(damageNotationRegex);
-  
+
   if (match) {
     const fixedValue = parseInt(match[1]!, 10);
     const dieExpression = match[2]!.replace(/\s+/g, '');
@@ -312,25 +334,29 @@ export function getAttackDamageNotation(
   data: DataLoader
 ): { fixedValue?: number; dieExpression?: string } | undefined {
   const actions = getMonsterActions(monsterId, data);
-  const action = actions.find(a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()));
-  
+  const action = actions.find(
+    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+  );
+
   if (!action || !action.attacks || action.attacks.length === 0) return undefined;
-  
+
   // Find the specific attack
-  const attack = attackName 
-    ? action.attacks.find(a => a.name === attackName || a.name.toLowerCase().includes(attackName.toLowerCase()))
+  const attack = attackName
+    ? action.attacks.find(
+        a => a.name === attackName || a.name.toLowerCase().includes(attackName.toLowerCase())
+      )
     : action.attacks[0];
-  
+
   if (!attack) return undefined;
-  
+
   // If damageNotation is already parsed and stored, return it
   if (attack.damageNotation) return attack.damageNotation;
-  
+
   // Otherwise, try to parse from action description
   if (action.description) {
     return parseDamageNotation(action.description);
   }
-  
+
   return undefined;
 }
 
@@ -347,10 +373,28 @@ export function getAttackDamageNotation(
  * parseSavingThrowEffect("*Dexterity Saving Throw*: DC 21, each creature in a 60-foot Cone. *Failure:* 59 (17d6) Fire damage. *Success:* Half damage.")
  * // { saveType: "Dexterity", dc: 21, description: "each creature in a 60-foot Cone", onSaveFailure: "59 (17d6) Fire damage.", onSaveSuccess: "Half damage.", halfDamageOnSuccess: true }
  */
-export function parseSavingThrowEffect(description: string): { saveType?: string; dc?: number; description?: string; onSaveSuccess?: string; onSaveFailure?: string; halfDamageOnSuccess?: boolean } | undefined {
+export function parseSavingThrowEffect(
+  description: string
+):
+  | {
+      saveType?: string;
+      dc?: number;
+      description?: string;
+      onSaveSuccess?: string;
+      onSaveFailure?: string;
+      halfDamageOnSuccess?: boolean;
+    }
+  | undefined {
   if (!description) return undefined;
 
-  const result: { saveType?: string; dc?: number; description?: string; onSaveSuccess?: string; onSaveFailure?: string; halfDamageOnSuccess?: boolean } = {};
+  const result: {
+    saveType?: string;
+    dc?: number;
+    description?: string;
+    onSaveSuccess?: string;
+    onSaveFailure?: string;
+    halfDamageOnSuccess?: boolean;
+  } = {};
 
   // Look for "Saving Throw:" or "Saving Throw*:" notation
   const saveMatch = description.match(/[*]?\s*(\w+)\s+Saving Throw[*]?\s*:\s*DC\s*(\d+)/i);
@@ -400,12 +444,23 @@ export function getActionSavingThrowEffect(
   monsterId: string,
   actionName: string,
   data: DataLoader
-): { saveType?: string; dc?: number; description?: string; onSaveSuccess?: string; onSaveFailure?: string; halfDamageOnSuccess?: boolean } | undefined {
+):
+  | {
+      saveType?: string;
+      dc?: number;
+      description?: string;
+      onSaveSuccess?: string;
+      onSaveFailure?: string;
+      halfDamageOnSuccess?: boolean;
+    }
+  | undefined {
   const actions = getMonsterActions(monsterId, data);
-  const action = actions.find(a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()));
-  
+  const action = actions.find(
+    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+  );
+
   if (!action) return undefined;
-  
+
   // If savingThrowEffect is already parsed and stored, return it
   if (action.savingThrowEffect) {
     return {
@@ -414,15 +469,15 @@ export function getActionSavingThrowEffect(
       description: action.savingThrowEffect.description,
       onSaveSuccess: action.savingThrowEffect.onSaveSuccess,
       onSaveFailure: action.savingThrowEffect.onSaveFailure,
-      halfDamageOnSuccess: action.savingThrowEffect.halfDamageOnSuccess
+      halfDamageOnSuccess: action.savingThrowEffect.halfDamageOnSuccess,
     };
   }
-  
+
   // Otherwise, try to parse from description
   if (action.description) {
     return parseSavingThrowEffect(action.description);
   }
-  
+
   return undefined;
 }
 
@@ -449,7 +504,7 @@ export function parseAttackNotation(description: string): AttackNotation | undef
   // Look for "Hit or Miss:" notation first (most specific)
   const hitOrMissIndex = description.search(/Hit or Miss:/i);
   if (hitOrMissIndex !== -1) {
-    hitOrMiss = description.substring(hitOrMissIndex + "Hit or Miss:".length).trim();
+    hitOrMiss = description.substring(hitOrMissIndex + 'Hit or Miss:'.length).trim();
   }
 
   // Look for "Hit:" notation
@@ -457,9 +512,10 @@ export function parseAttackNotation(description: string): AttackNotation | undef
   if (hitIndex !== -1) {
     const endIndex = hitOrMissIndex !== -1 ? hitOrMissIndex : description.search(/Miss:/i);
     if (endIndex === -1 || endIndex > hitIndex) {
-      const hitText = endIndex === -1 
-        ? description.substring(hitIndex + "Hit:".length)
-        : description.substring(hitIndex + "Hit:".length, endIndex);
+      const hitText =
+        endIndex === -1
+          ? description.substring(hitIndex + 'Hit:'.length)
+          : description.substring(hitIndex + 'Hit:'.length, endIndex);
       hit = hitText.trim();
     }
   }
@@ -469,9 +525,10 @@ export function parseAttackNotation(description: string): AttackNotation | undef
   if (missIndex !== -1) {
     const endIndex = hitOrMissIndex !== -1 ? hitOrMissIndex : description.length;
     if (missIndex > hitIndex || hitIndex === -1) {
-      const missText = missIndex + "Miss:".length >= endIndex
-        ? ''
-        : description.substring(missIndex + "Miss:".length, endIndex);
+      const missText =
+        missIndex + 'Miss:'.length >= endIndex
+          ? ''
+          : description.substring(missIndex + 'Miss:'.length, endIndex);
       miss = missText.trim();
     }
   }
@@ -497,18 +554,20 @@ export function getActionAttackNotation(
   data: DataLoader
 ): AttackNotation | undefined {
   const actions = getMonsterActions(monsterId, data);
-  const action = actions.find(a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()));
-  
+  const action = actions.find(
+    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+  );
+
   if (!action) return undefined;
-  
+
   // If attackNotation is already parsed and stored, return it
   if (action.attackNotation) return action.attackNotation;
-  
+
   // Otherwise, try to parse from description
   if (action.description) {
     return parseAttackNotation(action.description);
   }
-  
+
   return undefined;
 }
 
@@ -551,7 +610,10 @@ export function getMonsterTraits(monsterId: string, data: DataLoader): readonly 
  * @param data - DataLoader
  * @returns Array of reactions or empty array
  */
-export function getMonsterReactions(monsterId: string, data: DataLoader): readonly MonsterReaction[] {
+export function getMonsterReactions(
+  monsterId: string,
+  data: DataLoader
+): readonly MonsterReaction[] {
   const monster = getMonster(monsterId, data);
   return monster?.reactions ?? [];
 }
@@ -563,7 +625,10 @@ export function getMonsterReactions(monsterId: string, data: DataLoader): readon
  * @param data - DataLoader
  * @returns Array of legendary actions or empty array
  */
-export function getMonsterLegendaryActions(monsterId: string, data: DataLoader): readonly MonsterLegendaryAction[] {
+export function getMonsterLegendaryActions(
+  monsterId: string,
+  data: DataLoader
+): readonly MonsterLegendaryAction[] {
   const monster = getMonster(monsterId, data);
   return monster?.legendaryActions ?? [];
 }
@@ -580,9 +645,9 @@ export function getMonsterLegendaryActions(monsterId: string, data: DataLoader):
  */
 export function getMonstersWithTrait(traitName: string, data: DataLoader): Monster[] {
   const searchLower = traitName.toLowerCase();
-  return data.getAllMonsters().filter(m =>
-    m.traits?.some(t => t.name.toLowerCase().includes(searchLower))
-  );
+  return data
+    .getAllMonsters()
+    .filter(m => m.traits?.some(t => t.name.toLowerCase().includes(searchLower)));
 }
 
 /**
@@ -592,9 +657,7 @@ export function getMonstersWithTrait(traitName: string, data: DataLoader): Monst
  * @returns Array of monsters with legendary actions
  */
 export function getLegendaryMonsters(data: DataLoader): Monster[] {
-  return data.getAllMonsters().filter(m =>
-    m.legendaryActions && m.legendaryActions.length > 0
-  );
+  return data.getAllMonsters().filter(m => m.legendaryActions && m.legendaryActions.length > 0);
 }
 
 /**
@@ -630,7 +693,7 @@ export function searchActionsByName(
         results.push({
           monsterId: monster.id,
           monsterName: monster.name,
-          action
+          action,
         });
       }
     }

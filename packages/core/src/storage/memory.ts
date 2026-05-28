@@ -1,7 +1,7 @@
 // storage/memory.ts
 // InMemoryStorage — Map-based ICharacterStorage implementation for testing
 
-import type { Character } from '@open20/core/types/character';
+import type { Character } from '@/types/character';
 import type { ICharacterStorage, CharacterSummary } from './interface';
 
 export class InMemoryStorage implements ICharacterStorage {

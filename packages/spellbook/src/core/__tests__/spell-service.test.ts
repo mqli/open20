@@ -1,38 +1,39 @@
 import { describe, it, expect, vi } from 'vitest';
-import { spellService } from '@open20/spellbook/core/spell-service';
-import { SchemaService } from '@open20/spellbook/core/schema-service';
-import type { AppCharacter } from '@open20/spellbook/core/types';
+import { spellService } from '@/core/spell-service';
+import { SchemaService } from '@/core/schema-service';
+import type { AppCharacter } from '@/core/types';
 import type { AbilityName } from 'open20-core';
 
 // Mock the dataLoader to have controlled test data
 vi.mock('../data-loader', () => ({
   dataLoader: {
-    getAllSpells: () => SchemaService.transformSpells([
-      {
-        id: 'fireball',
-        name: 'Fireball',
-        level: 3,
-        description: 'A bright streak flashes from your pointing finger...',
-        classes: ['Wizard', 'Sorcerer'],
-        components: { V: true, S: true, M: true }
-      },
-      {
-        id: 'cure-wounds',
-        name: 'Cure Wounds',
-        level: 1,
-        description: 'A creature you touch regains a number of hit points...',
-        components: ['V', 'S']
-      },
-      {
-        id: 'mystic-surge',
-        name: 'Mystic Surge',
-        level: 2,
-        description: 'This is a Bard and Druid spell.',
-        classes: [], 
-        components: { V: true }
-      }
-    ])
-  }
+    getAllSpells: () =>
+      SchemaService.transformSpells([
+        {
+          id: 'fireball',
+          name: 'Fireball',
+          level: 3,
+          description: 'A bright streak flashes from your pointing finger...',
+          classes: ['Wizard', 'Sorcerer'],
+          components: { V: true, S: true, M: true },
+        },
+        {
+          id: 'cure-wounds',
+          name: 'Cure Wounds',
+          level: 1,
+          description: 'A creature you touch regains a number of hit points...',
+          components: ['V', 'S'],
+        },
+        {
+          id: 'mystic-surge',
+          name: 'Mystic Surge',
+          level: 2,
+          description: 'This is a Bard and Druid spell.',
+          classes: [],
+          components: { V: true },
+        },
+      ]),
+  },
 }));
 
 describe('SpellService', () => {
@@ -64,8 +65,8 @@ describe('SpellService', () => {
         name: 'Header Spell',
         level: 3,
         description: 'Level 3 Evocation (Sorcerer, Wizard) Casting Time: Action',
-        components: { V: true }
-      }
+        components: { V: true },
+      },
     ]);
 
     expect(spells[0].classes).toEqual(['Sorcerer', 'Wizard']);
@@ -78,8 +79,8 @@ describe('SpellService', () => {
         name: 'Classless Cantrip',
         level: 0,
         description: 'You create a harmless magical effect.',
-        components: { V: true }
-      }
+        components: { V: true },
+      },
     ]);
 
     expect(spells[0].classes?.length).toBeGreaterThan(0);
@@ -103,8 +104,8 @@ describe('SpellService', () => {
             spellAttackBonus: 6,
             knownSpells: [],
             preparedSpells: ['fireball'],
-            maxPrepared: 4
-          }
+            maxPrepared: 4,
+          },
         },
         spellSlots: {
           0: { total: 0, used: 0 },
@@ -116,12 +117,12 @@ describe('SpellService', () => {
           6: { total: 0, used: 0 },
           7: { total: 0, used: 0 },
           8: { total: 0, used: 0 },
-          9: { total: 0, used: 0 }
+          9: { total: 0, used: 0 },
         },
-        pactMagicSlots: null
-      }
+        pactMagicSlots: null,
+      },
     } as unknown as AppCharacter;
-    
+
     expect(spellService.isSpellPrepared(mockCharacter, 'fireball')).toBe(true);
     expect(spellService.isSpellPrepared(mockCharacter, 'cure-wounds')).toBe(false);
   });

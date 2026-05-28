@@ -2,8 +2,8 @@
 // Shared pure helpers used by create.ts, recompute.ts, level-up.ts.
 // Breaking circular dependencies between character/ modules.
 
-import type { Feature, Class, Subclass } from '@open20/core/types/class';
-import type { DataLoader } from '@open20/core/data/loader';
+import type { Feature, Class, Subclass } from '@/types/class';
+import type { DataLoader } from '@/data/loader';
 
 // ── Re-exports from engine (single source of truth) ──────────────
 export { getMaxSpellLevel, getAlwaysPreparedSpellsFromSubclass } from '../engine/spell-data';
@@ -11,10 +11,7 @@ export { getMaxSpellLevel, getAlwaysPreparedSpellsFromSubclass } from '../engine
 // ── Feature Helpers ──────────────────────────────────
 
 /** Extract features at a specific level from a class or subclass definition. */
-export function getFeaturesAtLevel(
-  classData: Class | Subclass,
-  level: number
-): readonly Feature[] {
+export function getFeaturesAtLevel(classData: Class | Subclass, level: number): readonly Feature[] {
   const entry = classData.featuresByLevel.find(f => f.level === level);
   return entry?.features ?? [];
 }

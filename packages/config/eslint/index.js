@@ -20,24 +20,7 @@ export const baseConfig = tseslint.config(
       'no-undef': 'off',
     },
   },
-  // Apply no-restricted-imports to all packages
-  {
-    files: ['packages/ui/src/**/*.{ts,tsx}'],
-    rules: {
-      '@typescript-eslint/no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: ['../*'],
-              message:
-                'Use absolute imports or workspace aliases (e.g. @open20/ui) instead of relative imports.',
-            },
-          ],
-        },
-      ],
-    },
-  },
+  // Enforce absolute imports in @open20/core (uses @/* path alias in package).
   {
     files: ['packages/core/src/**/*.ts'],
     rules: {
@@ -47,25 +30,7 @@ export const baseConfig = tseslint.config(
           patterns: [
             {
               group: ['../*'],
-              message:
-                'Use absolute imports or workspace aliases (e.g. @open20/core) instead of relative imports.',
-            },
-          ],
-        },
-      ],
-    },
-  },
-  {
-    files: ['packages/spellbook/src/**/*.{ts,tsx}'],
-    rules: {
-      '@typescript-eslint/no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: ['../*'],
-              message:
-                'Use absolute imports or workspace aliases (e.g. @open20/spellbook) instead of relative imports.',
+              message: 'Use absolute imports with @/* path alias instead of relative imports.',
             },
           ],
         },

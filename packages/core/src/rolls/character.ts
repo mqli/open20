@@ -2,32 +2,27 @@
 // Layer 4: Application — Apply game mechanics to Character entities
 // Depends on: L1 (dice/core), L2 (dice/mechanics, engine/*), L3 (character/*)
 
-import type { Character } from '@open20/core/types/character';
-import type { Weapon } from '@open20/core/types/equipment';
-import type { Spell, SpellLevel } from '@open20/core/types/spell';
-import type { AbilityName } from '@open20/core/types/ability';
-import type { SkillName } from '@open20/core/types/skill';
-import type { RandomProvider } from '@open20/core/dice/core';
-import type {
-  CheckResult,
-  AttackRollResult,
-  DamageRollResult,
-  RollResult,
-} from '@open20/core/dice/mechanics';
+import type { Character } from '@/types/character';
+import type { Weapon } from '@/types/equipment';
+import type { Spell, SpellLevel } from '@/types/spell';
+import type { AbilityName } from '@/types/ability';
+import type { SkillName } from '@/types/skill';
+import type { RandomProvider } from '@/dice/core';
+import type { CheckResult, AttackRollResult, DamageRollResult, RollResult } from '@/dice/mechanics';
 import {
   rollSkillCheck,
   rollSavingThrow,
   rollAttack,
   rollDamage,
   rollInitiative,
-} from '@open20/core/dice/mechanics';
-import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
-import { getSkillBonus } from '@open20/core/engine/skill-bonus';
-import { SKILL_ABILITY_MAP } from '@open20/core/types/skill';
-import { getActiveDamageDefenses, calculateTypedDamage } from '@open20/core/engine/damage-calculator';
-import { modifyHP } from '@open20/core/character/mutate';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { DamageResult } from '@open20/core/engine/damage-calculator';
+} from '@/dice/mechanics';
+import { getModifier, getTotalScore } from '@/engine/ability-modifier';
+import { getSkillBonus } from '@/engine/skill-bonus';
+import { SKILL_ABILITY_MAP } from '@/types/skill';
+import { getActiveDamageDefenses, calculateTypedDamage } from '@/engine/damage-calculator';
+import { modifyHP } from '@/character/mutate';
+import type { DataLoader } from '@/data/loader';
+import type { DamageResult } from '@/engine/damage-calculator';
 
 // ── Character Skill Check ───────────────────────────────────────
 

@@ -7,7 +7,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./styles": "./src/styles/design-tokens.ts"
+    "./styles": "./src/styles/design-tokens.ts",
+    "./*": "./src/*"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

@@ -1,14 +1,56 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useSpellStore } from '@open20/spellbook/stores/spell-store';
+import { useSpellStore } from '@/stores/spell-store';
 import type { Spell } from 'open20-core';
 
 describe('SpellStore', () => {
   beforeEach(() => {
     useSpellStore.setState({
       spells: [
-        { id: '1', name: 'Fireball', level: 3, school: 'Evocation', classes: ['Wizard'], concentration: false, ritual: false, castingTime: 'Action', range: '150 feet', components: ['V', 'S', 'M'], duration: 'Instantaneous', source: 'SRD', description: [] } as Spell,
-        { id: '2', name: 'Cure Wounds', level: 1, school: 'Evocation', classes: ['Cleric'], concentration: false, ritual: false, castingTime: 'Action', range: 'Touch', components: ['V', 'S'], duration: 'Instantaneous', source: 'SRD', description: [] } as Spell,
-        { id: '3', name: 'Haste', level: 3, school: 'Transmutation', classes: ['Wizard'], concentration: true, ritual: false, castingTime: 'Action', range: '30 feet', components: ['V', 'S', 'M'], duration: '1 minute', source: 'SRD', description: [] } as Spell
+        {
+          id: '1',
+          name: 'Fireball',
+          level: 3,
+          school: 'Evocation',
+          classes: ['Wizard'],
+          concentration: false,
+          ritual: false,
+          castingTime: 'Action',
+          range: '150 feet',
+          components: ['V', 'S', 'M'],
+          duration: 'Instantaneous',
+          source: 'SRD',
+          description: [],
+        } as Spell,
+        {
+          id: '2',
+          name: 'Cure Wounds',
+          level: 1,
+          school: 'Evocation',
+          classes: ['Cleric'],
+          concentration: false,
+          ritual: false,
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'],
+          duration: 'Instantaneous',
+          source: 'SRD',
+          description: [],
+        } as Spell,
+        {
+          id: '3',
+          name: 'Haste',
+          level: 3,
+          school: 'Transmutation',
+          classes: ['Wizard'],
+          concentration: true,
+          ritual: false,
+          castingTime: 'Action',
+          range: '30 feet',
+          components: ['V', 'S', 'M'],
+          duration: '1 minute',
+          source: 'SRD',
+          description: [],
+        } as Spell,
       ],
       filteredSpells: [],
       searchQuery: '',

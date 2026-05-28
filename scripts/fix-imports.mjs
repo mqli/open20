@@ -1,51 +1,71 @@
 #!/usr/bin/env node
 import { Project } from 'ts-morph';
 
-const PACKAGES = [
-  { name: '@open20/core', tsconfig: 'packages/core/tsconfig.json', src: 'packages/core/src' },
-  { name: '@open20/ui', tsconfig: 'packages/ui/tsconfig.json', src: 'packages/ui/src' },
-  {
-    name: '@open20/spellbook',
-    tsconfig: 'packages/spellbook/tsconfig.app.json',
-    src: 'packages/spellbook/src',
-  },
-  { name: '@open20/config', tsconfig: 'packages/config/tsconfig.json', src: 'packages/config' },
-];
+// Revert @open20/ui/* internal imports back to relative paths
+// The @open20/ui/* tsconfig path alias only works within the ui package's own tsc,
+// but breaks when other packages (like spellbook) build with project references.
 
-let totalFixed = 0;
+const project = new Project({ tsConfigFilePath: 'packages/ui/tsconfig.json' });
+const sourceFiles = project.getSourceFiles('packages/ui/src/**/*.{ts,tsx}');
 
-for (const pkg of PACKAGES) {
-  const project = new Project({ tsConfigFilePath: pkg.tsconfig });
-  const sourceFiles = project.getSourceFiles(`${pkg.src}/**/*.{ts,tsx,js,mjs}`);
-  let fixed = 0;
+let fixed = 0;
 
-  for (const sourceFile of sourceFiles) {
-    const imports = sourceFile.getImportDeclarations();
+for (const sourceFile of sourceFiles) {
+  const imports = sourceFile.getImportDeclarations();
+  const sourceFilePath = sourceFile.getFilePath();
 
-    for (const imp of imports) {
-      const moduleSpecifier = imp.getModuleSpecifierValue();
-      if (!moduleSpecifier.startsWith('..')) continue;
+  for (const imp of imports) {
+    const moduleSpecifier = imp.getModuleSpecifierValue();
 
-      const resolved = imp.getModuleSpecifierSourceFile();
-      if (!resolved) continue;
+    // Only fix @open20/ui/ deep imports (not the barrel @open20/ui)
+    if (!moduleSpecifier.startsWith('@open20/ui/')) continue;
 
-      const resolvedPath = resolved.getFilePath();
-      const pkgSrc = process.cwd() + '/' + pkg.src;
+    // Resolve the target file
+    const resolved = imp.getModuleSpecifierSourceFile();
+    if (!resolved) continue;
 
-      if (!resolvedPath.startsWith(pkgSrc)) continue;
+    const resolvedPath = resolved.getFilePath();
+    const srcRoot = process.cwd() + '/packages/ui/src';
 
-      let alias = pkg.name + '/' + resolvedPath.replace(pkgSrc + '/', '');
-      alias = alias.replace(/\.(ts|tsx|js|jsx|mjs)$/, '');
-      if (alias.endsWith('/index')) alias = alias.replace(/\/index$/, '');
+    if (!resolvedPath.startsWith(srcRoot)) continue;
 
-      imp.setModuleSpecifier(alias);
-      fixed++;
+    // Compute relative path from source file to target
+    const sourceDir = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('/'));
+    const targetRel = resolvedPath.replace(srcRoot + '/', '');
+
+    // Calculate relative path
+    const sourceParts = sourceDir.replace(srcRoot + '/', '').split('/');
+    const targetParts = targetRel.split('/');
+
+    // Remove common prefix
+    let i = 0;
+    while (
+      i < sourceParts.length - 1 &&
+      i < targetParts.length &&
+      sourceParts[i] === targetParts[i]
+    ) {
+      i++;
     }
-  }
 
-  project.saveSync();
-  console.log(`✓ ${pkg.name}: fixed ${fixed} imports`);
-  totalFixed += fixed;
+    const upParts =
+      sourceParts.slice(i, -1).length > 0
+        ? Array(sourceParts.slice(i, -1).length).fill('..').join('/')
+        : '.';
+    const downParts = targetParts.slice(i).join('/');
+
+    let relativePath = downParts ? `${upParts}/${downParts}` : upParts;
+
+    // Remove .ts/.tsx extension
+    relativePath = relativePath.replace(/\.(ts|tsx)$/, '');
+    // index files -> directory
+    if (relativePath.endsWith('/index')) {
+      relativePath = relativePath.replace(/\/index$/, '');
+    }
+
+    imp.setModuleSpecifier(relativePath);
+    fixed++;
+  }
 }
 
-console.log(`\n✓ Total fixed: ${totalFixed} imports`);
+project.saveSync();
+console.log(`✓ Reverted ${fixed} @open20/ui/* imports back to relative paths`);

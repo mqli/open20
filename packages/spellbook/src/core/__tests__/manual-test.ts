@@ -1,4 +1,4 @@
-import { characterService } from '@open20/spellbook/core/character-service';
+import { characterService } from '@/core/character-service';
 
 interface ConcentrationCondition {
   source?: string;
@@ -19,24 +19,30 @@ async function runTests() {
       Constitution: 14,
       Intelligence: 16,
       Wisdom: 13,
-      Charisma: 8
-    }
+      Charisma: 8,
+    },
   };
 
   try {
     const character = characterService.createCharacter(mockParams);
     console.log('✅ Character creation success');
-    
+
     if (character.spells.classSpellcasting['Wizard'].spellSaveDC === 13) {
       console.log('✅ Spell DC calculation (13) success');
     } else {
-      console.log('❌ Spell DC calculation failed. Expected 13, got:', character.spells.classSpellcasting['Wizard'].spellSaveDC);
+      console.log(
+        '❌ Spell DC calculation failed. Expected 13, got:',
+        character.spells.classSpellcasting['Wizard'].spellSaveDC,
+      );
     }
 
     if (character.spells.classSpellcasting['Wizard'].spellAttackBonus === 5) {
       console.log('✅ Spell Attack calculation (5) success');
     } else {
-      console.log('❌ Spell Attack calculation failed. Expected 5, got:', character.spells.classSpellcasting['Wizard'].spellAttackBonus);
+      console.log(
+        '❌ Spell Attack calculation failed. Expected 5, got:',
+        character.spells.classSpellcasting['Wizard'].spellAttackBonus,
+      );
     }
 
     const spellId = 'fireball';
@@ -57,13 +63,20 @@ async function runTests() {
 
     const spellId2 = 'haste';
     const concentratingChar = characterService.startConcentration(character, spellId2);
-    const concentrationCondition = concentratingChar.conditions.find(c => c.id === 'Concentrating');
-    if (concentrationCondition && (concentrationCondition as ConcentrationCondition).source === spellId2) {
+    const concentrationCondition = concentratingChar.conditions.find(
+      (c) => c.id === 'Concentrating',
+    );
+    if (
+      concentrationCondition &&
+      (concentrationCondition as ConcentrationCondition).source === spellId2
+    ) {
       console.log('✅ Concentration start success');
     } else {
-      console.log('❌ Concentration failed. Conditions:', JSON.stringify(concentratingChar.conditions));
+      console.log(
+        '❌ Concentration failed. Conditions:',
+        JSON.stringify(concentratingChar.conditions),
+      );
     }
-
   } catch (err) {
     console.error('❌ Tests failed with error:', err);
   }

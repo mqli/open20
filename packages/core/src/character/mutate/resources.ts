@@ -1,19 +1,15 @@
 // character/mutate/resources.ts
 // Resource-related character mutations (per-class model)
 
-import type { Character } from '@open20/core/types/character';
-import type { CharacterClassResources } from '@open20/core/types/resource';
+import type { Character } from '@/types/character';
+import type { CharacterClassResources } from '@/types/resource';
 import { withUpdate } from './hp';
 
 /**
  * Consume one use of a resource.
  * Looks up the resource by classId + resourceId in the per-class Record.
  */
-export function consumeResource(
-  char: Character,
-  classId: string,
-  resourceId: string,
-): Character {
+export function consumeResource(char: Character, classId: string, resourceId: string): Character {
   const ccr = char.resources[classId];
   if (!ccr) return char;
 
@@ -38,11 +34,7 @@ export function consumeResource(
  * Recover one use of a resource.
  * Looks up the resource by classId + resourceId in the per-class Record.
  */
-export function recoverResource(
-  char: Character,
-  classId: string,
-  resourceId: string,
-): Character {
+export function recoverResource(char: Character, classId: string, resourceId: string): Character {
   const ccr = char.resources[classId];
   if (!ccr) return char;
 
@@ -67,10 +59,7 @@ export function recoverResource(
  * Consume a resource without knowing the classId (searches all classes).
  * Returns the updated character, or the original character if not found.
  */
-export function consumeResourceAny(
-  char: Character,
-  resourceId: string,
-): Character {
+export function consumeResourceAny(char: Character, resourceId: string): Character {
   for (const [classId, ccr] of Object.entries(char.resources)) {
     const idx = ccr.resources.findIndex(r => r.id === resourceId);
     if (idx !== -1) {
@@ -83,10 +72,7 @@ export function consumeResourceAny(
 /**
  * Recover a resource without knowing the classId (searches all classes).
  */
-export function recoverResourceAny(
-  char: Character,
-  resourceId: string,
-): Character {
+export function recoverResourceAny(char: Character, resourceId: string): Character {
   for (const [classId, ccr] of Object.entries(char.resources)) {
     const idx = ccr.resources.findIndex(r => r.id === resourceId);
     if (idx !== -1) {

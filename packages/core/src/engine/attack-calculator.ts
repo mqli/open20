@@ -2,12 +2,12 @@
 // 攻击加值计算 — 纯函数
 // 对应 HLD §6.1
 
-import type { AbilityScores } from '@open20/core/types/ability';
-import type { Weapon, EquipmentItem } from '@open20/core/types/equipment';
-import type { Feature } from '@open20/core/types/class';
-import type { CharacterAttack } from '@open20/core/types/character';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { FeatAttackBonus } from '@open20/core/types/feat';
+import type { AbilityScores } from '@/types/ability';
+import type { Weapon, EquipmentItem } from '@/types/equipment';
+import type { Feature } from '@/types/class';
+import type { CharacterAttack } from '@/types/character';
+import type { DataLoader } from '@/data/loader';
+import type { FeatAttackBonus } from '@/types/feat';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 /**
@@ -101,10 +101,7 @@ function calculateWeaponAttack(
       abilityMod = strMod;
       abilityUsed = 'Strength';
     }
-  } else if (
-    weapon.properties.includes('Range') &&
-    !weapon.properties.includes('Thrown')
-  ) {
+  } else if (weapon.properties.includes('Range') && !weapon.properties.includes('Thrown')) {
     // 远程武器（非投掷）：使用Dex
     // 有 Thrown 属性的近战武器（如 Javelin）仍使用 Str
     abilityMod = dexMod;
@@ -136,7 +133,10 @@ function calculateWeaponAttack(
   if (featAttackBonuses && featAttackBonuses.length > 0) {
     for (const bonus of featAttackBonuses) {
       // 远程武器加值
-      if (bonus.ranged && (weapon.properties.includes('Range') || weapon.damage.ability === 'Dexterity')) {
+      if (
+        bonus.ranged &&
+        (weapon.properties.includes('Range') || weapon.damage.ability === 'Dexterity')
+      ) {
         attackBonus += bonus.ranged;
       }
       // 近战武器加值

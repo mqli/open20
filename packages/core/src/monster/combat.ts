@@ -4,9 +4,9 @@
 // L4 roll functions have been moved to src/rolls/monster.ts
 
 import type { Monster } from './types';
-import type { DamageType, DamageDefenses, DamageResult } from '@open20/core/types/damage';
-import type { DataLoader } from '@open20/core/data/loader';
-import { calculateTypedDamage } from '@open20/core/engine/damage-calculator';
+import type { DamageType, DamageDefenses, DamageResult } from '@/types/damage';
+import type { DataLoader } from '@/data/loader';
+import { calculateTypedDamage } from '@/engine/damage-calculator';
 import {
   applyHPChange,
   applyTypedDamageToHP,
@@ -16,7 +16,7 @@ import {
   addDamageImmunity,
   addDamageVulnerability,
   emptyDefenses,
-} from '@open20/core/engine/combat';
+} from '@/engine/combat';
 
 // ── HP Management ────────────────────────────────────────────
 
@@ -109,7 +109,11 @@ export function applyMonsterTypedDamage(
   const currentHP = monster.currentHP ?? monster.hitPoints.value;
   const temporaryHP = monster.temporaryHP ?? 0;
 
-  const { currentHP: newCurrent, temporaryHP: newTemporary, result } = applyTypedDamageToHP(
+  const {
+    currentHP: newCurrent,
+    temporaryHP: newTemporary,
+    result,
+  } = applyTypedDamageToHP(
     currentHP,
     monster.hitPoints.value,
     temporaryHP,
@@ -175,10 +179,7 @@ export function getMonsterAC(monster: Monster): number {
  * @param damageType - Damage type to resist
  * @returns New monster with added resistance
  */
-export function addMonsterDamageResistance(
-  monster: Monster,
-  damageType: DamageType
-): Monster {
+export function addMonsterDamageResistance(monster: Monster, damageType: DamageType): Monster {
   const defenses: DamageDefenses = monster.damageDefenses || emptyDefenses();
   const newDefenses = addDamageResistance(defenses, damageType);
 
@@ -197,10 +198,7 @@ export function addMonsterDamageResistance(
  * @param damageType - Damage type to be immune to
  * @returns New monster with added immunity
  */
-export function addMonsterDamageImmunity(
-  monster: Monster,
-  damageType: DamageType
-): Monster {
+export function addMonsterDamageImmunity(monster: Monster, damageType: DamageType): Monster {
   const defenses: DamageDefenses = monster.damageDefenses || emptyDefenses();
   const newDefenses = addDamageImmunity(defenses, damageType);
 
@@ -219,10 +217,7 @@ export function addMonsterDamageImmunity(
  * @param damageType - Damage type to be vulnerable to
  * @returns New monster with added vulnerability
  */
-export function addMonsterDamageVulnerability(
-  monster: Monster,
-  damageType: DamageType
-): Monster {
+export function addMonsterDamageVulnerability(monster: Monster, damageType: DamageType): Monster {
   const defenses: DamageDefenses = monster.damageDefenses || emptyDefenses();
   const newDefenses = addDamageVulnerability(defenses, damageType);
 

@@ -6,23 +6,23 @@
 // Split into: computeFeatGrants, gatherAllFeatures, computeCombatStats,
 //   computeClassSpellData, recomputeDerivedStats (orchestrator)
 
-import type { Character } from '@open20/core/types/character';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { AbilityName, AbilityScores } from '@open20/core/types/ability';
-import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
-import { getProficiencyBonus } from '@open20/core/engine/proficiency-bonus';
-import { calculateAC } from '@open20/core/engine/ac-calculator';
-import { calculateInitiative } from '@open20/core/engine/initiative';
-import { calculatePassivePerception } from '@open20/core/engine/passive-perception';
-import { calculateAttacks } from '@open20/core/engine/attack-calculator';
-import { calculateMaxHP } from '@open20/core/engine/hp-calculator';
-import { calculatePactMagic, calculateSpellSlotsFromClasses } from '@open20/core/engine/spell-slots';
-import { buildClassSpellData } from '@open20/core/engine/spell-data';
-import type { ClassSpellData, SpellLevel, SpellSlotEntry } from '@open20/core/types/spell';
-import type { Feature } from '@open20/core/types/class';
+import type { Character } from '@/types/character';
+import type { DataLoader } from '@/data/loader';
+import type { AbilityName, AbilityScores } from '@/types/ability';
+import { getModifier, getTotalScore } from '@/engine/ability-modifier';
+import { getProficiencyBonus } from '@/engine/proficiency-bonus';
+import { calculateAC } from '@/engine/ac-calculator';
+import { calculateInitiative } from '@/engine/initiative';
+import { calculatePassivePerception } from '@/engine/passive-perception';
+import { calculateAttacks } from '@/engine/attack-calculator';
+import { calculateMaxHP } from '@/engine/hp-calculator';
+import { calculatePactMagic, calculateSpellSlotsFromClasses } from '@/engine/spell-slots';
+import { buildClassSpellData } from '@/engine/spell-data';
+import type { ClassSpellData, SpellLevel, SpellSlotEntry } from '@/types/spell';
+import type { Feature } from '@/types/class';
 import { gatherAllFeatures } from './utils';
 import { recomputeResources } from './resource-builder';
-import type { FeatAttackBonus, FeatACBonus } from '@open20/core/types/feat';
+import type { FeatAttackBonus, FeatACBonus } from '@/types/feat';
 
 // ── Grant Computation (Single Source of Truth) ─────────────────
 
@@ -33,7 +33,10 @@ import type { FeatAttackBonus, FeatACBonus } from '@open20/core/types/feat';
  * Background ability score choices are stored in abilityScores.backgroundBonuses
  * and applied directly (set by player during character creation/level-up).
  */
-function computeFeatGrants(char: Character, data: DataLoader): Partial<Record<AbilityName, number>> {
+function computeFeatGrants(
+  char: Character,
+  data: DataLoader
+): Partial<Record<AbilityName, number>> {
   const featGrants: Partial<Record<AbilityName, number>> = {};
 
   for (const entry of char.feats) {
@@ -45,8 +48,7 @@ function computeFeatGrants(char: Character, data: DataLoader): Partial<Record<Ab
       for (const [ability, bonus] of Object.entries(feat.grants.abilityBonus)) {
         const numBonus = bonus as number;
         if (numBonus !== 0) {
-          featGrants[ability as AbilityName] =
-            (featGrants[ability as AbilityName] ?? 0) + numBonus;
+          featGrants[ability as AbilityName] = (featGrants[ability as AbilityName] ?? 0) + numBonus;
         }
       }
     }
@@ -56,8 +58,7 @@ function computeFeatGrants(char: Character, data: DataLoader): Partial<Record<Ab
       for (const [ability, bonus] of Object.entries(entry.abilityChoices)) {
         const numBonus = bonus as number;
         if (numBonus !== 0) {
-          featGrants[ability as AbilityName] =
-            (featGrants[ability as AbilityName] ?? 0) + numBonus;
+          featGrants[ability as AbilityName] = (featGrants[ability as AbilityName] ?? 0) + numBonus;
         }
       }
     }
@@ -165,13 +166,13 @@ function computeCombatStats(
   featACBonuses: readonly import('../types/feat').FeatACBonus[]
 ) {
   const newAC = calculateAC(abilityScores, equipment, features, data, conditions, featACBonuses);
-  const newInitiative = calculateInitiative(abilityScores, feats.map(f => f.featId), features, pb);
-  const newPassivePerception = calculatePassivePerception(
+  const newInitiative = calculateInitiative(
     abilityScores,
-    skills,
-    pb,
-    conditions
+    feats.map(f => f.featId),
+    features,
+    pb
   );
+  const newPassivePerception = calculatePassivePerception(abilityScores, skills, pb, conditions);
   const newAttacks = calculateAttacks(
     abilityScores,
     equipment,
@@ -247,10 +248,7 @@ function computePactMagic(
 // ── Spell Slots ───────────────────────────────────────────
 
 /** Recalculate regular spell slots, preserving used counts. */
-function computeSpellSlots(
-  char: Character,
-  data: DataLoader
-) {
+function computeSpellSlots(char: Character, data: DataLoader) {
   const newSlots = calculateSpellSlotsFromClasses(char.classes, data);
   const hasNonZero = Object.values(newSlots).some(entry => entry.total > 0);
 
@@ -352,11 +350,7 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
   const featACBonuses = computeFeatACBonuses(char, data);
 
   // 1.6. Apply feat skill proficiencies
-  const updatedSkills = applyFeatSkillProficiencies(
-    char.skills,
-    char,
-    data
-  );
+  const updatedSkills = applyFeatSkillProficiencies(char.skills, char, data);
 
   // 2. Update abilityScores with computed grants
   const updatedAbilityScores: AbilityScores = {
@@ -373,25 +367,24 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
   const weaponProficiencies = computeWeaponProficiencies(char, data);
 
   // 4. Combat stats
-  const { newAC, newInitiative, newPassivePerception, newAttacks } =
-    computeCombatStats(
-      updatedAbilityScores,
-      char.equipment,
-      features,
-      char.conditions,
-      char.feats,
-      updatedSkills,
-      pb,
-      weaponProficiencies,
-      data,
-      featAttackBonuses,
-      featACBonuses
-    );
+  const { newAC, newInitiative, newPassivePerception, newAttacks } = computeCombatStats(
+    updatedAbilityScores,
+    char.equipment,
+    features,
+    char.conditions,
+    char.feats,
+    updatedSkills,
+    pb,
+    weaponProficiencies,
+    data,
+    featAttackBonuses,
+    featACBonuses
+  );
 
   // 5. Spell data (per-class)
-  const classSpellcasting = computeClassSpellData(
-    char, data, pb, updatedAbilityScores, { ...char.spells.classSpellcasting }
-  );
+  const classSpellcasting = computeClassSpellData(char, data, pb, updatedAbilityScores, {
+    ...char.spells.classSpellcasting,
+  });
 
   // 6. Pact Magic (Warlock)
   let newSpells = computePactMagic(char, data, char.spells.pactMagicSlots);
@@ -411,7 +404,7 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
     char.resources,
     char.classes,
     updatedAbilityScores,
-    data,
+    data
   );
 
   // 9. Max HP (cap current at new max; never heal via recompute)

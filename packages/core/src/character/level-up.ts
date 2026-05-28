@@ -2,21 +2,18 @@
 // 角色升级 — 根据DND 2024规则应用等级变化（支持多维职业）
 // 对应 HLD §6.2 + S16
 
-import type { AbilityName } from '@open20/core/types/ability';
-import type { Character, CharacterClass } from '@open20/core/types/character';
-import type { ClassSpellData } from '@open20/core/types/spell';
-import type { DataLoader } from '@open20/core/data/loader';
-import type { DieType } from '@open20/core/types/dice';
+import type { AbilityName } from '@/types/ability';
+import type { Character, CharacterClass } from '@/types/character';
+import type { ClassSpellData } from '@/types/spell';
+import type { DataLoader } from '@/data/loader';
+import type { DieType } from '@/types/dice';
 
-import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
-import { getHitDieFixedValue } from '@open20/core/engine/hp-calculator';
-import { getProficiencyBonus } from '@open20/core/engine/proficiency-bonus';
+import { getModifier, getTotalScore } from '@/engine/ability-modifier';
+import { getHitDieFixedValue } from '@/engine/hp-calculator';
+import { getProficiencyBonus } from '@/engine/proficiency-bonus';
 import { recomputeResources } from './resource-builder';
 import { recomputeDerivedStats } from './recompute';
-import {
-  getMulticlassSpellcasterLevel,
-  calculateMulticlassSpellSlots,
-} from '@open20/core/engine/spell-slots';
+import { getMulticlassSpellcasterLevel, calculateMulticlassSpellSlots } from '@/engine/spell-slots';
 
 // ── 公共接口 ────────────────────────────────────────────
 
@@ -144,12 +141,7 @@ export function levelUp(
   const newProficiencyBonus = getProficiencyBonus(totalLevel);
 
   // 6. Recompute resources for this class (per-class model)
-  const newResources = recomputeResources(
-    char.resources,
-    newClasses,
-    newAbilityScores,
-    data,
-  );
+  const newResources = recomputeResources(char.resources, newClasses, newAbilityScores, data);
 
   // Build result
   let result: Character = {

@@ -1,10 +1,16 @@
 // monsters/types.ts
 // Monster data structures for D&D 5e monster support
 
-import type { MonsterSize, MonsterType, ChallengeRating, MonsterAttack, MonsterSpellcasting } from '@open20/core/types/monster';
-import type { AbilityScores } from '@open20/core/types/ability';
-import type { DamageType, DamageDefenses } from '@open20/core/types/damage';
-import type { InitiativeInfo, SensesInfo } from '@open20/core/types/monster';
+import type {
+  MonsterSize,
+  MonsterType,
+  ChallengeRating,
+  MonsterAttack,
+  MonsterSpellcasting,
+} from '@/types/monster';
+import type { AbilityScores } from '@/types/ability';
+import type { DamageType, DamageDefenses } from '@/types/damage';
+import type { InitiativeInfo, SensesInfo } from '@/types/monster';
 
 // ── Main Monster Interface ─────────────────────────────────────
 
@@ -84,26 +90,26 @@ export interface MonsterFeature {
   readonly description: string;
 }
 
-import type { AttackNotation, SavingThrowEffect } from '@open20/core/types/monster';
+import type { AttackNotation, SavingThrowEffect } from '@/types/monster';
 
 export interface MonsterAction {
   readonly name: string;
   readonly description?: string;
   readonly attacks?: readonly MonsterAttack[];
   readonly legendary?: boolean;
-  
+
   // R28.8 - Attack Notation
   readonly attackNotation?: AttackNotation;
-  
+
   // R28.9 - Saving Throw Effect
   readonly savingThrowEffect?: SavingThrowEffect;
-  
+
   // R28.12 - Limited Usage
   readonly limitedUsage?: {
     readonly type: 'x_per_day' | 'recharge' | 'recharge_after_rest';
-    readonly uses?: number;  // for x_per_day
-    readonly rechargeRange?: readonly [number, number];  // for recharge
-    readonly rechargeOn?: 'short_rest' | 'long_rest';  // for recharge_after_rest
+    readonly uses?: number; // for x_per_day
+    readonly rechargeRange?: readonly [number, number]; // for recharge
+    readonly rechargeOn?: 'short_rest' | 'long_rest'; // for recharge_after_rest
   };
 }
 
