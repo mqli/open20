@@ -1,5 +1,11 @@
 import type { Spell } from 'open20-core';
-import type { SpellLevel, SpellSchool, CastingTime, SpellComponent, AbilityName } from 'open20-core/types';
+import type {
+  SpellLevel,
+  SpellSchool,
+  CastingTime,
+  SpellComponent,
+  AbilityName,
+} from 'open20-core/types';
 export { ABILITY_NAMES } from 'open20-core/types';
 
 // ── 表单数据类型 ─────────────────────────────────────────
@@ -201,16 +207,16 @@ export function formDataToSpell(formData: SpellFormData): Spell {
     concentration: formData.concentration,
     ritual: formData.ritual,
     description: formData.description as readonly string[],
-    cantripUpgrade: formData.cantripUpgrade as readonly any[] | undefined,
+    cantripUpgrade: formData.cantripUpgrade as readonly SpellFormCantripUpgrade[] | undefined,
     cantripUpgradeText: formData.cantripUpgradeText,
     usingAHigherLevelSpellSlot: formData.usingAHigherLevelSpellSlot as
       | readonly string[]
       | undefined,
     damage: formData.damage
       ? {
-          entries: formData.damage.entries as readonly any[],
-          additional: formData.damage.additional as readonly any[] | undefined,
-          perSlot: formData.damage.perSlot as readonly any[] | undefined,
+          entries: formData.damage.entries as readonly SpellFormDamageEntry[],
+          additional: formData.damage.additional as readonly SpellFormDamageEntry[] | undefined,
+          perSlot: formData.damage.perSlot as readonly SpellFormDamageEntry[] | undefined,
         }
       : undefined,
     heal: formData.heal,
