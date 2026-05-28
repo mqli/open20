@@ -1,0 +1,363 @@
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
+
+// Spellbook translation structure
+export interface SpellbookTranslations {
+  // Search and filters
+  spells: string;
+  searchSpells: string;
+  clearSearch: string;
+  allLevels: string;
+  cantrip: string;
+  levelLabel: string;
+  ritual: string;
+  concentration: string;
+  classes: string;
+  schools: string;
+  clearFilter: string;
+  clearFilters: string;
+
+  // Character management
+  createCharacter: string;
+  editCharacter: string;
+  characterName: string;
+  characterNamePlaceholder: string;
+  class: string;
+  level: string;
+  species: string;
+  background: string;
+  multiclass: string;
+  addClass: string;
+  abilityScores: string;
+  summonHero: string;
+  saveChanges: string;
+  saving: string;
+  cancel: string;
+
+  // Character sheet
+  openCharacterSheet: string;
+  editCharacterStats: string;
+  pactMagic: string;
+  classSpellcasting: string;
+  combined: string;
+  concentrationBanner: string;
+  alwaysPrepared: string;
+  preparationSlots: string;
+  preparedSpells: string;
+  knownCantrips: string;
+  learnCantrip: string;
+  replaceCantrip: string;
+  add: string;
+  noCantripsAvailable: string;
+
+  // Spell actions
+  cast: string;
+  attack: string;
+  damage: string;
+  healing: string;
+  rollAttack: string;
+  rollDamage: string;
+  rollHealing: string;
+  castAtLevel: string;
+  startConcentration: string;
+  endConcentration: string;
+  concentrate: string;
+  stop: string;
+
+  // Spellbook controls
+  learnSpell: string;
+  unlearnSpell: string;
+  prepareSpell: string;
+  unprepareSpell: string;
+  learnCantripAction: string;
+  unlearnCantripAction: string;
+  alwaysPreparedLabel: string;
+  manageSpell: string;
+  addSpell: string;
+  preparedShort: string;
+
+  // Dice rolling
+  rollResult: string;
+
+  // Rest actions
+  shortRest: string;
+  longRest: string;
+
+  // Character switching
+  switchCharacter: string;
+  createCharacterAction: string;
+  addCharacter: string;
+
+  // Empty states
+  noPreparedSpells: string;
+  noKnownSpells: string;
+  noSpellsFound: string;
+
+  // Class action dropdown
+  forLabel: string;
+  addForLabel: string;
+  unlearn: string;
+  unprepare: string;
+  learn: string;
+  prepare: string;
+  none: string;
+}
+
+// English translations
+export const enTranslations: SpellbookTranslations = {
+  spells: 'Spells',
+  searchSpells: 'Search spells...',
+  clearSearch: 'Clear search',
+  allLevels: 'All',
+  cantrip: 'Cantrip',
+  levelLabel: 'Level',
+  ritual: 'Ritual',
+  concentration: 'Concentration',
+  classes: 'Classes',
+  schools: 'Schools',
+  clearFilter: 'Clear filter',
+  clearFilters: 'Clear {count} filters',
+
+  createCharacter: 'Create Your Hero',
+  editCharacter: 'Edit Character',
+  characterName: 'Character Name',
+  characterNamePlaceholder: 'e.g. Melf the Archmage',
+  class: 'Class',
+  level: 'Level',
+  species: 'Species',
+  background: 'Background',
+  multiclass: 'Multiclass',
+  addClass: '+ Add Class',
+  abilityScores: 'Ability Scores',
+  summonHero: 'Summon Hero',
+  saveChanges: 'Save Changes',
+  saving: 'Saving...',
+  cancel: 'Cancel',
+
+  openCharacterSheet: 'Open character sheet',
+  editCharacterStats: 'Edit Character Stats',
+  pactMagic: 'Pact Magic',
+  classSpellcasting: 'Class Spellcasting',
+  combined: 'Combined',
+  concentrationBanner: 'Concentrating',
+  alwaysPrepared: 'Always Prepared',
+  preparationSlots: 'Preparation Slots',
+  preparedSpells: 'Prepared Spells',
+  knownCantrips: 'Cantrips',
+  learnCantrip: 'Learn Cantrip',
+  replaceCantrip: 'Replace Cantrip',
+  add: 'Add',
+  noCantripsAvailable: 'No more cantrips available to learn.',
+
+  cast: 'Cast',
+  attack: 'Attack',
+  damage: 'Damage',
+  healing: 'Healing',
+  rollAttack: 'Roll Attack',
+  rollDamage: 'Roll Damage',
+  rollHealing: 'Roll Healing',
+  castAtLevel: 'Cast at {level}',
+  startConcentration: 'Start Concentration',
+  endConcentration: 'End Concentration',
+  concentrate: 'Concentrate',
+  stop: 'Stop',
+
+  learnSpell: 'Learn Spell',
+  unlearnSpell: 'Unlearn Spell',
+  prepareSpell: 'Prepare Spell',
+  unprepareSpell: 'Unprepare Spell',
+  learnCantripAction: 'Learn Cantrip',
+  unlearnCantripAction: 'Unlearn Cantrip',
+  alwaysPreparedLabel: 'Always Prepared',
+  manageSpell: 'Manage Spell',
+  addSpell: 'Add Spell',
+  preparedShort: 'Prep',
+
+  rollResult: 'Roll Result',
+
+  shortRest: 'Short',
+  longRest: 'Long',
+
+  switchCharacter: 'Switch character',
+  createCharacterAction: 'Create character',
+  addCharacter: 'Add character',
+
+  noPreparedSpells: 'No prepared spells. Open a spell and click "Prepare".',
+  noKnownSpells: 'No known spells yet. Open a spell and click "Learn".',
+  noSpellsFound: 'No spells found matching your criteria.',
+
+  forLabel: '{label} for',
+  addForLabel: 'Add {label} for',
+  unlearn: 'Unlearn',
+  unprepare: 'Unprepare',
+  learn: 'Learn',
+  prepare: 'Prepare',
+  none: 'None',
+};
+
+// Chinese (Simplified) translations
+export const zhCNTranslations: SpellbookTranslations = {
+  spells: '法术',
+  searchSpells: '搜索法术...',
+  clearSearch: '清除搜索',
+  allLevels: '全部',
+  cantrip: '戏法',
+  levelLabel: '等级',
+  ritual: '仪式',
+  concentration: '专注',
+  classes: '职业',
+  schools: '学派',
+  clearFilter: '清除筛选',
+  clearFilters: '清除 {count} 个筛选',
+
+  createCharacter: '创建你的英雄',
+  editCharacter: '编辑角色',
+  characterName: '角色名称',
+  characterNamePlaceholder: '例如：法师梅尔夫',
+  class: '职业',
+  level: '等级',
+  species: '种族',
+  background: '背景',
+  multiclass: '兼职',
+  addClass: '+ 添加职业',
+  abilityScores: '属性值',
+  summonHero: '召唤英雄',
+  saveChanges: '保存更改',
+  saving: '保存中...',
+  cancel: '取消',
+
+  openCharacterSheet: '打开角色表',
+  editCharacterStats: '编辑角色属性',
+  pactMagic: '契约魔法',
+  classSpellcasting: '职业施法',
+  combined: '合并',
+  concentrationBanner: '专注中',
+  alwaysPrepared: '始终准备',
+  preparationSlots: '准备槽位',
+  preparedSpells: '已准备法术',
+  knownCantrips: '戏法',
+  learnCantrip: '学习戏法',
+  replaceCantrip: '替换戏法',
+  add: '添加',
+  noCantripsAvailable: '没有更多可学习的戏法。',
+
+  cast: '施放',
+  attack: '攻击',
+  damage: '伤害',
+  healing: '治疗',
+  rollAttack: '掷攻击骰',
+  rollDamage: '掷伤害骰',
+  rollHealing: '掷治疗骰',
+  castAtLevel: '在{level}级施放',
+  startConcentration: '开始专注',
+  endConcentration: '结束专注',
+  concentrate: '专注',
+  stop: '停止',
+
+  learnSpell: '学习法术',
+  unlearnSpell: '遗忘法术',
+  prepareSpell: '准备法术',
+  unprepareSpell: '取消准备',
+  learnCantripAction: '学习戏法',
+  unlearnCantripAction: '遗忘戏法',
+  alwaysPreparedLabel: '始终准备',
+  manageSpell: '管理法术',
+  addSpell: '添加法术',
+  preparedShort: '准备',
+
+  rollResult: '掷骰结果',
+
+  shortRest: '短休',
+  longRest: '长休',
+
+  switchCharacter: '切换角色',
+  createCharacterAction: '创建角色',
+  addCharacter: '添加角色',
+
+  noPreparedSpells: '没有已准备的法术。打开一个法术并点击"准备"。',
+  noKnownSpells: '还没有已知的法术。打开一个法术并点击"学习"。',
+  noSpellsFound: '没有找到符合条件的法术。',
+
+  forLabel: '{label}用于',
+  addForLabel: '为{label}添加',
+  unlearn: '遗忘',
+  unprepare: '取消准备',
+  learn: '学习',
+  prepare: '准备',
+  none: '无',
+};
+
+// Context type
+interface SpellbookI18nContextType {
+  t: (key: keyof SpellbookTranslations, params?: Record<string, string | number>) => string;
+  locale: string;
+  setLocale: (locale: string) => void;
+  translations: SpellbookTranslations;
+}
+
+// Create context
+const SpellbookI18nContext = createContext<SpellbookI18nContextType | undefined>(undefined);
+
+// Provider component
+export function SpellbookI18nProvider({
+  children,
+  initialLocale = 'en',
+}: {
+  children: ReactNode;
+  initialLocale?: string;
+}) {
+  const [locale, setLocale] = useState(initialLocale);
+
+  const translations = locale === 'zh-CN' ? zhCNTranslations : enTranslations;
+
+  const t = useCallback(
+    (key: keyof SpellbookTranslations, params?: Record<string, string | number>): string => {
+      const value = translations[key];
+
+      if (!value) {
+        console.warn(`Translation key not found: ${key}`);
+        return key;
+      }
+
+      let result = value;
+
+      // Replace parameters in the string
+      if (params && typeof result === 'string') {
+        Object.entries(params).forEach(([paramKey, paramValue]) => {
+          result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
+        });
+      }
+
+      return result;
+    },
+    [translations],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      t,
+      locale,
+      setLocale,
+      translations,
+    }),
+    [t, locale, translations],
+  );
+
+  return (
+    <SpellbookI18nContext.Provider value={contextValue}>{children}</SpellbookI18nContext.Provider>
+  );
+}
+
+// Hook to use spellbook i18n
+export function useSpellbookI18n() {
+  const context = useContext(SpellbookI18nContext);
+  if (!context) {
+    throw new Error('useSpellbookI18n must be used within a SpellbookI18nProvider');
+  }
+  return context;
+}
+
+// Convenience hook for translation only
+export function useSpellbookTranslation() {
+  const { t } = useSpellbookI18n();
+  return t;
+}

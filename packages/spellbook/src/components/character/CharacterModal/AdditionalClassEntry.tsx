@@ -1,5 +1,14 @@
 import { X } from 'lucide-react';
-import { Button, Input, SelectContent, SelectItem, SelectRoot, SelectTrigger, Surface } from '@open20/ui';
+import {
+  Button,
+  Input,
+  SelectContent,
+  SelectItem,
+  SelectRoot,
+  SelectTrigger,
+  Surface,
+} from '@open20/ui';
+import { useSpellbookTranslation } from '@/i18n';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
 import { CLASSES } from './constants';
@@ -10,41 +19,44 @@ interface AdditionalClassEntryProps {
   onRemove: (id: string) => void;
 }
 
-export function AdditionalClassEntryComponent({ 
-  entry, 
-  onUpdate, 
-  onRemove 
+export function AdditionalClassEntryComponent({
+  entry,
+  onUpdate,
+  onRemove,
 }: AdditionalClassEntryProps) {
+  const t = useSpellbookTranslation();
   return (
     <Surface variant="ghost" padding="sm" className="space-y-2 bg-bg-primary/30">
       <div className="grid grid-cols-12 gap-2 items-end">
         <div className="col-span-7">
-          <SelectRoot 
-            value={entry.classId} 
+          <SelectRoot
+            value={entry.classId}
             onValueChange={(value) => onUpdate(entry.id, { classId: value, subclassId: undefined })}
           >
             <SelectTrigger />
             <SelectContent>
-              {CLASSES.map(c => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              {CLASSES.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </SelectRoot>
         </div>
         <div className="col-span-3">
-          <Input 
-            type="number" 
-            min={1} 
-            value={entry.level} 
+          <Input
+            type="number"
+            min={1}
+            value={entry.level}
             onChange={(e) => onUpdate(entry.id, { level: parseInt(e.target.value) || 1 })}
             className="h-8 px-2 py-1 text-xs"
           />
         </div>
         <div className="col-span-2">
-          <Button 
-            type="button" 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => onRemove(entry.id)}
             className="h-8 w-full text-danger hover:text-danger hover:bg-danger/10"
           >
@@ -52,12 +64,12 @@ export function AdditionalClassEntryComponent({
           </Button>
         </div>
       </div>
-      
-      <SubclassSelect 
+
+      <SubclassSelect
         classId={entry.classId}
         value={entry.subclassId ?? ''}
         onChange={(value) => onUpdate(entry.id, { subclassId: value || undefined })}
-        label="Subclass"
+        label={t('class')}
       />
     </Surface>
   );

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { SelectContent, SelectItem, SelectRoot, SelectTrigger, Text } from '@open20/ui';
+import { useSpellbookTranslation } from '@/i18n';
 import { dataLoader } from '@/core/data-loader';
 
 interface SubclassSelectProps {
@@ -10,6 +11,7 @@ interface SubclassSelectProps {
 }
 
 export function SubclassSelect({ classId, value, onChange, label }: SubclassSelectProps) {
+  const t = useSpellbookTranslation();
   const subclasses = useMemo(() => dataLoader.getSubclassesForClass(classId), [classId]);
 
   if (subclasses.length === 0) return null;
@@ -21,12 +23,12 @@ export function SubclassSelect({ classId, value, onChange, label }: SubclassSele
   return (
     <div>
       <Text as="label" variant="formLabel">
-        {label || 'Subclass'}
+        {label || t('class')}
       </Text>
       <SelectRoot value={selectValue} onValueChange={(val) => onChange(val === '_none' ? '' : val)}>
         <SelectTrigger />
         <SelectContent>
-          <SelectItem value="_none">None</SelectItem>
+          <SelectItem value="_none">{t('none')}</SelectItem>
           {subclasses.map((sub) => (
             <SelectItem key={sub.id} value={sub.id}>
               {sub.id} {/* Subclass doesn't have 'name' property, use id */}

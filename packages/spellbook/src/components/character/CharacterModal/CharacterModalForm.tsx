@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   Text,
 } from '@open20/ui';
+import { useSpellbookTranslation } from '@/i18n';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
@@ -40,6 +41,7 @@ export function CharacterModalForm({
   onSubmit,
   onCancel,
 }: CharacterModalFormProps) {
+  const t = useSpellbookTranslation();
   const handleAbilityChange = (abilityName: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -89,7 +91,7 @@ export function CharacterModalForm({
       <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="flex justify-between items-center mb-8">
           <DialogTitle className="text-2xl font-black text-text-primary uppercase tracking-tight">
-            {editingCharacter ? 'Edit Character' : 'Create Your Hero'}
+            {editingCharacter ? t('editCharacter') : t('createCharacter')}
           </DialogTitle>
           <DialogClose asChild>
             <Button variant="ghost" size="sm" className="p-2 rounded-full" disabled={isSubmitting}>
@@ -103,12 +105,12 @@ export function CharacterModalForm({
             <div className="space-y-6">
               <div>
                 <Text as="label" variant="formLabel">
-                  Character Name
+                  {t('characterName')}
                 </Text>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g. Melf the Archmage"
+                  placeholder={t('characterNamePlaceholder')}
                   required
                   className="text-lg font-medium"
                 />
@@ -117,7 +119,7 @@ export function CharacterModalForm({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Text as="label" variant="formLabel">
-                    Class
+                    {t('class')}
                   </Text>
                   <SelectRoot
                     value={formData.charClass}
@@ -137,7 +139,7 @@ export function CharacterModalForm({
                 </div>
                 <div>
                   <Text as="label" variant="formLabel">
-                    Level
+                    {t('level')}
                   </Text>
                   <Input
                     type="number"
@@ -160,7 +162,7 @@ export function CharacterModalForm({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Text as="label" variant="formLabel">
-                    Species
+                    {t('species')}
                   </Text>
                   <SelectRoot
                     value={formData.species}
@@ -178,7 +180,7 @@ export function CharacterModalForm({
                 </div>
                 <div>
                   <Text as="label" variant="formLabel">
-                    Background
+                    {t('background')}
                   </Text>
                   <SelectRoot
                     value={formData.background}
@@ -202,7 +204,7 @@ export function CharacterModalForm({
               <div className="pt-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <Text as="label" variant="labelSm" weight="black" className="tracking-[0.2em]">
-                    Multiclass
+                    {t('multiclass')}
                   </Text>
                   <Button
                     type="button"
@@ -211,7 +213,7 @@ export function CharacterModalForm({
                     onClick={handleAddAdditionalClass}
                     className="h-7 text-[9px]"
                   >
-                    + Add Class
+                    {t('addClass')}
                   </Button>
                 </div>
 
@@ -237,7 +239,7 @@ export function CharacterModalForm({
               disabled={isSubmitting}
               onClick={onCancel}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
@@ -245,7 +247,7 @@ export function CharacterModalForm({
               size="lg"
               disabled={!formData.name || isSubmitting}
             >
-              {isSubmitting ? 'Saving...' : editingCharacter ? 'Save Changes' : 'Summon Hero'}
+              {isSubmitting ? t('saving') : editingCharacter ? t('saveChanges') : t('summonHero')}
             </Button>
           </div>
         </form>

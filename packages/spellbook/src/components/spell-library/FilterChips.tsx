@@ -1,22 +1,42 @@
 import { useSpellStore } from '@/stores/spell-store';
 import { Button, FilterChip, Text } from '@open20/ui';
+import { useSpellbookTranslation } from '@/i18n';
 import { dataLoader } from '@/core/data-loader';
 
-const CLASSES = dataLoader.getAllClasses().filter(c => !!c.spellcasting).map(c => c.id);
-const SCHOOLS = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];
-
+const CLASSES = dataLoader
+  .getAllClasses()
+  .filter((c) => !!c.spellcasting)
+  .map((c) => c.id);
+const SCHOOLS = [
+  'Abjuration',
+  'Conjuration',
+  'Divination',
+  'Enchantment',
+  'Evocation',
+  'Illusion',
+  'Necromancy',
+  'Transmutation',
+];
 
 export function FilterChips() {
-  const { 
-    selectedClasses, toggleClassFilter,
-    selectedSchools, toggleSchoolFilter,
-    showRitualOnly, setShowRitualOnly,
-    showConcentrationOnly, setShowConcentrationOnly,
-    clearAllFilters
+  const t = useSpellbookTranslation();
+  const {
+    selectedClasses,
+    toggleClassFilter,
+    selectedSchools,
+    toggleSchoolFilter,
+    showRitualOnly,
+    setShowRitualOnly,
+    showConcentrationOnly,
+    setShowConcentrationOnly,
+    clearAllFilters,
   } = useSpellStore();
 
-  const activeFilterCount = selectedClasses.length + selectedSchools.length 
-    + (showRitualOnly ? 1 : 0) + (showConcentrationOnly ? 1 : 0);
+  const activeFilterCount =
+    selectedClasses.length +
+    selectedSchools.length +
+    (showRitualOnly ? 1 : 0) +
+    (showConcentrationOnly ? 1 : 0);
 
   return (
     <div className="py-2 space-y-3">
@@ -28,36 +48,46 @@ export function FilterChips() {
             onClick={clearAllFilters}
             className="text-text-secondary hover:text-danger"
           >
-            Clear{activeFilterCount > 1 ? ` ${activeFilterCount} filters` : ' filter'}
+            {activeFilterCount > 1
+              ? t('clearFilters', { count: activeFilterCount })
+              : t('clearFilter')}
           </Button>
         </div>
       )}
 
       <div>
         <div className="flex flex-wrap gap-2">
-          <FilterChip 
+          <FilterChip
             variant={showRitualOnly ? 'info' : 'secondary'}
             active={showRitualOnly}
             onPressedChange={(pressed) => setShowRitualOnly(pressed)}
           >
-            Ritual
+            {t('ritual')}
           </FilterChip>
-          <FilterChip 
+          <FilterChip
             variant={showConcentrationOnly ? 'warning' : 'secondary'}
             active={showConcentrationOnly}
             onPressedChange={(pressed) => setShowConcentrationOnly(pressed)}
           >
-            Concentration
+            {t('concentration')}
           </FilterChip>
         </div>
       </div>
 
       <div>
-        <Text as="h4" size="sm" weight="medium" color="tertiary" className="uppercase tracking-wider mb-1.5">Classes</Text>
+        <Text
+          as="h4"
+          size="sm"
+          weight="medium"
+          color="tertiary"
+          className="uppercase tracking-wider mb-1.5"
+        >
+          {t('classes')}
+        </Text>
         <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
           <div className="flex flex-wrap gap-1.5">
-            {CLASSES.map(cls => (
-              <FilterChip 
+            {CLASSES.map((cls) => (
+              <FilterChip
                 key={cls}
                 variant={selectedClasses.includes(cls) ? 'primary' : 'secondary'}
                 active={selectedClasses.includes(cls)}
@@ -72,11 +102,19 @@ export function FilterChips() {
       </div>
 
       <div>
-        <Text as="h4" size="sm" weight="medium" color="tertiary" className="uppercase tracking-wider mb-1.5">Schools</Text>
+        <Text
+          as="h4"
+          size="sm"
+          weight="medium"
+          color="tertiary"
+          className="uppercase tracking-wider mb-1.5"
+        >
+          {t('schools')}
+        </Text>
         <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
           <div className="flex flex-wrap gap-1.5">
-            {SCHOOLS.map(school => (
-              <FilterChip 
+            {SCHOOLS.map((school) => (
+              <FilterChip
                 key={school}
                 variant={selectedSchools.includes(school) ? 'primary' : 'secondary'}
                 active={selectedSchools.includes(school)}

@@ -18,6 +18,7 @@ export interface BaseTranslations {
     ritual: string;
     concentration: string;
     source: string;
+    none: string;
   };
 
   // Form validation messages
@@ -90,6 +91,7 @@ export const defaultTranslations: Translations = {
     ritual: 'Ritual',
     concentration: 'Concentration',
     source: 'Source',
+    none: 'None',
   },
 
   validation: {
@@ -152,6 +154,7 @@ export const zhCNTranslations: Translations = {
     ritual: '仪式',
     concentration: '专注',
     source: '来源',
+    none: '无',
   },
 
   validation: {
@@ -199,7 +202,7 @@ export const zhCNTranslations: Translations = {
 
 // Context type - supports generic translations for extensibility
 interface I18nContextType<T = BaseTranslations> {
-  t: (key: keyof T | string) => string;
+  t: (key: keyof T | string, params?: Record<string, string | number>) => string;
   locale: string;
   setLocale: (locale: string) => void;
   translations: T;
@@ -221,7 +224,7 @@ export function I18nProvider<T extends BaseTranslations = BaseTranslations>({
   const [locale, setLocale] = useState(initialLocale);
 
   const t = useCallback(
-    (key: string): string => {
+    (key: string, params?: Record<string, string | number>): string => {
       const keys = key.split('.');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let value: any = translations;
@@ -235,7 +238,16 @@ export function I18nProvider<T extends BaseTranslations = BaseTranslations>({
         }
       }
 
-      return typeof value === 'string' ? value : key;
+      let result = typeof value === 'string' ? value : key;
+
+      // Replace parameters in the string
+      if (params && typeof result === 'string') {
+        Object.entries(params).forEach(([paramKey, paramValue]) => {
+          result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
+        });
+      }
+
+      return result;
     },
     [translations],
   );

@@ -19,6 +19,7 @@ import {
 import { SpellSlots } from '@/components/spell-slots/SpellSlots';
 import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Plus, User, Moon, Sun, FileText, Users, ChevronRight } from 'lucide-react';
 
 const CLASS_NAME_MAP = Object.fromEntries(
@@ -168,6 +169,9 @@ export function CharacterBar() {
 
       {/* Right: less common actions */}
       <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* Theme Toggle */}
         <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
 

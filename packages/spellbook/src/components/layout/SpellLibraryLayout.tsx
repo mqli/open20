@@ -7,15 +7,20 @@ import { FilterChips } from '@/components/spell-library/FilterChips';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
 import { EmptyState, Surface, Toggle } from '@open20/ui';
+import { useSpellbookTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/character-store';
 import { getCasterType } from '@/core/character-service';
 import { CharacterBar } from '@/components/character/CharacterBar';
 
 export function SpellLibraryLayout() {
+  const t = useSpellbookTranslation();
   const {
-    setSpells, filteredSpells,
-    showPreparedOnly, setShowPreparedOnly,
-    showKnownOnly, setShowKnownOnly,
+    setSpells,
+    filteredSpells,
+    showPreparedOnly,
+    setShowPreparedOnly,
+    showKnownOnly,
+    setShowKnownOnly,
     selectSpell,
   } = useSpellStore();
   const { activeCharacter, loadCharacters } = useCharacterStore();
@@ -35,24 +40,28 @@ export function SpellLibraryLayout() {
     spellsToDisplay = [];
   } else if (showPreparedOnly && activeCharacter) {
     // Cantrips can't be "prepared" — exclude them from prepared filter
-    spellsToDisplay = filteredSpells.filter(s =>
-      s.level > 0 && spellService.isSpellPrepared(activeCharacter, s.id)
+    spellsToDisplay = filteredSpells.filter(
+      (s) => s.level > 0 && spellService.isSpellPrepared(activeCharacter, s.id),
     );
   } else if (showKnownOnly && activeCharacter) {
-    spellsToDisplay = filteredSpells.filter(s =>
-      spellService.isSpellForCharacter(activeCharacter, s) &&
-      spellService.isSpellKnown(activeCharacter, s.id)
+    spellsToDisplay = filteredSpells.filter(
+      (s) =>
+        spellService.isSpellForCharacter(activeCharacter, s) &&
+        spellService.isSpellKnown(activeCharacter, s.id),
     );
   }
 
-  const casterType = activeCharacter ? getCasterType(activeCharacter) : { canLearn: false, canPrepare: false };
+  const casterType = activeCharacter
+    ? getCasterType(activeCharacter)
+    : { canLearn: false, canPrepare: false };
   const activeFilter = showPreparedOnly ? 'prepared' : showKnownOnly ? 'known' : null;
 
-  const emptyMessage = activeFilter === 'prepared'
-    ? 'No prepared spells. Open a spell and click "Prepare".'
-    : activeFilter === 'known'
-    ? 'No known spells yet. Open a spell and click "Learn".'
-    : 'No spells found matching your criteria.';
+  const emptyMessage =
+    activeFilter === 'prepared'
+      ? t('noPreparedSpells')
+      : activeFilter === 'known'
+        ? t('noKnownSpells')
+        : t('noSpellsFound');
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
@@ -62,7 +71,7 @@ export function SpellLibraryLayout() {
       <Surface variant="default" className="rounded-none border-b px-3 md:px-4 py-2">
         {/* Row 1: title + search + filter toggles */}
         <div className="flex items-center gap-2 mb-1.5">
-          <h1 className="text-base font-bold text-text-primary whitespace-nowrap">Spells</h1>
+          <h1 className="text-base font-bold text-text-primary whitespace-nowrap">{t('spells')}</h1>
           <div className="flex-1 min-w-0">
             <SearchBar />
           </div>
@@ -74,7 +83,7 @@ export function SpellLibraryLayout() {
                 pressed={showKnownOnly}
                 onPressedChange={() => setShowKnownOnly(!showKnownOnly)}
               >
-                Known
+                {t('knownCantrips')}
               </Toggle>
             )}
             {casterType.canPrepare && (
@@ -84,7 +93,7 @@ export function SpellLibraryLayout() {
                 pressed={showPreparedOnly}
                 onPressedChange={() => setShowPreparedOnly(!showPreparedOnly)}
               >
-                Prep
+                {t('preparedShort')}
               </Toggle>
             )}
           </div>
@@ -99,7 +108,7 @@ export function SpellLibraryLayout() {
         <FilterChips />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
-          {spellsToDisplay.map(spell => (
+          {spellsToDisplay.map((spell) => (
             <SpellCardWrapper
               key={spell.id}
               spell={spell}
@@ -111,9 +120,7 @@ export function SpellLibraryLayout() {
           ))}
         </div>
 
-        {spellsToDisplay.length === 0 && (
-          <EmptyState title={emptyMessage} />
-        )}
+        {spellsToDisplay.length === 0 && <EmptyState title={emptyMessage} />}
       </main>
 
       <SpellDetailFlyout />
