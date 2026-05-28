@@ -21,6 +21,7 @@ import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Plus, User, Moon, Sun, FileText, Users, ChevronRight } from 'lucide-react';
+import { useSpellbookTranslation } from '@/i18n';
 
 const CLASS_NAME_MAP = Object.fromEntries(
   dataLoader.getAllClasses().map((c) => [c.id, c.name || c.id]),
@@ -34,6 +35,7 @@ function formatClassInfo(
 }
 
 export function CharacterBar() {
+  const t = useSpellbookTranslation();
   const {
     characters,
     activeCharacter,
@@ -96,7 +98,7 @@ export function CharacterBar() {
             onClick={() => setIsSheetOpen(true)}
             variant="ghost"
             className="flex items-center gap-1.5 flex-shrink-0 hover:bg-bg-tertiary rounded-md px-1.5 py-0.5 transition-colors cursor-pointer"
-            title="Open character sheet"
+            title={t('openCharacterSheet')}
           >
             <User className="w-3 h-3 text-primary-500" />
             <Text weight="bold" size="sm" color="primary" className="whitespace-nowrap">
@@ -180,7 +182,7 @@ export function CharacterBar() {
           <DropdownMenuTrigger asChild>
             <IconButton
               size="sm"
-              title={characters.length > 0 ? 'Switch character' : 'Create character'}
+              title={characters.length > 0 ? t('switchCharacter') : t('createCharacterAction')}
               className="text-text-tertiary hover:text-primary-600"
             >
               <Users />
@@ -217,7 +219,7 @@ export function CharacterBar() {
             )}
             <DropdownMenuItem onSelect={handleCreate}>
               <Plus className="w-3 h-3 mr-2" />
-              Add character
+              {t('addCharacter')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenuRoot>
@@ -231,7 +233,7 @@ export function CharacterBar() {
         >
           <Sun className="w-3.5 h-3.5 md:mr-1" />
           <Text size="sm" className="hidden md:inline">
-            Short
+            {t('shortRest')}
           </Text>
         </Button>
 
@@ -244,7 +246,7 @@ export function CharacterBar() {
         >
           <Moon className="w-3.5 h-3.5 md:mr-1" />
           <Text size="sm" className="hidden md:inline">
-            Long
+            {t('longRest')}
           </Text>
         </Button>
       </div>

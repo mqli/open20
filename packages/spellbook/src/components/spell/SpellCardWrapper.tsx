@@ -1,31 +1,27 @@
-import {
-  canUpcast,
-  defaultRandom,
-  rollDiceExpression,
-  type Spell,
-} from "open20-core";
-import type { SpellLevel } from "open20-core/types";
-import type { ComponentProps, ReactNode } from "react";
-import { useState, useMemo } from "react";
-import { SpellCard as SpellCardUI } from "@open20/ui";
-import { characterService } from "@/core/character-service";
-import { useSpellCapabilities } from "@/hooks/useSpellCapabilities";
-import { useCharacterStore } from "@/stores/character-store";
-import { useRollStore } from "@/stores/roll-store";
-import { renderInlineMarkdown } from "@/utils/inline-markdown";
-import { ConcentrationToggle } from "./ConcentrationToggle";
-import { SpellActionRow } from "./SpellActionRow";
-import { SpellbookControls } from "./SpellbookControls";
-import { SpellStatusBadges } from "./SpellStatusBadges";
+import { canUpcast, defaultRandom, rollDiceExpression, type Spell } from 'open20-core';
+import type { SpellLevel } from 'open20-core/types';
+import type { ComponentProps, ReactNode } from 'react';
+import { useState, useMemo } from 'react';
+import { SpellCard as SpellCardUI } from '@open20/ui';
+import { characterService } from '@/core/character-service';
+import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
+import { useCharacterStore } from '@/stores/character-store';
+import { useRollStore } from '@/stores/roll-store';
+import { renderInlineMarkdown } from '@/utils/inline-markdown';
+import { ConcentrationToggle } from './ConcentrationToggle';
+import { SpellActionRow } from './SpellActionRow';
+import { SpellbookControls } from './SpellbookControls';
+import { SpellStatusBadges } from './SpellStatusBadges';
+import { useSpellbookTranslation } from '@/i18n';
 
-type SpellCardDensity = "default" | "compact";
-type SpellActionStyle = "button" | "icon";
+type SpellCardDensity = 'default' | 'compact';
+type SpellActionStyle = 'button' | 'icon';
 
 interface SpellCardWrapperProps {
   spell: Spell;
   density?: SpellCardDensity;
   showDescription?: boolean;
-  surfaceVariant?: ComponentProps<typeof SpellCardUI>["surfaceVariant"];
+  surfaceVariant?: ComponentProps<typeof SpellCardUI>['surfaceVariant'];
   glow?: boolean;
   onClick?: () => void;
   renderBadges?: () => ReactNode;
@@ -54,8 +50,9 @@ export function SpellCardWrapper({
   showConcentrationAction = false,
   showSpellbookActions = false,
   showSpellbookBadges = false,
-  actionStyle = "button",
+  actionStyle = 'button',
 }: SpellCardWrapperProps) {
+  const t = useSpellbookTranslation();
   const {
     activeCharacter,
     castSpell,
@@ -88,21 +85,20 @@ export function SpellCardWrapper({
 
   const damageEntries = spell.damage?.entries ?? [];
   const healDice = spell.heal?.dice;
-  const isIconStyle = actionStyle === "icon";
+  const isIconStyle = actionStyle === 'icon';
   const hasDamageEntries = damageEntries.length > 0;
   const hasHealEntry = !!healDice;
   const canShowConcentrationAction =
     showConcentrationAction && spell.concentration && !!activeCharacter;
-  const shouldUseSpellbookStateStyling =
-    showSpellbookActions || showSpellbookBadges;
+  const shouldUseSpellbookStateStyling = showSpellbookActions || showSpellbookBadges;
 
   const spellbookSurfaceVariant = isConcentratingOnThis
-    ? "warning"
+    ? 'warning'
     : isPrepared
-      ? "selected"
+      ? 'selected'
       : isKnown || isCantripKnown
-        ? "info"
-        : "default";
+        ? 'info'
+        : 'default';
 
   const hasSharedActions =
     showSpellbookActions ||
@@ -135,11 +131,7 @@ export function SpellCardWrapper({
         levels.push(slotLevel);
         continue;
       }
-      if (
-        pactSlots &&
-        pactSlots.used < pactSlots.total &&
-        lvl <= pactSlots.level
-      ) {
+      if (pactSlots && pactSlots.used < pactSlots.total && lvl <= pactSlots.level) {
         levels.push(slotLevel);
       }
     }
@@ -149,8 +141,7 @@ export function SpellCardWrapper({
 
   const effectiveCastLevel = useMemo<SpellLevel>(() => {
     if (spell.level === 0) return 0 as SpellLevel;
-    if (availableCastLevels.includes(selectedCastLevel))
-      return selectedCastLevel;
+    if (availableCastLevels.includes(selectedCastLevel)) return selectedCastLevel;
     return availableCastLevels[0] ?? (spell.level as SpellLevel);
   }, [selectedCastLevel, availableCastLevels, spell.level]);
 
@@ -171,8 +162,7 @@ export function SpellCardWrapper({
   const effectiveDamageEntries = useMemo(() => {
     const entries = spell.damage?.entries ?? [];
     const perSlot = spell.damage?.perSlot;
-    if (!perSlot || perSlot.length === 0 || effectiveCastLevel <= spell.level)
-      return entries;
+    if (!perSlot || perSlot.length === 0 || effectiveCastLevel <= spell.level) return entries;
 
     const numLevels = effectiveCastLevel - spell.level;
     return entries.map((entry, i) => {
@@ -200,17 +190,14 @@ export function SpellCardWrapper({
 
   const handleAttackRoll = () => {
     if (!activeCharacter) {
-      const result = rollDiceExpression(defaultRandom, "1d20 + 0");
-      addRoll({ label: "Attack", expression: "1d20 + 0", total: result.total });
+      const result = rollDiceExpression(defaultRandom, '1d20 + 0');
+      addRoll({ label: t('attack'), expression: '1d20 + 0', total: result.total });
       return;
     }
 
-    const result = characterService.rollSpellAttack(
-      activeCharacter,
-      spell.name,
-    );
+    const result = characterService.rollSpellAttack(activeCharacter, spell.name);
     addRoll({
-      label: "Spell Attack",
+      label: t('spellAttack'),
       expression: `d20 (${result.rawRoll}) + ${result.bonus}`,
       total: result.total,
     });
@@ -219,22 +206,18 @@ export function SpellCardWrapper({
   const handleDamageRoll = (index: number) => {
     if (!hasDamageEntries) return;
 
-    const result = characterService.rollSpellDamage(
-      spell.id,
-      index,
-      effectiveCastLevel,
-    );
+    const result = characterService.rollSpellDamage(spell.id, index, effectiveCastLevel);
     const diceExpr = result.entries
-      .map((entry) => `${entry.results.join("+")} (${entry.type})`)
-      .join(" + ");
+      .map((entry) => `${entry.results.join('+')} (${entry.type})`)
+      .join(' + ');
     const modExpr =
       result.modifiers.length > 0
         ? ` + ${result.modifiers.reduce((sum, modifier) => sum + modifier.value, 0)}`
-        : "";
+        : '';
     const damageType = damageEntries[index]?.type;
 
     addRoll({
-      label: damageType ? `${damageType} Damage` : "Damage",
+      label: damageType ? t('rollDamageOfType', { type: damageType }) : t('damageRoll'),
       expression: `${diceExpr}${modExpr}`,
       total: result.total,
     });
@@ -245,7 +228,7 @@ export function SpellCardWrapper({
 
     const result = rollDiceExpression(defaultRandom, healDice);
     addRoll({
-      label: "Healing",
+      label: t('healingRoll'),
       expression: healDice,
       total: result.total,
     });
@@ -319,8 +302,7 @@ export function SpellCardWrapper({
       density={density}
       showDescription={showDescription}
       surfaceVariant={
-        surfaceVariant ??
-        (shouldUseSpellbookStateStyling ? spellbookSurfaceVariant : undefined)
+        surfaceVariant ?? (shouldUseSpellbookStateStyling ? spellbookSurfaceVariant : undefined)
       }
       glow={glow ?? (shouldUseSpellbookStateStyling ? isPrepared : undefined)}
       onClick={onClick ? () => onClick() : undefined}

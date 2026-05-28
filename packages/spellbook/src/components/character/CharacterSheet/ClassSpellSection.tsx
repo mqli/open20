@@ -20,6 +20,7 @@ import { useSpellStore } from '@/stores/spell-store';
 import type { SpellLevel, Spell } from 'open20-core/types';
 import { SpellEntry } from './SpellEntry';
 import { useState, type ReactNode } from 'react';
+import { useSpellbookTranslation } from '@/i18n';
 
 function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
@@ -40,16 +41,16 @@ function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?
 }
 
 const SPELL_LEVEL_LABELS = [
-  'Cantrip',
-  '1st',
-  '2nd',
-  '3rd',
-  '4th',
-  '5th',
-  '6th',
-  '7th',
-  '8th',
-  '9th',
+  'cantripLevel',
+  'firstLevel',
+  'secondLevel',
+  'thirdLevel',
+  'fourthLevel',
+  'fifthLevel',
+  'sixthLevel',
+  'seventhLevel',
+  'eighthLevel',
+  'ninthLevel',
 ];
 
 interface ClassSpellSectionProps {
@@ -57,6 +58,7 @@ interface ClassSpellSectionProps {
 }
 
 export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
+  const t = useSpellbookTranslation();
   const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
@@ -132,12 +134,12 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
         {/* Class Stats */}
         <div className="grid grid-cols-3 gap-2">
           <StatTile
-            label="Ability"
+            label={t('ability')}
             value={ability.substring(0, 3)}
             sub={`${abilityMod >= 0 ? '+' : ''}${abilityMod}`}
           />
-          <StatTile label="Save DC" value={spellSaveDC} />
-          <StatTile label="Attack" value={`+${spellAttack}`} />
+          <StatTile label={t('saveDC')} value={spellSaveDC} />
+          <StatTile label={t('attackBonus')} value={`+${spellAttack}`} />
         </div>
 
         <Divider />
@@ -146,7 +148,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
         {casterType.canPrepare && maxPrepared != null && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Text variant="label">Preparation Slots</Text>
+              <Text variant="label">{t('preparationSlots')}</Text>
               <Text weight="bold" size="sm" color="accent">
                 {prepared.length}/{maxPrepared}
               </Text>
@@ -165,7 +167,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
         {/* Prepared Spells Count */}
         {casterType.isSpellbookCaster && (
           <div className="text-[10px] text-text-tertiary">
-            Prepared Spells:{' '}
+            {t('preparedSpellsCount')}:{' '}
             <Text weight="bold" className="text-info">
               {inventorySpells.filter((s) => s.level > 0).length}
             </Text>
@@ -177,7 +179,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
           <div>
             <Text as="div" variant="label" className="mb-2 flex items-center gap-1">
               <DefenseIcon className="w-2.5 h-2.5 text-info" />
-              Always Prepared
+              {t('alwaysPreparedSpells')}
             </Text>
             <div className="flex flex-wrap gap-1">
               {alwaysPrepared.map((spellId) => {
@@ -203,7 +205,8 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
         <div>
           <div className="flex items-center justify-between mb-2">
             <Text as="div" variant="label">
-              Cantrips ({classData.knownCantrips.length}/{classData.maxCantripsKnown})
+              {t('knownCantripsCount')} ({classData.knownCantrips.length}/
+              {classData.maxCantripsKnown})
             </Text>
             {classData.knownCantrips.length < classData.maxCantripsKnown && (
               <Button
@@ -213,7 +216,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
                 className="h-5 px-1 text-[10px]"
               >
                 <Plus className="w-3 h-3 mr-0.5" />
-                Add
+                {t('add')}
               </Button>
             )}
           </div>
@@ -241,7 +244,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
           <DialogContent size="sm">
             <div className="flex justify-between items-center mb-4">
               <DialogTitle className="text-lg font-bold">
-                {cantripToReplace ? 'Replace Cantrip' : 'Learn Cantrip'}
+                {cantripToReplace ? t('replaceCantrip') : t('learnCantrip')}
               </DialogTitle>
               <DialogClose asChild>
                 <Button variant="ghost" size="sm" className="p-1">
@@ -265,7 +268,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
               ))}
               {getAvailableCantrips().length === 0 && (
                 <Text variant="caption" className="text-text-tertiary">
-                  No more cantrips available to learn.
+                  {t('noCantripsAvailable')}
                 </Text>
               )}
             </div>
@@ -283,7 +286,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
               <div key={level} className="space-y-1">
                 <div className="flex items-center justify-between px-1">
                   <Text as="div" variant="label" className="text-[8px]">
-                    {SPELL_LEVEL_LABELS[lvl]}
+                    {t(SPELL_LEVEL_LABELS[lvl] as keyof typeof t)}
                   </Text>
                   {hasSlot && (
                     <div className="flex items-center gap-2">

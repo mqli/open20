@@ -1,6 +1,7 @@
 import { IconButton } from '@open20/ui';
 import { PrepareSpellIcon, KnownSpellIcon } from '@open20/ui';
 import { ClassActionDropdown } from './ClassActionDropdown';
+import { useSpellbookTranslation } from '@/i18n';
 
 interface SpellbookControlsProps {
   showCantripButton: boolean;
@@ -37,14 +38,15 @@ export function SpellbookControls({
   onPrepareMultiToggle,
   onPrepareSingleClick,
 }: SpellbookControlsProps) {
+  const t = useSpellbookTranslation();
   return (
     <>
-      {showCantripButton && (
-        matchingClassIds.length > 1 ? (
+      {showCantripButton &&
+        (matchingClassIds.length > 1 ? (
           <ClassActionDropdown
             matchingClassIds={matchingClassIds}
             activeClassIds={cantripKnownClassIds}
-            label="Cantrip"
+            label={t('cantrip')}
             onToggle={onCantripMultiToggle}
           />
         ) : (
@@ -52,31 +54,30 @@ export function SpellbookControls({
             variant="info"
             active={isCantripKnown}
             onClick={onCantripSingleClick}
-            title={isCantripKnown ? 'Unlearn Cantrip' : 'Learn Cantrip'}
+            title={isCantripKnown ? t('unlearnCantripAction') : t('learnCantripAction')}
           >
             <PrepareSpellIcon />
           </IconButton>
-        )
-      )}
+        ))}
 
       {showLearnButton && (
         <IconButton
           variant="info"
           active={isKnown}
           onClick={onLearnToggle}
-          title={isKnown ? 'Unlearn Spell' : 'Learn Spell'}
+          title={isKnown ? t('unlearnSpell') : t('learnSpell')}
         >
           <PrepareSpellIcon />
         </IconButton>
       )}
 
-      {showPrepareButton && (
-        matchingClassIds.length > 1 ? (
+      {showPrepareButton &&
+        (matchingClassIds.length > 1 ? (
           <ClassActionDropdown
             matchingClassIds={matchingClassIds}
             activeClassIds={preparedClassIds}
             disabledActiveClassIds={alwaysPreparedClassIds}
-            label="Spell"
+            label={t('spells')}
             onToggle={onPrepareMultiToggle}
             variant="primary"
             active={isPrepared}
@@ -86,22 +87,22 @@ export function SpellbookControls({
             variant="primary"
             active={isPrepared}
             disabled={
-              matchingClassIds.length === 1
-                && alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
+              matchingClassIds.length === 1 &&
+              alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
             }
             onClick={onPrepareSingleClick}
             title={
-              matchingClassIds.length === 1 && alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
-                ? 'Always Prepared'
+              matchingClassIds.length === 1 &&
+              alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
+                ? t('alwaysPreparedLabel')
                 : isPrepared
-                  ? 'Unprepare Spell'
-                  : 'Prepare Spell'
+                  ? t('unprepareSpell')
+                  : t('prepareSpell')
             }
           >
             <KnownSpellIcon className={isPrepared ? 'fill-current' : ''} />
           </IconButton>
-        )
-      )}
+        ))}
     </>
   );
 }

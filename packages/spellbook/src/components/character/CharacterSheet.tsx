@@ -16,18 +16,19 @@ import {
 import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
+import { useSpellbookTranslation } from '@/i18n';
 
 const SPELL_LEVEL_LABELS = [
-  'Cantrip',
-  '1st',
-  '2nd',
-  '3rd',
-  '4th',
-  '5th',
-  '6th',
-  '7th',
-  '8th',
-  '9th',
+  'cantripLevel',
+  'firstLevel',
+  'secondLevel',
+  'thirdLevel',
+  'fourthLevel',
+  'fifthLevel',
+  'sixthLevel',
+  'seventhLevel',
+  'eighthLevel',
+  'ninthLevel',
 ];
 
 interface ConcentrationCondition {
@@ -44,6 +45,7 @@ export function CharacterSheet({
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
 }) {
+  const t = useSpellbookTranslation();
   const { activeCharacter, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
 
   if (!activeCharacter) return null;
@@ -85,7 +87,7 @@ export function CharacterSheet({
               size="sm"
               onClick={onEdit}
               className="p-2 text-text-tertiary hover:text-primary-600"
-              title="Edit character"
+              title={t('editCharacterStats')}
             >
               <Pencil className="w-4 h-4" />
             </Button>
@@ -110,10 +112,10 @@ export function CharacterSheet({
           {/* Pact Magic Slots - shown separately */}
           {spells.pactMagicSlots && (
             <section>
-              <SectionHeader title="Pact Magic" />
+              <SectionHeader title={t('pactMagicSlots')} />
               <div className="flex items-center gap-3">
                 <Text variant="label" className="w-10 flex-shrink-0">
-                  Pact {SPELL_LEVEL_LABELS[spells.pactMagicSlots.level]}
+                  Pact {t(SPELL_LEVEL_LABELS[spells.pactMagicSlots.level] as keyof typeof t)}
                 </Text>
                 <SlotPips
                   total={spells.pactMagicSlots.total}
@@ -133,7 +135,7 @@ export function CharacterSheet({
           {/* Per-Class Spellcasting Sections */}
           {spellcastingClasses.length > 0 && (
             <section>
-              <SectionHeader title="Class Spellcasting" />
+              <SectionHeader title={t('classSpellcastingStats')} />
               <Tabs.Root defaultValue={classTabEntries[0]?.tabValue}>
                 <Tabs.List variant="pills" className="mb-3">
                   {classTabEntries.map((spellcastingClass) => (
@@ -169,7 +171,7 @@ export function CharacterSheet({
             className="w-full bg-bg-tertiary hover:bg-primary-50 text-text-secondary hover:text-primary-600 rounded-2xl py-3"
           >
             <Pencil className="w-4 h-4 mr-2" />
-            Edit Character Stats
+            {t('editCharacterStats')}
           </Button>
         </div>
       </SheetContent>

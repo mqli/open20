@@ -1,16 +1,22 @@
 import type { Spell } from 'open20-core';
-import {
-  DamageIcon,
-  HealIcon,
-  MagicIcon,
-  AttackIcon,
-  CastSpellIcon,
-} from '@open20/ui';
+import { DamageIcon, HealIcon, MagicIcon, AttackIcon, CastSpellIcon } from '@open20/ui';
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Button } from '@open20/ui';
 import { CastLevelSelect } from './CastLevelSelect';
+import { useSpellbookTranslation } from '@/i18n';
 
-const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
+const SPELL_LEVEL_LABELS = [
+  'cantripLevel',
+  'firstLevel',
+  'secondLevel',
+  'thirdLevel',
+  'fourthLevel',
+  'fifthLevel',
+  'sixthLevel',
+  'seventhLevel',
+  'eighthLevel',
+  'ninthLevel',
+];
 
 interface DamageEntry {
   readonly dice: string;
@@ -60,20 +66,23 @@ export function SpellActionRow({
   onDamageRoll,
   onHealRoll,
 }: SpellActionRowProps) {
-  const showsUpcastSelect = spell.level > 0 && availableCastLevels.length > 1 && (showCastAction || showDamageActions);
-  const showsStaticLevel = spell.level > 0 && availableCastLevels.length === 1 && (showCastAction || showDamageActions);
+  const t = useSpellbookTranslation();
+  const showsUpcastSelect =
+    spell.level > 0 && availableCastLevels.length > 1 && (showCastAction || showDamageActions);
+  const showsStaticLevel =
+    spell.level > 0 && availableCastLevels.length === 1 && (showCastAction || showDamageActions);
   const staticLevelSlot = spellSlots?.[effectiveCastLevel];
   const staticLevelRemaining = staticLevelSlot ? staticLevelSlot.total - staticLevelSlot.used : 0;
 
   return (
     <div className="flex items-center gap-1.5 shrink-0">
-      {showCastAction && (
-        isIconStyle ? (
+      {showCastAction &&
+        (isIconStyle ? (
           <Button
             variant="ghost"
             size="sm"
             onClick={onCast}
-            title={`Cast at ${SPELL_LEVEL_LABELS[effectiveCastLevel]}`}
+            title={`${t('cast')} ${t(SPELL_LEVEL_LABELS[effectiveCastLevel] as keyof typeof t)}`}
             disabled={!availableCastLevels.includes(effectiveCastLevel)}
             className="p-1.5"
           >
@@ -87,10 +96,9 @@ export function SpellActionRow({
             disabled={!availableCastLevels.includes(effectiveCastLevel)}
           >
             <MagicIcon size="xs" className="mr-1" />
-            Cast
+            {t('cast')}
           </Button>
-        )
-      )}
+        ))}
 
       {showsUpcastSelect ? (
         <CastLevelSelect
@@ -98,45 +106,46 @@ export function SpellActionRow({
           onCastLevelChange={onCastLevelChange}
           availableCastLevels={availableCastLevels}
           spellSlots={spellSlots}
-          className={isIconStyle
-            ? 'h-5 px-1 text-[10px] border-0 bg-transparent hover:bg-bg-secondary w-auto'
-            : 'h-auto py-1 px-2 border-input bg-background hover:bg-accent text-sm w-auto'
+          className={
+            isIconStyle
+              ? 'h-5 px-1 text-[10px] border-0 bg-transparent hover:bg-bg-secondary w-auto'
+              : 'h-auto py-1 px-2 border-input bg-background hover:bg-accent text-sm w-auto'
           }
         />
       ) : showsStaticLevel ? (
-        <span className={isIconStyle
-          ? 'h-5 px-1 text-[10px] w-auto inline-flex items-center text-text-muted'
-          : 'h-auto py-1 px-2 text-sm w-auto inline-flex items-center text-text-muted'
-        }>
-          {SPELL_LEVEL_LABELS[effectiveCastLevel]} ({staticLevelRemaining})
+        <span
+          className={
+            isIconStyle
+              ? 'h-5 px-1 text-[10px] w-auto inline-flex items-center text-text-muted'
+              : 'h-auto py-1 px-2 text-sm w-auto inline-flex items-center text-text-muted'
+          }
+        >
+          {t(SPELL_LEVEL_LABELS[effectiveCastLevel] as keyof typeof t)} ({staticLevelRemaining})
         </span>
       ) : null}
 
-      {showAttackAction && spell.attack && (
-        isIconStyle ? (
+      {showAttackAction &&
+        spell.attack &&
+        (isIconStyle ? (
           <Button
             variant="ghost"
             size="sm"
             onClick={onAttackRoll}
-            title="Roll Attack"
+            title={t('rollAttack')}
             className="p-1.5"
           >
             <AttackIcon size="xs" />
           </Button>
         ) : (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onAttackRoll}
-          >
+          <Button variant="secondary" size="sm" onClick={onAttackRoll}>
             <AttackIcon size="sm" className="mr-1.5" />
-            Attack {spellAttackBonus >= 0 ? `+${spellAttackBonus}` : spellAttackBonus}
+            {t('attack')} {spellAttackBonus >= 0 ? `+${spellAttackBonus}` : spellAttackBonus}
           </Button>
-        )
-      )}
+        ))}
 
-      {showDamageActions && (hasDamageEntries || hasHealEntry) && (
-        isIconStyle ? (
+      {showDamageActions &&
+        (hasDamageEntries || hasHealEntry) &&
+        (isIconStyle ? (
           <>
             {hasDamageEntries && (
               <>
@@ -144,7 +153,7 @@ export function SpellActionRow({
                   variant="ghost"
                   size="sm"
                   onClick={() => onDamageRoll(0)}
-                  title="Roll Damage"
+                  title={t('rollDamage')}
                   className="p-1.5"
                 >
                   <DamageIcon size="xs" />
@@ -155,7 +164,7 @@ export function SpellActionRow({
                     variant="ghost"
                     size="sm"
                     onClick={() => onDamageRoll(index + 1)}
-                    title={`Roll ${entry.dice} ${entry.type} Damage`}
+                    title={t('rollDamageOfType', { type: entry.type ?? '' })}
                     className="p-1.5 text-[10px] font-bold"
                   >
                     {entry.dice}
@@ -168,7 +177,11 @@ export function SpellActionRow({
                 variant="ghost"
                 size="sm"
                 onClick={onHealRoll}
-                title={healDice ? `Roll ${healDice} Healing` : 'Roll Healing'}
+                title={
+                  healDice
+                    ? `${t('rollDamageOfType', { type: t('healingRoll') })} ${healDice}`
+                    : t('rollHealing')
+                }
                 className="p-1.5"
               >
                 <HealIcon size="xs" />
@@ -177,29 +190,25 @@ export function SpellActionRow({
           </>
         ) : (
           <>
-            {hasDamageEntries && effectiveDamageEntries.map((entry, index) => (
-              <Button
-                key={`${entry.dice}-${entry.type ?? 'none'}-${index}`}
-                variant="outline"
-                size="sm"
-                onClick={() => onDamageRoll(index)}
-              >
-                {entry.dice} {entry.type}
-              </Button>
-            ))}
+            {hasDamageEntries &&
+              effectiveDamageEntries.map((entry, index) => (
+                <Button
+                  key={`${entry.dice}-${entry.type ?? 'none'}-${index}`}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDamageRoll(index)}
+                >
+                  {entry.dice} {entry.type}
+                </Button>
+              ))}
             {hasHealEntry && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onHealRoll}
-              >
+              <Button variant="outline" size="sm" onClick={onHealRoll}>
                 <HealIcon size="sm" className="mr-1.5" />
-                {healDice ? `${healDice} Heal` : 'Heal'}
+                {healDice ? `${healDice} ${t('healing')}` : t('healing')}
               </Button>
             )}
           </>
-        )
-      )}
+        ))}
     </div>
   );
 }

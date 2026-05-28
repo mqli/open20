@@ -100,6 +100,40 @@ export interface SpellbookTranslations {
   learn: string;
   prepare: string;
   none: string;
+
+  // Spell levels
+  cantripLevel: string;
+  firstLevel: string;
+  secondLevel: string;
+  thirdLevel: string;
+  fourthLevel: string;
+  fifthLevel: string;
+  sixthLevel: string;
+  seventhLevel: string;
+  eighthLevel: string;
+  ninthLevel: string;
+
+  // Character sheet stats
+  ability: string;
+  saveDC: string;
+  attackBonus: string;
+  pactMagicSlots: string;
+  classSpellcastingStats: string;
+  knownCantripsCount: string;
+  alwaysPreparedSpells: string;
+  preparedSpellsCount: string;
+
+  // Dice rolling labels
+  spellAttack: string;
+  damageRoll: string;
+  healingRoll: string;
+  rollDamageOfType: string;
+
+  // Language switcher
+  switchToChinese: string;
+  switchToEnglish: string;
+  chineseShort: string;
+  englishShort: string;
 }
 
 // English translations
@@ -192,6 +226,40 @@ export const enTranslations: SpellbookTranslations = {
   learn: 'Learn',
   prepare: 'Prepare',
   none: 'None',
+
+  // Spell levels
+  cantripLevel: 'Cantrip',
+  firstLevel: '1st',
+  secondLevel: '2nd',
+  thirdLevel: '3rd',
+  fourthLevel: '4th',
+  fifthLevel: '5th',
+  sixthLevel: '6th',
+  seventhLevel: '7th',
+  eighthLevel: '8th',
+  ninthLevel: '9th',
+
+  // Character sheet stats
+  ability: 'Ability',
+  saveDC: 'Save DC',
+  attackBonus: 'Attack',
+  pactMagicSlots: 'Pact Magic',
+  classSpellcastingStats: 'Class Spellcasting',
+  knownCantripsCount: 'Cantrips',
+  alwaysPreparedSpells: 'Always Prepared',
+  preparedSpellsCount: 'Prepared Spells',
+
+  // Dice rolling labels
+  spellAttack: 'Spell Attack',
+  damageRoll: 'Damage',
+  healingRoll: 'Healing',
+  rollDamageOfType: '{type} Damage',
+
+  // Language switcher
+  switchToChinese: 'Switch to Chinese',
+  switchToEnglish: '切换到英文',
+  chineseShort: '中文',
+  englishShort: 'EN',
 };
 
 // Chinese (Simplified) translations
@@ -284,6 +352,40 @@ export const zhCNTranslations: SpellbookTranslations = {
   learn: '学习',
   prepare: '准备',
   none: '无',
+
+  // Spell levels
+  cantripLevel: '戏法',
+  firstLevel: '1环',
+  secondLevel: '2环',
+  thirdLevel: '3环',
+  fourthLevel: '4环',
+  fifthLevel: '5环',
+  sixthLevel: '6环',
+  seventhLevel: '7环',
+  eighthLevel: '8环',
+  ninthLevel: '9环',
+
+  // Character sheet stats
+  ability: '属性',
+  saveDC: '豁免DC',
+  attackBonus: '攻击',
+  pactMagicSlots: '契约魔法',
+  classSpellcastingStats: '职业施法',
+  knownCantripsCount: '戏法',
+  alwaysPreparedSpells: '始终准备',
+  preparedSpellsCount: '已准备法术',
+
+  // Dice rolling labels
+  spellAttack: '法术攻击',
+  damageRoll: '伤害',
+  healingRoll: '治疗',
+  rollDamageOfType: '{type}伤害',
+
+  // Language switcher
+  switchToChinese: '切换到中文',
+  switchToEnglish: 'Switch to English',
+  chineseShort: '中文',
+  englishShort: 'EN',
 };
 
 // Context type

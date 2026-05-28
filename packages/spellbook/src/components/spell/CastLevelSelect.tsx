@@ -1,7 +1,19 @@
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Select } from '@open20/ui';
+import { useSpellbookTranslation } from '@/i18n';
 
-const SPELL_LEVEL_LABELS = ['Cantrip', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
+const SPELL_LEVEL_LABELS = [
+  'cantripLevel',
+  'firstLevel',
+  'secondLevel',
+  'thirdLevel',
+  'fourthLevel',
+  'fifthLevel',
+  'sixthLevel',
+  'seventhLevel',
+  'eighthLevel',
+  'ninthLevel',
+];
 
 interface CastLevelSelectProps {
   selectedCastLevel: SpellLevel;
@@ -18,6 +30,7 @@ export function CastLevelSelect({
   spellSlots,
   className,
 }: CastLevelSelectProps) {
+  const t = useSpellbookTranslation();
   return (
     <Select.Root
       value={String(selectedCastLevel)}
@@ -30,7 +43,7 @@ export function CastLevelSelect({
           const remaining = slot ? slot.total - slot.used : 0;
           return (
             <Select.Item key={lvl} value={String(lvl)}>
-              {SPELL_LEVEL_LABELS[lvl]} ({remaining})
+              {t(SPELL_LEVEL_LABELS[lvl] as keyof typeof t)} ({remaining})
             </Select.Item>
           );
         })}

@@ -3,29 +3,25 @@ import { useSpellStore } from '@/stores/spell-store';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import type { Spell } from '@/core/types';
+import { useSpellbookTranslation } from '@/i18n';
 
 interface SpellEntryProps {
   spell: Spell;
   alwaysPrepared: string[];
 }
 
-export function SpellEntry({
-  spell, alwaysPrepared,
-}: SpellEntryProps) {
+export function SpellEntry({ spell, alwaysPrepared }: SpellEntryProps) {
+  const t = useSpellbookTranslation();
   const isAlwaysPrepared = alwaysPrepared.includes(spell.id);
   const { isConcentratingOnThis } = useSpellCapabilities(spell);
 
-  const selectSpell = useSpellStore(s => s.selectSpell);
+  const selectSpell = useSpellStore((s) => s.selectSpell);
 
   const handleOpenSpell = () => {
     selectSpell(spell);
   };
 
-  const surfaceVariant = isConcentratingOnThis
-    ? 'warning'
-    : isAlwaysPrepared
-      ? 'info'
-      : 'default';
+  const surfaceVariant = isConcentratingOnThis ? 'warning' : isAlwaysPrepared ? 'info' : 'default';
 
   return (
     <SpellCardWrapper
@@ -43,7 +39,7 @@ export function SpellEntry({
           {isAlwaysPrepared && (
             <Badge variant="info" size="sm">
               <DefenseIcon size="xs" className="mr-1" />
-              Always
+              {t('alwaysPrepared')}
             </Badge>
           )}
         </>
@@ -54,7 +50,7 @@ export function SpellEntry({
             variant="ghost"
             size="sm"
             onClick={handleOpenSpell}
-            title="Open Spell Details"
+            title={t('manageSpell')}
             className="p-1.5"
           >
             <RitualIcon size="xs" />

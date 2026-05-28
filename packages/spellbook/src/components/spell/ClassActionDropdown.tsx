@@ -10,6 +10,7 @@ import {
   PrepareSpellIcon,
   KnownSpellIcon,
 } from '@open20/ui';
+import { useSpellbookTranslation } from '@/i18n';
 
 interface ClassActionDropdownProps {
   matchingClassIds: string[];
@@ -30,6 +31,7 @@ export function ClassActionDropdown({
   variant = 'info',
   active = false,
 }: ClassActionDropdownProps) {
+  const t = useSpellbookTranslation();
   const hasActive = activeClassIds.length > 0;
   const hasInactive = matchingClassIds.some((id) => !activeClassIds.includes(id));
 
@@ -39,7 +41,7 @@ export function ClassActionDropdown({
         <IconButton
           variant={variant}
           active={active}
-          title={hasActive ? `Manage ${label}` : `Add ${label}`}
+          title={hasActive ? t('manageSpell') : t('addSpell')}
         >
           {variant === 'info' ? (
             <PrepareSpellIcon />
@@ -52,7 +54,7 @@ export function ClassActionDropdown({
       <DropdownMenuContent className="w-40">
         {hasActive && (
           <>
-            <DropdownMenuLabel>{label} for</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('forLabel', { label })}</DropdownMenuLabel>
             {activeClassIds.map((classId) => (
               <DropdownMenuItem
                 key={`remove-${classId}`}
@@ -62,10 +64,10 @@ export function ClassActionDropdown({
                 <span className="flex-1">{classId}</span>
                 <span className="text-text-tertiary text-xs ml-2">
                   {disabledActiveClassIds.includes(classId)
-                    ? 'Always'
-                    : label === 'Cantrip'
-                      ? 'Unlearn'
-                      : 'Unprepare'}
+                    ? t('alwaysPrepared')
+                    : label === t('cantrip')
+                      ? t('unlearn')
+                      : t('unprepare')}
                 </span>
               </DropdownMenuItem>
             ))}
@@ -74,17 +76,14 @@ export function ClassActionDropdown({
         )}
         {hasInactive && (
           <>
-            {!hasActive && <DropdownMenuLabel>Add {label} for</DropdownMenuLabel>}
+            {!hasActive && <DropdownMenuLabel>{t('addForLabel', { label })}</DropdownMenuLabel>}
             {matchingClassIds
               .filter((classId) => !activeClassIds.includes(classId))
               .map((classId) => (
-                <DropdownMenuItem
-                  key={`add-${classId}`}
-                  onSelect={() => onToggle(classId)}
-                >
+                <DropdownMenuItem key={`add-${classId}`} onSelect={() => onToggle(classId)}>
                   <span className="flex-1">{classId}</span>
                   <span className="text-text-tertiary text-xs ml-2">
-                    {label === 'Cantrip' ? 'Learn' : 'Prepare'}
+                    {label === t('cantrip') ? t('learn') : t('prepare')}
                   </span>
                 </DropdownMenuItem>
               ))}
