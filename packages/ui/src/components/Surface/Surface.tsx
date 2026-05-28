@@ -1,11 +1,11 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
+import { cn } from '@open20/ui/lib/cn';
 import {
   surfacePaddingVariants as paddingClasses,
   surfaceShadowVariants as shadowClasses,
   surfaceVariants as surfaceVariantClasses,
-} from '../../styles/design-tokens';
+} from '@open20/ui/styles/design-tokens';
 
 const surfaceVariants = cva('rounded-xl border transition-all', {
   variants: {

@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
+import { cn } from '@open20/ui/lib/cn';
 import {
   textColorVariants,
   textSizeVariants,
   textVariants as textVariantClasses,
   textWeightVariants,
-} from '../../styles/design-tokens';
+} from '@open20/ui/styles/design-tokens';
 
 const textVariants = cva('', {
   variants: {

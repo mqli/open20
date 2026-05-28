@@ -1,11 +1,11 @@
-import type { SpellFormData } from '../SpellEditor.types';
-import { Input } from '../../../Input/Input';
-import { Select } from '../../../Select/Select';
-import { Switch } from '../../../Switch/Switch';
-import { Text } from '../../../Text/Text';
-import { Surface } from '../../../Surface/Surface';
-import { CASTING_TIMES, SPELL_COMPONENTS } from '../SpellEditor.types';
-import { cn } from '../../../../lib/cn';
+import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
+import { Input } from '@open20/ui/components/Input/Input';
+import { Select } from '@open20/ui/components/Select/Select';
+import { Switch } from '@open20/ui/components/Switch/Switch';
+import { Text } from '@open20/ui/components/Text/Text';
+import { Surface } from '@open20/ui/components/Surface/Surface';
+import { CASTING_TIMES, SPELL_COMPONENTS } from '@open20/ui/components/spell/editor/SpellEditor.types';
+import { cn } from '@open20/ui/lib/cn';
 
 interface CastingInfoSectionProps {
   formData: SpellFormData;

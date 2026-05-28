@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { cn } from '../../lib/cn';
+import { cn } from '@open20/ui/lib/cn';
 
 export const iconSizeClasses = {
   xs: 'w-3 h-3',

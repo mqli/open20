@@ -1,9 +1,10 @@
-import type { SpellFormData } from '../SpellEditor.types';
-import { Input } from '../../../Input/Input';
-import { Select } from '../../../Select/Select';
-import { Text } from '../../../Text/Text';
-import { Surface } from '../../../Surface/Surface';
-import { Button } from '../../../Button/Button';
+import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
+import { Input } from '@open20/ui/components/Input/Input';
+import { Select } from '@open20/ui/components/Select/Select';
+import { Text } from '@open20/ui/components/Text/Text';
+import { Surface } from '@open20/ui/components/Surface/Surface';
+import { Button } from '@open20/ui/components/Button/Button';
+import { useArrayField } from '@open20/ui/hooks/useArrayField';
 
 interface CantripUpgradeSectionProps {
   formData: SpellFormData;
@@ -11,52 +12,77 @@ interface CantripUpgradeSectionProps {
   disabled?: boolean;
 }
 
-export function CantripUpgradeSection({ formData, onChange, disabled }: CantripUpgradeSectionProps) {
+export function CantripUpgradeSection({
+  formData,
+  onChange,
+  disabled,
+}: CantripUpgradeSectionProps) {
   // Only show for cantrips (level 0)
   if (formData.level !== 0) return null;
 
-  const addUpgradeEntry = () => {
-    const current = formData.cantripUpgrade || [];
-    const lastLevel = current.length > 0 ? current[current.length - 1].atCharacterLevel : 5;
-    const nextLevel = lastLevel === 5 ? 11 : lastLevel === 11 ? 17 : 5;
-    
+  const upgradeField = useArrayField(formData.cantripUpgrade || []);
+
+  const handleUpgradeChange = () => {
     onChange({
-      cantripUpgrade: [
-        ...current,
-        { atCharacterLevel: nextLevel as 5 | 11 | 17, damage: [{ dice: '', type: '' }] },
-      ],
+      cantripUpgrade: upgradeField.items.length > 0 ? upgradeField.items : undefined,
     });
   };
 
-  const updateUpgradeEntry = (index: number, updates: Partial<{ atCharacterLevel: 5 | 11 | 17; damage?: { dice: string; type: string }[] }>) => {
-    const current = [...(formData.cantripUpgrade || [])];
-    current[index] = { ...current[index], ...updates };
-    onChange({ cantripUpgrade: current });
+  const addUpgradeEntry = () => {
+    const lastLevel =
+      upgradeField.items.length > 0
+        ? upgradeField.items[upgradeField.items.length - 1].atCharacterLevel
+        : 5;
+    const nextLevel = lastLevel === 5 ? 11 : lastLevel === 11 ? 17 : 5;
+
+    upgradeField.addItem({
+      atCharacterLevel: nextLevel as 5 | 11 | 17,
+      damage: [{ dice: '', type: '' }],
+    });
+    handleUpgradeChange();
   };
 
-  const updateUpgradeDamage = (entryIndex: number, damageIndex: number, field: 'dice' | 'type', value: string) => {
-    const current = [...(formData.cantripUpgrade || [])];
-    const entry = { ...current[entryIndex] };
-    const damage = [...(entry.damage || [])];
-    damage[damageIndex] = { ...damage[damageIndex], [field]: value };
-    entry.damage = damage;
-    current[entryIndex] = entry;
-    onChange({ cantripUpgrade: current });
+  const updateUpgradeEntry = (
+    index: number,
+    updates: Partial<{ atCharacterLevel: 5 | 11 | 17; damage?: { dice: string; type: string }[] }>,
+  ) => {
+    upgradeField.updateItem(index, (item) => ({ ...item, ...updates }));
+    handleUpgradeChange();
+  };
+
+  const updateUpgradeDamage = (
+    entryIndex: number,
+    damageIndex: number,
+    field: 'dice' | 'type',
+    value: string,
+  ) => {
+    upgradeField.updateItem(entryIndex, (entry) => {
+      const damage = [...(entry.damage || [])];
+      damage[damageIndex] = { ...damage[damageIndex], [field]: value };
+      return { ...entry, damage };
+    });
+    handleUpgradeChange();
   };
 
   const addUpgradeDamageEntry = (entryIndex: number) => {
-    const current = [...(formData.cantripUpgrade || [])];
-    const entry = { ...current[entryIndex] };
-    entry.damage = [...(entry.damage || []), { dice: '', type: '' }];
-    current[entryIndex] = entry;
-    onChange({ cantripUpgrade: current });
+    upgradeField.updateItem(entryIndex, (entry) => ({
+      ...entry,
+      damage: [...(entry.damage || []), { dice: '', type: '' }],
+    }));
+    handleUpgradeChange();
   };
 
   const removeUpgradeEntry = (index: number) => {
-    const current = (formData.cantripUpgrade || []).filter((_, i) => i !== index);
-    onChange({
-      cantripUpgrade: current.length > 0 ? current : undefined,
+    upgradeField.removeItem(index);
+    handleUpgradeChange();
+  };
+
+  const removeUpgradeDamageEntry = (entryIndex: number, damageIndex: number) => {
+    upgradeField.updateItem(entryIndex, (entry) => {
+      const damage = (entry.damage || []).filter((_, i) => i !== damageIndex);
+      return { ...entry, damage };
     });
+    handleUpgradeChange();
   };
 
   return (
@@ -87,7 +113,7 @@ export function CantripUpgradeSection({ formData, onChange, disabled }: CantripU
         {(formData.cantripUpgrade || []).map((entry, index) => (
           <div key={index} className="space-y-2 p-3 bg-bg-tertiary rounded-md">
             <div className="flex items-center justify-between">
-                <Select.Root
+              <Select.Root
                 value={entry.atCharacterLevel.toString()}
                 onValueChange={(value) =>
                   updateUpgradeEntry(index, { atCharacterLevel: parseInt(value) as 5 | 11 | 17 })
@@ -114,7 +140,7 @@ export function CantripUpgradeSection({ formData, onChange, disabled }: CantripU
             </div>
 
             {/* Damage entries for this upgrade level */}
-                {(entry.damage || []).map((dmg: any, dmgIndex: number) => (
+            {(entry.damage || []).map((dmg, dmgIndex) => (
               <div key={dmgIndex} className="flex gap-2 items-start ml-4">
                 <Input
                   value={dmg.dice || ''}
@@ -135,13 +161,7 @@ export function CantripUpgradeSection({ formData, onChange, disabled }: CantripU
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      const current = [...(formData.cantripUpgrade || [])];
-                      const entryCopy = { ...current[index] };
-                      entryCopy.damage = (entryCopy.damage || []).filter((_, i) => i !== dmgIndex);
-                      current[index] = entryCopy;
-                      onChange({ cantripUpgrade: current });
-                    }}
+                    onClick={() => removeUpgradeDamageEntry(index, dmgIndex)}
                     disabled={disabled}
                     className="text-danger hover:bg-danger/10"
                   >

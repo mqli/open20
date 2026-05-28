@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
-import { slotPipStateVariants } from '../../styles/design-tokens';
+import { cn } from '@open20/ui/lib/cn';
+import { slotPipStateVariants } from '@open20/ui/styles/design-tokens';
 
 const pipVariants = cva('cursor-pointer rounded-md border transition-all duration-150 hover:scale-110', {
   variants: {

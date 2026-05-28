@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
-import { closeButtonClasses } from '../../styles/design-tokens';
-import { Text } from '../Text';
+import { cn } from '@open20/ui/lib/cn';
+import { closeButtonClasses } from '@open20/ui/styles/design-tokens';
+import { Text } from '@open20/ui/components/Text';
 
 const dialogVariants = cva(
   'fixed z-50 w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-lg bg-bg-secondary p-6 shadow-xl outline-none',

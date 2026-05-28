@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SearchX } from 'lucide-react';
-import { Button } from '../Button';
+import { Button } from '@open20/ui/components/Button';
 import { EmptyState } from './EmptyState';
 
 const meta = {

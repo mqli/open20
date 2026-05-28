@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
+import { cn } from '@open20/ui/lib/cn';
 
 const dividerVariants = cva('flex-shrink-0', {
   variants: {

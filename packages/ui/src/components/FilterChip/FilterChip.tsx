@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
-import { Toggle } from '../Toggle';
+import { cn } from '@open20/ui/lib/cn';
+import { Toggle } from '@open20/ui/components/Toggle';
 
 const filterChipVariants = cva('inline-flex items-center font-medium transition-all duration-200 border', {
   variants: {

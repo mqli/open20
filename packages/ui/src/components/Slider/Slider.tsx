@@ -1,7 +1,7 @@
 import * as RadixSlider from '@radix-ui/react-slider';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
-import { sliderRangeClasses, sliderThumbClasses, sliderTrackClasses } from '../../styles/design-tokens';
+import { cn } from '@open20/ui/lib/cn';
+import { sliderRangeClasses, sliderThumbClasses, sliderTrackClasses } from '@open20/ui/styles/design-tokens';
 
 const sliderVariants = cva('relative flex w-full touch-none select-none items-center');
 

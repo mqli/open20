@@ -1,7 +1,8 @@
-import type { SpellFormData } from '../SpellEditor.types';
-import { Text } from '../../../Text/Text';
-import { Surface } from '../../../Surface/Surface';
-import { Button } from '../../../Button/Button';
+import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
+import { Text } from '@open20/ui/components/Text/Text';
+import { Surface } from '@open20/ui/components/Surface/Surface';
+import { Button } from '@open20/ui/components/Button/Button';
+import { useArrayField } from '@open20/ui/hooks/useArrayField';
 
 interface DescriptionSectionProps {
   formData: SpellFormData;
@@ -10,46 +11,49 @@ interface DescriptionSectionProps {
 }
 
 export function DescriptionSection({ formData, onChange, disabled }: DescriptionSectionProps) {
-  const addDescriptionParagraph = () => {
+  const descriptionField = useArrayField(formData.description);
+  const higherLevelField = useArrayField(formData.usingAHigherLevelSpellSlot || []);
+
+  const handleDescriptionChange = () => {
+    onChange({ description: descriptionField.items });
+  };
+
+  const handleHigherLevelChange = () => {
     onChange({
-      description: [...formData.description, ''],
+      usingAHigherLevelSpellSlot:
+        higherLevelField.items.length > 0 ? higherLevelField.items : undefined,
     });
   };
 
+  const addDescriptionParagraph = () => {
+    descriptionField.addItem('');
+    handleDescriptionChange();
+  };
+
   const updateDescriptionParagraph = (index: number, value: string) => {
-    const newDescription = [...formData.description];
-    newDescription[index] = value;
-    onChange({ description: newDescription });
+    descriptionField.updateItem(index, () => value);
+    handleDescriptionChange();
   };
 
   const removeDescriptionParagraph = (index: number) => {
     if (formData.description.length <= 1) return;
-    const newDescription = formData.description.filter((_, i) => i !== index);
-    onChange({ description: newDescription });
+    descriptionField.removeItem(index);
+    handleDescriptionChange();
   };
 
   const addHigherLevelEntry = () => {
-    onChange({
-      usingAHigherLevelSpellSlot: [
-        ...(formData.usingAHigherLevelSpellSlot || []),
-        '',
-      ],
-    });
+    higherLevelField.addItem('');
+    handleHigherLevelChange();
   };
 
   const updateHigherLevelEntry = (index: number, value: string) => {
-    const newEntries = [...(formData.usingAHigherLevelSpellSlot || [])];
-    newEntries[index] = value;
-    onChange({ usingAHigherLevelSpellSlot: newEntries });
+    higherLevelField.updateItem(index, () => value);
+    handleHigherLevelChange();
   };
 
   const removeHigherLevelEntry = (index: number) => {
-    const newEntries = (formData.usingAHigherLevelSpellSlot || []).filter(
-      (_, i) => i !== index
-    );
-    onChange({
-      usingAHigherLevelSpellSlot: newEntries.length > 0 ? newEntries : undefined,
-    });
+    higherLevelField.removeItem(index);
+    handleHigherLevelChange();
   };
 
   return (
@@ -63,7 +67,7 @@ export function DescriptionSection({ formData, onChange, disabled }: Description
         <Text as="label" variant="formLabel">
           Description (Multi-paragraph)
         </Text>
-        {formData.description.map((paragraph, index) => (
+        {descriptionField.items.map((paragraph, index) => (
           <div key={index} className="flex gap-2">
             <textarea
               value={paragraph}
@@ -72,7 +76,7 @@ export function DescriptionSection({ formData, onChange, disabled }: Description
               disabled={disabled}
               className="flex-1 min-h-[80px] rounded-md border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-y"
             />
-            {formData.description.length > 1 && (
+            {descriptionField.items.length > 1 && (
               <Button
                 type="button"
                 variant="ghost"
@@ -104,7 +108,7 @@ export function DescriptionSection({ formData, onChange, disabled }: Description
           <Text as="label" variant="formLabel">
             At Higher Levels
           </Text>
-          {(formData.usingAHigherLevelSpellSlot || []).map((entry, index) => (
+          {higherLevelField.items.map((entry, index) => (
             <div key={index} className="flex gap-2">
               <textarea
                 value={entry}

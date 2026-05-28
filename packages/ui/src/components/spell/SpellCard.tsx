@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Clock, Hourglass, ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '../../lib/cn';
+import { cn } from '@open20/ui/lib/cn';
 import {
   RitualIcon,
   ConcentrationIcon,
@@ -14,7 +14,7 @@ import {
   HealIcon,
   CastSpellIcon,
   Button,
-} from '../..';
+} from '@open20/ui';
 import {
   chipBase,
   collapseToggle,
@@ -22,10 +22,10 @@ import {
   inlineMeta,
   spellSchoolVariants,
   sectionDivider,
-} from '../../styles/design-tokens';
-import { Surface } from '../Surface';
-import type { SurfaceProps } from '../Surface';
-import { Text } from '../Text';
+} from '@open20/ui/styles/design-tokens';
+import { Surface } from '@open20/ui/components/Surface';
+import type { SurfaceProps } from '@open20/ui/components/Surface';
+import { Text } from '@open20/ui/components/Text';
 
 import type { Spell } from 'open20-core';
 

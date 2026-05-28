@@ -1,6 +1,6 @@
 import * as RadixTabs from '@radix-ui/react-tabs';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../../lib/cn';
+import { cn } from '@open20/ui/lib/cn';
 
 const tabsListVariants = cva('flex border-b border-border', {
   variants: {

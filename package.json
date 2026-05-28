@@ -31,13 +31,14 @@
     ]
   },
   "devDependencies": {
-    "@open20/config": "workspace:*",
     "@eslint/js": "catalog:",
+    "@open20/config": "workspace:*",
     "eslint": "catalog:",
     "globals": "catalog:",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
     "prettier": "^3.8.3",
+    "ts-morph": "^28.0.0",
     "turbo": "latest",
     "typescript-eslint": "catalog:"
   },

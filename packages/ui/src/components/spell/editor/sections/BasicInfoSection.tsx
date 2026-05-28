@@ -1,10 +1,10 @@
-import type { SpellFormData } from '../SpellEditor.types';
-import { useState } from 'react';
-import { Input } from '../../../Input/Input';
-import { Select } from '../../../Select/Select';
-import { Text } from '../../../Text/Text';
-import { Surface } from '../../../Surface/Surface';
-import { SPELL_SCHOOLS, SPELL_LEVELS, DND_CLASSES } from '../SpellEditor.types';
+import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
+import { useState, useEffect } from 'react';
+import { Input } from '@open20/ui/components/Input/Input';
+import { Select } from '@open20/ui/components/Select/Select';
+import { Text } from '@open20/ui/components/Text/Text';
+import { Surface } from '@open20/ui/components/Surface/Surface';
+import { SPELL_SCHOOLS, SPELL_LEVELS, DND_CLASSES } from '@open20/ui/components/spell/editor/SpellEditor.types';
 
 interface BasicInfoSectionProps {
   formData: SpellFormData;
@@ -14,6 +14,22 @@ interface BasicInfoSectionProps {
 
 export function BasicInfoSection({ formData, onChange, disabled }: BasicInfoSectionProps) {
   const [addClassValue, setAddClassValue] = useState('');
+  const [selectKey, setSelectKey] = useState(0); // Key to force re-render of select
+
+  // Reset select value when classes change
+  useEffect(() => {
+    setAddClassValue('');
+    setSelectKey((prev) => prev + 1); // Force re-render to clear selection
+  }, [formData.classes]);
+
+  const handleAddClass = (value: string) => {
+    if (!value || value === '__pick__') return;
+
+    const current = formData.classes || [];
+    if (!current.includes(value)) {
+      onChange({ classes: [...current, value] });
+    }
+  };
 
   return (
     <Surface variant="default" padding="md" className="space-y-4">
@@ -45,7 +61,9 @@ export function BasicInfoSection({ formData, onChange, disabled }: BasicInfoSect
           </Text>
           <Select.Root
             value={formData.level.toString()}
-            onValueChange={(value) => onChange({ level: parseInt(value) as SpellFormData['level'] })}
+            onValueChange={(value) =>
+              onChange({ level: parseInt(value) as SpellFormData['level'] })
+            }
             disabled={disabled}
           >
             <Select.Trigger />
@@ -123,27 +141,15 @@ export function BasicInfoSection({ formData, onChange, disabled }: BasicInfoSect
             </div>
           ))}
           <Select.Root
+            key={selectKey} // Force re-render when key changes
             value={addClassValue}
-            onValueChange={(value) => {
-              setAddClassValue(value);
-              if (!value) return;
-              const current = formData.classes || [];
-              if (!current.includes(value)) {
-                onChange({ classes: [...current, value] });
-              }
-              // reset to re-enable selection of the same item
-              setTimeout(() => setAddClassValue(''), 0);
-            }}
+            onValueChange={handleAddClass}
             disabled={disabled}
           >
             <Select.Trigger placeholder="+ Add Class" />
             <Select.Content>
-              <Select.Item value="__pick__">
-                + Add Class...
-              </Select.Item>
-              {DND_CLASSES.filter(
-                (c) => !(formData.classes || []).includes(c),
-              ).map((cls) => (
+              <Select.Item value="__pick__">+ Add Class...</Select.Item>
+              {DND_CLASSES.filter((c) => !(formData.classes || []).includes(c)).map((cls) => (
                 <Select.Item key={cls} value={cls}>
                   {cls}
                 </Select.Item>

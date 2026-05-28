@@ -20,6 +20,24 @@ export const baseConfig = tseslint.config(
       'no-undef': 'off',
     },
   },
+  // Apply no-restricted-imports only to packages/ui/**
+  {
+    files: ['packages/ui/src/**/*.{ts,tsx}'],
+    rules: { - only for UI package
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../*'],
+              message:
+                'Use absolute imports or workspace aliases (e.g. @open20/ui) instead of relative imports.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     ignores: ['dist/**', 'node_modules/**', 'coverage/**', '.turbo/**', 'storybook-static/**'],
   },

@@ -6,10 +6,10 @@ import { CastingInfoSection } from './sections/CastingInfoSection';
 import { DescriptionSection } from './sections/DescriptionSection';
 import { DamageHealSection } from './sections/DamageHealSection';
 import { CantripUpgradeSection } from './sections/CantripUpgradeSection';
-import { Button } from '../../Button/Button';
-import { Surface } from '../../Surface/Surface';
-import { Text } from '../../Text/Text';
-import { SpellCard } from '../SpellCard';
+import { Button } from '@open20/ui/components/Button/Button';
+import { Surface } from '@open20/ui/components/Surface/Surface';
+import { Text } from '@open20/ui/components/Text/Text';
+import { SpellCard } from '@open20/ui/components/spell/SpellCard';
 
 export function SpellEditor({
   value,

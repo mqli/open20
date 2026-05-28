@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../Button';
-import { Text } from '../Text';
+import { Button } from '@open20/ui/components/Button';
+import { Text } from '@open20/ui/components/Text';
 import { Sheet } from './Sheet';
 
 const meta = {

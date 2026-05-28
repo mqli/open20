@@ -1,11 +1,11 @@
-import type { SpellFormData, SpellFormDamage } from '../SpellEditor.types';
-import { Input } from '../../../Input/Input';
-import { Select } from '../../../Select/Select';
-import { Switch } from '../../../Switch/Switch';
-import { Text } from '../../../Text/Text';
-import { Surface } from '../../../Surface/Surface';
-import { Button } from '../../../Button/Button';
-import { ABILITY_NAMES, DAMAGE_TYPES } from '../SpellEditor.types';
+import type { SpellFormData } from '@open20/ui/components/spell/editor/SpellEditor.types';
+import { Input } from '@open20/ui/components/Input/Input';
+import { Select } from '@open20/ui/components/Select/Select';
+import { Switch } from '@open20/ui/components/Switch/Switch';
+import { Text } from '@open20/ui/components/Text/Text';
+import { Surface } from '@open20/ui/components/Surface/Surface';
+import { Button } from '@open20/ui/components/Button/Button';
+import { ABILITY_NAMES, DAMAGE_TYPES } from '@open20/ui/components/spell/editor/SpellEditor.types';
 
 interface DamageHealSectionProps {
   formData: SpellFormData;
@@ -14,39 +14,59 @@ interface DamageHealSectionProps {
 }
 
 export function DamageHealSection({ formData, onChange, disabled }: DamageHealSectionProps) {
-  const updateDamage = (field: 'entries' | 'additional' | 'perSlot', index: number, key: 'dice' | 'type', value: string) => {
-    const damage = formData.damage as any;
-    const current = damage?.[field] || [];
+  const updateDamage = (
+    field: 'entries' | 'additional' | 'perSlot',
+    index: number,
+    key: 'dice' | 'type',
+    value: string,
+  ) => {
+    const currentDamage = formData.damage;
+    if (!currentDamage) return;
+
+    const current = currentDamage[field] || [];
     const updated = [...current];
     updated[index] = { ...updated[index], [key]: value };
+
     onChange({
       damage: {
-        ...formData.damage,
-        [field]: updated,
-      } as SpellFormDamage,
+        entries: field === 'entries' ? updated : currentDamage.entries,
+        additional: field === 'additional' ? updated : currentDamage.additional,
+        perSlot: field === 'perSlot' ? updated : currentDamage.perSlot,
+      },
     });
   };
 
   const addDamageEntry = (field: 'entries' | 'additional' | 'perSlot') => {
-    const damage = formData.damage as any;
-    const current = damage?.[field] || [];
+    const currentDamage = formData.damage;
+    const current = currentDamage?.[field] || [];
+
     onChange({
       damage: {
-        ...formData.damage,
-        [field]: [...current, { dice: '', type: '' }],
-      } as SpellFormDamage,
+        entries:
+          field === 'entries' ? [...current, { dice: '', type: '' }] : currentDamage?.entries || [],
+        additional:
+          field === 'additional'
+            ? [...current, { dice: '', type: '' }]
+            : currentDamage?.additional || [],
+        perSlot:
+          field === 'perSlot' ? [...current, { dice: '', type: '' }] : currentDamage?.perSlot || [],
+      },
     });
   };
 
   const removeDamageEntry = (field: 'entries' | 'additional' | 'perSlot', index: number) => {
-    const damage = formData.damage as any;
-    const current = damage?.[field] || [];
-    const updated = current.filter((_item: unknown, i: number) => i !== index);
+    const currentDamage = formData.damage;
+    if (!currentDamage) return;
+
+    const current = currentDamage[field] || [];
+    const updated = current.filter((_, i) => i !== index);
+
     onChange({
       damage: {
-        ...formData.damage,
-        [field]: updated,
-      } as SpellFormDamage,
+        entries: field === 'entries' ? updated : currentDamage.entries,
+        additional: field === 'additional' ? updated : currentDamage.additional,
+        perSlot: field === 'perSlot' ? updated : currentDamage.perSlot,
+      },
     });
   };
 

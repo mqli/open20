@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Surface } from './Surface';
-import { Text } from '../Text';
+import { Text } from '@open20/ui/components/Text';
 
 const meta = {
   title: 'Components/Surface',
