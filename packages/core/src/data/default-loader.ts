@@ -3,15 +3,15 @@
 // JSON imports are cast directly to types (no parsing needed)
 
 import type { DataLoader, LookupTables, SpellLevel } from './loader';
-import type { ContentPack, ContentPackMeta } from '../content/types';
-import type { Species, SpeciesSubtype } from '../types/species';
-import type { Background } from '../types/background';
-import type { Class, Subclass } from '../types/class';
-import type { Feat, FeatCategory } from '../types/feat';
-import type { Weapon, Armor, GearItem } from '../types/equipment';
-import type { Spell } from '../types/spell';
-import type { DieType } from '../types/dice';
-import type { Monster } from '../monster/types';
+import type { ContentPack, ContentPackMeta } from '@open20/core/content/types';
+import type { Species, SpeciesSubtype } from '@open20/core/types/species';
+import type { Background } from '@open20/core/types/background';
+import type { Class, Subclass } from '@open20/core/types/class';
+import type { Feat, FeatCategory } from '@open20/core/types/feat';
+import type { Weapon, Armor, GearItem } from '@open20/core/types/equipment';
+import type { Spell } from '@open20/core/types/spell';
+import type { DieType } from '@open20/core/types/dice';
+import type { Monster } from '@open20/core/monster/types';
 
 // ── JSON 导入（Node.js 21+ / 所有 bundlers 支持）────────────────────
 import speciesDataJson from '../../static/srd/species.json' with { type: 'json' };

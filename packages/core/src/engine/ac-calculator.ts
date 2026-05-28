@@ -3,11 +3,11 @@
 // 对应 HLD §6.1 + PRD v4.0 §10 附录D
 // 这是所有计算中最容易出错的，必须100%准确
 
-import type { AbilityScores } from '../types/ability';
-import type { Armor, EquipmentItem } from '../types/equipment';
-import type { Feature } from '../types/class';
-import type { DataLoader } from '../data/loader';
-import type { FeatACBonus } from '../types/feat';
+import type { AbilityScores } from '@open20/core/types/ability';
+import type { Armor, EquipmentItem } from '@open20/core/types/equipment';
+import type { Feature } from '@open20/core/types/class';
+import type { DataLoader } from '@open20/core/data/loader';
+import type { FeatACBonus } from '@open20/core/types/feat';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 /**

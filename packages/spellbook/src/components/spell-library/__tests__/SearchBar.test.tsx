@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SearchBar } from '../SearchBar';
+import { SearchBar } from '@open20/spellbook/components/spell-library/SearchBar';
 
 // Mock the store
 vi.mock('../../stores/spell-store', () => ({

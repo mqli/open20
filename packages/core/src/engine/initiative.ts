@@ -2,8 +2,8 @@
 // 先攻值计算 — 纯函数
 // 对应 HLD §6.1
 
-import type { AbilityScores } from '../types/ability';
-import type { Feature } from '../types/class';
+import type { AbilityScores } from '@open20/core/types/ability';
+import type { Feature } from '@open20/core/types/class';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 /**

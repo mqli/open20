@@ -2,8 +2,8 @@
 // Concentration tracking and enforcement — pure functions and types
 // Corresponds to SRD §Spells: Concentration rules
 
-import type { Character } from '../types/character';
-import type { CheckResult } from '../dice/mechanics';
+import type { Character } from '@open20/core/types/character';
+import type { CheckResult } from '@open20/core/dice/mechanics';
 
 /**
  * Check if a character is currently concentrating on a spell

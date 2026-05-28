@@ -1,7 +1,7 @@
 // character/mutate/currency.ts
 // Currency-related character mutations
 
-import type { Character, Currency } from '../../types/character';
+import type { Character, Currency } from '@open20/core/types/character';
 import { withUpdate } from './hp';
 
 export function modifyCurrency(char: Character, currency: Partial<Currency>): Character {

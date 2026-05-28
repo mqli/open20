@@ -7,12 +7,12 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import type { ContentPack, ContentPackMeta } from './types';
-import type { Species } from '../types/species';
-import type { Background } from '../types/background';
-import type { Class, Subclass } from '../types/class';
-import type { Feat } from '../types/feat';
-import type { Spell } from '../types/spell';
-import type { Weapon, Armor, GearItem } from '../types/equipment';
+import type { Species } from '@open20/core/types/species';
+import type { Background } from '@open20/core/types/background';
+import type { Class, Subclass } from '@open20/core/types/class';
+import type { Feat } from '@open20/core/types/feat';
+import type { Spell } from '@open20/core/types/spell';
+import type { Weapon, Armor, GearItem } from '@open20/core/types/equipment';
 
 const require = createRequire(import.meta.url);
 

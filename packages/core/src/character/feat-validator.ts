@@ -2,11 +2,11 @@
 // Validates feat prerequisites against character state
 // Pure function — returns validation result without modifying state
 
-import type { Character } from '../types/character';
-import type { Feat } from '../types/feat';
-import type { DataLoader } from '../data/loader';
-import type { AbilityName } from '../types/ability';
-import { getTotalScore } from '../engine/ability-modifier';
+import type { Character } from '@open20/core/types/character';
+import type { Feat } from '@open20/core/types/feat';
+import type { DataLoader } from '@open20/core/data/loader';
+import type { AbilityName } from '@open20/core/types/ability';
+import { getTotalScore } from '@open20/core/engine/ability-modifier';
 
 /**
  * Result of feat prerequisite validation.

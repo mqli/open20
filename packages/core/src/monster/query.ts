@@ -2,9 +2,9 @@
 // Monster query functions — filter, search, and retrieve monsters
 
 import type { Monster, MonsterAction, MonsterFeature, MonsterReaction, MonsterLegendaryAction } from './types';
-import type { MonsterSize, MonsterType, ChallengeRating, AttackNotation } from '../types/monster';
-import type { DamageType } from '../types/damage';
-import type { DataLoader } from '../data/loader';
+import type { MonsterSize, MonsterType, ChallengeRating, AttackNotation } from '@open20/core/types/monster';
+import type { DamageType } from '@open20/core/types/damage';
+import type { DataLoader } from '@open20/core/data/loader';
 
 // ── MonsterFilter Interface ─────────────────────────────────────
 

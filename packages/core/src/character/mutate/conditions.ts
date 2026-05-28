@@ -1,13 +1,13 @@
 // character/mutate/conditions.ts
 // Condition and concentration-related character mutations
 
-import type { Character, ConditionName, ActiveCondition } from '../../types/character';
-import type { DataLoader } from '../../data/loader';
-import type { RandomProvider } from '../../dice/core';
-import type { ConcentrationCheckResult } from '../../engine/concentration';
-import { isConcentrating, calculateConcentrationDC } from '../../engine/concentration';
-import { getModifier, getTotalScore } from '../../engine/ability-modifier';
-import { rollSavingThrow } from '../../dice/mechanics';
+import type { Character, ConditionName, ActiveCondition } from '@open20/core/types/character';
+import type { DataLoader } from '@open20/core/data/loader';
+import type { RandomProvider } from '@open20/core/dice/core';
+import type { ConcentrationCheckResult } from '@open20/core/engine/concentration';
+import { isConcentrating, calculateConcentrationDC } from '@open20/core/engine/concentration';
+import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
+import { rollSavingThrow } from '@open20/core/dice/mechanics';
 import { withUpdate } from './hp';
 
 export function toggleCondition(char: Character, conditionId: ConditionName): Character {

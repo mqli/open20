@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useCharacterStore } from '../character-store';
+import { useCharacterStore } from '@open20/spellbook/stores/character-store';
 import { storageService } from '@/core/storage-service';
 import type { AppCharacter } from '@/core/types';
 import type { AbilityName } from 'open20-core';

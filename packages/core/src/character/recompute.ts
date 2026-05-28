@@ -6,23 +6,23 @@
 // Split into: computeFeatGrants, gatherAllFeatures, computeCombatStats,
 //   computeClassSpellData, recomputeDerivedStats (orchestrator)
 
-import type { Character } from '../types/character';
-import type { DataLoader } from '../data/loader';
-import type { AbilityName, AbilityScores } from '../types/ability';
-import { getModifier, getTotalScore } from '../engine/ability-modifier';
-import { getProficiencyBonus } from '../engine/proficiency-bonus';
-import { calculateAC } from '../engine/ac-calculator';
-import { calculateInitiative } from '../engine/initiative';
-import { calculatePassivePerception } from '../engine/passive-perception';
-import { calculateAttacks } from '../engine/attack-calculator';
-import { calculateMaxHP } from '../engine/hp-calculator';
-import { calculatePactMagic, calculateSpellSlotsFromClasses } from '../engine/spell-slots';
-import { buildClassSpellData } from '../engine/spell-data';
-import type { ClassSpellData, SpellLevel, SpellSlotEntry } from '../types/spell';
-import type { Feature } from '../types/class';
+import type { Character } from '@open20/core/types/character';
+import type { DataLoader } from '@open20/core/data/loader';
+import type { AbilityName, AbilityScores } from '@open20/core/types/ability';
+import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
+import { getProficiencyBonus } from '@open20/core/engine/proficiency-bonus';
+import { calculateAC } from '@open20/core/engine/ac-calculator';
+import { calculateInitiative } from '@open20/core/engine/initiative';
+import { calculatePassivePerception } from '@open20/core/engine/passive-perception';
+import { calculateAttacks } from '@open20/core/engine/attack-calculator';
+import { calculateMaxHP } from '@open20/core/engine/hp-calculator';
+import { calculatePactMagic, calculateSpellSlotsFromClasses } from '@open20/core/engine/spell-slots';
+import { buildClassSpellData } from '@open20/core/engine/spell-data';
+import type { ClassSpellData, SpellLevel, SpellSlotEntry } from '@open20/core/types/spell';
+import type { Feature } from '@open20/core/types/class';
 import { gatherAllFeatures } from './utils';
 import { recomputeResources } from './resource-builder';
-import type { FeatAttackBonus, FeatACBonus } from '../types/feat';
+import type { FeatAttackBonus, FeatACBonus } from '@open20/core/types/feat';
 
 // ── Grant Computation (Single Source of Truth) ─────────────────
 

@@ -2,12 +2,12 @@
 // 攻击加值计算 — 纯函数
 // 对应 HLD §6.1
 
-import type { AbilityScores } from '../types/ability';
-import type { Weapon, EquipmentItem } from '../types/equipment';
-import type { Feature } from '../types/class';
-import type { CharacterAttack } from '../types/character';
-import type { DataLoader } from '../data/loader';
-import type { FeatAttackBonus } from '../types/feat';
+import type { AbilityScores } from '@open20/core/types/ability';
+import type { Weapon, EquipmentItem } from '@open20/core/types/equipment';
+import type { Feature } from '@open20/core/types/class';
+import type { CharacterAttack } from '@open20/core/types/character';
+import type { DataLoader } from '@open20/core/data/loader';
+import type { FeatAttackBonus } from '@open20/core/types/feat';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 /**

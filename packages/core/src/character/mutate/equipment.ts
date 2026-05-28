@@ -1,8 +1,8 @@
 // character/mutate/equipment.ts
 // Equipment-related character mutations//
 
-import type { Character, EquipmentItem } from '../../types';
-import { recomputeDerivedStats } from '../recompute';
+import type { Character, EquipmentItem } from '@open20/core/types';
+import { recomputeDerivedStats } from '@open20/core/character/recompute';
 import { withUpdate } from './hp';
 
 export function equipItem(char: Character, itemId: string): Character {

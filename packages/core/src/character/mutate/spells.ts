@@ -1,10 +1,10 @@
 // character/mutate/spells.ts
 // Spell-related character mutations
 
-import type { Character } from '../../types/character';
-import type { DataLoader } from '../../data/loader';
-import type { SpellLevel } from '../../types/spell';
-import { isCantrip as isCantripSpell } from '../spell-casting';
+import type { Character } from '@open20/core/types/character';
+import type { DataLoader } from '@open20/core/data/loader';
+import type { SpellLevel } from '@open20/core/types/spell';
+import { isCantrip as isCantripSpell } from '@open20/core/character/spell-casting';
 import { withUpdate } from './hp';
 
 // ── Spell Slot Mutations ────────────────────────────────

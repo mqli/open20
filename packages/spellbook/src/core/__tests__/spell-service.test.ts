@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { spellService } from '../spell-service';
-import { SchemaService } from '../schema-service';
-import type { AppCharacter } from '../types';
+import { spellService } from '@open20/spellbook/core/spell-service';
+import { SchemaService } from '@open20/spellbook/core/schema-service';
+import type { AppCharacter } from '@open20/spellbook/core/types';
 import type { AbilityName } from 'open20-core';
 
 // Mock the dataLoader to have controlled test data

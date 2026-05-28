@@ -2,10 +2,10 @@
 // Monster calculation functions — CR-based proficiency, attack bonus, save DC
 
 import type { Monster } from './types';
-import type { ChallengeRating } from '../types/monster';
-import type { AbilityName } from '../types/ability';
-import type { DataLoader } from '../data/loader';
-import { getModifier, getTotalScore } from '../engine/ability-modifier';
+import type { ChallengeRating } from '@open20/core/types/monster';
+import type { AbilityName } from '@open20/core/types/ability';
+import type { DataLoader } from '@open20/core/data/loader';
+import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
 
 // ── Proficiency Bonus by CR ────────────────────────────────
 

@@ -2,9 +2,9 @@
 // 被动感知计算 — 纯函数
 // 对应 HLD §6.1
 
-import type { AbilityScores } from '../types/ability';
-import type { SkillEntry } from '../types/skill';
-import type { ActiveCondition } from '../types/character';
+import type { AbilityScores } from '@open20/core/types/ability';
+import type { SkillEntry } from '@open20/core/types/skill';
+import type { ActiveCondition } from '@open20/core/types/character';
 import { getModifier, getTotalScore } from './ability-modifier';
 import { getSkillBonus } from './skill-bonus';
 

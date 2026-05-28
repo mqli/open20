@@ -2,7 +2,7 @@
 // 豁免加值计算 — 纯函数
 // 对应 HLD §6.1
 
-import type { AbilityName, AbilityScores } from '../types/ability';
+import type { AbilityName, AbilityScores } from '@open20/core/types/ability';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 /**

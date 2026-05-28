@@ -2,8 +2,8 @@
 // Shared pure helpers used by create.ts, recompute.ts, level-up.ts.
 // Breaking circular dependencies between character/ modules.
 
-import type { Feature, Class, Subclass } from '../types/class';
-import type { DataLoader } from '../data/loader';
+import type { Feature, Class, Subclass } from '@open20/core/types/class';
+import type { DataLoader } from '@open20/core/data/loader';
 
 // ── Re-exports from engine (single source of truth) ──────────────
 export { getMaxSpellLevel, getAlwaysPreparedSpellsFromSubclass } from '../engine/spell-data';

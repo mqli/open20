@@ -1,4 +1,4 @@
-import { characterService } from '../character-service';
+import { characterService } from '@open20/spellbook/core/character-service';
 
 interface ConcentrationCondition {
   source?: string;

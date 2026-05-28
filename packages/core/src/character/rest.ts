@@ -2,14 +2,14 @@
 // Short Rest and Long Rest functions — DND 2024 rules
 // Corresponds to HLD §6.2
 
-import type { Character, CharacterClass } from '../types/character';
-import type { Resource, CharacterClassResources } from '../types/resource';
-import { ResetType } from '../types/resource';
-import type { DataLoader } from '../data/loader';
-import type { SpellLevel, FeatSpellsEntry } from '../types/spell';
+import type { Character, CharacterClass } from '@open20/core/types/character';
+import type { Resource, CharacterClassResources } from '@open20/core/types/resource';
+import { ResetType } from '@open20/core/types/resource';
+import type { DataLoader } from '@open20/core/data/loader';
+import type { SpellLevel, FeatSpellsEntry } from '@open20/core/types/spell';
 
-import { getModifier, getTotalScore } from '../engine/ability-modifier';
-import { getHitDieFixedValue } from '../engine/hp-calculator';
+import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
+import { getHitDieFixedValue } from '@open20/core/engine/hp-calculator';
 
 import { withUpdate } from './mutate';
 import { getDieMax } from './level-up';

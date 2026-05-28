@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { characterService } from '../character-service';
+import { characterService } from '@open20/spellbook/core/character-service';
 
 describe('CharacterService', () => {
   const mockParams = {

@@ -1,0 +1,9 @@
+{
+  "extends": "@open20/config/tsconfig/base.json",
+  "compilerOptions": {
+    "paths": {
+      "@open20/config/*": ["./*"]
+    }
+  },
+  "include": ["*.js", "eslint/**/*.js", "vitest/**/*.js", "tailwind/**/*.js"]
+}

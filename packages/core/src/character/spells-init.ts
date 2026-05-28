@@ -2,7 +2,7 @@
 // Initial CharacterSpells shape for character creation.
 // All non-empty data is populated by character/recompute.ts via engine/spell-data.
 
-import type { CharacterSpells, SpellLevel, SpellSlotEntry } from '../types/spell';
+import type { CharacterSpells, SpellLevel, SpellSlotEntry } from '@open20/core/types/spell';
 
 /** Create empty spell data (non-spellcasting class). Used during character creation. */
 export function emptyCharacterSpells(): CharacterSpells {

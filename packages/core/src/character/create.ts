@@ -4,18 +4,18 @@
 //
 // 设计：只构建核心身份/来源数据，所有派生属性交给 recomputeDerivedStats 计算。
 
-import type { AbilityName, AbilityScores } from '../types/ability';
-import type { SkillEntry } from '../types/skill';
+import type { AbilityName, AbilityScores } from '@open20/core/types/ability';
+import type { SkillEntry } from '@open20/core/types/skill';
 import type {
   Character,
   CharacterClass,
   Currency,
   DamageDefenses,
-} from '../types/character';
-import type { Class } from '../types/class';
-import type { DataLoader } from '../data/loader';
+} from '@open20/core/types/character';
+import type { Class } from '@open20/core/types/class';
+import type { DataLoader } from '@open20/core/data/loader';
 
-import { getProficiencyBonus } from '../engine/proficiency-bonus';
+import { getProficiencyBonus } from '@open20/core/engine/proficiency-bonus';
 import { emptyCharacterSpells } from './spells-init';
 import { recomputeDerivedStats } from './recompute';
 import { extractAllClassResources } from './resource-builder';

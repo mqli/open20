@@ -1,9 +1,9 @@
 // character/mutate/hp.ts
 // HP-related character mutations
 
-import type { Character, DamageDefenses, DamageResult } from '../../types';
-import type { DamageType } from '../../types';
-import { applyHPChange, applyTypedDamageToHP, setTemporaryHPShared } from '../../engine/combat';
+import type { Character, DamageDefenses, DamageResult } from '@open20/core/types';
+import type { DamageType } from '@open20/core/types';
+import { applyHPChange, applyTypedDamageToHP, setTemporaryHPShared } from '@open20/core/engine/combat';
 
 /** @internal */
 export function withUpdate(char: Character, patch: Partial<Character>): Character {

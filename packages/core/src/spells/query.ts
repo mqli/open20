@@ -2,12 +2,12 @@
 // Spell query functions — filter, search, and retrieve spells
 // Corresponds to requirement R11
 
-import type { Spell, SpellLevel, SpellSchool, CastingTime, ClassSpellData } from '../types/spell';
+import type { Spell, SpellLevel, SpellSchool, CastingTime, ClassSpellData } from '@open20/core/types/spell';
 
-import type { Character } from '../types/character';
-import type { Class } from '../types/class';
-import type { DataLoader } from '../data/loader';
-import { calculateSpellSlots } from '../engine/spell-slots';
+import type { Character } from '@open20/core/types/character';
+import type { Class } from '@open20/core/types/class';
+import type { DataLoader } from '@open20/core/data/loader';
+import { calculateSpellSlots } from '@open20/core/engine/spell-slots';
 
 // ── Spellcasting Type Helpers ──────────────────────────────
 

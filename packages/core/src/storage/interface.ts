@@ -1,7 +1,7 @@
 // storage/interface.ts
 // Storage abstraction layer — ICharacterStorage interface + CharacterSummary type
 
-import type { Character } from '../types/character';
+import type { Character } from '@open20/core/types/character';
 
 export interface ICharacterStorage {
   save(char: Character): Promise<void>;

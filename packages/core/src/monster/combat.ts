@@ -4,9 +4,9 @@
 // L4 roll functions have been moved to src/rolls/monster.ts
 
 import type { Monster } from './types';
-import type { DamageType, DamageDefenses, DamageResult } from '../types/damage';
-import type { DataLoader } from '../data/loader';
-import { calculateTypedDamage } from '../engine/damage-calculator';
+import type { DamageType, DamageDefenses, DamageResult } from '@open20/core/types/damage';
+import type { DataLoader } from '@open20/core/data/loader';
+import { calculateTypedDamage } from '@open20/core/engine/damage-calculator';
 import {
   applyHPChange,
   applyTypedDamageToHP,
@@ -16,7 +16,7 @@ import {
   addDamageImmunity,
   addDamageVulnerability,
   emptyDefenses,
-} from '../engine/combat';
+} from '@open20/core/engine/combat';
 
 // ── HP Management ────────────────────────────────────────────
 

@@ -4,10 +4,10 @@
 //
 // Lives in character/ (not engine/) because it operates on Character state.
 
-import type { Spell, SpellLevel, ClassSpellData } from '../types';
-import type { FeatSpellsEntry } from '../types/spell';
-import type { Character } from '../types';
-import type { DataLoader } from '../data/loader';
+import type { Spell, SpellLevel, ClassSpellData } from '@open20/core/types';
+import type { FeatSpellsEntry } from '@open20/core/types/spell';
+import type { Character } from '@open20/core/types';
+import type { DataLoader } from '@open20/core/data/loader';
 
 // ── Helper Functions ──────────────────────────────────────
 

@@ -3,7 +3,7 @@
 // Consolidates HP manipulation logic to ensure API consistency
 // Corresponds to PRD §4.5
 
-import type { DamageType, DamageDefenses, DamageResult } from '../types/damage';
+import type { DamageType, DamageDefenses, DamageResult } from '@open20/core/types/damage';
 import { calculateTypedDamage } from './damage-calculator';
 
 // ── HP Manipulation Helpers ────────────────────────────────────────

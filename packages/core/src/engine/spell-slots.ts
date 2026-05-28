@@ -2,8 +2,8 @@
 // 法术位计算 — 纯函数
 // 对应 HLD §6.1 + PRD v4.0 §10 附录C
 
-import type { CharacterClass } from '../types/character';
-import type { DataLoader } from '../data/loader';
+import type { CharacterClass } from '@open20/core/types/character';
+import type { DataLoader } from '@open20/core/data/loader';
 
 /**
  * 法术位条目

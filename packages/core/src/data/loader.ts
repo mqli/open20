@@ -3,15 +3,15 @@
 // 实现 HLD §5.3 + §7.3
 // 纯接口，零实现依赖。测试时可注入 mock，运行时可替换为 JSON/API/内存实现
 
-import type { Species, SpeciesSubtype } from '../types/species';
-import type { Background } from '../types/background';
-import type { Class, Subclass } from '../types/class';
-import type { Feat, FeatCategory } from '../types/feat';
-import type { Weapon, Armor, GearItem } from '../types/equipment';
-import type { Spell } from '../types/spell';
-import type { DieType } from '../types/dice';
-import type { ContentPack, ContentPackMeta } from '../content/types';
-import type { Monster } from '../monster/types';
+import type { Species, SpeciesSubtype } from '@open20/core/types/species';
+import type { Background } from '@open20/core/types/background';
+import type { Class, Subclass } from '@open20/core/types/class';
+import type { Feat, FeatCategory } from '@open20/core/types/feat';
+import type { Weapon, Armor, GearItem } from '@open20/core/types/equipment';
+import type { Spell } from '@open20/core/types/spell';
+import type { DieType } from '@open20/core/types/dice';
+import type { ContentPack, ContentPackMeta } from '@open20/core/content/types';
+import type { Monster } from '@open20/core/monster/types';
 
 // ── DataLoader 接口 ───────────────────────────────────────────────
 // 所有读取规则数据的函数集中在此接口

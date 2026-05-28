@@ -2,7 +2,7 @@
 // 属性调整值计算 — 纯函数，零副作用
 // 对应 HLD §6.1 + PRD v4.0 §4.2
 
-import type { AbilityName, AbilityScores } from '../types/ability';
+import type { AbilityName, AbilityScores } from '@open20/core/types/ability';
 
 /**
  * 计算属性调整值（modifier）

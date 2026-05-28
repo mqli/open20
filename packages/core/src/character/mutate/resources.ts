@@ -1,8 +1,8 @@
 // character/mutate/resources.ts
 // Resource-related character mutations (per-class model)
 
-import type { Character } from '../../types/character';
-import type { CharacterClassResources } from '../../types/resource';
+import type { Character } from '@open20/core/types/character';
+import type { CharacterClassResources } from '@open20/core/types/resource';
 import { withUpdate } from './hp';
 
 /**

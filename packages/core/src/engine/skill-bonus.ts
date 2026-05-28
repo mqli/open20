@@ -2,8 +2,8 @@
 // 技能加值计算 — 纯函数
 // 对应 HLD §6.1 + PRD v4.0 §4.2
 
-import type { AbilityName, AbilityScores } from '../types/ability';
-import type { SkillEntry } from '../types/skill';
+import type { AbilityName, AbilityScores } from '@open20/core/types/ability';
+import type { SkillEntry } from '@open20/core/types/skill';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 /**

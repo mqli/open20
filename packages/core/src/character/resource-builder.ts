@@ -3,12 +3,12 @@
 // Returns Record<string, CharacterClassResources> keyed by classId.
 // Shared by create.ts, recompute.ts, and level-up.ts.
 
-import type { Feature, Class, Subclass } from '../types/class';
-import type { Resource, CharacterClassResources } from '../types/resource';
-import { ResetType } from '../types/resource';
-import { getProficiencyBonus } from '../engine/proficiency-bonus';
-import { getModifier, getTotalScore } from '../engine/ability-modifier';
-import type { AbilityScores } from '../types/ability';
+import type { Feature, Class, Subclass } from '@open20/core/types/class';
+import type { Resource, CharacterClassResources } from '@open20/core/types/resource';
+import { ResetType } from '@open20/core/types/resource';
+import { getProficiencyBonus } from '@open20/core/engine/proficiency-bonus';
+import { getModifier, getTotalScore } from '@open20/core/engine/ability-modifier';
+import type { AbilityScores } from '@open20/core/types/ability';
 
 /**
  * Extract per-class resources from all character classes.
