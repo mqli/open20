@@ -5,6 +5,7 @@ const sharedTheme = {
         50: 'var(--color-primary-50)',
         100: 'var(--color-primary-100)',
         400: 'var(--color-primary-400)',
+        500: 'var(--color-primary-500)',
         600: 'var(--color-primary-600)',
         800: 'var(--color-primary-800)',
       },

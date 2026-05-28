@@ -24,7 +24,7 @@ const tabsTriggerVariants = cva(
         default:
           'text-text-secondary hover:text-text-primary data-[state=active]:border-primary-600 data-[state=active]:text-primary-600',
         pills:
-          'rounded-full border-0 data-[state=active]:bg-primary-500 data-[state=active]:text-white data-[state=active]:shadow-sm',
+          'rounded-full border-0 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary data-[state=active]:bg-primary-600 data-[state=active]:text-bg-primary data-[state=active]:shadow-sm',
       },
     },
     defaultVariants: { variant: 'default' },
