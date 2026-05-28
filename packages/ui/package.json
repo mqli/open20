@@ -8,6 +8,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./styles": "./dist/styles/design-tokens.js",
+    "./styles.css": "./src/styles/index.css",
     "./*": "./dist/*"
   },
   "scripts": {

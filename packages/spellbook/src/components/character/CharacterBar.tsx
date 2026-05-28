@@ -1,5 +1,6 @@
 import { useState, Fragment } from 'react';
 import { useCharacterStore } from '@/stores/character-store';
+import { useUIStore } from '@/stores/ui-store';
 import type { AppCharacter } from '@/core/types';
 import { dataLoader } from '@/core/data-loader';
 import {
@@ -13,6 +14,7 @@ import {
   IconButton,
   Surface,
   Text,
+  ThemeToggle,
 } from '@open20/ui';
 import { SpellSlots } from '@/components/spell-slots/SpellSlots';
 import { CharacterModal } from './CharacterModal';
@@ -42,10 +44,15 @@ export function CharacterBar() {
     consumePactMagicSlot,
     recoverPactMagicSlot,
   } = useCharacterStore();
+  const { theme, setTheme } = useUIStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
   const [isSwitchOpen, setIsSwitchOpen] = useState(false);
+
+  const handleToggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   const handleCreate = () => {
     setEditingId(undefined);
@@ -161,6 +168,9 @@ export function CharacterBar() {
 
       {/* Right: less common actions */}
       <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+        {/* Theme Toggle */}
+        <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
+
         {/* Switch / create character — less prominent */}
         <DropdownMenuRoot open={isSwitchOpen} onOpenChange={setIsSwitchOpen}>
           <DropdownMenuTrigger asChild>

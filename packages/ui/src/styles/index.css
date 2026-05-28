@@ -78,7 +78,9 @@
     --color-warning: #fac775;
     --color-info: #85b7eb;
   }
+}
 
+@layer base {
   body {
     @apply bg-bg-primary text-text-primary font-sans antialiased;
   }

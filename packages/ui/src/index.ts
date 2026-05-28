@@ -31,6 +31,8 @@ export type { SwitchProps } from './components/Switch/index';
 export { Tabs };
 export { Text } from './components/Text/index';
 export type { TextProps } from './components/Text/index';
+export { ThemeToggle } from './components/ThemeToggle/index';
+export type { ThemeToggleProps } from './components/ThemeToggle/index';
 export { Toggle } from './components/Toggle/index';
 export type { ToggleProps } from './components/Toggle/index';
 export { Tooltip, TooltipProvider } from './components/Tooltip/index';
