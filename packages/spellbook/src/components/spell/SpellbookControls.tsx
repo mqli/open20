@@ -1,7 +1,7 @@
 import { IconButton } from '@open20/ui';
 import { PrepareSpellIcon, KnownSpellIcon } from '@open20/ui';
 import { ClassActionDropdown } from './ClassActionDropdown';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 interface SpellbookControlsProps {
   showCantripButton: boolean;
@@ -38,7 +38,7 @@ export function SpellbookControls({
   onPrepareMultiToggle,
   onPrepareSingleClick,
 }: SpellbookControlsProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   return (
     <>
       {showCantripButton &&

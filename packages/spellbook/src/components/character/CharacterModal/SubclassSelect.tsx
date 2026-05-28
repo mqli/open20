@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { SelectContent, SelectItem, SelectRoot, SelectTrigger, Text } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 import { dataLoader } from '@/core/data-loader';
 
 interface SubclassSelectProps {
@@ -11,7 +11,7 @@ interface SubclassSelectProps {
 }
 
 export function SubclassSelect({ classId, value, onChange, label }: SubclassSelectProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const subclasses = useMemo(() => dataLoader.getSubclassesForClass(classId), [classId]);
 
   if (subclasses.length === 0) return null;

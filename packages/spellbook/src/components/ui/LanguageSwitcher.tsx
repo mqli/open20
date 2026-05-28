@@ -1,9 +1,9 @@
-import { useSpellbookI18n } from '@/i18n';
+import { useI18n } from '@open20/ui';
 import { Button } from '@open20/ui';
 import { Globe } from 'lucide-react';
 
 export function LanguageSwitcher() {
-  const { locale, setLocale } = useSpellbookI18n();
+  const { locale, setLocale } = useI18n();
 
   const toggleLanguage = () => {
     const newLocale = locale === 'en' ? 'zh-CN' : 'en';

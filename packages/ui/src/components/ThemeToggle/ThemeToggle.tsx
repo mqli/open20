@@ -1,6 +1,6 @@
 import { Palette } from 'lucide-react';
 import { IconButton } from '../IconButton';
-import { useTranslation } from '@/i18n';
+import { useTranslation } from '../../i18n';
 
 export interface ThemeToggleProps {
   theme: 'light' | 'dark';

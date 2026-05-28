@@ -1,6 +1,6 @@
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Select } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -30,7 +30,7 @@ export function CastLevelSelect({
   spellSlots,
   className,
 }: CastLevelSelectProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   return (
     <Select.Root
       value={String(selectedCastLevel)}

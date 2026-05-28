@@ -12,7 +12,7 @@ import { ConcentrationToggle } from './ConcentrationToggle';
 import { SpellActionRow } from './SpellActionRow';
 import { SpellbookControls } from './SpellbookControls';
 import { SpellStatusBadges } from './SpellStatusBadges';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 type SpellCardDensity = 'default' | 'compact';
 type SpellActionStyle = 'button' | 'icon';
@@ -52,7 +52,7 @@ export function SpellCardWrapper({
   showSpellbookBadges = false,
   actionStyle = 'button',
 }: SpellCardWrapperProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const {
     activeCharacter,
     castSpell,

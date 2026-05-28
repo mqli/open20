@@ -1,7 +1,11 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
+import {
+  defaultTranslations,
+  zhCNTranslations as defualtZhCNTranslations,
+  type BaseTranslations,
+} from '@open20/ui';
 
 // Spellbook translation structure
-export interface SpellbookTranslations {
+export interface SpellbookTranslations extends BaseTranslations {
   // Search and filters
   spells: string;
   searchSpells: string;
@@ -137,7 +141,7 @@ export interface SpellbookTranslations {
 }
 
 // English translations
-export const enTranslations: SpellbookTranslations = {
+export const enTranslations: SpellbookTranslations = Object.assign(defaultTranslations, {
   spells: 'Spells',
   searchSpells: 'Search spells...',
   clearSearch: 'Clear search',
@@ -260,10 +264,10 @@ export const enTranslations: SpellbookTranslations = {
   switchToEnglish: '切换到英文',
   chineseShort: '中文',
   englishShort: 'EN',
-};
+});
 
 // Chinese (Simplified) translations
-export const zhCNTranslations: SpellbookTranslations = {
+export const zhCNTranslations: SpellbookTranslations = Object.assign(defualtZhCNTranslations, {
   spells: '法术',
   searchSpells: '搜索法术...',
   clearSearch: '清除搜索',
@@ -386,80 +390,4 @@ export const zhCNTranslations: SpellbookTranslations = {
   switchToEnglish: 'Switch to English',
   chineseShort: '中文',
   englishShort: 'EN',
-};
-
-// Context type
-interface SpellbookI18nContextType {
-  t: (key: keyof SpellbookTranslations, params?: Record<string, string | number>) => string;
-  locale: string;
-  setLocale: (locale: string) => void;
-  translations: SpellbookTranslations;
-}
-
-// Create context
-const SpellbookI18nContext = createContext<SpellbookI18nContextType | undefined>(undefined);
-
-// Provider component
-export function SpellbookI18nProvider({
-  children,
-  initialLocale = 'en',
-}: {
-  children: ReactNode;
-  initialLocale?: string;
-}) {
-  const [locale, setLocale] = useState(initialLocale);
-
-  const translations = locale === 'zh-CN' ? zhCNTranslations : enTranslations;
-
-  const t = useCallback(
-    (key: keyof SpellbookTranslations, params?: Record<string, string | number>): string => {
-      const value = translations[key];
-
-      if (!value) {
-        console.warn(`Translation key not found: ${key}`);
-        return key;
-      }
-
-      let result = value;
-
-      // Replace parameters in the string
-      if (params && typeof result === 'string') {
-        Object.entries(params).forEach(([paramKey, paramValue]) => {
-          result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
-        });
-      }
-
-      return result;
-    },
-    [translations],
-  );
-
-  const contextValue = useMemo(
-    () => ({
-      t,
-      locale,
-      setLocale,
-      translations,
-    }),
-    [t, locale, translations],
-  );
-
-  return (
-    <SpellbookI18nContext.Provider value={contextValue}>{children}</SpellbookI18nContext.Provider>
-  );
-}
-
-// Hook to use spellbook i18n
-export function useSpellbookI18n() {
-  const context = useContext(SpellbookI18nContext);
-  if (!context) {
-    throw new Error('useSpellbookI18n must be used within a SpellbookI18nProvider');
-  }
-  return context;
-}
-
-// Convenience hook for translation only
-export function useSpellbookTranslation() {
-  const { t } = useSpellbookI18n();
-  return t;
-}
+});

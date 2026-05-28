@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   Text,
 } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
@@ -41,7 +41,7 @@ export function CharacterModalForm({
   onSubmit,
   onCancel,
 }: CharacterModalFormProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const handleAbilityChange = (abilityName: string, value: string) => {
     setFormData((prev) => ({
       ...prev,

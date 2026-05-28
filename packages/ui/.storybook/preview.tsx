@@ -5,14 +5,14 @@ import '../src/styles/index.css';
 
 const basePreview = createStorybookPreview();
 
+const translationsSet = { en: defaultTranslations, 'zh-CN': zhCNTranslations };
 const preview: Preview = {
   ...basePreview,
   decorators: [
     (Story, context) => {
-      const locale = context.globals.locale;
-      const translations = locale === 'zh-CN' ? zhCNTranslations : defaultTranslations;
+      const locale = (context.globals.locale as 'en' | 'zh-CN') ?? 'en';
       return (
-        <I18nProvider translations={translations} initialLocale={locale}>
+        <I18nProvider key={locale} translationsSet={translationsSet} initialLocale={locale}>
           <Story />
         </I18nProvider>
       );

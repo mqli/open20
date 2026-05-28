@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  type ReactNode,
+} from 'react';
 
 // Translation structure - designed to be extendable by consuming apps
 export interface BaseTranslations {
@@ -214,15 +222,22 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 // Provider component - accepts extended translations
 export function I18nProvider<T extends BaseTranslations = BaseTranslations>({
   children,
-  translations = defaultTranslations as unknown as T,
+  translationsSet = {
+    en: defaultTranslations as unknown as T,
+    'zh-CN': zhCNTranslations as unknown as T,
+  },
   initialLocale = 'en',
 }: {
   children: ReactNode;
-  translations?: T;
+  translationsSet?: Record<'en' | 'zh-CN', T>;
   initialLocale?: string;
 }) {
   const [locale, setLocale] = useState(initialLocale);
+  const translations = translationsSet[locale as 'en' | 'zh-CN'] ?? translationsSet.en;
 
+  useEffect(() => {
+    setLocale(initialLocale);
+  }, [initialLocale]);
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {
       const keys = key.split('.');
@@ -251,7 +266,6 @@ export function I18nProvider<T extends BaseTranslations = BaseTranslations>({
     },
     [translations],
   );
-
   const contextValue = useMemo(
     () => ({
       t,

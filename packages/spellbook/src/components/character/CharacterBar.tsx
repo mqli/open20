@@ -21,7 +21,7 @@ import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Plus, User, Moon, Sun, FileText, Users, ChevronRight } from 'lucide-react';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 const CLASS_NAME_MAP = Object.fromEntries(
   dataLoader.getAllClasses().map((c) => [c.id, c.name || c.id]),
@@ -35,7 +35,7 @@ function formatClassInfo(
 }
 
 export function CharacterBar() {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const {
     characters,
     activeCharacter,

@@ -16,7 +16,7 @@ import {
 import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -45,7 +45,7 @@ export function CharacterSheet({
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
 }) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const { activeCharacter, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
 
   if (!activeCharacter) return null;

@@ -1,13 +1,13 @@
 import { spellService } from '@/core/spell-service';
 import { Surface, Text, ConcentrationBannerIcon } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 interface ConcentrationBannerProps {
   concentratingSpellId: string;
 }
 
 export function ConcentrationBanner({ concentratingSpellId }: ConcentrationBannerProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const spellName =
     spellService.getSpell(concentratingSpellId)?.name ?? concentratingSpellId.replace(/-/g, ' ');
 

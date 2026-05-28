@@ -1,9 +1,9 @@
 import { useSpellStore } from '@/stores/spell-store';
 import { Button } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 export function LevelTabs() {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const { selectedLevel, setSelectedLevel } = useSpellStore();
 
   const LEVELS = [

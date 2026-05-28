@@ -2,10 +2,22 @@ import { useEffect } from 'react';
 import { useUIStore } from './stores/ui-store';
 import { SpellLibraryLayout } from './components/layout/SpellLibraryLayout';
 import { DiceRollOverlay } from './components/dice/DiceRollOverlay';
+import { I18nProvider } from '@open20/ui';
+import { enTranslations, zhCNTranslations } from './i18n';
 
 export function App() {
   const { theme } = useUIStore();
 
+  // Get initial locale from localStorage or default to 'en'
+  const getInitialLocale = () => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('open20-locale');
+      if (saved && (saved === 'en' || saved === 'zh-CN')) {
+        return saved;
+      }
+    }
+    return 'en';
+  };
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
@@ -15,9 +27,15 @@ export function App() {
   }, [theme]);
 
   return (
-    <>
+    <I18nProvider
+      initialLocale={getInitialLocale()}
+      translationsSet={{
+        en: enTranslations,
+        'zh-CN': zhCNTranslations,
+      }}
+    >
       <SpellLibraryLayout />
       <DiceRollOverlay />
-    </>
+    </I18nProvider>
   );
 }

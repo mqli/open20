@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Badge } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 interface SpellStatusBadgesProps {
   isKnownOrCantrip: boolean;
@@ -13,7 +13,7 @@ export function SpellStatusBadges({
   isPrepared,
   renderBadges,
 }: SpellStatusBadgesProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   return (
     <>
       {isKnownOrCantrip && !isPrepared && (

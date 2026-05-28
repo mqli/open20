@@ -10,7 +10,7 @@ import {
   PrepareSpellIcon,
   KnownSpellIcon,
 } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 interface ClassActionDropdownProps {
   matchingClassIds: string[];
@@ -31,7 +31,7 @@ export function ClassActionDropdown({
   variant = 'info',
   active = false,
 }: ClassActionDropdownProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const hasActive = activeClassIds.length > 0;
   const hasInactive = matchingClassIds.some((id) => !activeClassIds.includes(id));
 

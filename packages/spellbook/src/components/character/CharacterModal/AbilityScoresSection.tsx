@@ -1,5 +1,5 @@
 import { Input, Surface, Text } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 interface AbilityScoresSectionProps {
   abilities: Record<string, number>;
@@ -7,7 +7,7 @@ interface AbilityScoresSectionProps {
 }
 
 export function AbilityScoresSection({ abilities, onChange }: AbilityScoresSectionProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   return (
     <Surface variant="primary" padding="lg" className="bg-bg-primary/50 shadow-inner">
       <Text

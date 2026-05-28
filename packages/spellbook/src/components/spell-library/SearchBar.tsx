@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useSpellStore } from '@/stores/spell-store';
 import { Input, Button } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 export function SearchBar() {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const { searchQuery, setSearchQuery } = useSpellStore();
   const [localQuery, setLocalQuery] = useState(searchQuery);
 

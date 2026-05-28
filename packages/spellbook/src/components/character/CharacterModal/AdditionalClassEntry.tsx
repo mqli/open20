@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   Surface,
 } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
 import { CLASSES } from './constants';
@@ -24,7 +24,7 @@ export function AdditionalClassEntryComponent({
   onUpdate,
   onRemove,
 }: AdditionalClassEntryProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   return (
     <Surface variant="ghost" padding="sm" className="space-y-2 bg-bg-primary/30">
       <div className="grid grid-cols-12 gap-2 items-end">

@@ -3,7 +3,7 @@ import { useSpellStore } from '@/stores/spell-store';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import type { Spell } from '@/core/types';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 interface SpellEntryProps {
   spell: Spell;
@@ -11,7 +11,7 @@ interface SpellEntryProps {
 }
 
 export function SpellEntry({ spell, alwaysPrepared }: SpellEntryProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const isAlwaysPrepared = alwaysPrepared.includes(spell.id);
   const { isConcentratingOnThis } = useSpellCapabilities(spell);
 

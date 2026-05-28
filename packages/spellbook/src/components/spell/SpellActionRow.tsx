@@ -3,7 +3,7 @@ import { DamageIcon, HealIcon, MagicIcon, AttackIcon, CastSpellIcon } from '@ope
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Button } from '@open20/ui';
 import { CastLevelSelect } from './CastLevelSelect';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -66,7 +66,7 @@ export function SpellActionRow({
   onDamageRoll,
   onHealRoll,
 }: SpellActionRowProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const showsUpcastSelect =
     spell.level > 0 && availableCastLevels.length > 1 && (showCastAction || showDamageActions);
   const showsStaticLevel =

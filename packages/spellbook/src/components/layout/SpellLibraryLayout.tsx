@@ -7,13 +7,13 @@ import { FilterChips } from '@/components/spell-library/FilterChips';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
 import { EmptyState, Surface, Toggle } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
 import { getCasterType } from '@/core/character-service';
 import { CharacterBar } from '@/components/character/CharacterBar';
 
 export function SpellLibraryLayout() {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const {
     setSpells,
     filteredSpells,

@@ -1,6 +1,6 @@
 import { Button } from '@open20/ui';
 import { ConcentrationToggleIcon } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 interface ConcentrationToggleProps {
   isConcentrating: boolean;
@@ -13,7 +13,7 @@ export function ConcentrationToggle({
   isIconStyle,
   onToggle,
 }: ConcentrationToggleProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   return isIconStyle ? (
     <Button
       variant={isConcentrating ? 'warning' : 'ghost'}

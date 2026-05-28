@@ -20,7 +20,7 @@ import { useSpellStore } from '@/stores/spell-store';
 import type { SpellLevel, Spell } from 'open20-core/types';
 import { SpellEntry } from './SpellEntry';
 import { useState, type ReactNode } from 'react';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 
 function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
@@ -58,7 +58,7 @@ interface ClassSpellSectionProps {
 }
 
 export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);

@@ -1,6 +1,6 @@
 import { useSpellStore } from '@/stores/spell-store';
 import { Button, FilterChip, Text } from '@open20/ui';
-import { useSpellbookTranslation } from '@/i18n';
+import { useTranslation } from '@open20/ui';
 import { dataLoader } from '@/core/data-loader';
 
 const CLASSES = dataLoader
@@ -19,7 +19,7 @@ const SCHOOLS = [
 ];
 
 export function FilterChips() {
-  const t = useSpellbookTranslation();
+  const t = useTranslation();
   const {
     selectedClasses,
     toggleClassFilter,
