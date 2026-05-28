@@ -79,3 +79,14 @@ export const TabsTrigger: typeof Tabs.Trigger = Tabs.Trigger;
 export const TabsContent: typeof Tabs.Content = Tabs.Content;
 
 export * from './styles/design-tokens';
+
+// i18n exports - base translations for UI components
+// Consuming apps can extend these with their own translations
+export {
+  I18nProvider,
+  useI18n,
+  useTranslation,
+  defaultTranslations,
+  type BaseTranslations,
+  type Translations,
+} from './i18n';

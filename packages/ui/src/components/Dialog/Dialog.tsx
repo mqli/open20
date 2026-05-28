@@ -4,6 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 import { closeButtonClasses } from '@/styles/design-tokens';
 import { Text } from '@/components/Text';
+import { useTranslation } from '@/i18n';
 
 const dialogVariants = cva(
   'fixed z-50 w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-lg bg-bg-secondary p-6 shadow-xl outline-none',
@@ -91,9 +92,12 @@ export const Dialog = {
     </RadixDialog.Description>
   ),
 
-  Close: ({ className, children, ...props }: RadixDialog.DialogCloseProps) => (
-    <RadixDialog.Close className={cn(closeButtonClasses, className)} {...props}>
-      {children || '×'}
-    </RadixDialog.Close>
-  ),
+  Close: ({ className, children, ...props }: RadixDialog.DialogCloseProps) => {
+    const t = useTranslation();
+    return (
+      <RadixDialog.Close className={cn(closeButtonClasses, className)} {...props}>
+        {children || t('dialog.close')}
+      </RadixDialog.Close>
+    );
+  },
 };

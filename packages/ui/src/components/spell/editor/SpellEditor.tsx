@@ -10,6 +10,7 @@ import { Button } from '@/components/Button/Button';
 import { Surface } from '@/components/Surface/Surface';
 import { Text } from '@/components/Text/Text';
 import { SpellCard } from '@/components/spell/SpellCard';
+import { useTranslation } from '@/i18n';
 
 export function SpellEditor({
   value,
@@ -21,6 +22,8 @@ export function SpellEditor({
   disabled = false,
   className,
 }: SpellEditorProps) {
+  const t = useTranslation();
+
   // ── State ────────────────────────────────────────
   const [formData, setFormData] = useState<SpellFormData>(() =>
     spellToFormData(value || defaultValue || undefined),
@@ -58,14 +61,13 @@ export function SpellEditor({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!formData.id.trim()) newErrors.id = 'ID is required';
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.range.trim()) newErrors.range = 'Range is required';
-    if (!formData.duration.trim()) newErrors.duration = 'Duration is required';
-    if (formData.components.length === 0)
-      newErrors.components = 'At least one component is required';
+    if (!formData.id.trim()) newErrors.id = t('validation.idRequired');
+    if (!formData.name.trim()) newErrors.name = t('validation.nameRequired');
+    if (!formData.range.trim()) newErrors.range = t('validation.rangeRequired');
+    if (!formData.duration.trim()) newErrors.duration = t('validation.durationRequired');
+    if (formData.components.length === 0) newErrors.components = t('validation.componentsRequired');
     if (formData.description.length === 0 || !formData.description[0]?.trim()) {
-      newErrors.description = 'Description is required';
+      newErrors.description = t('validation.descriptionRequired');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -95,7 +97,7 @@ export function SpellEditor({
         {showPreview && (
           <div className="sticky top-0 z-10 bg-bg-primary py-4 border-b border-border">
             <Text as="h3" variant="labelSm" className="mb-2">
-              Live Preview
+              {t('spellEditor.livePreview')}
             </Text>
             <SpellCard spell={formDataToSpell(formData)} density="compact" />
           </div>
@@ -122,7 +124,7 @@ export function SpellEditor({
         {Object.keys(errors).length > 0 && (
           <Surface variant="warning" padding="sm" className="space-y-1">
             <Text as="p" variant="bodySm" className="text-danger">
-              Please fix the following errors:
+              {t('validation.fixErrors')}
             </Text>
             {Object.entries(errors).map(([field, msg]) => (
               <Text key={field} as="p" variant="bodySm" className="text-danger ml-2">
@@ -142,11 +144,15 @@ export function SpellEditor({
               onClick={handleCancel}
               disabled={isSubmitting || disabled}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           )}
           <Button type="submit" variant="primary" size="lg" disabled={isSubmitting || disabled}>
-            {isSubmitting ? 'Saving...' : value ? 'Update Spell' : 'Create Spell'}
+            {isSubmitting
+              ? t('common.saving')
+              : value
+                ? t('spellEditor.updateSpell')
+                : t('spellEditor.createSpell')}
           </Button>
         </div>
       </form>

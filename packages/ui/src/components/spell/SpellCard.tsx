@@ -26,6 +26,7 @@ import {
 import { Surface } from '@/components/Surface';
 import type { SurfaceProps } from '@/components/Surface';
 import { Text } from '@/components/Text';
+import { useTranslation } from '@/i18n';
 
 import type { Spell } from 'open20-core';
 
@@ -67,10 +68,6 @@ type SpellComponent = Spell['components'][number];
 
 function formatComponents(components: readonly SpellComponent[]): string {
   return components.join(', ');
-}
-
-function levelLabel(level: number): string {
-  return level === 0 ? 'Cantrip' : `Lv. ${level}`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,6 +114,7 @@ export function SpellCard({
   className,
   ...props
 }: SpellCardProps) {
+  const t = useTranslation();
   const isCompact = density === 'compact';
   const [showDesc, setShowDesc] = useState(showDescProp ?? !isCompact);
 
@@ -171,7 +169,9 @@ export function SpellCard({
             {spell.name}
           </Text>
 
-          <span className={levelBadgeVariants({ isCantrip })}>{levelLabel(spell.level)}</span>
+          <span className={levelBadgeVariants({ isCantrip })}>
+            {isCantrip ? t('common.cantripUpgrade') : `${t('common.level')} ${spell.level}`}
+          </span>
 
           <span className={cn(chipBase, spellSchoolVariants[spell.school])}>{spell.school}</span>
 
@@ -181,13 +181,13 @@ export function SpellCard({
         {/* Ritual / Concentration tags */}
         <div className="flex items-center gap-1 shrink-0">
           {spell.ritual && (
-            <span title="Ritual" className="text-text-tertiary">
-              <RitualIcon size="md" aria-label="Ritual" />
+            <span title={t('common.ritual')} className="text-text-tertiary">
+              <RitualIcon size="md" aria-label={t('common.ritual')} />
             </span>
           )}
           {spell.concentration && (
-            <span title="Concentration" className="text-text-tertiary">
-              <ConcentrationIcon size="md" aria-label="Concentration" />
+            <span title={t('common.concentration')} className="text-text-tertiary">
+              <ConcentrationIcon size="md" aria-label={t('common.concentration')} />
             </span>
           )}
         </div>
@@ -226,12 +226,12 @@ export function SpellCard({
               {showDesc ? (
                 <>
                   <ChevronUp className={I.xs} />
-                  Less
+                  {t('common.less')}
                 </>
               ) : (
                 <>
                   <ChevronDown className={I.xs} />
-                  Details
+                  {t('common.details')}
                 </>
               )}
             </Button>
@@ -293,7 +293,7 @@ export function SpellCard({
         <div className={cn(sectionDivider, 'space-y-1')}>
           <Text variant="labelSm" as="p" className="flex items-center gap-1">
             <MagicIcon size="xs" />
-            At Higher Levels
+            {t('common.atHigherLevels')}
           </Text>
           {higherLevelText.map((text, i) => (
             <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
@@ -308,11 +308,13 @@ export function SpellCard({
         <div className={cn(sectionDivider, 'space-y-1')}>
           <Text variant="labelSm" as="p" className="flex items-center gap-1">
             <MagicIcon size="xs" />
-            Cantrip Upgrade
+            {t('common.cantripUpgrade')}
           </Text>
           {cantripUpgrades.map((u, i) => (
             <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
-              <span className="font-semibold text-text-primary">Level {u.atCharacterLevel}:</span>{' '}
+              <span className="font-semibold text-text-primary">
+                {t('common.level')} {u.atCharacterLevel}:
+              </span>{' '}
               {u.damage
                 ? u.damage.map((d) => `${d.dice} ${d.type}`).join(' + ')
                 : (spell.cantripUpgradeText ?? '')}

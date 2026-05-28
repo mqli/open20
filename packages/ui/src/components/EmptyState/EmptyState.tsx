@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { Text } from '@/components/Text';
+import { useTranslation } from '@/i18n';
 
 interface EmptyStateProps {
   icon?: ReactNode;
@@ -11,6 +12,12 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
+  const t = useTranslation();
+
+  // Use provided title/description or fallback to i18n defaults
+  const displayTitle = title || t('emptyState.noItems');
+  const displayDescription = description || t('emptyState.getStarted');
+
   return (
     <div
       className={cn(
@@ -20,11 +27,11 @@ export function EmptyState({ icon, title, description, action, className }: Empt
     >
       {icon && <div className="mb-2 text-text-tertiary/50">{icon}</div>}
       <Text variant="body" weight="medium">
-        {title}
+        {displayTitle}
       </Text>
       {description && (
         <Text variant="caption" className="max-w-xs">
-          {description}
+          {displayDescription}
         </Text>
       )}
       {action && <div className="mt-4">{action}</div>}
