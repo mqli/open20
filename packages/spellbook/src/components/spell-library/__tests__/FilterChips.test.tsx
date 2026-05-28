@@ -2,7 +2,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { FilterChips } from '@/components/spell-library/FilterChips';
-
+import { I18nProvider } from '@open20/ui';
+const renderWithI18n = (ui: React.ReactElement) => {
+  return render(<I18nProvider>{ui}</I18nProvider>);
+};
 // Mock the store - vi.mock is hoisted to top of file
 vi.mock('../../stores/spell-store', () => ({
   useSpellStore: vi.fn(() => ({
@@ -23,22 +26,22 @@ describe('FR-005: Multi-dimensional Filtering', () => {
   });
 
   it('should render all class filters', () => {
-    render(<FilterChips />);
+    renderWithI18n(<FilterChips />);
     expect(screen.getByText('Wizard')).toBeInTheDocument();
     expect(screen.getByText('Cleric')).toBeInTheDocument();
   });
 
   it('should render all school filters', () => {
-    render(<FilterChips />);
+    renderWithI18n(<FilterChips />);
     expect(screen.getByText('Evocation')).toBeInTheDocument();
     expect(screen.getByText('Abjuration')).toBeInTheDocument();
     expect(screen.getByText('Illusion')).toBeInTheDocument();
   });
 
   it('should render property filters (Ritual, Concentration)', () => {
-    render(<FilterChips />);
-    expect(screen.getByText('Ritual')).toBeInTheDocument();
-    expect(screen.getByText('Concentration')).toBeInTheDocument();
+    renderWithI18n(<FilterChips />);
+    expect(screen.getByText('ritual')).toBeInTheDocument();
+    expect(screen.getByText('concentration')).toBeInTheDocument();
   });
 
   // Note: Click handler tests are skipped due to ESM mocking complexities

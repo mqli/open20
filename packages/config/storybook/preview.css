@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary — Arcane Purple */
+    --color-primary-50: #eeedfe;
+    --color-primary-100: #cecbf6;
+    --color-primary-400: #7f77dd;
+    --color-primary-600: #534ab7;
+    --color-primary-800: #3c3489;
+
+    /* Neutral — Stone Gray */
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f5f0;
+    --color-bg-tertiary: #eceae3;
+    --color-text-primary: #2c2c2a;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-border: #d3d1c7;
+
+    /* Semantic Status */
+    --color-success: #1d9e75;
+    --color-danger: #e24b4a;
+    --color-warning: #ba7517;
+    --color-info: #378add;
+
+    /* Semantic Schools */
+    --color-school-abjuration: #378add;
+    --color-school-conjuration: #1d9e75;
+    --color-school-divination: #7f77dd;
+    --color-school-enchantment: #d4537e;
+    --color-school-evocation: #d85a30;
+    --color-school-illusion: #534ab7;
+    --color-school-necromancy: #a32d2d;
+    --color-school-transmutation: #639922;
+
+    /* Semantic Spell Levels */
+    --color-level-0: #888780;
+    --color-level-1: #378add;
+    --color-level-2: #7f77dd;
+    --color-level-3: #1d9e75;
+    --color-level-4: #d4537e;
+    --color-level-5: #d85a30;
+    --color-level-6: #ba7517;
+    --color-level-7: #639922;
+    --color-level-8: #a32d2d;
+    --color-level-9: #e24b4a;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+  }
+
+  [data-theme='dark'] {
+    /* Primary — Arcane Purple */
+    --color-primary-50: #26215c;
+    --color-primary-100: #26215c;
+    --color-primary-400: #7f77dd;
+    --color-primary-600: #afa9ec;
+    --color-primary-800: #cecbf6;
+
+    /* Neutral — Stone Gray */
+    --color-bg-primary: #1a1a1e;
+    --color-bg-secondary: #242428;
+    --color-bg-tertiary: #2c2c30;
+    --color-text-primary: #f1efe8;
+    --color-text-secondary: #b4b2a9;
+    --color-text-tertiary: #888780;
+    --color-border: #444441;
+
+    /* Semantic Status */
+    --color-success: #5dcaa5;
+    --color-danger: #f09595;
+    --color-warning: #fac775;
+    --color-info: #85b7eb;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary font-sans antialiased;
+  }
+}
+
+/* Custom scrollbar styles */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 3px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-tertiary);
+}
