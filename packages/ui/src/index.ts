@@ -87,6 +87,7 @@ export {
   useI18n,
   useTranslation,
   defaultTranslations,
+  zhCNTranslations,
   type BaseTranslations,
   type Translations,
 } from './i18n';

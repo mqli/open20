@@ -56,6 +56,18 @@ export function createStorybookPreview({ defaultTheme = 'light', layout = 'cente
           ],
         },
       },
+      locale: {
+        name: 'Locale',
+        description: 'Internationalization locale',
+        defaultValue: 'en',
+        toolbar: {
+          icon: 'globe',
+          items: [
+            { value: 'en', title: 'English' },
+            { value: 'zh-CN', title: '中文(简体)' },
+          ],
+        },
+      },
     },
     decorators: [
       (Story, context) => {

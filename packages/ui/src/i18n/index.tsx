@@ -135,6 +135,68 @@ export const defaultTranslations: Translations = {
   },
 };
 
+// Chinese (Simplified) translations
+export const zhCNTranslations: Translations = {
+  common: {
+    cancel: '取消',
+    save: '保存',
+    saving: '保存中...',
+    create: '创建',
+    update: '更新',
+    close: '关闭',
+    details: '详情',
+    less: '更少',
+    atHigherLevels: '在更高等级',
+    cantripUpgrade: '戏法升级',
+    level: '等级',
+    ritual: '仪式',
+    concentration: '专注',
+    source: '来源',
+  },
+
+  validation: {
+    required: '是必填项',
+    idRequired: 'ID是必填项',
+    nameRequired: '名称是必填项',
+    rangeRequired: '范围是必填项',
+    durationRequired: '持续时间是必填项',
+    componentsRequired: '至少需要一个组件',
+    descriptionRequired: '描述是必填项',
+    fixErrors: '请修复以下错误：',
+  },
+
+  spellEditor: {
+    livePreview: '实时预览',
+    basicInfo: '基本信息',
+    castingInfo: '施法信息',
+    description: '描述',
+    damageHealing: '伤害与治疗',
+    cantripUpgrade: '戏法升级',
+    createSpell: '创建法术',
+    updateSpell: '更新法术',
+  },
+
+  emptyState: {
+    noItems: '没有项目',
+    noResults: '未找到结果',
+    getStarted: '通过创建您的第一个项目开始',
+  },
+
+  themeToggle: {
+    switchToLight: '切换到浅色模式',
+    switchToDark: '切换到深色模式',
+  },
+
+  dialog: {
+    close: '关闭',
+  },
+
+  select: {
+    noOptions: '没有可用选项',
+    searchPlaceholder: '搜索...',
+  },
+};
+
 // Context type - supports generic translations for extensibility
 interface I18nContextType<T = BaseTranslations> {
   t: (key: keyof T | string) => string;
