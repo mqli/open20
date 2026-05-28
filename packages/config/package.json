@@ -24,6 +24,10 @@
       "types": "./types/vitest/index.d.ts",
       "default": "./vitest/index.js"
     },
+    "./vitest/utils": {
+      "types": "./types/vitest/utils.d.ts",
+      "default": "./vitest/utils.ts"
+    },
     "./storybook": {
       "types": "./types/storybook/index.d.ts",
       "default": "./storybook/index.js"

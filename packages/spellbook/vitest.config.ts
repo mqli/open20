@@ -20,6 +20,18 @@ export default defineConfig({
       ['src/components/**', 'happy-dom'],
       ['src/components/**/__tests__/**', 'happy-dom'],
     ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary', 'html'],
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/__tests__/**', 'src/test/**'],
+      thresholds: {
+        lines: 75,
+        branches: 70,
+        functions: 75,
+        statements: 75,
+      },
+    },
     server: {
       deps: {
         // Inline to fix ESM resolution issues in pnpm's virtual store:

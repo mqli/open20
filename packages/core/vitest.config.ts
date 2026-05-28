@@ -32,9 +32,15 @@ export default defineConfig({
     ...baseConfig.test,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json-summary', 'html'],
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.test.ts', 'src/**/index.ts'],
+      thresholds: {
+        lines: 80,
+        branches: 75,
+        functions: 80,
+        statements: 80,
+      },
     },
     include: ['tests/**/*.test.ts'],
     exclude: ['node_modules', 'dist', 'tests/artifact', 'tests/browser-artifact'],

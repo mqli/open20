@@ -9,8 +9,9 @@
     "target": "ES2022",
     "types": ["node"],
     "outDir": "./types",
+    "rootDir": ".",
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["vite/**/*.js", "vitest/**/*.js"]
+  "include": ["vite/**/*.js", "vitest/**/*.{js,ts}"]
 }
