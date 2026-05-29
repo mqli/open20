@@ -1,10 +1,10 @@
-import { parseMarkdown, transformSpell } from './parse_srd_markdown';
+import { parseMarkdown, transformSpell } from './parse_srd_markdown.ts';
 
 type Spell = ReturnType<typeof transformSpell>;
 
 export function generateSpellsFromMarkdown(content: string): Spell[] {
   const parsed = parseMarkdown(content);
-  return parsed.map(p => transformSpell(p));
+  return parsed.map((p) => transformSpell(p));
 }
 
 export function mergeSpells(existing: Spell[], generated: Spell[]): Spell[] {

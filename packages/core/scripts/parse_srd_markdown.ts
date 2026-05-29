@@ -1,11 +1,10 @@
 import {
-  collapseParagraphLines,
   parseParentheticalCommaList,
   slugify,
   stripBold,
   stripItalic,
   stripMarkdownHeading,
-} from './srd_markdown_helpers';
+} from './srd_markdown_helpers.ts';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -81,7 +80,14 @@ function checkRitual(castingTime: string, description: string): boolean {
 }
 
 function extractSave(description: string): string | undefined {
-  for (const save of ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma']) {
+  for (const save of [
+    'Strength',
+    'Dexterity',
+    'Constitution',
+    'Intelligence',
+    'Wisdom',
+    'Charisma',
+  ]) {
     if (new RegExp(`\\b${save}\\b`, 'i').test(description)) return save;
   }
   return undefined;
@@ -92,10 +98,14 @@ function checkAttack(description: string): boolean {
 }
 
 export function extractDamage(description: string): SpellDamage | undefined {
-  const matches = [...description.matchAll(/(\d+d\d+(?:\s*\+\s*\d+)?)\s+(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/gi)];
+  const matches = [
+    ...description.matchAll(
+      /(\d+d\d+(?:\s*\+\s*\d+)?)\s+(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/gi,
+    ),
+  ];
   if (matches.length === 0) return undefined;
   return {
-    entries: matches.map(m => ({
+    entries: matches.map((m) => ({
       dice: m[1],
       type: m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase(),
     })),
@@ -103,9 +113,10 @@ export function extractDamage(description: string): SpellDamage | undefined {
 }
 
 function extractHeal(description: string): SpellHeal | undefined {
-  if (!/regain|heal|hit point/i.test(description)) return undefined;
-  const m = description.match(/(\d+d\d+)/);
-  return m ? { dice: m[1] } : undefined;
+  const healingKeywords = /(regain|heal|hit point).*(\d+d\d+)/i;
+  const match = healingKeywords.exec(description);
+  if (!match) return undefined;
+  return { dice: match[2] };
 }
 
 // ── Cantrip Upgrade Parser ─────────────────────────────────────
@@ -138,7 +149,9 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
   }
 
   // Determine damage type from text (look for "Acid damage", "Fire damage", etc.)
-  const typeMatch = text.match(/(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i);
+  const typeMatch = text.match(
+    /(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i,
+  );
   const type = typeMatch
     ? typeMatch[1].charAt(0).toUpperCase() + typeMatch[1].slice(1).toLowerCase()
     : 'Unknown';
@@ -161,7 +174,9 @@ function parsePerSlotDamage(text: string, defaultType: string): SpellDamageEntry
   if (!match) return undefined;
 
   // Try to find damage type in the text
-  const typeMatch = text.match(/(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i);
+  const typeMatch = text.match(
+    /(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i,
+  );
   const type = typeMatch
     ? typeMatch[1].charAt(0).toUpperCase() + typeMatch[1].slice(1).toLowerCase()
     : defaultType;
@@ -300,14 +315,16 @@ export function parseMarkdown(content: string): ParsedSpell[] {
 
     // Skip empty lines when not in description
     if (!line.trim()) {
-      if (inDescription) {
-        descriptionLines.push('');
-      }
       continue;
     }
 
     // Description lines (everything after the fields before Cantrip Upgrade or Using a Higher-Level)
-    if (currentSpell.castingTime && !inDescription && !line.startsWith('**') && !line.startsWith('*')) {
+    if (
+      currentSpell.castingTime &&
+      !inDescription &&
+      !line.startsWith('**') &&
+      !line.startsWith('*')
+    ) {
       inDescription = true;
     }
 
@@ -331,25 +348,24 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   const descLines = parsed.descriptionLines || [];
   const cantripUpgradeText = parsed.cantripUpgradeText || '';
   const usingAHigherLevelSpellSlotText = parsed.usingAHigherLevelSpellSlotText || '';
-
-  const descriptionJoined = collapseParagraphLines(descLines);
-  const mainDescription = descriptionJoined ? [descriptionJoined] : [];
-
+  const castingTime = parsed.castingTime;
   const durationInfo = parseDuration(parsed.duration || '');
-  const fullDesc = mainDescription.join(' ');
+  const fullDesc = descLines.join(' ');
 
   const spell: Spell = {
     id: slugify(parsed.name || ''),
     name: parsed.name || '',
     level: parsed.level ?? 0,
-    school: (parsed.school || 'Unknown').charAt(0).toUpperCase() + (parsed.school || 'unknown').slice(1).toLowerCase(),
-    castingTime: parseCastingTime(parsed.castingTime || ''),
+    school:
+      (parsed.school || 'Unknown').charAt(0).toUpperCase() +
+      (parsed.school || 'unknown').slice(1).toLowerCase(),
+    castingTime: parseCastingTime(castingTime),
     range: parsed.range || 'Self',
     components: parseComponents(parsed.components || ''),
     duration: durationInfo.duration,
     concentration: durationInfo.concentration,
-    ritual: checkRitual(parsed.castingTime || '', fullDesc),
-    description: mainDescription,
+    ritual: descLines.some((desc) => checkRitual(castingTime, desc)),
+    description: descLines,
     source: 'SRD 5.2',
   };
 
@@ -378,7 +394,7 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   if (damage) {
     // If cantripUpgrade has "Unknown" type, try to get it from damage entries
     if (spell.cantripUpgrade) {
-      const knownType = damage.entries.find(d => d.type !== 'Unknown')?.type;
+      const knownType = damage.entries.find((d) => d.type !== 'Unknown')?.type;
       if (knownType) {
         for (const entry of spell.cantripUpgrade) {
           if (entry.damage) {
@@ -392,7 +408,10 @@ export function transformSpell(parsed: ParsedSpell): Spell {
 
     // Parse usingAHigherLevelSpellSlot to get per-slot damage increase
     if (usingAHigherLevelSpellSlotText) {
-      const perSlot = parsePerSlotDamage(usingAHigherLevelSpellSlotText, damage.entries[0]?.type || 'Unknown');
+      const perSlot = parsePerSlotDamage(
+        usingAHigherLevelSpellSlotText,
+        damage.entries[0]?.type || 'Unknown',
+      );
       if (perSlot) damage.perSlot = perSlot;
     }
 
@@ -404,4 +423,3 @@ export function transformSpell(parsed: ParsedSpell): Spell {
 
   return spell;
 }
-

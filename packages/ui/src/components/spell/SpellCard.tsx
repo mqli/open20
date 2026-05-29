@@ -130,7 +130,44 @@ export function SpellCard({
   const cantripUpgrades = spell.cantripUpgrade;
   const isClickable = !!onClick;
   const isDefaultVariant = !surfaceVariant || surfaceVariant === 'default';
+  const descriptions = spell.description;
 
+  const styledDescriptions = [];
+  let ul = [];
+  for (let i = 0; i < descriptions.length; i++) {
+    const description = descriptions[i];
+    if (description.startsWith('- ')) {
+      ul.push(description);
+    } else {
+      const styledDescription =
+        ul.length > 0 ? (
+          <ul key={i}>
+            {ul.map((p, i) => (
+              <li key={i}>{renderDescription(p)}</li>
+            ))}
+          </ul>
+        ) : (
+          <>{renderDescription(description)}</>
+        );
+      if (ul.length > 0) ul = [];
+      styledDescriptions.push(
+        <Text key={i} variant="bodySm" as="div" className="leading-relaxed">
+          {styledDescription}
+        </Text>,
+      );
+    }
+  }
+  if (ul.length > 0) {
+    styledDescriptions.push(
+      <Text key={styledDescriptions.length} variant="bodySm" as="div" className="leading-relaxed">
+        <ul>
+          {ul.map((p, i) => (
+            <li key={i}>{renderDescription(p)}</li>
+          ))}
+        </ul>
+      </Text>,
+    );
+  }
   return (
     <Surface
       variant={surfaceVariant}
@@ -248,12 +285,10 @@ export function SpellCard({
       </div>
 
       {/* ── Description ────────────────────────────────────────────────── */}
-      {effectiveShowDesc && spell.description.length > 0 && (
+      {effectiveShowDesc && styledDescriptions.length > 0 && (
         <div className="space-y-1.5">
-          {spell.description.map((p, i) => (
-            <Text key={i} variant="bodySm" as="p" className="leading-relaxed">
-              {renderDescription(p)}
-            </Text>
+          {styledDescriptions.map((p) => (
+            <>{p}</>
           ))}
 
           {/* Damage / Heal / Save / Attack */}
