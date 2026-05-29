@@ -134,4 +134,4 @@ Each package has its own `AGENTS.md` with package-specific conventions. Read it 
 
 - `packages/core/AGENTS.md` — architecture, immutable patterns, test conventions, spell data
 - `packages/spellbook/AGENTS.md` — component structure, Zustand stores, requirements workflow
-- `packages/ui/` — currently no package-level `AGENTS.md`; follow root `AGENTS.md` and existing patterns
+- `packages/ui/AGENTS.md` — component, stateless

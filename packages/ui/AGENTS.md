@@ -5,6 +5,7 @@
 This package lives at `packages/ui/` inside the [open20 monorepo](../../agent.md). Read `../../agent.md` for repo-wide conventions (turbo pipeline, shared configs, CI).
 
 **Dependencies**:
+
 - `open20-core` — workspace dependency (`"open20-core": "workspace:*"`). Imports types like `Spell`, `Character`, etc. Do NOT put game logic here — it belongs in core.
 - `@open20/config` — dev dependency for shared tsconfig/eslint.
 
@@ -24,7 +25,7 @@ This package lives at `packages/ui/` inside the [open20 monorepo](../../agent.md
 
 ```
 packages/ui/
-├── agent.md                        # This file
+├── AGENTS.md                        # This file
 ├── package.json                    # ESM, private package
 ├── tsconfig.json                   # Dev mode (noEmit)
 ├── tsconfig.build.json             # Build config (output dist/)
@@ -81,16 +82,14 @@ ComponentName/
 // 1. Define variants with cva, referencing design-tokens
 const myVariants = cva('base classes', {
   variants: {
-    variant: someVariantClasses,  // from design-tokens
+    variant: someVariantClasses, // from design-tokens
     size: someSizeClasses,
   },
   defaultVariants: { variant: 'default', size: 'md' },
 });
 
 // 2. Props = HTMLAttributes + VariantProps
-export interface MyProps
-  extends HTMLAttributes<HTMLElement>,
-    VariantProps<typeof myVariants> {
+export interface MyProps extends HTMLAttributes<HTMLElement>, VariantProps<typeof myVariants> {
   children: ReactNode;
 }
 
@@ -126,6 +125,7 @@ const myVariants = cva('base', {
 ```
 
 **Naming convention for tokens**:
+
 - Domain-specific → prefix (`badgeVariants`, `spellSchoolVariants`)
 - Generic/cross-cutting → no prefix (`chipBase`, `sectionDivider`, `iconSizes`, `collapseToggle`, `inlineMeta`)
 - Single class strings → `CamelCaseClasses` (`overlayClasses`, `inputBaseClasses`)
@@ -155,6 +155,52 @@ Prefer composition over duplication. SpellCard uses `Surface` + `Text`, not raw 
 
 Available primitives: `Surface` (card), `Text` (typography), `Badge` (chip), `IconButton`, `Button`, `Input`, `EmptyState`, `SectionHeader`, `SlotPips`.
 
+### Accessibility (A11y)
+
+- Keyboard: all interactive components must be operable via keyboard (focus, Enter/Space).
+- Focus styles: include visible focus-visible states; prefer Radix primitives for built-in a11y.
+- ARIA: apply appropriate roles/aria-labels and semantic HTML where needed.
+- Stories: include notes or stories demonstrating keyboard and screen-reader behavior.
+
+### Testing
+
+- Unit tests: use vitest + @testing-library/react. Place tests in a **tests** folder adjacent to the component.
+- Storybook: add stories for keyboard/edge cases; run visual regression checks where available (Chromatic).
+- Pre-merge checks: run `pnpm run typecheck && pnpm run lint && pnpm run build`.
+
+### ForwardRef & typing (example)
+
+```tsx
+import React, { forwardRef } from 'react';
+import { VariantProps } from 'class-variance-authority';
+
+const buttonVariants = {
+  /*...*/
+} as const;
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, ...props }, ref) => (
+  <button ref={ref} className={cn(buttonVariants(props as any), className)} {...props} />
+));
+Button.displayName = 'Button';
+```
+
+### Forbidden inline-classes (example)
+
+❌ Wrong:
+
+```tsx
+<div className="bg-blue-500 px-2 py-1 rounded">...</div>
+```
+
+✅ Right (use design token):
+
+```tsx
+<div className={cn(buttonVariants({ variant: 'primary' }))}>...</div>
+```
+
 ---
 
 ## Commands
@@ -169,6 +215,7 @@ pnpm run storybook    # Storybook dev server at :6006
 ```
 
 **Minimum before commit**:
+
 ```bash
 pnpm run typecheck && pnpm run lint && pnpm run build
 ```
@@ -192,6 +239,7 @@ pnpm run typecheck && pnpm run lint && pnpm run build
 ## Design Token Guidelines
 
 ### When to extract a token
+
 - ✅ Used in 3+ places
 - ✅ Complex classname string (3+ utilities)
 - ✅ Variant object used by cva
@@ -200,19 +248,20 @@ pnpm run typecheck && pnpm run lint && pnpm run build
 
 ### Current token categories
 
-| Token | Type | Usage |
-|-------|------|-------|
-| `badgeVariants`, `buttonVariants`, `textVariants`, `surfaceVariants` | Variant objects | cva variants |
-| `overlayClasses`, `inputBaseClasses`, `dropdownContentClasses` | String | Single DOM element |
-| `spellSchoolVariants` | Variant object | 8 D&D school colors |
-| `chipBase`, `inlineMeta`, `sectionDivider`, `collapseToggle`, `iconSizes` | Generic | Cross-component reuse |
-| `closeButtonClasses`, `slider*Classes`, `slotPipStateVariants` | Domain string/object | Single component family |
+| Token                                                                     | Type                 | Usage                   |
+| ------------------------------------------------------------------------- | -------------------- | ----------------------- |
+| `badgeVariants`, `buttonVariants`, `textVariants`, `surfaceVariants`      | Variant objects      | cva variants            |
+| `overlayClasses`, `inputBaseClasses`, `dropdownContentClasses`            | String               | Single DOM element      |
+| `spellSchoolVariants`                                                     | Variant object       | 8 D&D school colors     |
+| `chipBase`, `inlineMeta`, `sectionDivider`, `collapseToggle`, `iconSizes` | Generic              | Cross-component reuse   |
+| `closeButtonClasses`, `slider*Classes`, `slotPipStateVariants`            | Domain string/object | Single component family |
 
 ---
 
 ## DO / DON'T
 
 ### DO
+
 - ✅ Follow the 3-file pattern for every component
 - ✅ Use cva + cn() for all component styling
 - ✅ Put variant classes in `design-tokens.ts`
@@ -223,9 +272,10 @@ pnpm run typecheck && pnpm run lint && pnpm run build
 - ✅ Use `lucide-react` for icons
 
 ### DON'T
+
 - ❌ Put game logic in this package — it belongs in `open20-core`
 - ❌ Hardcode classnames inline in components — use design tokens
-- ❌ Create new documentation files (*.md) unless explicitly asked
+- ❌ Create new documentation files (\*.md) unless explicitly asked
 - ❌ Add app-specific concerns (routing, stores, API calls)
 - ❌ Use `any` type — strict TypeScript only
 - ❌ Create components without Storybook stories
@@ -234,21 +284,21 @@ pnpm run typecheck && pnpm run lint && pnpm run build
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Type check | `pnpm run typecheck` |
-| Build | `pnpm run build` |
-| Lint | `pnpm run lint` |
-| Storybook | `pnpm run storybook` |
+| Task       | Command                                                 |
+| ---------- | ------------------------------------------------------- |
+| Type check | `pnpm run typecheck`                                    |
+| Build      | `pnpm run build`                                        |
+| Lint       | `pnpm run lint`                                         |
+| Storybook  | `pnpm run storybook`                                    |
 | All checks | `pnpm run typecheck && pnpm run lint && pnpm run build` |
 
-| File | Purpose |
-|------|---------|
-| `src/styles/design-tokens.ts` | All cva variant class strings |
-| `src/lib/cn.ts` | `clsx + tailwind-merge` utility |
-| `src/index.ts` | Package barrel export |
-| `tailwind.config.js` | Extends `@open20/config` base |
+| File                          | Purpose                         |
+| ----------------------------- | ------------------------------- |
+| `src/styles/design-tokens.ts` | All cva variant class strings   |
+| `src/lib/cn.ts`               | `clsx + tailwind-merge` utility |
+| `src/index.ts`                | Package barrel export           |
+| `tailwind.config.js`          | Extends `@open20/config` base   |
 
 ---
 
-*Last updated: 2026-05-25*
+_Last updated: 2026-05-25_
