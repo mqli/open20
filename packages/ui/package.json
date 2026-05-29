@@ -42,8 +42,8 @@
     "tailwind-merge": "catalog:"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@open20/config": "workspace:*",
@@ -62,10 +62,10 @@
     "storybook": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "tsc-alias": "^1.8.17",
+    "tsc-alias": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "eslint": "catalog:",
-    "prettier": "^3.8.3"
+    "prettier": "catalog:"
   }
 }

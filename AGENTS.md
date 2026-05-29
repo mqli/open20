@@ -87,11 +87,11 @@ Shared ESLint preset deps (`@eslint/js`, `typescript-eslint`, `globals`) live in
 
 ## CI Workflows
 
-| File                                     | Trigger                                                              | Notes                                                        |
-| ---------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `.github/workflows/ci.yml`               | push/PR to `main`                                                    | Full build + test matrix (node 22, 24) + core artifact tests |
-| `.github/workflows/deploy-spellbook.yml` | push to `main`, paths: `packages/spellbook/**` or `packages/core/**` | Deploys spellbook to GitHub Pages                            |
-| `.github/workflows/release-core.yml`     | tag `core-v*`                                                        | Full validation + GitHub Release + `.tgz`                    |
+| File                                     | Trigger                                                                                                                                 | Notes                                                        |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `.github/workflows/ci.yml`               | push/PR to `main`                                                                                                                       | Full build + test matrix (node 22, 24) + core artifact tests |
+| `.github/workflows/deploy-spellbook.yml` | push to `main`, paths: `packages/spellbook/**`, `packages/core/**`, `packages/ui/**`, `packages/config/**`, or the workflow file itself | Deploys spellbook to GitHub Pages                            |
+| `.github/workflows/release-core.yml`     | tag `core-v*`                                                                                                                           | Full validation + GitHub Release + `.tgz`                    |
 
 **Tag convention for core releases**: `core-v0.2.2` (not `v0.2.2`) — monorepo uses package-scoped tags.
 
@@ -99,23 +99,11 @@ Shared ESLint preset deps (`@eslint/js`, `typescript-eslint`, `globals`) live in
 
 ## Known Gotchas
 
-### 1. vitest 4.x requires vite 6+
+### 1. Keep vitest and vite aligned across workspace packages
 
-`packages/core` uses vitest 4.x, which has `vite: "^6.0.0 || ^7.0.0 || ^8.0.0"` as a peer dep. `packages/spellbook` uses vite 5. pnpm would pair core's vitest 4 with spellbook's vite 5 (wrong).
+Vitest 4 requires Vite 6+ (and Node 20+ for test runs). To avoid peer-resolution drift in pnpm workspaces, keep shared versions centralized in `pnpm-workspace.yaml` catalog and avoid package-level divergence unless absolutely necessary.
 
-**Fix in place**: `packages/core/package.json` has `"vite": "^6.0.0"` in devDependencies so pnpm resolves vitest 4 with vite 6 in core's context.
-
-### 2. `@testing-library/jest-dom` in pnpm virtual store
-
-jest-dom declares no peer dep on vitest. pnpm doesn't wire vitest into jest-dom's resolution. When `jest-dom/vitest.mjs` does `import { expect } from 'vitest'`, it finds a different instance than the test runner → `expect.extend()` silently extends the wrong object.
-
-**Fix in place**: `packages/spellbook/vitest.config.ts` has `server.deps.inline: ['@testing-library/jest-dom']` — vitest inlines it, ensuring the same `expect` instance. The tsconfig also has `@testing-library/jest-dom` in `types` for TS augmentation.
-
-### 3. `Spellcasting.type` → `Spellcasting.preparationTiming`
-
-The workspace version of `open20-core` removed `Spellcasting.type` in favour of `preparationTiming`. Spellbook was written against the older GitHub-pinned version.
-
-**Fix in place**: `packages/spellbook/src/core/character-service.ts` uses `preparationTiming === 'long_rest'` / `'level_up'` instead of the old `type === 'preparation'` / `'known'`.
+**Current baseline**: workspace catalog pins `vitest` to `^4.1.7` and `vite` to `^6.4.2`, and spellbook/ui consume them via `catalog:`.
 
 ---
 

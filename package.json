@@ -37,7 +37,7 @@
     "globals": "catalog:",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
-    "prettier": "^3.8.3",
+    "prettier": "catalog:",
     "ts-morph": "^28.0.0",
     "turbo": "latest",
     "typescript-eslint": "catalog:"

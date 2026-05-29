@@ -34,9 +34,8 @@ export default defineConfig({
     },
     server: {
       deps: {
-        // Inline to fix ESM resolution issues in pnpm's virtual store:
-        // open20-core: missing .js extensions; jest-dom: vitest peer not wired by pnpm
-        inline: ['open20-core', '@testing-library/jest-dom'],
+        // Inline open20-core to work around missing .js extensions in emitted imports.
+        inline: ['open20-core'],
       },
     },
   },
