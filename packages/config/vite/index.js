@@ -34,7 +34,7 @@ export function createAlias(importMetaUrl, relativePath = './src', alias = '@') 
 export function createGithubPagesBase({
   envVar = 'DEPLOY_TARGET',
   target = 'github-pages',
-  pagesBase = '/open20-spellbook/',
+  pagesBase = '/',
   defaultBase = '/',
 } = {}) {
   return process.env[envVar] === target ? pagesBase : defaultBase;

@@ -12,7 +12,7 @@ import {
   MagicIcon,
   AttackIcon,
   HealIcon,
-  CastSpellIcon,
+  DamageIcon,
   Button,
 } from '@';
 import {
@@ -296,7 +296,7 @@ export function SpellCard({
             <div className={cn('mt-2 flex flex-wrap items-center gap-x-3 gap-y-1', sectionDivider)}>
               {spell.damage && (
                 <MetaItem
-                  icon={<CastSpellIcon size="sm" className="text-amber-500" />}
+                  icon={<DamageIcon size="sm" className="text-amber-500" />}
                   label={spell.damage.entries.map((e) => `${e.dice} ${e.type}`).join(' + ')}
                 />
               )}

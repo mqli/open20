@@ -181,7 +181,6 @@ export function SpellCardWrapper({
       return entry;
     });
   }, [spell, effectiveCastLevel]);
-
   // ── Handlers ──
 
   const handleCast = () => {
@@ -203,10 +202,10 @@ export function SpellCardWrapper({
     });
   };
 
-  const handleDamageRoll = (index: number) => {
+  const handleDamageRoll = () => {
     if (!hasDamageEntries) return;
 
-    const result = characterService.rollSpellDamage(spell.id, index, effectiveCastLevel);
+    const result = characterService.rollSpellDamage(spell.id, effectiveCastLevel);
     const diceExpr = result.entries
       .map((entry) => `${entry.results.join('+')} (${entry.type})`)
       .join(' + ');
@@ -214,10 +213,9 @@ export function SpellCardWrapper({
       result.modifiers.length > 0
         ? ` + ${result.modifiers.reduce((sum, modifier) => sum + modifier.value, 0)}`
         : '';
-    const damageType = damageEntries[index]?.type;
 
     addRoll({
-      label: damageType ? t('rollDamageOfType', { type: damageType }) : t('damageRoll'),
+      label: t('damageRoll'),
       expression: `${diceExpr}${modExpr}`,
       total: result.total,
     });

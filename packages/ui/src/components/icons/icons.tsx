@@ -1,6 +1,5 @@
 import {
   BookMarked,
-  Zap,
   Star,
   Brain,
   BookOpen,
@@ -21,7 +20,6 @@ import { createDndIcon } from './create-icon';
 // ── Spell Domain ─────────────────────────────────────────────────
 
 export const PrepareSpellIcon = createDndIcon(BookMarked);
-export const CastSpellIcon = createDndIcon(Zap);
 export const KnownSpellIcon = createDndIcon(Star);
 export const ConcentrationIcon = createDndIcon(Brain);
 export const RitualIcon = createDndIcon(BookOpen);

@@ -1,9 +1,10 @@
 import type { Spell } from 'open20-core';
-import { DamageIcon, HealIcon, MagicIcon, AttackIcon, CastSpellIcon } from '@open20/ui';
+import { DamageIcon, HealIcon, MagicIcon, AttackIcon } from '@open20/ui';
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Button } from '@open20/ui';
 import { CastLevelSelect } from './CastLevelSelect';
 import { useTranslation } from '@open20/ui';
+import { Divider } from '@open20/ui';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -41,7 +42,7 @@ interface SpellActionRowProps {
   spellSlots: Record<SpellLevel, SpellSlotEntry> | undefined;
   onCast: () => void;
   onAttackRoll: () => void;
-  onDamageRoll: (index: number) => void;
+  onDamageRoll: () => void;
   onHealRoll: () => void;
 }
 
@@ -86,7 +87,7 @@ export function SpellActionRow({
             disabled={!availableCastLevels.includes(effectiveCastLevel)}
             className="p-1.5"
           >
-            <CastSpellIcon size="xs" />
+            <MagicIcon size="xs" />
           </Button>
         ) : (
           <Button
@@ -152,24 +153,12 @@ export function SpellActionRow({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onDamageRoll(0)}
+                  onClick={onDamageRoll}
                   title={t('rollDamage')}
                   className="p-1.5"
                 >
                   <DamageIcon size="xs" />
                 </Button>
-                {effectiveDamageEntries.slice(1).map((entry, index) => (
-                  <Button
-                    key={`alt-damage-${index}-${entry.dice}-${entry.type ?? 'none'}`}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDamageRoll(index + 1)}
-                    title={t('rollDamageOfType', { type: entry.type ?? '' })}
-                    className="p-1.5 text-[10px] font-bold"
-                  >
-                    {entry.dice}
-                  </Button>
-                ))}
               </>
             )}
             {hasHealEntry && (
@@ -190,17 +179,19 @@ export function SpellActionRow({
           </>
         ) : (
           <>
-            {hasDamageEntries &&
-              effectiveDamageEntries.map((entry, index) => (
-                <Button
-                  key={`${entry.dice}-${entry.type ?? 'none'}-${index}`}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDamageRoll(index)}
-                >
-                  {entry.dice} {entry.type}
-                </Button>
-              ))}
+            {hasDamageEntries && (
+              <Button variant="outline" size="sm" onClick={onDamageRoll}>
+                <DamageIcon size="xs" className="mr-1.5" />
+                {effectiveDamageEntries.map((entry, index) => (
+                  <>
+                    {index !== 0 && <Divider orientation="vertical" size="sm" className="m-1" />}
+                    <span key={`${entry.dice}-${entry.type ?? 'none'}-${index}`}>
+                      {entry.dice} {entry.type}
+                    </span>
+                  </>
+                ))}
+              </Button>
+            )}
             {hasHealEntry && (
               <Button variant="outline" size="sm" onClick={onHealRoll}>
                 <HealIcon size="sm" className="mr-1.5" />

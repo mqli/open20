@@ -4,7 +4,6 @@ import type { IconSize } from './create-icon';
 import { iconSizeClasses } from './create-icon';
 import {
   PrepareSpellIcon,
-  CastSpellIcon,
   KnownSpellIcon,
   ConcentrationIcon,
   RitualIcon,
@@ -55,7 +54,6 @@ export const IconSizes: Story = {
     <SizeGrid
       items={[
         { Icon: PrepareSpellIcon, label: 'PrepareSpellIcon' },
-        { Icon: CastSpellIcon, label: 'CastSpellIcon' },
         { Icon: MagicIcon, label: 'MagicIcon' },
         { Icon: AttackIcon, label: 'AttackIcon' },
       ]}
@@ -71,7 +69,6 @@ export const SpellDomain: Story = {
     <IconGrid
       items={[
         { Icon: PrepareSpellIcon, label: 'PrepareSpellIcon' },
-        { Icon: CastSpellIcon, label: 'CastSpellIcon' },
         { Icon: KnownSpellIcon, label: 'KnownSpellIcon' },
         { Icon: ConcentrationIcon, label: 'ConcentrationIcon' },
         { Icon: RitualIcon, label: 'RitualIcon' },
@@ -136,7 +133,6 @@ export const AllIcons: Story = {
     <IconGrid
       items={[
         { Icon: PrepareSpellIcon, label: 'PrepareSpellIcon' },
-        { Icon: CastSpellIcon, label: 'CastSpellIcon' },
         { Icon: KnownSpellIcon, label: 'KnownSpellIcon' },
         { Icon: ConcentrationIcon, label: 'ConcentrationIcon' },
         { Icon: RitualIcon, label: 'RitualIcon' },
@@ -177,20 +173,14 @@ function IconGrid({
           className="flex flex-col items-center gap-2 p-4 rounded-lg border border-border"
         >
           <Icon size={size} />
-          <span className="text-xs text-text-tertiary font-mono">
-            {label}
-          </span>
+          <span className="text-xs text-text-tertiary font-mono">{label}</span>
         </div>
       ))}
     </div>
   );
 }
 
-function SizeGrid({
-  items,
-}: {
-  items: { Icon: IconComponent; label: string }[];
-}) {
+function SizeGrid({ items }: { items: { Icon: IconComponent; label: string }[] }) {
   const sizes = Object.keys(iconSizeClasses) as IconSize[];
 
   return (

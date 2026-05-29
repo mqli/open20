@@ -2,7 +2,6 @@ export { iconSizeClasses, type IconSize } from './create-icon';
 
 export type DndIconName =
   | 'PrepareSpellIcon'
-  | 'CastSpellIcon'
   | 'KnownSpellIcon'
   | 'ConcentrationIcon'
   | 'RitualIcon'
@@ -20,7 +19,6 @@ export type DndIconName =
   | 'ConcentrationBannerIcon';
 
 export { PrepareSpellIcon } from './icons';
-export { CastSpellIcon } from './icons';
 export { KnownSpellIcon } from './icons';
 export { ConcentrationIcon } from './icons';
 export { RitualIcon } from './icons';
