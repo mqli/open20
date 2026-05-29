@@ -34,7 +34,7 @@ export function LevelTabs() {
               isActive ? 'shadow-sm' : 'border border-border'
             }`}
           >
-            {value > 0 ? (
+            {value && value > 0 ? (
               <>
                 <span className="hidden sm:inline mr-1">{label}</span>
                 {`${value}`}

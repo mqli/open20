@@ -58,7 +58,6 @@ interface ClassSpellSectionProps {
 }
 
 export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
-  const t = useTranslation();
   const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
   const { selectSpell } = useSpellStore();
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
@@ -327,7 +326,7 @@ interface CantripSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (spellId: string) => void;
-  cantripToReplace?: string;
+  cantripToReplace: string | null;
   availableCantrips: readonly Spell[];
 }
 
@@ -378,13 +377,13 @@ function CantripSelectionModal({
 }
 
 interface SpellSectionByLevelProps {
-  level: number;
+  level: SpellLevel;
   total: number;
   used: number;
   alwaysPrepared: string[];
   spellsAtLevel: Spell[];
-  recoverSpellSlot: (level: number) => void;
-  consumeSpellSlot: (level: number) => void;
+  recoverSpellSlot: (level: SpellLevel) => void;
+  consumeSpellSlot: (level: SpellLevel) => void;
 }
 
 function SpellSectionByLevel({
