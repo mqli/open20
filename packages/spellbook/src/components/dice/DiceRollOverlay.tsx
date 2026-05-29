@@ -41,8 +41,13 @@ export function DiceRollOverlay() {
         {/* Glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-info rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
-        <Surface variant="primary" padding="lg" shadow="xl" className="relative rounded-2xl flex items-center gap-6 min-w-[320px]">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white shadow-inner transform rotate-3 hover:rotate-0 transition-transform">
+        <Surface
+          variant="primary"
+          padding="lg"
+          shadow="xl"
+          className="relative rounded-2xl flex items-center gap-6 min-w-[320px]"
+        >
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-inner transform rotate-3 hover:rotate-0 transition-transform">
             <Dices className="w-8 h-8" />
           </div>
 

@@ -1,15 +1,15 @@
 import { useI18n } from '@open20/ui';
 import { Button } from '@open20/ui';
 import { Globe } from 'lucide-react';
+import { storageService } from '@/core/storage-service';
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useI18n();
-
   const toggleLanguage = () => {
     const newLocale = locale === 'en' ? 'zh-CN' : 'en';
     setLocale(newLocale);
     // Persist locale preference
-    localStorage.setItem('open20-locale', newLocale);
+    storageService.savePreferences({ language: newLocale });
   };
 
   return (

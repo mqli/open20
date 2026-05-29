@@ -4,14 +4,16 @@ import { SpellLibraryLayout } from './components/layout/SpellLibraryLayout';
 import { DiceRollOverlay } from './components/dice/DiceRollOverlay';
 import { I18nProvider } from '@open20/ui';
 import { enTranslations, zhCNTranslations } from './i18n';
+import { storageService } from '@/core/storage-service';
 
 export function App() {
   const { theme } = useUIStore();
+  const { language } = storageService.loadPreferences();
 
   // Get initial locale from localStorage or default to 'en'
   const getInitialLocale = () => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('open20-locale');
+      const saved = language;
       if (saved && (saved === 'en' || saved === 'zh-CN')) {
         return saved;
       }
