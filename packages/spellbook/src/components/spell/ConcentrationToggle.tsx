@@ -1,5 +1,5 @@
 import { Button } from '@open20/ui';
-import { ConcentrationToggleIcon } from '@open20/ui';
+import { ConcentrationIcon } from '@open20/ui';
 import { useTranslation } from '@open20/ui';
 
 interface ConcentrationToggleProps {
@@ -22,7 +22,7 @@ export function ConcentrationToggle({
       title={isConcentrating ? t('endConcentration') : t('startConcentration')}
       className="p-1.5"
     >
-      <ConcentrationToggleIcon size="xs" />
+      <ConcentrationIcon size="xs" />
     </Button>
   ) : (
     <Button
@@ -31,10 +31,7 @@ export function ConcentrationToggle({
       onClick={onToggle}
       title={isConcentrating ? t('endConcentration') : t('startConcentration')}
     >
-      <ConcentrationToggleIcon
-        size="sm"
-        className={`mr-1.5 ${isConcentrating ? 'animate-pulse' : ''}`}
-      />
+      <ConcentrationIcon size="sm" className={`mr-1.5 ${isConcentrating ? 'animate-pulse' : ''}`} />
       {isConcentrating ? t('stop') : t('concentrate')}
     </Button>
   );

@@ -16,16 +16,8 @@ export function SpellStatusBadges({
   const t = useTranslation();
   return (
     <>
-      {isKnownOrCantrip && !isPrepared && (
-        <Badge variant="info" size="sm">
-          {t('learn')}
-        </Badge>
-      )}
-      {isPrepared && (
-        <Badge variant="primary" size="sm">
-          {t('preparedShort')}
-        </Badge>
-      )}
+      {isKnownOrCantrip && !isPrepared && <Badge variant="info">{t('known')}</Badge>}
+      {isPrepared && <Badge variant="primary">{t('prepared')}</Badge>}
       {renderBadges?.()}
     </>
   );

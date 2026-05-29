@@ -6,7 +6,7 @@ import { LevelTabs } from '@/components/spell-library/LevelTabs';
 import { FilterChips } from '@/components/spell-library/FilterChips';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
-import { EmptyState, Surface, Toggle } from '@open20/ui';
+import { EmptyState, Surface, Toggle, Text } from '@open20/ui';
 import { useTranslation } from '@open20/ui';
 import { useCharacterStore } from '@/stores/character-store';
 import { getCasterType } from '@/core/character-service';
@@ -71,7 +71,9 @@ export function SpellLibraryLayout() {
       <Surface variant="default" className="rounded-none border-b px-3 md:px-4 py-2">
         {/* Row 1: title + search + filter toggles */}
         <div className="flex items-center gap-2 mb-1.5">
-          <h1 className="text-base font-bold text-text-primary whitespace-nowrap">{t('spells')}</h1>
+          <Text as="h1" variant="heading">
+            {t('spells')}
+          </Text>
           <div className="flex-1 min-w-0">
             <SearchBar />
           </div>
@@ -98,7 +100,6 @@ export function SpellLibraryLayout() {
             )}
           </div>
         </div>
-
         {/* Row 2: level chips */}
         <LevelTabs />
       </Surface>
@@ -106,7 +107,6 @@ export function SpellLibraryLayout() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto px-3 md:px-4 relative">
         <FilterChips />
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
           {spellsToDisplay.map((spell) => (
             <SpellCardWrapper
@@ -119,10 +119,8 @@ export function SpellLibraryLayout() {
             />
           ))}
         </div>
-
         {spellsToDisplay.length === 0 && <EmptyState title={emptyMessage} />}
       </main>
-
       <SpellDetailFlyout />
     </div>
   );

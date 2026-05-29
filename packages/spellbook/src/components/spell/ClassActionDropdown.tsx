@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
   IconButton,
   PrepareSpellIcon,
-  KnownSpellIcon,
 } from '@open20/ui';
 import { useTranslation } from '@open20/ui';
 
@@ -43,11 +42,7 @@ export function ClassActionDropdown({
           active={active}
           title={hasActive ? t('manageSpell') : t('addSpell')}
         >
-          {variant === 'info' ? (
-            <PrepareSpellIcon />
-          ) : (
-            <KnownSpellIcon className={active ? 'fill-current' : ''} />
-          )}
+          <PrepareSpellIcon />
           <ChevronDown className="w-2.5 h-2.5 ml-0.5" />
         </IconButton>
       </DropdownMenuTrigger>

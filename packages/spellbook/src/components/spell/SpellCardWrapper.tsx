@@ -109,9 +109,6 @@ export function SpellCardWrapper({
   const shouldRenderActions = hasSharedActions || !!renderActions;
 
   // ── Cast-at-higher-level state ──
-  const [selectedCastLevel, setSelectedCastLevel] = useState<SpellLevel>(
-    () => spell.level as SpellLevel,
-  );
 
   const spellSlots = activeCharacter?.spells.spellSlots;
 
@@ -138,6 +135,10 @@ export function SpellCardWrapper({
 
     return levels;
   }, [activeCharacter, spell]);
+
+  const [selectedCastLevel, setSelectedCastLevel] = useState<SpellLevel>(
+    () => Math.max(spell.level, Math.min(...availableCastLevels)) as SpellLevel,
+  );
 
   const effectiveCastLevel = useMemo<SpellLevel>(() => {
     if (spell.level === 0) return 0 as SpellLevel;
@@ -321,7 +322,6 @@ export function SpellCardWrapper({
           ? () => (
               <>
                 {renderActions?.()}
-
                 {showSpellbookActions && (
                   <SpellbookControls
                     showCantripButton={showCantripButton}
@@ -344,6 +344,7 @@ export function SpellCardWrapper({
 
                 <SpellActionRow
                   spell={spell}
+                  isPrepared={isPrepared}
                   isIconStyle={isIconStyle}
                   showCastAction={showCastAction}
                   showAttackAction={showAttackAction}

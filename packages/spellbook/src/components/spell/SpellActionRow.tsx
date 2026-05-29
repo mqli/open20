@@ -32,6 +32,7 @@ interface SpellActionRowProps {
   showDamageActions: boolean;
   hasDamageEntries: boolean;
   hasHealEntry: boolean;
+  isPrepared: boolean;
   effectiveDamageEntries: readonly DamageEntry[];
   healDice?: string;
   availableCastLevels: SpellLevel[];
@@ -54,6 +55,7 @@ export function SpellActionRow({
   showDamageActions,
   hasDamageEntries,
   hasHealEntry,
+  isPrepared,
   effectiveDamageEntries,
   healDice,
   availableCastLevels,
@@ -83,7 +85,7 @@ export function SpellActionRow({
           size="sm"
           onClick={onCast}
           title={`${t('cast')} ${t(SPELL_LEVEL_LABELS[effectiveCastLevel])}`}
-          disabled={!availableCastLevels.includes(effectiveCastLevel)}
+          disabled={!isPrepared || !availableCastLevels.includes(effectiveCastLevel)}
           className={buttonClass}
         >
           <MagicIcon size="xs" className={iconClass} />

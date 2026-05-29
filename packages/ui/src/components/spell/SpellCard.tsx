@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Clock, Hourglass, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, Hourglass, ChevronDown, ChevronUp, ArrowBigUp } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import {
   RitualIcon,
@@ -327,7 +327,7 @@ export function SpellCard({
       {effectiveShowDesc && higherLevelText && higherLevelText.length > 0 && (
         <div className={cn(sectionDivider, 'space-y-1')}>
           <Text variant="labelSm" as="p" className="flex items-center gap-1">
-            <MagicIcon size="xs" />
+            <ArrowBigUp className={I.xs} />
             {t('common.atHigherLevels')}
           </Text>
           {higherLevelText.map((text, i) => (
@@ -342,7 +342,7 @@ export function SpellCard({
       {effectiveShowDesc && cantripUpgrades && cantripUpgrades.length > 0 && (
         <div className={cn(sectionDivider, 'space-y-1')}>
           <Text variant="labelSm" as="p" className="flex items-center gap-1">
-            <MagicIcon size="xs" />
+            <ArrowBigUp className={I.xs} />
             {t('common.cantripUpgrade')}
           </Text>
           {cantripUpgrades.map((u, i) => (

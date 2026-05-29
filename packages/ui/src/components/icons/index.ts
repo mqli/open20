@@ -1,6 +1,8 @@
 export { iconSizeClasses, type IconSize } from './create-icon';
 
 export type DndIconName =
+  | 'LearnSpellIcon'
+  | 'UnLearnSpellIcon'
   | 'PrepareSpellIcon'
   | 'KnownSpellIcon'
   | 'ConcentrationIcon'
@@ -15,10 +17,12 @@ export type DndIconName =
   | 'VerbalIcon'
   | 'SomaticIcon'
   | 'MaterialIcon'
-  | 'ConcentrationToggleIcon'
-  | 'ConcentrationBannerIcon';
+  | 'ConcentrationIcon';
 
+export { LearnSpellIcon } from './icons';
+export { UnLearnSpellIcon } from './icons';
 export { PrepareSpellIcon } from './icons';
+export { PreparedSpellIcon } from './icons';
 export { KnownSpellIcon } from './icons';
 export { ConcentrationIcon } from './icons';
 export { RitualIcon } from './icons';
@@ -32,5 +36,3 @@ export { DamageIcon } from './icons';
 export { VerbalIcon } from './icons';
 export { SomaticIcon } from './icons';
 export { MaterialIcon } from './icons';
-export { ConcentrationToggleIcon } from './icons';
-export { ConcentrationBannerIcon } from './icons';

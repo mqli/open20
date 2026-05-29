@@ -1,5 +1,5 @@
 import { spellService } from '@/core/spell-service';
-import { Surface, Text, ConcentrationBannerIcon } from '@open20/ui';
+import { Surface, Text, ConcentrationIcon } from '@open20/ui';
 import { useTranslation } from '@open20/ui';
 
 interface ConcentrationBannerProps {
@@ -22,7 +22,7 @@ export function ConcentrationBanner({ concentratingSpellId }: ConcentrationBanne
         padding="xs"
         className="bg-amber-500/15 text-amber-500 flex-shrink-0"
       >
-        <ConcentrationBannerIcon size="md" />
+        <ConcentrationIcon size="md" />
       </Surface>
       <div className="min-w-0">
         <Text variant="label" className="text-amber-600">

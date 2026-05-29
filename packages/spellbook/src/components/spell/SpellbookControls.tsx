@@ -1,5 +1,10 @@
-import { IconButton } from '@open20/ui';
-import { PrepareSpellIcon, KnownSpellIcon } from '@open20/ui';
+import {
+  IconButton,
+  UnLearnSpellIcon,
+  LearnSpellIcon,
+  PrepareSpellIcon,
+  PreparedSpellIcon,
+} from '@open20/ui';
 import { ClassActionDropdown } from './ClassActionDropdown';
 import { useTranslation } from '@open20/ui';
 
@@ -39,27 +44,29 @@ export function SpellbookControls({
   onPrepareSingleClick,
 }: SpellbookControlsProps) {
   const t = useTranslation();
+  const prepareIcon = isPrepared || isCantripKnown ? <PreparedSpellIcon /> : <PrepareSpellIcon />;
+  if (showCantripButton) {
+    return matchingClassIds.length > 1 && !isPrepared ? (
+      <ClassActionDropdown
+        matchingClassIds={matchingClassIds}
+        activeClassIds={cantripKnownClassIds}
+        label={t('cantrip')}
+        onToggle={onCantripMultiToggle}
+      />
+    ) : (
+      <IconButton
+        variant="info"
+        active={isCantripKnown}
+        onClick={onCantripSingleClick}
+        title={isCantripKnown ? t('unlearnCantripAction') : t('learnCantripAction')}
+      >
+        {prepareIcon}
+      </IconButton>
+    );
+  }
+
   return (
     <>
-      {showCantripButton &&
-        (matchingClassIds.length > 1 ? (
-          <ClassActionDropdown
-            matchingClassIds={matchingClassIds}
-            activeClassIds={cantripKnownClassIds}
-            label={t('cantrip')}
-            onToggle={onCantripMultiToggle}
-          />
-        ) : (
-          <IconButton
-            variant="info"
-            active={isCantripKnown}
-            onClick={onCantripSingleClick}
-            title={isCantripKnown ? t('unlearnCantripAction') : t('learnCantripAction')}
-          >
-            <PrepareSpellIcon />
-          </IconButton>
-        ))}
-
       {showLearnButton && (
         <IconButton
           variant="info"
@@ -67,12 +74,11 @@ export function SpellbookControls({
           onClick={onLearnToggle}
           title={isKnown ? t('unlearnSpell') : t('learnSpell')}
         >
-          <PrepareSpellIcon />
+          {isKnown ? <UnLearnSpellIcon /> : <LearnSpellIcon />}
         </IconButton>
       )}
-
       {showPrepareButton &&
-        (matchingClassIds.length > 1 ? (
+        (matchingClassIds.length > 1 && !isPrepared ? (
           <ClassActionDropdown
             matchingClassIds={matchingClassIds}
             activeClassIds={preparedClassIds}
@@ -100,7 +106,7 @@ export function SpellbookControls({
                   : t('prepareSpell')
             }
           >
-            <KnownSpellIcon className={isPrepared ? 'fill-current' : ''} />
+            {prepareIcon}
           </IconButton>
         ))}
     </>

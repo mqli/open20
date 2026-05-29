@@ -92,7 +92,7 @@ export const buttonVariants = {
 
 export const badgeToggleSizeVariants = {
   sm: 'px-1.5 py-0.5 text-[10px] rounded-full',
-  md: 'px-2 py-0.5 text-xs rounded-full',
+  md: 'px-2 py-0.5 text-xs rounded-md',
   lg: 'px-3 py-1 text-sm rounded-lg',
 } as const;
 

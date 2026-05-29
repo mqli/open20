@@ -5,7 +5,6 @@ import { iconSizeClasses } from './create-icon';
 import {
   PrepareSpellIcon,
   KnownSpellIcon,
-  ConcentrationIcon,
   RitualIcon,
   SpellSlotIcon,
   MagicIcon,
@@ -17,8 +16,7 @@ import {
   VerbalIcon,
   SomaticIcon,
   MaterialIcon,
-  ConcentrationToggleIcon,
-  ConcentrationBannerIcon,
+  ConcentrationIcon,
 } from './icons';
 
 const meta = {
@@ -116,13 +114,7 @@ export const SpellComponents: Story = {
 
 export const Concentration: Story = {
   render: (args) => (
-    <IconGrid
-      items={[
-        { Icon: ConcentrationToggleIcon, label: 'ConcentrationToggleIcon' },
-        { Icon: ConcentrationBannerIcon, label: 'ConcentrationBannerIcon' },
-      ]}
-      {...args}
-    />
+    <IconGrid items={[{ Icon: ConcentrationIcon, label: 'ConcentrationIcon' }]} {...args} />
   ),
 };
 
@@ -146,8 +138,7 @@ export const AllIcons: Story = {
         { Icon: VerbalIcon, label: 'VerbalIcon' },
         { Icon: SomaticIcon, label: 'SomaticIcon' },
         { Icon: MaterialIcon, label: 'MaterialIcon' },
-        { Icon: ConcentrationToggleIcon, label: 'ConcentrationToggleIcon' },
-        { Icon: ConcentrationBannerIcon, label: 'ConcentrationBannerIcon' },
+        { Icon: ConcentrationIcon, label: 'ConcentrationIcon' },
       ]}
       {...args}
     />

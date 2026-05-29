@@ -1,12 +1,11 @@
 import {
   BookMarked,
+  Book,
   Star,
   Brain,
   BookOpen,
   Flame,
   Sparkles,
-  Wind,
-  Activity,
   Swords,
   Heart,
   Shield,
@@ -14,12 +13,16 @@ import {
   Hand,
   MessageSquare,
   Package,
+  SquarePen,
+  Eraser,
 } from 'lucide-react';
 import { createDndIcon } from './create-icon';
 
 // ── Spell Domain ─────────────────────────────────────────────────
-
-export const PrepareSpellIcon = createDndIcon(BookMarked);
+export const LearnSpellIcon = createDndIcon(SquarePen);
+export const UnLearnSpellIcon = createDndIcon(Eraser);
+export const PrepareSpellIcon = createDndIcon(Book);
+export const PreparedSpellIcon = createDndIcon(BookMarked);
 export const KnownSpellIcon = createDndIcon(Star);
 export const ConcentrationIcon = createDndIcon(Brain);
 export const RitualIcon = createDndIcon(BookOpen);
@@ -39,8 +42,3 @@ export const DamageIcon = createDndIcon(Flame);
 export const VerbalIcon = createDndIcon(MessageSquare);
 export const SomaticIcon = createDndIcon(Hand);
 export const MaterialIcon = createDndIcon(Package);
-
-// ── Concentration ────────────────────────────────────────────────
-
-export const ConcentrationToggleIcon = createDndIcon(Activity);
-export const ConcentrationBannerIcon = createDndIcon(Wind);

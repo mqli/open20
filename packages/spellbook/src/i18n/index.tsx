@@ -78,6 +78,8 @@ export interface SpellbookTranslations extends BaseTranslations {
   manageSpell: string;
   addSpell: string;
   preparedShort: string;
+  known: string;
+  prepared: string;
 
   // Dice rolling
   rollResult: string;
@@ -209,6 +211,8 @@ export const enTranslations: SpellbookTranslations = Object.assign(defaultTransl
   manageSpell: 'Manage Spell',
   addSpell: 'Add Spell',
   preparedShort: 'Prep',
+  known: 'Known',
+  prepared: 'Prepared',
 
   rollResult: 'Roll Result',
 
@@ -335,6 +339,8 @@ export const zhCNTranslations: SpellbookTranslations = Object.assign(defualtZhCN
   manageSpell: '管理法术',
   addSpell: '添加法术',
   preparedShort: '准备',
+  prepared: '已准备',
+  known: '已学习',
 
   rollResult: '掷骰结果',
 
