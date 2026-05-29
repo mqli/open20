@@ -6,6 +6,9 @@ on:
     paths:
       - 'packages/spellbook/**'
       - 'packages/core/**'
+      - 'packages/ui/**'
+      - 'packages/config/**'
+      - '.github/workflows/deploy-spellbook.yml'
   workflow_dispatch:
 
 permissions:

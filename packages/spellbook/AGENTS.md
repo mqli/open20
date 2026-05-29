@@ -2,7 +2,7 @@
 
 ## Monorepo Context
 
-This package lives at `packages/spellbook/` inside the [open20 monorepo](../../agent.md). Read `../../agent.md` for repo-wide conventions before working here.
+This package lives at `packages/spellbook/` inside the [open20 monorepo](../../AGENTS.md). Read `../../AGENTS.md` for repo-wide conventions before working here.
 
 `open20-core` is a **workspace dependency** (`"open20-core": "workspace:*"`), not an external npm package. It lives at `packages/core/` in this same repo. Changes to core are immediately visible to spellbook — no publish step needed. However, keep changes scoped: UI concerns stay in spellbook, game logic changes go in core.
 
@@ -15,6 +15,7 @@ This package lives at `packages/spellbook/` inside the [open20 monorepo](../../a
 **Tech Stack**: React 19 + TypeScript + Vite + Zustand + Radix UI + Tailwind CSS v3
 
 **Architecture Principle**: Headless Core + UI Shell
+
 - `open20-core` handles all game logic, rule calculations, and data management
 - UI layer renders state and dispatches actions to the core library
 
@@ -24,19 +25,19 @@ This package lives at `packages/spellbook/` inside the [open20 monorepo](../../a
 
 Always read the relevant documentation before implementing. The docs are split by concern:
 
-| Document | Purpose | When to Read |
-|----------|---------|--------------|
-| `PRD.md` | Product requirements, user stories | Understanding what to build |
-| `UI_Design_Spec.md` | Visual design, color tokens, components | UI implementation |
-| `docs/tech-design/README.md` | Index of all tech design docs | Start here for technical context |
-| `docs/tech-design/01-architecture.md` | Tech stack, Radix UI, UI library | Architecture decisions |
-| `docs/tech-design/02-project-structure.md` | Folder structure | Creating new files |
-| `docs/tech-design/03-core-integration.md` | open20-core integration | Using core functions |
-| `docs/tech-design/04-state-management.md` | Zustand stores | State management |
-| `docs/tech-design/05-ui-states.md` | UI state machines | Page state logic |
-| `docs/tech-design/06-components.md` | Component specs | Building components |
-| `requirements/README.md` | Requirement tracking | Picking up tasks |
-| `requirements/TEMPLATE.md` | Template for new requirements | Creating requirements |
+| Document                                   | Purpose                                 | When to Read                     |
+| ------------------------------------------ | --------------------------------------- | -------------------------------- |
+| `PRD.md`                                   | Product requirements, user stories      | Understanding what to build      |
+| `UI_Design_Spec.md`                        | Visual design, color tokens, components | UI implementation                |
+| `docs/tech-design/README.md`               | Index of all tech design docs           | Start here for technical context |
+| `docs/tech-design/01-architecture.md`      | Tech stack, Radix UI, UI library        | Architecture decisions           |
+| `docs/tech-design/02-project-structure.md` | Folder structure                        | Creating new files               |
+| `docs/tech-design/03-core-integration.md`  | open20-core integration                 | Using core functions             |
+| `docs/tech-design/04-state-management.md`  | Zustand stores                          | State management                 |
+| `docs/tech-design/05-ui-states.md`         | UI state machines                       | Page state logic                 |
+| `docs/tech-design/06-components.md`        | Component specs                         | Building components              |
+| `requirements/README.md`                   | Requirement tracking                    | Picking up tasks                 |
+| `requirements/TEMPLATE.md`                 | Template for new requirements           | Creating requirements            |
 
 ---
 
@@ -98,6 +99,7 @@ src/
 **Always use wrapped UI components from `src/components/ui/`** - never use Radix UI directly in app components.
 
 Available wrapped components:
+
 - `Dialog` - Modal dialogs, flyouts
 - `DropdownMenu` - Dropdown menus
 - `Tabs` - Tab navigation
@@ -137,7 +139,7 @@ Available wrapped components:
 
 ### DO NOT
 
-- ❌ Create new documentation files (*.md) unless explicitly asked
+- ❌ Create new documentation files (\*.md) unless explicitly asked
 - ❌ Put game logic in spellbook that belongs in `open20-core` (`packages/core`)
 - ❌ Use Radix UI directly in app components (use wrapped components)
 - ❌ Hardcode colors or break design system
@@ -190,6 +192,7 @@ FR-008 (preparation) depends on FR-006 + FR-004
 ## Asking for Help
 
 If you're unsure about:
+
 - **What to build**: Read `PRD.md` and `requirements/FR-XXX/spec.md`
 - **How to build it**: Read `docs/tech-design/` docs
 - **How it should look**: Read `UI_Design_Spec.md`

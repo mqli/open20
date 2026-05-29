@@ -6,7 +6,7 @@
 
 ## 0. Monorepo Context
 
-This package lives at `packages/core/` inside the [open20 monorepo](../../agent.md). Read `../../agent.md` for repo-wide conventions (turbo pipeline, shared configs, CI).
+This package lives at `packages/core/` inside the [open20 monorepo](../../AGENTS.md). Read `../../AGENTS.md` for repo-wide conventions (turbo pipeline, shared configs, CI).
 
 **Working directory**: `packages/core/` (or use `--filter open20-core` from root).  
 **Release tags**: `core-v*` (e.g. `core-v0.2.2`) — not bare `v*`.
@@ -20,6 +20,7 @@ This package lives at `packages/core/` inside the [open20 monorepo](../../agent.
 **Status**: S1-S21 complete (826 tests passing)
 
 ### Key Design Decisions
+
 - **Headless**: Zero UI dependency. Pure functions, immutable state.
 - **Immutable State**: All Character fields are `readonly`. Modifications return new objects via spread operator. No Immer/Immutable.js.
 - **Dependency Injection**: `DataLoader` interface for testability and future API replacement.
@@ -41,6 +42,7 @@ types/, dice/        engine/, spells/    character/,        rolls/
 ```
 
 **Dependency Rules**:
+
 - **L1 (Foundation)**: No dependencies on other modules
 - **L2 (Mechanics)**: Can import from L1 only
 - **L3 (Entities)**: Can import from L1 and L2 only
@@ -48,17 +50,17 @@ types/, dice/        engine/, spells/    character/,        rolls/
 
 ### 2.2 Dependency Matrix
 
-| Module | CAN Import From | CANNOT Import From |
-|--------|-----------------|-------------------|
-| `types/` | (nothing) | (anything) |
-| `dice/` | `types/` | `engine/`, `spells/`, `character/`, `monster/`, `rolls/` |
-| `data/` | `types/` | `engine/`, `spells/`, `character/`, `monster/`, `rolls/` |
-| `engine/` | `types/`, `dice/`, `data/` | `spells/`, `character/`, `monster/`, `rolls/` |
-| `spells/` | `types/`, `dice/`, `data/` | `engine/`, `character/`, `monster/`, `rolls/` |
-| `character/` | `types/`, `dice/`, `data/`, `engine/`, `spells/` | `monster/`, `rolls/` |
-| `monster/` | `types/`, `dice/`, `data/`, `engine/`, `spells/` | `character/`, `rolls/` |
-| `rolls/` | `types/`, `dice/`, `data/`, `engine/`, `spells/`, `character/`, `monster/` | (nothing - top layer) |
-| `storage/` | `types/`, `character/` | `engine/`, `spells/`, `monster/`, `rolls/` |
+| Module       | CAN Import From                                                            | CANNOT Import From                                       |
+| ------------ | -------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `types/`     | (nothing)                                                                  | (anything)                                               |
+| `dice/`      | `types/`                                                                   | `engine/`, `spells/`, `character/`, `monster/`, `rolls/` |
+| `data/`      | `types/`                                                                   | `engine/`, `spells/`, `character/`, `monster/`, `rolls/` |
+| `engine/`    | `types/`, `dice/`, `data/`                                                 | `spells/`, `character/`, `monster/`, `rolls/`            |
+| `spells/`    | `types/`, `dice/`, `data/`                                                 | `engine/`, `character/`, `monster/`, `rolls/`            |
+| `character/` | `types/`, `dice/`, `data/`, `engine/`, `spells/`                           | `monster/`, `rolls/`                                     |
+| `monster/`   | `types/`, `dice/`, `data/`, `engine/`, `spells/`                           | `character/`, `rolls/`                                   |
+| `rolls/`     | `types/`, `dice/`, `data/`, `engine/`, `spells/`, `character/`, `monster/` | (nothing - top layer)                                    |
+| `storage/`   | `types/`, `character/`                                                     | `engine/`, `spells/`, `monster/`, `rolls/`               |
 
 **Import path convention**: Use relative paths (e.g., `../types`, `../../data/loader`). Do NOT use `@/` aliases in test files (Vitest doesn't resolve them reliably).
 
@@ -68,7 +70,7 @@ types/, dice/        engine/, spells/    character/,        rolls/
 
 ```
 packages/core/                  # path inside monorepo
-├── agent.md                    # This file
+├── AGENTS.md                   # This file
 ├── PRD.md                     # Product Requirements Document
 ├── package.json                # ESM, vitest, typescript
 ├── tsconfig.json               # Strict, noUncheckedIndexedAccess
@@ -198,18 +200,22 @@ packages/core/                  # path inside monorepo
 ## 4. TypeScript Conventions
 
 ### 4.1 Strict Settings
+
 - `strict: true`
 - `noUncheckedIndexedAccess: true` → **ALL array/object accesses return `T | undefined`**
 - `moduleResolution: "bundler"` (NOT "Node16" - avoids forcing `.js` extensions)
 
 ### 4.2 Handling `noUncheckedIndexedAccess`
+
 **WRONG** (will cause TypeScript error):
+
 ```typescript
-const bonus = array[index];  // Type: number | undefined
-const value = obj[key];      // Type: number | undefined
+const bonus = array[index]; // Type: number | undefined
+const value = obj[key]; // Type: number | undefined
 ```
 
 **RIGHT**:
+
 ```typescript
 const bonus = array[index] ?? 0;  // Provide default
 const value = obj[key]!;          // Non-null assertion (only if you're SURE it exists)
@@ -217,6 +223,7 @@ const value = obj[key] ?? default; // Safe access with fallback
 ```
 
 ### 4.3 Immutable Update Pattern
+
 ALL mutation functions MUST return a new object. Use spread operator:
 
 ```typescript
@@ -234,7 +241,7 @@ export function modifyHP(char: Character, delta: number): Character {
 
 // ❌ WRONG - mutates original object
 export function modifyHP(char: Character, delta: number): Character {
-  char.hitPoints.current += delta;  // MUTATION!
+  char.hitPoints.current += delta; // MUTATION!
   return char;
 }
 ```
@@ -242,37 +249,44 @@ export function modifyHP(char: Character, delta: number): Character {
 ### 4.4 Function Naming Conventions (by Layer)
 
 #### L1: Foundation
+
 - `types/`: Type definitions only (no functions)
 - `dice/core.ts`: `rollDie()`, `rollDice()`, `parseDiceExpression()`, etc.
   - Pure dice rolling, no game logic
 
 #### L2: Mechanics
+
 - `engine/`: `calculate*` (pure calculations), `get*` (lookups)
   - `calculateAC()`, `getModifier()`, `getSkillBonus()`, etc.
 - `spells/`: `get*` (queries), `search*` (filter operations)
   - `getSpell()`, `searchSpells()`, etc.
 
 #### L3: Entities
+
 - `character/`: `create*` (creation), `modify*` (mutations), `apply*` (apply effects)
   - `createCharacter()`, `modifyHP()`, `applyDamage()`, etc.
 - `monster/`: `get*` (queries), `apply*` (apply effects)
   - `getMonster()`, `applyDamage()`, `addCondition()`, etc.
 
 #### L4: Application
+
 - `rolls/`: `rollCharacter*()`, `rollMonster*()`, `rollSpell*()`
   - `rollCharacterSkillCheck()`, `rollMonsterAttack()`, `rollSpellDamage()`, etc.
   - Thin orchestration layer, no complex logic
 
 ### 4.5 Export Syntax
+
 **WRONG**:
+
 ```typescript
 export const { TypeA, TypeB } from './types';  // Invalid!
 ```
 
 **RIGHT**:
+
 ```typescript
-export type { TypeA, TypeB } from './types';  // For types
-export { value1, value2 } from './types';     // For values
+export type { TypeA, TypeB } from './types'; // For types
+export { value1, value2 } from './types'; // For values
 ```
 
 ---
@@ -280,8 +294,10 @@ export { value1, value2 } from './types';     // For values
 ## 5. Common Pitfalls & Fixes
 
 ### 5.1 ESM JSON Loading
+
 **Problem**: `require()` doesn't work in ESM.
 **Fix**: Use native ESM imports (vitest/Vite supports JSON imports natively):
+
 ```typescript
 // ✅ RIGHT - Native ESM JSON import
 import data from './file.json';
@@ -289,11 +305,14 @@ import data from './file.json';
 // ❌ WRONG - Don't use createRequire in test files
 import { createRequire } from 'node:module';
 ```
+
 **Note**: `src/data/default-loader.ts` uses `createRequire` for Node.js production code where JSON imports may not be supported. Test files should use native ESM imports.
 
 ### 5.2 `ReadonlyMap` Serialization
+
 **Problem**: `ReadonlyMap` can't be serialized to JSON.
 **Fix**: Store as array in JSON, convert to Map in `default-loader.ts`:
+
 ```typescript
 // JSON format (array of [key, value] tuples)
 "featuresByLevel": [[1, [...]], [2, [...]]]
@@ -309,8 +328,10 @@ function parseFeaturesByLevel(json: any): ReadonlyMap<number, readonly Feature[]
 ```
 
 ### 5.3 Test File Imports
+
 **Problem**: `@/` path aliases don't work in test files.
 **Fix**: Use relative paths:
+
 ```typescript
 // ❌ WRONG
 import { calculateModifier } from '@/src/engine/ability-modifier';
@@ -320,17 +341,21 @@ import { calculateModifier } from '../../src/engine/ability-modifier';
 ```
 
 ### 5.4 `LookupTables` Type Mismatch
+
 **Problem**: `spellSlots` in JSON is stored as arrays, but TypeScript type expects nested objects.
 **Fix**: Type definition in `loader.ts`:
+
 ```typescript
 spellSlots: Record<string, Record<number, readonly number[]>>;
 // Inner value is `readonly number[]`, not `Record<number, number>`
 ```
 
 ### 5.5 Per-Class Spell Tracking (New in v0.x)
+
 **Context**: Spell data is now tracked PER CLASS, not on the character directly.
 
 **Old way (WRONG)**:
+
 ```typescript
 // ❌ WRONG - These fields no longer exist on CharacterSpells
 const dc = char.spells.spellSaveDC;
@@ -338,6 +363,7 @@ const known = char.spells.knownSpells;
 ```
 
 **New way (CORRECT)**:
+
 ```typescript
 // ✅ RIGHT - Access per-class data
 const classSpellData = char.spells.classSpellcasting[classId];
@@ -353,6 +379,7 @@ const knows = knowsSpellForClass(char, 'wizard', 'fireball');
 ```
 
 **Key changes**:
+
 - `classSpellcasting: Record<string, ClassSpellData>` - keyed by classId
 - `spellSlots` is still a unified pool (correct for D&D 5e multiclassing)
 - Use `getClassSpellData()`, `knowsSpellForClass()`, `isSpellPreparedForClass()` for queries
@@ -407,18 +434,19 @@ pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run b
 
 ### 6.1 CI Validation Steps
 
-| Step | Command |
-|------|---------|
-| 1 | `pnpm install` (from monorepo root) |
-| 2 | `pnpm run typecheck` |
-| 3 | `pnpm run lint` |
-| 4 | `pnpm test` |
-| 5 | `pnpm run build` |
-| 6 | `pnpm run build:bundle` |
-| 7 | `pnpm run test:artifact` |
-| 8 | `pnpm run test:browser-artifact` |
+| Step | Command                             |
+| ---- | ----------------------------------- |
+| 1    | `pnpm install` (from monorepo root) |
+| 2    | `pnpm run typecheck`                |
+| 3    | `pnpm run lint`                     |
+| 4    | `pnpm test`                         |
+| 5    | `pnpm run build`                    |
+| 6    | `pnpm run build:bundle`             |
+| 7    | `pnpm run test:artifact`            |
+| 8    | `pnpm run test:browser-artifact`    |
 
 **Minimum required before commit**:
+
 ```bash
 pnpm run typecheck && pnpm run lint && pnpm test
 ```
@@ -430,6 +458,7 @@ pnpm run typecheck && pnpm run lint && pnpm test
 ## 7. How to Add New Features
 
 ### 7.1 Adding a New Engine Function
+
 1. Create `src/engine/new-function.ts`
 2. Implement as pure function with `calculate*` or `get*` prefix
 3. Add export to `src/engine/index.ts` (if exists) or `src/index.ts`
@@ -437,6 +466,7 @@ pnpm run typecheck && pnpm run lint && pnpm test
 5. Update `spec/high-level-design.md` S-xx status
 
 ### 7.2 Adding a New Mutation Function
+
 1. Add function to `src/character/mutate.ts`
 2. Follow immutable update pattern (see §4.3)
 3. Update return type `Character`
@@ -444,6 +474,7 @@ pnpm run typecheck && pnpm run lint && pnpm test
 5. Export via `src/character/index.ts`
 
 ### 7.3 Adding New Static Data (SRD 5.2)
+
 > **Status**: ✅ Complete. All content aligned with SRD 5.2.
 
 1. Update JSON schema in `spec/data-model.md`
@@ -454,7 +485,9 @@ pnpm run typecheck && pnpm run lint && pnpm test
 6. Write data integrity tests in `tests/data/` (S20)
 
 ### 7.4 Creating Content Packs (Homebrew/Official)
+
 Content packs are directories with `meta.json` + JSON files:
+
 ```
 my-content-pack/
 ├── meta.json          # ContentPackMeta
@@ -464,6 +497,7 @@ my-content-pack/
 ```
 
 **meta.json schema**:
+
 ```json
 {
   "id": "my-homebrew",
@@ -476,6 +510,7 @@ my-content-pack/
 ```
 
 **Loading content packs**:
+
 ```typescript
 import { registerContentPack } from '@open20/core';
 
@@ -487,11 +522,13 @@ registerContentPack(meta, data);
 ```
 
 **Key rules**:
+
 - Same ID in different packs = separate items (no override)
 - `getSpell('custom-spell')` returns first registered version
 - Use `getSpellsBySource('Homebrew')` to filter by source
 
 ### 7.4 Adding Spell Data
+
 1. Use `scripts/import_srd_spells.py` to import from dnd-data repo
 2. Validate imported data against spell schema
 3. Update `static/spells.json`
@@ -502,11 +539,13 @@ registerContentPack(meta, data);
 ## 8. Spell Data Management
 
 ### Current Status
+
 - ✅ `spells.json` populated with 391+ SRD 5.2 spells
 - ✅ Import script at `scripts/import_srd_spells.py`
 - ✅ Source: dnd-data GitHub repo (nick-aschenbach/dnd-data)
 
 ### Adding New Spells
+
 ```bash
 # Import SRD spells from dnd-data
 python3 scripts/import_srd_spells.py
@@ -516,6 +555,7 @@ npx vitest run tests/data/spells.test.ts
 ```
 
 ### Spell Data Format Rules
+
 1. **ID format**: kebab-case (`fire-bolt`, not `FireBolt`)
 2. **Ability names**: Use full names (`Strength`, not `Str`)
 3. **Components**: `{ V?: boolean; S?: boolean; M?: string | boolean }`
@@ -527,24 +567,29 @@ npx vitest run tests/data/spells.test.ts
 ## 9. Requirement Management
 
 ### 9.1 Requirement Tracking System
+
 Requirements are tracked in `requirements/README.md` with IDs R1-R26:
 
 ```markdown
 ### R11: Spell Query Functions
+
 **Description**: Provide functions to query spell data
 **Status**: ✅ Completed
 **对应源码**:
+
 - `src/spells/query.ts` - Query functions
 - `tests/spells/query.test.ts` - Tests
 ```
 
 ### 9.2 Requirement Status Indicators
+
 - ✅ **Completed**: Fully implemented with tests
 - 📋 **Planned**: Documented but not started
 - 🚧 **In Progress**: Partially implemented
 - ❌ **Blocked**: Cannot implement due to dependencies
 
 ### 9.3 How to Mark a Requirement as Complete
+
 1. Implement all functionality described in the requirement
 2. Write tests covering the requirement
 3. Update `requirements/README.md`:
@@ -555,9 +600,11 @@ Requirements are tracked in `requirements/README.md` with IDs R1-R26:
 6. Commit with prefix `[Rx]` (e.g., `[R11]`)
 
 ### 9.4 How to Add a New Requirement
+
 1. Add entry to `requirements/README.md` with format:
    ```markdown
    ### Rxx: [Requirement Name]
+
    **Description**: [What it does]
    **Status**: 📋 Planned
    ```
@@ -566,6 +613,7 @@ Requirements are tracked in `requirements/README.md` with IDs R1-R26:
 4. Add to PRD.md if it's a user-facing feature
 
 ### 9.5 Requirement Implementation Checklist
+
 - [ ] Code implemented in `src/`
 - [ ] Unit tests written in `tests/`
 - [ ] All tests pass (`npx vitest run`)
@@ -576,12 +624,13 @@ Requirements are tracked in `requirements/README.md` with IDs R1-R26:
 - [ ] `对应源码` links added
 
 ### 9.6 Traceability Matrix
+
 Keep requirements traceable through implementation:
 
-| Requirement | Specification | Source Files | Tests |
-|-------------|---------------|--------------|-------|
-| R1 | S1 | `src/engine/*.ts` | `tests/engine/*.test.ts` |
-| R11 | S14 | `src/spells/query.ts` | `tests/spells/query.test.ts` |
+| Requirement | Specification | Source Files          | Tests                        |
+| ----------- | ------------- | --------------------- | ---------------------------- |
+| R1          | S1            | `src/engine/*.ts`     | `tests/engine/*.test.ts`     |
+| R11         | S14           | `src/spells/query.ts` | `tests/spells/query.test.ts` |
 
 Update this matrix in `requirements/README.md` when adding new requirements.
 
@@ -590,24 +639,27 @@ Update this matrix in `requirements/README.md` when adding new requirements.
 ## 10. Documentation Maintenance
 
 ### 10.1 Documentation Suite Overview
-| Document | Purpose | Update Frequency |
-|----------|---------|------------------|
-| `PRD.md` | Product requirements | Major features only |
-| `spec/high-level-design.md` | Technical architecture | Every S1-S20 change |
-| `spec/data-model.md` | TypeScript interfaces | Every type change |
-| `requirements/README.md` | Requirement traceability | Every R1-R26 change |
-| `agent.md` | AI agent guidelines | Every convention/pitfall |
-| `README.md` | User-facing docs | Every public API change |
+
+| Document                    | Purpose                  | Update Frequency         |
+| --------------------------- | ------------------------ | ------------------------ |
+| `PRD.md`                    | Product requirements     | Major features only      |
+| `spec/high-level-design.md` | Technical architecture   | Every S1-S20 change      |
+| `spec/data-model.md`        | TypeScript interfaces    | Every type change        |
+| `requirements/README.md`    | Requirement traceability | Every R1-R26 change      |
+| `AGENTS.md`                 | AI agent guidelines      | Every convention/pitfall |
+| `README.md`                 | User-facing docs         | Every public API change  |
 
 ### 10.2 When to Update Each Document
 
 #### `PRD.md`
+
 - Project scope or positioning changes
 - New major features added
 - Target audience changes
 - Release planning updates
 
 #### `spec/high-level-design.md`
+
 - Added/modified/removed any S1-S20 functionality
 - Changed function signatures (update §12 function list)
 - Changed module dependencies
@@ -615,18 +667,21 @@ Update this matrix in `requirements/README.md` when adding new requirements.
 - Update test count after adding tests
 
 #### `spec/data-model.md`
+
 - Changed TypeScript interfaces in `src/types/index.ts`
 - Changed JSON schema in `static/*.json`
 - Added/removed fields from core types
 - Updated Zod schemas in `src/schemas/`
 
 #### `requirements/README.md`
+
 - Implemented a new requirement (mark Rxx as ✅)
 - Changed requirement scope
 - Add "对应源码" links when implementing
 - Update status indicators regularly
 
-#### `agent.md` (This File)
+#### `AGENTS.md` (This File)
+
 - New common pitfalls discovered
 - New conventions established
 - Project structure changed
@@ -635,6 +690,7 @@ Update this matrix in `requirements/README.md` when adding new requirements.
 - New sections needed (like this one!)
 
 ### 10.3 Documentation Sync Checklist
+
 After completing any code change:
 
 1. **Identify affected documents** (see §10.2)
@@ -646,6 +702,7 @@ After completing any code change:
 7. **Build and verify**: `npm run lint && npm run typecheck && npx vitest run`
 
 ### 10.4 Writing Guidelines for Documentation
+
 - **Be concise**: No narration, get to the point
 - **Use examples**: Code snippets speak louder than words
 - **Keep tables readable**: Don't let them get too wide
@@ -654,9 +711,10 @@ After completing any code change:
 - **Link to source**: Use "对应源码" sections for traceability
 
 ### 10.5 Common Documentation Mistakes to Avoid
+
 - ❌ Forgetting to update test counts after adding tests
 - ❌ Not marking requirements as complete in `requirements/README.md`
-- ❌ Letting `agent.md` get out of date with actual project structure
+- ❌ Letting `AGENTS.md` get out of date with actual project structure
 - ❌ Not updating function signatures in `spec/high-level-design.md` §12
 - ❌ Breaking markdown table formatting (triple pipes `|||`)
 
@@ -665,6 +723,7 @@ After completing any code change:
 ## 11. Testing Patterns
 
 ### 11.1 Unit Test Structure
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { functionUnderTest } from '../../src/module/file';
@@ -683,6 +742,7 @@ describe('functionUnderTest', () => {
 ```
 
 ### 11.2 Testing with DataLoader
+
 ```typescript
 import { createDataLoader, type DataLoader } from '../../src/data/loader';
 
@@ -699,6 +759,7 @@ const result = createCharacter(params, mockLoader);
 ```
 
 ### 11.3 Testing Immutable Updates
+
 ```typescript
 it('should return new object without mutating original', () => {
   const original = createTestCharacter();
@@ -719,13 +780,14 @@ it('should return new object without mutating original', () => {
 ```
 
 ### 11.4 Testing Spell Queries
+
 ```typescript
 it('should filter spells by school and level', () => {
-  const spells = searchSpells({ 
-    school: 'Evocation', 
-    level: [1, 2, 3] 
+  const spells = searchSpells({
+    school: 'Evocation',
+    level: [1, 2, 3],
   });
-  
+
   expect(spells.length).toBeGreaterThan(0);
   spells.forEach(spell => {
     expect(spell.school).toBe('Evocation');
@@ -739,11 +801,13 @@ it('should filter spells by school and level', () => {
 ## 12. Git Commit Guidelines
 
 Since this project uses AI agents, commit messages should be:
+
 - **Clear**: What changed, why
 - **Atomic**: One logical change per commit
 - **Prefixed**: `[Sxx]` for specification item, `[Fix]` for bug fixes, `[Docs]` for documentation
 
 Examples:
+
 ```
 [S11] Implement attack calculator engine function
 [Fix] Handle undefined access in hp-calculator (noUncheckedIndexedAccess)
@@ -758,36 +822,37 @@ Examples:
 
 ## 13. Quick Reference
 
-| Task | Command |
-|------|---------|
-| Lint | `pnpm run lint` |
-| Lint with auto-fix | `pnpm run lint:fix` |
-| Type check | `pnpm run typecheck` |
-| Run all tests | `pnpm test` |
-| Run single test | `pnpm exec vitest run tests/path/to/test.test.ts` |
-| Install deps | `pnpm install` (from monorepo root) |
-| Check coverage | `pnpm run test:coverage` |
-| Import spells | `python3 scripts/import_srd_spells.py` |
+| Task               | Command                                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lint               | `pnpm run lint`                                                                                                                                           |
+| Lint with auto-fix | `pnpm run lint:fix`                                                                                                                                       |
+| Type check         | `pnpm run typecheck`                                                                                                                                      |
+| Run all tests      | `pnpm test`                                                                                                                                               |
+| Run single test    | `pnpm exec vitest run tests/path/to/test.test.ts`                                                                                                         |
+| Install deps       | `pnpm install` (from monorepo root)                                                                                                                       |
+| Check coverage     | `pnpm run test:coverage`                                                                                                                                  |
+| Import spells      | `python3 scripts/import_srd_spells.py`                                                                                                                    |
 | Full CI validation | `pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run build:bundle && pnpm run test:artifact && pnpm run test:browser-artifact` |
 
-| File | Purpose |
-|------|---------|
-| `PRD.md` | Product Requirements Document |
-| `agent.md` | This file - read first! |
-| `spec/high-level-design.md` | Technical architecture (S1-S20) |
-| `spec/data-model.md` | TypeScript interfaces & JSON schema |
-| `requirements/README.md` | Requirements traceability (R1-R26) |
-| `src/types/index.ts` | All core types |
-| `src/data/loader.ts` | DataLoader interface |
-| `requirements/11-content-management/` | Content management spec (R26) |
-| `src/content/types.ts` | ContentPack, ContentPackMeta interfaces |
-| `static/srd/` | SRD 5.2 content (included in core) |
+| File                                  | Purpose                                 |
+| ------------------------------------- | --------------------------------------- |
+| `PRD.md`                              | Product Requirements Document           |
+| `AGENTS.md`                           | This file - read first!                 |
+| `spec/high-level-design.md`           | Technical architecture (S1-S20)         |
+| `spec/data-model.md`                  | TypeScript interfaces & JSON schema     |
+| `requirements/README.md`              | Requirements traceability (R1-R26)      |
+| `src/types/index.ts`                  | All core types                          |
+| `src/data/loader.ts`                  | DataLoader interface                    |
+| `requirements/11-content-management/` | Content management spec (R26)           |
+| `src/content/types.ts`                | ContentPack, ContentPackMeta interfaces |
+| `static/srd/`                         | SRD 5.2 content (included in core)      |
 
 ---
 
 ## 14. Contact / Escalation
 
 If you're stuck or unsure:
+
 1. Read `spec/high-level-design.md` for architecture context
 2. Check `tests/` for usage examples
 3. Look at existing implementations in `src/` for patterns
@@ -797,5 +862,5 @@ If you're stuck or unsure:
 
 ---
 
-*Last updated: 2026-05-25 (monorepo migration: pnpm, turbo, core-v* tags, test count 826)*
-*Maintained by: AI agents working on this project*
+_Last updated: 2026-05-25 (monorepo migration: pnpm, turbo, core-v_ tags, test count 826)\*
+_Maintained by: AI agents working on this project_
