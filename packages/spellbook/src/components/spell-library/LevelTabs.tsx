@@ -9,15 +9,15 @@ export function LevelTabs() {
   const LEVELS = [
     { value: null, label: t('allLevels') },
     { value: 0, label: t('cantrip') },
-    { value: 1, label: `${t('levelLabel')} 1` },
-    { value: 2, label: `${t('levelLabel')} 2` },
-    { value: 3, label: `${t('levelLabel')} 3` },
-    { value: 4, label: `${t('levelLabel')} 4` },
-    { value: 5, label: `${t('levelLabel')} 5` },
-    { value: 6, label: `${t('levelLabel')} 6` },
-    { value: 7, label: `${t('levelLabel')} 7` },
-    { value: 8, label: `${t('levelLabel')} 8` },
-    { value: 9, label: `${t('levelLabel')} 9` },
+    { value: 1, label: `${t('levelLabel')}` },
+    { value: 2, label: `${t('levelLabel')}` },
+    { value: 3, label: `${t('levelLabel')}` },
+    { value: 4, label: `${t('levelLabel')}` },
+    { value: 5, label: `${t('levelLabel')}` },
+    { value: 6, label: `${t('levelLabel')}` },
+    { value: 7, label: `${t('levelLabel')}` },
+    { value: 8, label: `${t('levelLabel')}` },
+    { value: 9, label: `${t('levelLabel')}` },
   ];
 
   return (
@@ -26,7 +26,7 @@ export function LevelTabs() {
         const isActive = selectedLevel === value;
         return (
           <Button
-            key={label}
+            key={value}
             variant={isActive ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => setSelectedLevel(value)}
@@ -34,7 +34,14 @@ export function LevelTabs() {
               isActive ? 'shadow-sm' : 'border border-border'
             }`}
           >
-            {label}
+            {value > 0 ? (
+              <>
+                <span className="hidden sm:inline mr-1">{label}</span>
+                {`${value}`}
+              </>
+            ) : (
+              <>{label}</>
+            )}
           </Button>
         );
       })}
