@@ -19,6 +19,12 @@ This package lives at `packages/ui/` inside the [open20 monorepo](../../agent.md
 
 **Design Principle**: Atomic, composable components. Zero app-specific business logic. Every component is independently usable and Storybook-documented.
 
+## Internationalization
+
+- Read [`I18N.md`](./I18N.md) before changing translation keys, `I18nProvider`, or i18n hooks.
+- Treat [`I18N.md`](./I18N.md) as the source of truth for current i18n API usage (`translationsSet`, `initialLocale`) and base key structure.
+- When updating i18n behavior in `src/i18n/` or i18n-enabled components, update `I18N.md` in the same change.
+
 ---
 
 ## Directory Structure

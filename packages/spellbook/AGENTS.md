@@ -39,6 +39,12 @@ Always read the relevant documentation before implementing. The docs are split b
 | `requirements/README.md`                   | Requirement tracking                    | Picking up tasks                 |
 | `requirements/TEMPLATE.md`                 | Template for new requirements           | Creating requirements            |
 
+### i18n Documentation
+
+- For any translation-related work, read [`../ui/I18N.md`](../ui/I18N.md) first.
+- Follow the current `@open20/ui` i18n API exactly (`I18nProvider` with `translationsSet` and `initialLocale`).
+- If spellbook i18n behavior changes (keys, locale wiring, provider usage), update `../ui/I18N.md` in the same change.
+
 ---
 
 ## Development Workflow
