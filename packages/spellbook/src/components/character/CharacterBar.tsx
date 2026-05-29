@@ -227,7 +227,7 @@ export function CharacterBar() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => shortRest()}
+          onClick={shortRest}
           className="text-text-secondary hover:text-primary-600 h-7 px-1.5"
         >
           <Sun className="w-3.5 h-3.5 md:mr-1" />
@@ -240,7 +240,7 @@ export function CharacterBar() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => longRest()}
+          onClick={longRest}
           className="text-text-secondary hover:text-primary-600 h-7 px-1.5"
         >
           <Moon className="w-3.5 h-3.5 md:mr-1" />

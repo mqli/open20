@@ -70,37 +70,35 @@ export function SpellActionRow({
   const t = useTranslation();
   const showsUpcastSelect =
     spell.level > 0 && availableCastLevels.length > 1 && (showCastAction || showDamageActions);
-  const showsStaticLevel =
-    spell.level > 0 && availableCastLevels.length === 1 && (showCastAction || showDamageActions);
   const staticLevelSlot = spellSlots?.[effectiveCastLevel];
   const staticLevelRemaining = staticLevelSlot ? staticLevelSlot.total - staticLevelSlot.used : 0;
-
+  const buttonVariant = isIconStyle ? 'ghost' : 'primary';
+  const buttonClass = isIconStyle ? 'p-1.5' : undefined;
+  const iconClass = isIconStyle ? undefined : 'mr-1';
   return (
     <div className="flex items-center gap-1.5 shrink-0">
-      {showCastAction &&
-        (isIconStyle ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onCast}
-            title={`${t('cast')} ${t(SPELL_LEVEL_LABELS[effectiveCastLevel] as keyof typeof t)}`}
-            disabled={!availableCastLevels.includes(effectiveCastLevel)}
-            className="p-1.5"
-          >
-            <MagicIcon size="xs" />
-          </Button>
-        ) : (
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={onCast}
-            disabled={!availableCastLevels.includes(effectiveCastLevel)}
-          >
-            <MagicIcon size="xs" className="mr-1" />
-            {t('cast')}
-          </Button>
-        ))}
-
+      {showCastAction && (
+        <Button
+          variant={buttonVariant}
+          size="sm"
+          onClick={onCast}
+          title={`${t('cast')} ${t(SPELL_LEVEL_LABELS[effectiveCastLevel])}`}
+          disabled={!availableCastLevels.includes(effectiveCastLevel)}
+          className={buttonClass}
+        >
+          <MagicIcon size="xs" className={iconClass} />
+          {!isIconStyle && (
+            <>
+              {t('cast')}
+              {!showsUpcastSelect && (
+                <>
+                  {t(SPELL_LEVEL_LABELS[effectiveCastLevel])} ({staticLevelRemaining})
+                </>
+              )}
+            </>
+          )}
+        </Button>
+      )}
       {showsUpcastSelect ? (
         <CastLevelSelect
           selectedCastLevel={selectedCastLevel}
@@ -113,76 +111,37 @@ export function SpellActionRow({
               : 'h-auto py-1 px-2 border-input bg-background hover:bg-accent text-sm w-auto'
           }
         />
-      ) : showsStaticLevel ? (
-        <span
-          className={
-            isIconStyle
-              ? 'h-5 px-1 text-[10px] w-auto inline-flex items-center text-text-muted'
-              : 'h-auto py-1 px-2 text-sm w-auto inline-flex items-center text-text-muted'
-          }
-        >
-          {t(SPELL_LEVEL_LABELS[effectiveCastLevel] as keyof typeof t)} ({staticLevelRemaining})
-        </span>
       ) : null}
 
-      {showAttackAction &&
-        spell.attack &&
-        (isIconStyle ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onAttackRoll}
-            title={t('rollAttack')}
-            className="p-1.5"
-          >
-            <AttackIcon size="xs" />
-          </Button>
-        ) : (
-          <Button variant="secondary" size="sm" onClick={onAttackRoll}>
-            <AttackIcon size="sm" className="mr-1.5" />
-            {t('attack')} {spellAttackBonus >= 0 ? `+${spellAttackBonus}` : spellAttackBonus}
-          </Button>
-        ))}
-
-      {showDamageActions &&
-        (hasDamageEntries || hasHealEntry) &&
-        (isIconStyle ? (
+      {showAttackAction && spell.attack && (
+        <Button
+          variant={buttonVariant}
+          size="sm"
+          onClick={onAttackRoll}
+          title={t('rollAttack')}
+          className={buttonClass}
+        >
+          <AttackIcon size="xs" className={iconClass} />
           <>
-            {hasDamageEntries && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onDamageRoll}
-                  title={t('rollDamage')}
-                  className="p-1.5"
-                >
-                  <DamageIcon size="xs" />
-                </Button>
-              </>
-            )}
-            {hasHealEntry && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onHealRoll}
-                title={
-                  healDice
-                    ? `${t('rollDamageOfType', { type: t('healingRoll') })} ${healDice}`
-                    : t('rollHealing')
-                }
-                className="p-1.5"
-              >
-                <HealIcon size="xs" />
-              </Button>
-            )}
+            {t('attack')}
+            {!isIconStyle && (spellAttackBonus >= 0 ? `+${spellAttackBonus}` : spellAttackBonus)}
           </>
-        ) : (
-          <>
-            {hasDamageEntries && (
-              <Button variant="outline" size="sm" onClick={onDamageRoll}>
-                <DamageIcon size="xs" className="mr-1.5" />
-                {effectiveDamageEntries.map((entry, index) => (
+        </Button>
+      )}
+
+      {showDamageActions && hasDamageEntries && (
+        <>
+          <Button
+            variant={buttonVariant}
+            size="sm"
+            onClick={onDamageRoll}
+            title={t('rollDamage')}
+            className={buttonClass}
+          >
+            <DamageIcon size="xs" className={iconClass} />
+            <>
+              {!isIconStyle &&
+                effectiveDamageEntries.map((entry, index) => (
                   <>
                     {index !== 0 && <Divider orientation="vertical" size="sm" className="m-1" />}
                     <span key={`${entry.dice}-${entry.type ?? 'none'}-${index}`}>
@@ -190,16 +149,26 @@ export function SpellActionRow({
                     </span>
                   </>
                 ))}
-              </Button>
-            )}
-            {hasHealEntry && (
-              <Button variant="outline" size="sm" onClick={onHealRoll}>
-                <HealIcon size="sm" className="mr-1.5" />
-                {healDice ? `${healDice} ${t('healing')}` : t('healing')}
-              </Button>
-            )}
-          </>
-        ))}
+            </>
+          </Button>
+        </>
+      )}
+      {showDamageActions && hasHealEntry && (
+        <Button
+          variant={buttonVariant}
+          size="sm"
+          onClick={onHealRoll}
+          title={
+            healDice
+              ? `${t('rollDamageOfType', { type: t('healingRoll') })} ${healDice}`
+              : t('rollHealing')
+          }
+          className={buttonClass}
+        >
+          <HealIcon size="xs" className={iconClass} />
+          {!isIconStyle && <>{healDice ? `${healDice} ${t('healing')}` : t('healing')}</>}
+        </Button>
+      )}
     </div>
   );
 }
