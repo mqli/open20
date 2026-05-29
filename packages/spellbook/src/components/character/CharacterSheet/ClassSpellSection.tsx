@@ -403,7 +403,6 @@ function SpellSectionByLevel({
           {t(SPELL_LEVEL_LABELS[level] as keyof typeof t)}
         </Text>
         <div className="flex items-center gap-2">
-          {total}
           <SlotPips
             total={total}
             used={used}

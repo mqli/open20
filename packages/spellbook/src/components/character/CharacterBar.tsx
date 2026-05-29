@@ -114,7 +114,6 @@ export function CharacterBar() {
           {hasSpellcasting && (
             <>
               <Divider orientation="vertical" className="hidden sm:block" />
-
               {/* Per-class spellcasting stats */}
               <div className="hidden sm:flex items-center gap-2">
                 {spellcastingEntries.map(([classId, cs], i) => (

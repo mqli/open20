@@ -57,12 +57,17 @@ export function SpellSlots({
         {slotEntries.length > 0 && (
           <div className="flex items-center gap-1.5">
             {slotEntries.map(({ lvl, slot }) => (
-              <SlotPips
-                key={lvl}
-                total={slot.total}
-                used={slot.used}
-                onPipClick={(_index, isUsed) => (isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl))}
-              />
+              <>
+                <Divider orientation="vertical" />
+                <SlotPips
+                  key={lvl}
+                  total={slot.total}
+                  used={slot.used}
+                  onPipClick={(_index, isUsed) =>
+                    isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl)
+                  }
+                />
+              </>
             ))}
           </div>
         )}
