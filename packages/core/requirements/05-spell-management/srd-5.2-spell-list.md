@@ -2554,7 +2554,10 @@ The spell's area can't overlap with the area of another *Forbiddance* spell. If 
 
 *Level 7 Evocation (Bard, Warlock, Wizard)*
 
-**Casting Time:** Action **Range:** 100 feet **Components:** V, S, M (ruby dust worth 1,500+ GP, which the spell consumes) **Duration:** Concentration, up to 1 hour
+**Casting Time:** Action
+**Range:** 100 feet
+**Components:** V, S, M (ruby dust worth 1,500+ GP, which the spell consumes)
+**Duration:** Concentration, up to 1 hour
 
 An immobile, Invisible, Cube-shaped prison composed of magical force springs into existence around an area you choose within range. The prison can be a cage or a solid box, as you choose.
 
@@ -3511,7 +3514,9 @@ You touch a willing creature. Once on each of its turns until the spell ends, th
 
 **Components:** V 
 
-**Duration:** Instantaneous Choose an object that you can see within range. The object can be a door, a box, a chest, a set of manacles, a padlock, or another object that contains a mundane or magical means that prevents access.
+**Duration:** Instantaneous
+
+Choose an object that you can see within range. The object can be a door, a box, a chest, a set of manacles, a padlock, or another object that contains a mundane or magical means that prevents access.
 
 A target that is held shut by a mundane lock or that is stuck or barred becomes unlocked, unstuck, or unbarred. If the object has multiple locks, only one of them is unlocked.
 
@@ -4147,7 +4152,9 @@ A *Remove Curse* or *Greater Restoration* spell cast on the target restores the 
 
 **Components:** V, S, M (a moonseed leaf) 
 
-**Duration:** Concentration, up to 1 minute A silvery beam of pale light shines down in a 5-foot-radius, 40-foot-high Cylinder centered on a point within range. Until the spell ends, Dim Light fills the Cylinder, and you can take a Magic action on later turns to move the Cylinder up to 60 feet.
+**Duration:** Concentration, up to 1 minute
+
+A silvery beam of pale light shines down in a 5-foot-radius, 40-foot-high Cylinder centered on a point within range. Until the spell ends, Dim Light fills the Cylinder, and you can take a Magic action on later turns to move the Cylinder up to 60 feet.
 
 When the Cylinder appears, each creature in it makes a Constitution saving throw. On a failed save, a creature takes 2d10 Radiant damage, and if the creature is shape-shifted (as a result of the *Polymorph* spell, for example), it reverts to its true form and can't shape-shift until it leaves the Cylinder. On a successful save, a creature takes half as much damage only. A creature also makes this save when the spell's area moves into its space and when it enters the spell's area or ends its turn there. A creature makes this save only once per turn.
 
