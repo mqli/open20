@@ -80,7 +80,7 @@ export function SpellLibraryLayout() {
           <div className="flex items-center gap-1 flex-shrink-0">
             {casterType.canLearn && (
               <Toggle
-                variant="info"
+                variant="secondary"
                 size="sm"
                 pressed={showKnownOnly}
                 onPressedChange={() => setShowKnownOnly(!showKnownOnly)}
