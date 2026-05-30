@@ -85,7 +85,7 @@ export function SpellLibraryLayout() {
                 pressed={showKnownOnly}
                 onPressedChange={() => setShowKnownOnly(!showKnownOnly)}
               >
-                {t('knownCantrips')}
+                {t('known')}
               </Toggle>
             )}
             {casterType.canPrepare && (
@@ -95,7 +95,7 @@ export function SpellLibraryLayout() {
                 pressed={showPreparedOnly}
                 onPressedChange={() => setShowPreparedOnly(!showPreparedOnly)}
               >
-                {t('preparedShort')}
+                {t('prepared')}
               </Toggle>
             )}
           </div>

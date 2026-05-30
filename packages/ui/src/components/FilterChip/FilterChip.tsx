@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 import { Toggle } from '@/components/Toggle';
+import { Check } from 'lucide-react';
+import { iconSizes } from '@/styles/design-tokens';
 
 const filterChipVariants = cva(
   'inline-flex items-center font-medium transition-all duration-200 border',
@@ -48,10 +50,15 @@ export function FilterChip({
     <Toggle
       pressed={active}
       onPressedChange={onPressedChange}
-      className={cn(filterChipVariants({ variant, size }), className)}
+      className={cn(filterChipVariants({ variant, size }), className, 'relative')}
       {...props}
     >
       {children}
+      {active && (
+        <span className="py-0.5 absolute -right-1 -top-1 text-xs font-bold text-primary-500">
+          <Check className={iconSizes.xs} strokeWidth="3" />
+        </span>
+      )}
     </Toggle>
   );
 }

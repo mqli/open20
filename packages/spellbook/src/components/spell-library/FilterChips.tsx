@@ -40,22 +40,7 @@ export function FilterChips() {
 
   return (
     <div className="py-2 space-y-3">
-      {activeFilterCount > 0 && (
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearAllFilters}
-            className="text-text-secondary hover:text-danger"
-          >
-            {activeFilterCount > 1
-              ? t('clearFilters', { count: activeFilterCount })
-              : t('clearFilter')}
-          </Button>
-        </div>
-      )}
-
-      <div>
+      <div className="flex justify-between">
         <div className="flex flex-wrap gap-2">
           <FilterChip
             variant={showRitualOnly ? 'info' : 'secondary'}
@@ -72,8 +57,21 @@ export function FilterChips() {
             {t('concentration')}
           </FilterChip>
         </div>
+        {activeFilterCount > 0 && (
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="text-text-secondary hover:text-danger text-xs py-0.5"
+            >
+              {activeFilterCount > 1
+                ? t('clearFilters', { count: activeFilterCount })
+                : t('clearFilter')}
+            </Button>
+          </div>
+        )}
       </div>
-
       <div>
         <Text
           as="h4"

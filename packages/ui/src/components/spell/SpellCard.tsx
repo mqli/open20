@@ -207,7 +207,7 @@ export function SpellCard({
           </Text>
 
           <span className={levelBadgeVariants({ isCantrip })}>
-            {isCantrip ? t('common.cantripUpgrade') : `${t('common.level')} ${spell.level}`}
+            {isCantrip ? t('common.cantrip') : `${t('common.level')} ${spell.level}`}
           </span>
 
           <span className={cn(chipBase, spellSchoolVariants[spell.school])}>{spell.school}</span>

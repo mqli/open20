@@ -21,6 +21,7 @@ export interface BaseTranslations {
     details: string;
     less: string;
     atHigherLevels: string;
+    cantrip: string;
     cantripUpgrade: string;
     level: string;
     ritual: string;
@@ -100,6 +101,7 @@ export const defaultTranslations: Translations = {
     concentration: 'Concentration',
     source: 'Source',
     none: 'None',
+    cantrip: 'Cantrip',
   },
 
   validation: {
@@ -158,6 +160,7 @@ export const zhCNTranslations: Translations = {
     less: '更少',
     atHigherLevels: '在更高等级',
     cantripUpgrade: '戏法升级',
+    cantrip: '戏法',
     level: '等级',
     ritual: '仪式',
     concentration: '专注',
