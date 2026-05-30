@@ -17,7 +17,7 @@ const tabsListVariants = cva('flex border-b border-border', {
 });
 
 const tabsTriggerVariants = cva(
-  'px-4 py-2 -mb-[1px] border-b-2 border-transparent whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50',
+  'px-4 py-2 -mb-px border-b-2 border-transparent whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {

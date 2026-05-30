@@ -51,21 +51,21 @@
     "@storybook/addon-links": "catalog:",
     "@storybook/react": "catalog:",
     "@storybook/react-vite": "catalog:",
-    "@tailwindcss/vite": "catalog:",
+    "@tailwindcss/vite": "^4.3.0",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "eslint": "catalog:",
     "happy-dom": "catalog:",
     "postcss": "catalog:",
+    "prettier": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "4.3.0",
-    "typescript": "catalog:",
     "tsc-alias": "catalog:",
+    "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "eslint": "catalog:",
-    "prettier": "catalog:"
+    "vitest": "catalog:"
   }
 }

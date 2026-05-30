@@ -205,10 +205,10 @@ export const textWeightVariants = {
 } as const;
 
 export const dropdownContentClasses =
-  'z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-bg-secondary p-1 text-text-primary shadow-md animate-in fade-in-80';
+  'z-50 min-w-32 overflow-hidden rounded-md border border-border bg-bg-secondary p-1 text-text-primary shadow-md animate-in fade-in-80';
 
 export const dropdownItemBaseClasses =
-  'relative flex cursor-pointer select-none items-center rounded-sm text-sm outline-none transition-colors focus:bg-bg-tertiary data-[disabled]:pointer-events-none data-[disabled]:opacity-50';
+  'relative flex cursor-pointer select-none items-center rounded-sm text-sm outline-none transition-colors focus:bg-bg-tertiary data-disabled:pointer-events-none data-disabled:opacity-50';
 
 export const inputBaseClasses =
   'flex h-10 w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50';

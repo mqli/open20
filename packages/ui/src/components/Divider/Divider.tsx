@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
-const dividerVariants = cva('flex-shrink-0', {
+const dividerVariants = cva('shrink-0', {
   variants: {
     orientation: {
       horizontal: 'h-px w-full',
