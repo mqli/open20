@@ -6,11 +6,17 @@
   :root {
     /* Primary — Arcane Purple */
     --color-primary-50: #eeedfe;
+    --color-primary-50-rgb: 238 237 254;
     --color-primary-100: #cecbf6;
+    --color-primary-100-rgb: 206 203 246;
     --color-primary-400: #7f77dd;
+    --color-primary-400-rgb: 127 119 221;
     --color-primary-500: #6860cd;
+    --color-primary-500-rgb: 104 96 205;
     --color-primary-600: #534ab7;
+    --color-primary-600-rgb: 83 74 183;
     --color-primary-800: #3c3489;
+    --color-primary-800-rgb: 60 52 137;
 
     /* Neutral — Stone Gray */
     --color-bg-primary: #ffffff;
@@ -59,11 +65,17 @@
   [data-theme='dark'] {
     /* Primary — Arcane Purple */
     --color-primary-50: #26215c;
+    --color-primary-50-rgb: 38 33 92;
     --color-primary-100: #26215c;
+    --color-primary-100-rgb: 38 33 92;
     --color-primary-400: #7f77dd;
+    --color-primary-400-rgb: 127 119 221;
     --color-primary-500: #9791e5;
+    --color-primary-500-rgb: 151 145 229;
     --color-primary-600: #afa9ec;
+    --color-primary-600-rgb: 175 169 236;
     --color-primary-800: #cecbf6;
+    --color-primary-800-rgb: 206 203 246;
 
     /* Neutral — Stone Gray */
     --color-bg-primary: #1a1a1e;

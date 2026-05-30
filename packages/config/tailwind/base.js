@@ -2,12 +2,12 @@ const sharedTheme = {
   extend: {
     colors: {
       primary: {
-        50: 'var(--color-primary-50)',
-        100: 'var(--color-primary-100)',
-        400: 'var(--color-primary-400)',
-        500: 'var(--color-primary-500)',
-        600: 'var(--color-primary-600)',
-        800: 'var(--color-primary-800)',
+        50: 'rgb(var(--color-primary-50-rgb) / <alpha-value>)',
+        100: 'rgb(var(--color-primary-100-rgb) / <alpha-value>)',
+        400: 'rgb(var(--color-primary-400-rgb) / <alpha-value>)',
+        500: 'rgb(var(--color-primary-500-rgb) / <alpha-value>)',
+        600: 'rgb(var(--color-primary-600-rgb) / <alpha-value>)',
+        800: 'rgb(var(--color-primary-800-rgb) / <alpha-value>)',
       },
       bg: {
         primary: 'var(--color-bg-primary)',
