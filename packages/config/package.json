@@ -14,7 +14,6 @@
   },
   "exports": {
     "./eslint": "./eslint/index.js",
-    "./postcss": "./postcss/index.js",
     "./vite": {
       "types": "./types/vite/index.d.ts",
       "default": "./vite/index.js"

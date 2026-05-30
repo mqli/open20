@@ -59,7 +59,6 @@
     "@vitejs/plugin-react": "catalog:",
     "eslint": "catalog:",
     "happy-dom": "catalog:",
-    "postcss": "catalog:",
     "prettier": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:",

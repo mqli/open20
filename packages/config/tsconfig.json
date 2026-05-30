@@ -5,5 +5,5 @@
       "@open20/config/*": ["./*"]
     }
   },
-  "include": ["*.js", "eslint/**/*.js", "vitest/**/*.js", "tailwind/**/*.js"]
+  "include": ["*.js", "eslint/**/*.js", "vitest/**/*.js", "vitest/**/*.ts", "vite/**/*.js"]
 }

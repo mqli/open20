@@ -9,6 +9,13 @@
  */
 @source '../';
 
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @custom-variant dark (&:is([data-theme="dark"] *));
 
 @theme {

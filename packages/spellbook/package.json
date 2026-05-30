@@ -51,7 +51,6 @@
     "globals": "catalog:",
     "happy-dom": "catalog:",
     "jsdom": "catalog:",
-    "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",

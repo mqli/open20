@@ -96,9 +96,6 @@ catalogs:
     lucide-react:
       specifier: ^1.14.0
       version: 1.16.0
-    postcss:
-      specifier: ^8.5.14
-      version: 8.5.15
     prettier:
       specifier: ^3.8.3
       version: 3.8.3
@@ -340,9 +337,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 27.4.0
-      postcss:
-        specifier: 'catalog:'
-        version: 8.5.15
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.0
@@ -449,9 +443,6 @@ importers:
       happy-dom:
         specifier: 'catalog:'
         version: 15.11.7
-      postcss:
-        specifier: 'catalog:'
-        version: 8.5.15
       prettier:
         specifier: 'catalog:'
         version: 3.8.3
