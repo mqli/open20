@@ -62,7 +62,7 @@
     "postcss": "catalog:",
     "prettier": "catalog:",
     "storybook": "catalog:",
-    "tailwindcss": "4.3.0",
+    "tailwindcss": "catalog:",
     "tsc-alias": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

@@ -215,7 +215,7 @@ export const Tabs = {
   Trigger: ({ className, ...props }: RadixTabs.TabsTriggerProps) => (
     <RadixTabs.Trigger
       className={cn(
-        'px-4 py-2 -mb-[1px] border-b-2 border-transparent',
+        'px-4 py-2 -mb-px border-b-2 border-transparent',
         'text-slate-400 hover:text-slate-200',
         'data-[state=active]:border-purple-500 data-[state=active]:text-purple-400',
         'transition-colors',

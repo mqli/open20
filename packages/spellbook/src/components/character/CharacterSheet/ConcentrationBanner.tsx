@@ -17,11 +17,7 @@ export function ConcentrationBanner({ concentratingSpellId }: ConcentrationBanne
       padding="md"
       className="bg-amber-500/10 border-amber-500/25 flex items-center gap-3"
     >
-      <Surface
-        variant="ghost"
-        padding="xs"
-        className="bg-amber-500/15 text-amber-500 flex-shrink-0"
-      >
+      <Surface variant="ghost" padding="xs" className="bg-amber-500/15 text-amber-500 shrink-0">
         <ConcentrationIcon size="md" />
       </Surface>
       <div className="min-w-0">

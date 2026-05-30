@@ -30,7 +30,7 @@ export function LevelTabs() {
             variant={isActive ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => setSelectedLevel(value)}
-            className={`flex-shrink-0 rounded-full whitespace-nowrap ${
+            className={`shrink-0 rounded-full whitespace-nowrap ${
               isActive ? 'shadow-sm' : 'border border-border'
             }`}
           >

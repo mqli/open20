@@ -52,7 +52,7 @@
     "happy-dom": "catalog:",
     "jsdom": "catalog:",
     "postcss": "catalog:",
-    "tailwindcss": "4.3.0",
+    "tailwindcss": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",

@@ -101,7 +101,7 @@ export function SpellSlots({
       <div className="space-y-3">
         {slotEntries.map(({ lvl, slot }) => (
           <div key={lvl} className="flex items-center gap-3">
-            <Text variant="label" className="w-10 flex-shrink-0">
+            <Text variant="label" className="w-10 shrink-0">
               {SPELL_LEVEL_LABELS[lvl]}
             </Text>
             <SlotPips
@@ -109,7 +109,7 @@ export function SpellSlots({
               used={slot.used}
               onPipClick={(_index, isUsed) => (isUsed ? onRecoverSlot(lvl) : onConsumeSlot(lvl))}
             />
-            <Text variant="caption" weight="bold" className="flex-shrink-0 w-8 text-right">
+            <Text variant="caption" weight="bold" className="shrink-0 w-8 text-right">
               {slot.total - slot.used}/{slot.total}
             </Text>
           </div>
@@ -117,7 +117,7 @@ export function SpellSlots({
 
         {pactMagicSlots && onConsumePactSlot && onRecoverPactSlot && (
           <div className="flex items-center gap-3">
-            <Text variant="label" className="w-10 flex-shrink-0">
+            <Text variant="label" className="w-10 shrink-0">
               Pact {SPELL_LEVEL_LABELS[pactMagicSlots.level]}
             </Text>
             <SlotPips
@@ -125,7 +125,7 @@ export function SpellSlots({
               used={pactMagicSlots.used}
               onPipClick={(_index, isUsed) => (isUsed ? onRecoverPactSlot() : onConsumePactSlot())}
             />
-            <Text variant="caption" weight="bold" className="flex-shrink-0 w-8 text-right">
+            <Text variant="caption" weight="bold" className="shrink-0 w-8 text-right">
               {pactMagicSlots.total - pactMagicSlots.used}/{pactMagicSlots.total}
             </Text>
           </div>

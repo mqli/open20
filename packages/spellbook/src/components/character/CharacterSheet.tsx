@@ -114,7 +114,7 @@ export function CharacterSheet({
             <section>
               <SectionHeader title={t('pactMagicSlots')} />
               <div className="flex items-center gap-3">
-                <Text variant="label" className="w-10 flex-shrink-0">
+                <Text variant="label" className="w-10 shrink-0">
                   Pact {t(SPELL_LEVEL_LABELS[spells.pactMagicSlots.level] as keyof typeof t)}
                 </Text>
                 <SlotPips
@@ -124,7 +124,7 @@ export function CharacterSheet({
                     isUsed ? recoverPactMagicSlot() : consumePactMagicSlot()
                   }
                 />
-                <Text variant="caption" weight="bold" className="flex-shrink-0 w-8 text-right">
+                <Text variant="caption" weight="bold" className="shrink-0 w-8 text-right">
                   {spells.pactMagicSlots.total - spells.pactMagicSlots.used}/
                   {spells.pactMagicSlots.total}
                 </Text>
@@ -164,7 +164,7 @@ export function CharacterSheet({
         </SheetBody>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border flex-shrink-0">
+        <div className="p-4 border-t border-border shrink-0">
           <Button
             variant="ghost"
             onClick={onEdit}

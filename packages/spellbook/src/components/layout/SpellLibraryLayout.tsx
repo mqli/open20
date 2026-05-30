@@ -77,7 +77,7 @@ export function SpellLibraryLayout() {
           <div className="flex-1 min-w-0">
             <SearchBar />
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             {casterType.canLearn && (
               <Toggle
                 variant="secondary"
