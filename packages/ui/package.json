@@ -60,7 +60,7 @@
     "happy-dom": "catalog:",
     "postcss": "catalog:",
     "storybook": "catalog:",
-    "tailwindcss": "catalog:",
+    "tailwindcss": "4.3.0",
     "typescript": "catalog:",
     "tsc-alias": "catalog:",
     "vite": "catalog:",
