@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-vite';
 import { createStorybookMainConfig } from '@open20/config/storybook';
+import tailwindcss from '@tailwindcss/vite';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const uiSrc = resolve(here, '../src');
@@ -26,6 +27,9 @@ const config: StorybookConfig = {
             replacement: replacement as string,
           })),
         ];
+    // Add Tailwind v4 Vite plugin so @import "tailwindcss" is processed
+    cfg.plugins ??= [];
+    cfg.plugins.push(tailwindcss());
     return cfg;
   },
 };

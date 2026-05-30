@@ -15,7 +15,6 @@
   "exports": {
     "./eslint": "./eslint/index.js",
     "./postcss": "./postcss/index.js",
-    "./tailwind/base": "./tailwind/base.js",
     "./vite": {
       "types": "./types/vite/index.d.ts",
       "default": "./vite/index.js"

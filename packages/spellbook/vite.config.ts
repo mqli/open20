@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { createAlias, createGithubPagesBase } from '@open20/config/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [tailwindcss(), react()],
   base: createGithubPagesBase({ pagesBase: '/open20/spellbook/' }),
   resolve: {
     alias: [
