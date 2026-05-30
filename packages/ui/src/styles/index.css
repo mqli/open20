@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+/*
+ * Explicitly scan this package's source for class names. Tailwind v4's
+ * automatic content detection ignores node_modules, so when @open20/ui is
+ * consumed as a (symlinked) workspace dependency its component classes would
+ * otherwise be missing. Resolved relative to this file, so it works for both
+ * Storybook and any consuming app.
+ */
+@source '../';
+
 @custom-variant dark (&:is([data-theme="dark"] *));
 
 @theme {
