@@ -1,6 +1,6 @@
 import {
   defaultTranslations,
-  zhCNTranslations as defualtZhCNTranslations,
+  zhCNTranslations as defaultZhCNTranslations,
   type BaseTranslations,
 } from '@open20/ui';
 
@@ -143,7 +143,8 @@ export interface SpellbookTranslations extends BaseTranslations {
 }
 
 // English translations
-export const enTranslations: SpellbookTranslations = Object.assign(defaultTranslations, {
+export const enTranslations: SpellbookTranslations = {
+  ...defaultTranslations,
   spells: 'Spells',
   searchSpells: 'Search spells...',
   clearSearch: 'Clear search',
@@ -268,10 +269,11 @@ export const enTranslations: SpellbookTranslations = Object.assign(defaultTransl
   switchToEnglish: '切换到英文',
   chineseShort: '中文',
   englishShort: 'EN',
-});
+};
 
 // Chinese (Simplified) translations
-export const zhCNTranslations: SpellbookTranslations = Object.assign(defualtZhCNTranslations, {
+export const zhCNTranslations: SpellbookTranslations = {
+  ...defaultZhCNTranslations,
   spells: '法术',
   searchSpells: '搜索法术...',
   clearSearch: '清除搜索',
@@ -396,4 +398,4 @@ export const zhCNTranslations: SpellbookTranslations = Object.assign(defualtZhCN
   switchToEnglish: 'Switch to English',
   chineseShort: '中文',
   englishShort: 'EN',
-});
+};

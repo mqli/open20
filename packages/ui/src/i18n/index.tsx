@@ -1,225 +1,175 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 
-// Translation structure - designed to be extendable by consuming apps
+// Translation keys are flat dot-notation strings.
+// Consuming apps extend by adding their own flat keys.
 export interface BaseTranslations {
-  // Common UI elements used across all components
-  common: {
-    cancel: string;
-    save: string;
-    saving: string;
-    create: string;
-    update: string;
-    close: string;
-    details: string;
-    less: string;
-    atHigherLevels: string;
-    cantrip: string;
-    cantripUpgrade: string;
-    level: string;
-    ritual: string;
-    concentration: string;
-    source: string;
-    none: string;
-  };
+  // Common UI elements
+  'common.cancel': string;
+  'common.save': string;
+  'common.saving': string;
+  'common.create': string;
+  'common.update': string;
+  'common.close': string;
+  'common.details': string;
+  'common.less': string;
+  'common.atHigherLevels': string;
+  'common.cantrip': string;
+  'common.cantripUpgrade': string;
+  'common.level': string;
+  'common.ritual': string;
+  'common.concentration': string;
+  'common.source': string;
+  'common.none': string;
 
   // Form validation messages
-  validation: {
-    required: string;
-    idRequired: string;
-    nameRequired: string;
-    rangeRequired: string;
-    durationRequired: string;
-    componentsRequired: string;
-    descriptionRequired: string;
-    fixErrors: string;
-  };
+  'validation.required': string;
+  'validation.idRequired': string;
+  'validation.nameRequired': string;
+  'validation.rangeRequired': string;
+  'validation.durationRequired': string;
+  'validation.componentsRequired': string;
+  'validation.descriptionRequired': string;
+  'validation.fixErrors': string;
 
-  // Spell editor specific (since SpellEditor is in this package)
-  spellEditor: {
-    livePreview: string;
-    basicInfo: string;
-    castingInfo: string;
-    description: string;
-    damageHealing: string;
-    cantripUpgrade: string;
-    createSpell: string;
-    updateSpell: string;
-  };
+  // Spell editor
+  'spellEditor.livePreview': string;
+  'spellEditor.basicInfo': string;
+  'spellEditor.castingInfo': string;
+  'spellEditor.description': string;
+  'spellEditor.damageHealing': string;
+  'spellEditor.cantripUpgrade': string;
+  'spellEditor.createSpell': string;
+  'spellEditor.updateSpell': string;
 
-  // Empty state defaults
-  emptyState: {
-    noItems: string;
-    noResults: string;
-    getStarted: string;
-  };
+  // Empty state
+  'emptyState.noItems': string;
+  'emptyState.noResults': string;
+  'emptyState.getStarted': string;
 
   // Theme toggle
-  themeToggle: {
-    switchToLight: string;
-    switchToDark: string;
-  };
+  'themeToggle.switchToLight': string;
+  'themeToggle.switchToDark': string;
 
-  // Dialog/Sheet
-  dialog: {
-    close: string;
-  };
+  // Dialog
+  'dialog.close': string;
 
-  // Select/Dropdown
-  select: {
-    noOptions: string;
-    searchPlaceholder: string;
-  };
+  // Select
+  'select.noOptions': string;
+  'select.searchPlaceholder': string;
 }
 
-// Allow extending with custom namespaces
+// Allow extending with custom keys
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Translations<T = {}> = BaseTranslations & T;
 
-// Default English translations
+// Default English translations (flat dot-notation keys)
 export const defaultTranslations: Translations = {
-  common: {
-    cancel: 'Cancel',
-    save: 'Save',
-    saving: 'Saving...',
-    create: 'Create',
-    update: 'Update',
-    close: 'Close',
-    details: 'Details',
-    less: 'Less',
-    atHigherLevels: 'At Higher Levels',
-    cantripUpgrade: 'Cantrip Upgrade',
-    level: 'Level',
-    ritual: 'Ritual',
-    concentration: 'Concentration',
-    source: 'Source',
-    none: 'None',
-    cantrip: 'Cantrip',
-  },
+  'common.cancel': 'Cancel',
+  'common.save': 'Save',
+  'common.saving': 'Saving...',
+  'common.create': 'Create',
+  'common.update': 'Update',
+  'common.close': 'Close',
+  'common.details': 'Details',
+  'common.less': 'Less',
+  'common.atHigherLevels': 'At Higher Levels',
+  'common.cantripUpgrade': 'Cantrip Upgrade',
+  'common.level': 'Level',
+  'common.ritual': 'Ritual',
+  'common.concentration': 'Concentration',
+  'common.source': 'Source',
+  'common.none': 'None',
+  'common.cantrip': 'Cantrip',
 
-  validation: {
-    required: 'is required',
-    idRequired: 'ID is required',
-    nameRequired: 'Name is required',
-    rangeRequired: 'Range is required',
-    durationRequired: 'Duration is required',
-    componentsRequired: 'At least one component is required',
-    descriptionRequired: 'Description is required',
-    fixErrors: 'Please fix the following errors:',
-  },
+  'validation.required': 'is required',
+  'validation.idRequired': 'ID is required',
+  'validation.nameRequired': 'Name is required',
+  'validation.rangeRequired': 'Range is required',
+  'validation.durationRequired': 'Duration is required',
+  'validation.componentsRequired': 'At least one component is required',
+  'validation.descriptionRequired': 'Description is required',
+  'validation.fixErrors': 'Please fix the following errors:',
 
-  spellEditor: {
-    livePreview: 'Live Preview',
-    basicInfo: 'Basic Info',
-    castingInfo: 'Casting Info',
-    description: 'Description',
-    damageHealing: 'Damage & Healing',
-    cantripUpgrade: 'Cantrip Upgrade',
-    createSpell: 'Create Spell',
-    updateSpell: 'Update Spell',
-  },
+  'spellEditor.livePreview': 'Live Preview',
+  'spellEditor.basicInfo': 'Basic Info',
+  'spellEditor.castingInfo': 'Casting Info',
+  'spellEditor.description': 'Description',
+  'spellEditor.damageHealing': 'Damage & Healing',
+  'spellEditor.cantripUpgrade': 'Cantrip Upgrade',
+  'spellEditor.createSpell': 'Create Spell',
+  'spellEditor.updateSpell': 'Update Spell',
 
-  emptyState: {
-    noItems: 'No items',
-    noResults: 'No results found',
-    getStarted: 'Get started by creating your first item',
-  },
+  'emptyState.noItems': 'No items',
+  'emptyState.noResults': 'No results found',
+  'emptyState.getStarted': 'Get started by creating your first item',
 
-  themeToggle: {
-    switchToLight: 'Switch to light mode',
-    switchToDark: 'Switch to dark mode',
-  },
+  'themeToggle.switchToLight': 'Switch to light mode',
+  'themeToggle.switchToDark': 'Switch to dark mode',
 
-  dialog: {
-    close: 'Close',
-  },
+  'dialog.close': 'Close',
 
-  select: {
-    noOptions: 'No options available',
-    searchPlaceholder: 'Search...',
-  },
+  'select.noOptions': 'No options available',
+  'select.searchPlaceholder': 'Search...',
 };
 
-// Chinese (Simplified) translations
+// Chinese (Simplified) translations (flat dot-notation keys)
 export const zhCNTranslations: Translations = {
-  common: {
-    cancel: '取消',
-    save: '保存',
-    saving: '保存中...',
-    create: '创建',
-    update: '更新',
-    close: '关闭',
-    details: '详情',
-    less: '更少',
-    atHigherLevels: '在更高等级',
-    cantripUpgrade: '戏法升级',
-    cantrip: '戏法',
-    level: '等级',
-    ritual: '仪式',
-    concentration: '专注',
-    source: '来源',
-    none: '无',
-  },
+  'common.cancel': '取消',
+  'common.save': '保存',
+  'common.saving': '保存中...',
+  'common.create': '创建',
+  'common.update': '更新',
+  'common.close': '关闭',
+  'common.details': '详情',
+  'common.less': '更少',
+  'common.atHigherLevels': '在更高等级',
+  'common.cantripUpgrade': '戏法升级',
+  'common.cantrip': '戏法',
+  'common.level': '等级',
+  'common.ritual': '仪式',
+  'common.concentration': '专注',
+  'common.source': '来源',
+  'common.none': '无',
 
-  validation: {
-    required: '是必填项',
-    idRequired: 'ID是必填项',
-    nameRequired: '名称是必填项',
-    rangeRequired: '范围是必填项',
-    durationRequired: '持续时间是必填项',
-    componentsRequired: '至少需要一个组件',
-    descriptionRequired: '描述是必填项',
-    fixErrors: '请修复以下错误：',
-  },
+  'validation.required': '是必填项',
+  'validation.idRequired': 'ID是必填项',
+  'validation.nameRequired': '名称是必填项',
+  'validation.rangeRequired': '范围是必填项',
+  'validation.durationRequired': '持续时间是必填项',
+  'validation.componentsRequired': '至少需要一个组件',
+  'validation.descriptionRequired': '描述是必填项',
+  'validation.fixErrors': '请修复以下错误：',
 
-  spellEditor: {
-    livePreview: '实时预览',
-    basicInfo: '基本信息',
-    castingInfo: '施法信息',
-    description: '描述',
-    damageHealing: '伤害与治疗',
-    cantripUpgrade: '戏法升级',
-    createSpell: '创建法术',
-    updateSpell: '更新法术',
-  },
+  'spellEditor.livePreview': '实时预览',
+  'spellEditor.basicInfo': '基本信息',
+  'spellEditor.castingInfo': '施法信息',
+  'spellEditor.description': '描述',
+  'spellEditor.damageHealing': '伤害与治疗',
+  'spellEditor.cantripUpgrade': '戏法升级',
+  'spellEditor.createSpell': '创建法术',
+  'spellEditor.updateSpell': '更新法术',
 
-  emptyState: {
-    noItems: '没有项目',
-    noResults: '未找到结果',
-    getStarted: '通过创建您的第一个项目开始',
-  },
+  'emptyState.noItems': '没有项目',
+  'emptyState.noResults': '未找到结果',
+  'emptyState.getStarted': '通过创建您的第一个项目开始',
 
-  themeToggle: {
-    switchToLight: '切换到浅色模式',
-    switchToDark: '切换到深色模式',
-  },
+  'themeToggle.switchToLight': '切换到浅色模式',
+  'themeToggle.switchToDark': '切换到深色模式',
 
-  dialog: {
-    close: '关闭',
-  },
+  'dialog.close': '关闭',
 
-  select: {
-    noOptions: '没有可用选项',
-    searchPlaceholder: '搜索...',
-  },
+  'select.noOptions': '没有可用选项',
+  'select.searchPlaceholder': '搜索...',
 };
 
-// Context type - supports generic translations for extensibility
+// Context type
 interface I18nContextType<T = BaseTranslations> {
-  t: (key: keyof T | string, params?: Record<string, string | number>) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
   locale: string;
   setLocale: (locale: string) => void;
   translations: T;
 }
 
-// Create context with generic support
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 // Provider component - accepts extended translations
@@ -232,34 +182,25 @@ export function I18nProvider<T extends BaseTranslations = BaseTranslations>({
   initialLocale = 'en',
 }: {
   children: ReactNode;
-  translationsSet?: Record<'en' | 'zh-CN', T>;
+  translationsSet?: Record<string, T>;
   initialLocale?: string;
 }) {
   const [locale, setLocale] = useState(initialLocale);
-  const translations = translationsSet[locale as 'en' | 'zh-CN'] ?? translationsSet.en;
+  const translations = translationsSet[locale] ?? translationsSet[Object.keys(translationsSet)[0]];
 
-  useEffect(() => {
-    setLocale(initialLocale);
-  }, [initialLocale]);
+  // Cast to Record for string-keyed lookup (keys are now flat dot-notation strings)
+  const dict = translations as unknown as Record<string, string>;
+
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {
-      const keys = key.split('.');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let value: any = translations;
-
-      for (const k of keys) {
-        if (value && typeof value === 'object' && k in value) {
-          value = value[k];
-        } else {
-          console.warn(`Translation key not found: ${key}`);
-          return key;
-        }
+      const value = dict[key];
+      if (typeof value !== 'string') {
+        console.warn(`Translation key not found: ${key}`);
+        return key;
       }
 
-      let result = typeof value === 'string' ? value : key;
-
-      // Replace parameters in the string
-      if (params && typeof result === 'string') {
+      let result = value;
+      if (params) {
         Object.entries(params).forEach(([paramKey, paramValue]) => {
           result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
         });
@@ -267,8 +208,9 @@ export function I18nProvider<T extends BaseTranslations = BaseTranslations>({
 
       return result;
     },
-    [translations],
+    [dict],
   );
+
   const contextValue = useMemo(
     () => ({
       t,
