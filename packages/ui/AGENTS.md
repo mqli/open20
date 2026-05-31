@@ -21,9 +21,9 @@ This package lives at `packages/ui/` inside the [open20 monorepo](../../agent.md
 
 ## Internationalization
 
-- Read [`I18N.md`](./I18N.md) before changing translation keys, `I18nProvider`, or i18n hooks.
-- Treat [`I18N.md`](./I18N.md) as the source of truth for current i18n API usage (`translationsSet`, `initialLocale`) and base key structure.
-- When updating i18n behavior in `src/i18n/` or i18n-enabled components, update `I18N.md` in the same change.
+- Read [`../../.agents/ui/i18n.md`](../../.agents/ui/i18n.md) before changing translation keys, `I18nProvider`, or i18n hooks.
+- Treat [`../../.agents/ui/i18n.md`](../../.agents/ui/i18n.md) as the source of truth for current i18n API usage (`translationsSet`, `initialLocale`) and base key structure.
+- When updating i18n behavior in `src/i18n/` or i18n-enabled components, update `../../.agents/ui/i18n.md` in the same change.
 
 ---
 
@@ -263,6 +263,8 @@ pnpm run typecheck && pnpm run lint && pnpm run build
 | `closeButtonClasses`, `slider*Classes`, `slotPipStateVariants`            | Domain string/object | Single component family |
 
 ---
+
+More on tokens: [`../../.agents/ui/design-tokens.md`](../../.agents/ui/design-tokens.md)
 
 ## DO / DON'T
 

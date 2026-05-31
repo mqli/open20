@@ -81,7 +81,7 @@ export function CastingInfoSection({ formData, onChange, disabled }: CastingInfo
               className={cn(
                 'px-3 py-2 rounded-md border text-sm font-medium transition-colors',
                 formData.components.includes(component)
-                  ? 'bg-primary-600 text-white border-primary-700'
+                  ? 'bg-primary-600 text-white border-primary-800'
                   : 'bg-bg-tertiary text-text-secondary border-border hover:bg-border',
               )}
             >

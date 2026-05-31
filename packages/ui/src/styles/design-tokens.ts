@@ -2,12 +2,12 @@ import { cn } from '@/lib/cn';
 
 export const colors = {
   primary: {
-    50: 'rgb(var(--color-primary-50-rgb) / <alpha-value>)',
-    100: 'rgb(var(--color-primary-100-rgb) / <alpha-value>)',
-    400: 'rgb(var(--color-primary-400-rgb) / <alpha-value>)',
-    500: 'rgb(var(--color-primary-500-rgb) / <alpha-value>)',
-    600: 'rgb(var(--color-primary-600-rgb) / <alpha-value>)',
-    800: 'rgb(var(--color-primary-800-rgb) / <alpha-value>)',
+    50: 'var(--color-primary-50)',
+    100: 'var(--color-primary-100)',
+    400: 'var(--color-primary-400)',
+    500: 'var(--color-primary-500)',
+    600: 'var(--color-primary-600)',
+    800: 'var(--color-primary-800)',
   },
   bg: {
     primary: 'var(--color-bg-primary)',
@@ -83,12 +83,13 @@ export const toggleVariants = {
 } as const;
 
 export const buttonVariants = {
-  primary: 'bg-primary-600 hover:bg-primary-700 text-white border border-primary-700 shadow-md',
+  primary: 'bg-primary-600 hover:bg-primary-800 text-white border border-primary-800 shadow-md',
   secondary: 'bg-bg-tertiary hover:bg-border text-text-primary border border-border',
-  outline: 'bg-transparent hover:bg-primary-100 text-primary-700 border border-primary-200',
+  outline:
+    'bg-transparent hover:bg-primary-100 text-primary-600 dark:text-primary-400 border border-primary-400/40',
   ghost: 'hover:bg-bg-tertiary text-primary-600 dark:text-primary-400',
-  danger: 'bg-danger hover:bg-red-700 text-white border border-red-700',
-  warning: 'bg-warning hover:bg-amber-600 text-white border border-amber-600',
+  danger: 'bg-danger hover:bg-danger/90 text-white border border-danger/90',
+  warning: 'bg-warning hover:bg-warning/90 text-white border border-warning/90',
 } as const;
 
 export const badgeToggleSizeVariants = {
@@ -122,7 +123,7 @@ export const iconButtonVariants = {
 export const iconButtonActiveVariants = {
   secondary: 'bg-bg-secondary text-text-primary border-border/80',
   primary:
-    'bg-primary-500/30 text-primary-700 dark:text-primary-300 border-primary-500/50 shadow-sm shadow-primary-500/10',
+    'bg-primary-500/30 text-primary-600 dark:text-primary-300 border-primary-500/50 shadow-sm shadow-primary-500/10',
   info: 'bg-info/30 text-info border-info/50 shadow-sm',
   warning: 'bg-warning/30 text-warning border-warning/50 shadow-sm',
   danger: 'bg-danger/30 text-danger border-danger/50 shadow-sm',
@@ -143,7 +144,7 @@ export const slotPipStateVariants = {
 
 export const surfaceVariants = {
   default: 'bg-bg-secondary border-border',
-  primary: 'bg-bg-primary border-primary-200',
+  primary: 'bg-bg-primary border-primary-400/30',
   elevated: 'bg-bg-primary border-border shadow-md',
   ghost: 'bg-transparent border-border/50',
   tint: 'bg-primary-500/5 border-primary-500/10',
