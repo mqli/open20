@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   Text,
 } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';

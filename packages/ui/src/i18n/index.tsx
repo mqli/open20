@@ -1,62 +1,57 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 
+export type BaseTranslationKeys =
+  // Common UI elements
+  | 'common.cancel'
+  | 'common.save'
+  | 'common.saving'
+  | 'common.create'
+  | 'common.update'
+  | 'common.close'
+  | 'common.details'
+  | 'common.less'
+  | 'common.atHigherLevels'
+  | 'common.cantrip'
+  | 'common.cantripUpgrade'
+  | 'common.level'
+  | 'common.ritual'
+  | 'common.concentration'
+  | 'common.source'
+  | 'common.none'
+  // Form validation messages
+  | 'validation.required'
+  | 'validation.idRequired'
+  | 'validation.nameRequired'
+  | 'validation.rangeRequired'
+  | 'validation.durationRequired'
+  | 'validation.componentsRequired'
+  | 'validation.descriptionRequired'
+  | 'validation.fixErrors'
+  // Spell editor
+  | 'spellEditor.livePreview'
+  | 'spellEditor.basicInfo'
+  | 'spellEditor.castingInfo'
+  | 'spellEditor.description'
+  | 'spellEditor.damageHealing'
+  | 'spellEditor.cantripUpgrade'
+  | 'spellEditor.createSpell'
+  | 'spellEditor.updateSpell'
+  // Empty state
+  | 'emptyState.noItems'
+  | 'emptyState.noResults'
+  | 'emptyState.getStarted'
+  // Theme toggle
+  | 'themeToggle.switchToLight'
+  | 'themeToggle.switchToDark'
+  // Dialog
+  | 'dialog.close'
+  // Select
+  | 'select.noOptions'
+  | 'select.searchPlaceholder';
+
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
-export interface BaseTranslations {
-  // Common UI elements
-  'common.cancel': string;
-  'common.save': string;
-  'common.saving': string;
-  'common.create': string;
-  'common.update': string;
-  'common.close': string;
-  'common.details': string;
-  'common.less': string;
-  'common.atHigherLevels': string;
-  'common.cantrip': string;
-  'common.cantripUpgrade': string;
-  'common.level': string;
-  'common.ritual': string;
-  'common.concentration': string;
-  'common.source': string;
-  'common.none': string;
-
-  // Form validation messages
-  'validation.required': string;
-  'validation.idRequired': string;
-  'validation.nameRequired': string;
-  'validation.rangeRequired': string;
-  'validation.durationRequired': string;
-  'validation.componentsRequired': string;
-  'validation.descriptionRequired': string;
-  'validation.fixErrors': string;
-
-  // Spell editor
-  'spellEditor.livePreview': string;
-  'spellEditor.basicInfo': string;
-  'spellEditor.castingInfo': string;
-  'spellEditor.description': string;
-  'spellEditor.damageHealing': string;
-  'spellEditor.cantripUpgrade': string;
-  'spellEditor.createSpell': string;
-  'spellEditor.updateSpell': string;
-
-  // Empty state
-  'emptyState.noItems': string;
-  'emptyState.noResults': string;
-  'emptyState.getStarted': string;
-
-  // Theme toggle
-  'themeToggle.switchToLight': string;
-  'themeToggle.switchToDark': string;
-
-  // Dialog
-  'dialog.close': string;
-
-  // Select
-  'select.noOptions': string;
-  'select.searchPlaceholder': string;
-}
+export type BaseTranslations = Record<BaseTranslationKeys, string>;
 
 // Allow extending with custom keys
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -164,7 +159,7 @@ export const zhCNTranslations: Translations = {
 
 // Context type
 interface I18nContextType<T = BaseTranslations> {
-  t: (key: string, params?: Record<string, string | number>) => string;
+  t: (key: keyof T, params?: Record<string, string | number>) => string;
   locale: string;
   setLocale: (locale: string) => void;
   translations: T;

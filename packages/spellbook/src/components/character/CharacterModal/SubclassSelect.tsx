@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { SelectContent, SelectItem, SelectRoot, SelectTrigger, Text } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 import { dataLoader } from '@/core/data-loader';
 
 interface SubclassSelectProps {

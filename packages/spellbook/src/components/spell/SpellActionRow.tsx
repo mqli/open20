@@ -3,10 +3,11 @@ import { DamageIcon, HealIcon, MagicIcon, AttackIcon } from '@open20/ui';
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Button } from '@open20/ui';
 import { CastLevelSelect } from './CastLevelSelect';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
+import type { SpellbookTranslationKeys } from '@/i18n';
 import { Divider } from '@open20/ui';
 
-const SPELL_LEVEL_LABELS = [
+const SPELL_LEVEL_LABELS: readonly SpellbookTranslationKeys[] = [
   'cantripLevel',
   'firstLevel',
   'secondLevel',

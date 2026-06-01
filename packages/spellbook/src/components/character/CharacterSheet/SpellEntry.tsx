@@ -3,7 +3,7 @@ import { useSpellStore } from '@/stores/spell-store';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import type { Spell } from '@/core/types';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 interface SpellEntryProps {
   spell: Spell;

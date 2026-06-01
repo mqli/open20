@@ -3,7 +3,7 @@ import { useUIStore } from './stores/ui-store';
 import { SpellLibraryLayout } from './components/layout/SpellLibraryLayout';
 import { DiceRollOverlay } from './components/dice/DiceRollOverlay';
 import { I18nProvider } from '@open20/ui';
-import { enTranslations, zhCNTranslations } from './i18n';
+import { enTranslations, zhCNTranslations } from '@/i18n';
 import { storageService } from '@/core/storage-service';
 
 export function App() {

@@ -1,4 +1,4 @@
-import { useI18n } from '@open20/ui';
+import { useI18n } from '@/i18n';
 import { Button } from '@open20/ui';
 import { Globe } from 'lucide-react';
 import { storageService } from '@/core/storage-service';

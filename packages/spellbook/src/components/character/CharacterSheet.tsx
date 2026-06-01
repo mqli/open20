@@ -16,7 +16,7 @@ import {
 import { useCharacterStore } from '@/stores/character-store';
 import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
 import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',

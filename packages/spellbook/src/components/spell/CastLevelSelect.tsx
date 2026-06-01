@@ -1,6 +1,6 @@
 import type { SpellLevel, SpellSlotEntry } from 'open20-core/types';
 import { Select } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',

@@ -21,7 +21,7 @@ import { CharacterModal } from './CharacterModal';
 import { CharacterSheet } from './CharacterSheet';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Plus, User, Moon, Sun, FileText, Users, ChevronRight } from 'lucide-react';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 const CLASS_NAME_MAP = Object.fromEntries(
   dataLoader.getAllClasses().map((c) => [c.id, c.name || c.id]),

@@ -9,7 +9,7 @@ import {
   IconButton,
   PrepareSpellIcon,
 } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 interface ClassActionDropdownProps {
   matchingClassIds: string[];

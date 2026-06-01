@@ -2,145 +2,135 @@ import {
   defaultTranslations,
   zhCNTranslations as defaultZhCNTranslations,
   type BaseTranslations,
+  useI18n as useI18nFromUi,
+  useTranslation as useTranslationFromUi,
 } from '@open20/ui';
 
-// Spellbook translation structure
-export interface SpellbookTranslations extends BaseTranslations {
+export type SpellbookTranslationKeys =
   // Search and filters
-  spells: string;
-  searchSpells: string;
-  clearSearch: string;
-  allLevels: string;
-  cantrip: string;
-  levelLabel: string;
-  ritual: string;
-  concentration: string;
-  classes: string;
-  schools: string;
-  clearFilter: string;
-  clearFilters: string;
-
+  | 'spells'
+  | 'searchSpells'
+  | 'clearSearch'
+  | 'allLevels'
+  | 'cantrip'
+  | 'levelLabel'
+  | 'ritual'
+  | 'concentration'
+  | 'classes'
+  | 'schools'
+  | 'clearFilter'
+  | 'clearFilters'
   // Character management
-  createCharacter: string;
-  editCharacter: string;
-  characterName: string;
-  characterNamePlaceholder: string;
-  class: string;
-  level: string;
-  species: string;
-  background: string;
-  multiclass: string;
-  addClass: string;
-  abilityScores: string;
-  summonHero: string;
-  saveChanges: string;
-  saving: string;
-  cancel: string;
-
+  | 'createCharacter'
+  | 'editCharacter'
+  | 'characterName'
+  | 'characterNamePlaceholder'
+  | 'class'
+  | 'level'
+  | 'species'
+  | 'background'
+  | 'multiclass'
+  | 'addClass'
+  | 'abilityScores'
+  | 'summonHero'
+  | 'saveChanges'
+  | 'saving'
+  | 'cancel'
   // Character sheet
-  openCharacterSheet: string;
-  editCharacterStats: string;
-  pactMagic: string;
-  classSpellcasting: string;
-  combined: string;
-  concentrationBanner: string;
-  alwaysPrepared: string;
-  preparationSlots: string;
-  preparedSpells: string;
-  knownCantrips: string;
-  learnCantrip: string;
-  replaceCantrip: string;
-  add: string;
-  noCantripsAvailable: string;
-
+  | 'openCharacterSheet'
+  | 'editCharacterStats'
+  | 'pactMagic'
+  | 'classSpellcasting'
+  | 'combined'
+  | 'concentrationBanner'
+  | 'alwaysPrepared'
+  | 'preparationSlots'
+  | 'preparedSpells'
+  | 'knownCantrips'
+  | 'learnCantrip'
+  | 'replaceCantrip'
+  | 'add'
+  | 'noCantripsAvailable'
   // Spell actions
-  cast: string;
-  attack: string;
-  damage: string;
-  healing: string;
-  rollAttack: string;
-  rollDamage: string;
-  rollHealing: string;
-  castAtLevel: string;
-  startConcentration: string;
-  endConcentration: string;
-  concentrate: string;
-  stop: string;
-
+  | 'cast'
+  | 'attack'
+  | 'damage'
+  | 'healing'
+  | 'rollAttack'
+  | 'rollDamage'
+  | 'rollHealing'
+  | 'castAtLevel'
+  | 'startConcentration'
+  | 'endConcentration'
+  | 'concentrate'
+  | 'stop'
   // Spellbook controls
-  learnSpell: string;
-  unlearnSpell: string;
-  prepareSpell: string;
-  unprepareSpell: string;
-  learnCantripAction: string;
-  unlearnCantripAction: string;
-  alwaysPreparedLabel: string;
-  manageSpell: string;
-  addSpell: string;
-  preparedShort: string;
-  known: string;
-  prepared: string;
-
+  | 'learnSpell'
+  | 'unlearnSpell'
+  | 'prepareSpell'
+  | 'unprepareSpell'
+  | 'learnCantripAction'
+  | 'unlearnCantripAction'
+  | 'alwaysPreparedLabel'
+  | 'manageSpell'
+  | 'addSpell'
+  | 'preparedShort'
+  | 'known'
+  | 'prepared'
   // Dice rolling
-  rollResult: string;
-
+  | 'rollResult'
   // Rest actions
-  shortRest: string;
-  longRest: string;
-
+  | 'shortRest'
+  | 'longRest'
   // Character switching
-  switchCharacter: string;
-  createCharacterAction: string;
-  addCharacter: string;
-
+  | 'switchCharacter'
+  | 'createCharacterAction'
+  | 'addCharacter'
   // Empty states
-  noPreparedSpells: string;
-  noKnownSpells: string;
-  noSpellsFound: string;
-
+  | 'noPreparedSpells'
+  | 'noKnownSpells'
+  | 'noSpellsFound'
   // Class action dropdown
-  forLabel: string;
-  addForLabel: string;
-  unlearn: string;
-  unprepare: string;
-  learn: string;
-  prepare: string;
-  none: string;
-
+  | 'forLabel'
+  | 'addForLabel'
+  | 'unlearn'
+  | 'unprepare'
+  | 'learn'
+  | 'prepare'
+  | 'none'
   // Spell levels
-  cantripLevel: string;
-  firstLevel: string;
-  secondLevel: string;
-  thirdLevel: string;
-  fourthLevel: string;
-  fifthLevel: string;
-  sixthLevel: string;
-  seventhLevel: string;
-  eighthLevel: string;
-  ninthLevel: string;
-
+  | 'cantripLevel'
+  | 'firstLevel'
+  | 'secondLevel'
+  | 'thirdLevel'
+  | 'fourthLevel'
+  | 'fifthLevel'
+  | 'sixthLevel'
+  | 'seventhLevel'
+  | 'eighthLevel'
+  | 'ninthLevel'
   // Character sheet stats
-  ability: string;
-  saveDC: string;
-  attackBonus: string;
-  pactMagicSlots: string;
-  classSpellcastingStats: string;
-  knownCantripsCount: string;
-  alwaysPreparedSpells: string;
-  preparedSpellsCount: string;
-
+  | 'ability'
+  | 'saveDC'
+  | 'attackBonus'
+  | 'pactMagicSlots'
+  | 'classSpellcastingStats'
+  | 'knownCantripsCount'
+  | 'alwaysPreparedSpells'
+  | 'preparedSpellsCount'
   // Dice rolling labels
-  spellAttack: string;
-  damageRoll: string;
-  healingRoll: string;
-  rollDamageOfType: string;
-
+  | 'spellAttack'
+  | 'damageRoll'
+  | 'healingRoll'
+  | 'rollDamageOfType'
   // Language switcher
-  switchToChinese: string;
-  switchToEnglish: string;
-  chineseShort: string;
-  englishShort: string;
-}
+  | 'switchToChinese'
+  | 'switchToEnglish'
+  | 'chineseShort'
+  | 'englishShort';
+
+// Spellbook translation structure
+export type SpellbookTranslations = BaseTranslations & Record<SpellbookTranslationKeys, string>;
 
 // English translations
 export const enTranslations: SpellbookTranslations = {
@@ -365,7 +355,6 @@ export const zhCNTranslations: SpellbookTranslations = {
   prepare: '准备',
   none: '无',
 
-  // Spell levels
   cantripLevel: '戏法',
   firstLevel: '1环',
   secondLevel: '2环',
@@ -377,7 +366,6 @@ export const zhCNTranslations: SpellbookTranslations = {
   eighthLevel: '8环',
   ninthLevel: '9环',
 
-  // Character sheet stats
   ability: '属性',
   saveDC: '豁免DC',
   attackBonus: '攻击',
@@ -387,15 +375,23 @@ export const zhCNTranslations: SpellbookTranslations = {
   alwaysPreparedSpells: '始终准备',
   preparedSpellsCount: '已准备法术',
 
-  // Dice rolling labels
   spellAttack: '法术攻击',
   damageRoll: '伤害',
   healingRoll: '治疗',
   rollDamageOfType: '{type}伤害',
 
-  // Language switcher
   switchToChinese: '切换到中文',
   switchToEnglish: 'Switch to English',
   chineseShort: '中文',
   englishShort: 'EN',
 };
+
+export { I18nProvider } from '@open20/ui';
+
+export function useTranslation() {
+  return useTranslationFromUi<SpellbookTranslations>();
+}
+
+export function useI18n() {
+  return useI18nFromUi<SpellbookTranslations>();
+}

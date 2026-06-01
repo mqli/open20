@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { useSpellStore } from '@/stores/spell-store';
 import { Input, Button } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 export function SearchBar() {
   const t = useTranslation();

@@ -12,7 +12,7 @@ import { ConcentrationToggle } from './ConcentrationToggle';
 import { SpellActionRow } from './SpellActionRow';
 import { SpellbookControls } from './SpellbookControls';
 import { SpellStatusBadges } from './SpellStatusBadges';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 type SpellCardDensity = 'default' | 'compact';
 type SpellActionStyle = 'button' | 'icon';

@@ -7,7 +7,7 @@ import { FilterChips } from '@/components/spell-library/FilterChips';
 import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
 import { EmptyState, Surface, Toggle, Text } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/character-store';
 import { getCasterType } from '@/core/character-service';
 import { CharacterBar } from '@/components/character/CharacterBar';

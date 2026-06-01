@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Badge } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 interface SpellStatusBadgesProps {
   isKnownOrCantrip: boolean;

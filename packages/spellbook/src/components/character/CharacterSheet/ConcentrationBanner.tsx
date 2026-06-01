@@ -1,6 +1,6 @@
 import { spellService } from '@/core/spell-service';
 import { Surface, Text, ConcentrationIcon } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 interface ConcentrationBannerProps {
   concentratingSpellId: string;

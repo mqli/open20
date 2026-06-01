@@ -1,6 +1,6 @@
 import { Button } from '@open20/ui';
 import { ConcentrationIcon } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 interface ConcentrationToggleProps {
   isConcentrating: boolean;

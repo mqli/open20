@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   Surface,
 } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
 import { CLASSES } from './constants';

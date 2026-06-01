@@ -1,5 +1,5 @@
 import { Input, Surface, Text } from '@open20/ui';
-import { useTranslation } from '@open20/ui';
+import { useTranslation } from '@/i18n';
 
 interface AbilityScoresSectionProps {
   abilities: Record<string, number>;
