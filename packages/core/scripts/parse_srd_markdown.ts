@@ -4,7 +4,7 @@ import {
   stripBold,
   stripItalic,
   stripMarkdownHeading,
-} from './srd_markdown_helpers.ts';
+} from './srd_markdown_helpers';
 
 import type {
   Spell,
@@ -24,7 +24,7 @@ export function parseComponents(compStr: string): string[] {
   return comps;
 }
 
-function parseCastingTime(text: string): string {
+export function parseCastingTime(text: string): string {
   if (/bonus\s*action/i.test(text)) return 'Bonus Action';
   if (/reaction/i.test(text)) return 'Reaction';
   if (/minute/i.test(text)) return text.includes('minute') ? text.trim() : '1 minute';
@@ -32,7 +32,7 @@ function parseCastingTime(text: string): string {
   return 'Action';
 }
 
-function parseDuration(text: string): { duration: string; concentration: boolean } {
+export function parseDuration(text: string): { duration: string; concentration: boolean } {
   if (!text) return { duration: 'Instantaneous', concentration: false };
   return {
     duration: text.replace(/\s*concentration,?\s*/i, '').trim() || text.trim(),
@@ -40,11 +40,11 @@ function parseDuration(text: string): { duration: string; concentration: boolean
   };
 }
 
-function checkRitual(castingTime: string, description: string): boolean {
+export function checkRitual(castingTime: string, description: string): boolean {
   return /ritual/i.test(castingTime) || /can be cast as a ritual/i.test(description);
 }
 
-function extractSave(description: string): string | undefined {
+export function extractSave(description: string): string | undefined {
   for (const save of [
     'Strength',
     'Dexterity',
@@ -58,7 +58,7 @@ function extractSave(description: string): string | undefined {
   return undefined;
 }
 
-function checkAttack(description: string): boolean {
+export function checkAttack(description: string): boolean {
   return /spell attack/i.test(description) || /make an? .*attack/i.test(description);
 }
 
@@ -69,13 +69,13 @@ export function extractDamage(description: string): SpellDamage | undefined {
   if (matches.length === 0) return undefined;
   return {
     entries: matches.map((m) => ({
-      dice: m[1],
-      type: m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase(),
+      dice: m[1]!,
+      type: (m[2]!.charAt(0).toUpperCase() + m[2]!.slice(1).toLowerCase()) as DamageType,
     })) as unknown as readonly DamageEntry[],
   };
 }
 
-function extractHeal(description: string): SpellHeal | undefined {
+export function extractHeal(description: string): SpellHeal | undefined {
   const healingKeywords = /(regain|heal|hit point).*(\d+d\d+)/i;
   const match = healingKeywords.exec(description);
   if (!match) return undefined;
@@ -87,8 +87,8 @@ function extractHeal(description: string): SpellHeal | undefined {
   const includeMod = /plus your spellcasting ability modifier/i.test(description);
 
   return {
-    dice: match[2],
-    ...(perSlotMatch ? { perSlot: perSlotMatch[1] } : {}),
+    dice: match[2]!,
+    ...(perSlotMatch ? { perSlot: perSlotMatch[1]! } : {}),
     ...(includeMod ? { includeSpellcastingModifier: true } : {}),
   };
 }
@@ -111,7 +111,7 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
   const parenRegex = /(?:level\s*)?(5|11|17)\s*\((\d*d\d+)\)/gi;
   const parenMatches = Array.from(text.matchAll(parenRegex));
   for (const m of parenMatches) {
-    damageByLevel.set(parseInt(m[1]), normalizeDice(m[2]));
+    damageByLevel.set(parseInt(m[1]!), normalizeDice(m[2]!));
   }
 
   // If no parenthetical matches, try "at level 5, 2d6" pattern
@@ -119,7 +119,7 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
     for (const level of [5, 11, 17]) {
       const regex = new RegExp(`(?:level\\s*${level}[^,\\d]*)((\\d*d\\d+))`, 'i');
       const match = text.match(regex);
-      if (match) damageByLevel.set(level, normalizeDice(match[1]));
+      if (match) damageByLevel.set(level, normalizeDice(match[1]!));
     }
   }
 
@@ -128,7 +128,7 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
     /(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i,
   );
   const type: DamageType | 'Unknown' = typeMatch
-    ? ((typeMatch[1].charAt(0).toUpperCase() + typeMatch[1].slice(1).toLowerCase()) as DamageType)
+    ? ((typeMatch[1]!.charAt(0).toUpperCase() + typeMatch[1]!.slice(1).toLowerCase()) as DamageType)
     : 'Unknown';
 
   for (const level of [5, 11, 17]) {
@@ -148,7 +148,7 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
   return entries;
 }
 
-function parsePerSlotDamage(text: string, defaultType: string): DamageEntry[] | undefined {
+export function parsePerSlotDamage(text: string, defaultType: string): DamageEntry[] | undefined {
   // Pattern: "increases by 1d6 for each spell slot level above N"
   const match = text.match(/increases\s+by\s+(\d+d\d+)/i);
   if (!match) return undefined;
@@ -158,10 +158,10 @@ function parsePerSlotDamage(text: string, defaultType: string): DamageEntry[] | 
     /(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i,
   );
   const type = typeMatch
-    ? typeMatch[1].charAt(0).toUpperCase() + typeMatch[1].slice(1).toLowerCase()
+    ? typeMatch[1]!.charAt(0).toUpperCase() + typeMatch[1]!.slice(1).toLowerCase()
     : defaultType;
 
-  return [{ dice: match[1], type: type as DamageType }];
+  return [{ dice: match[1]!, type: type as DamageType }];
 }
 
 // ── Markdown Parser ────────────────────────────────────────────
@@ -193,7 +193,7 @@ export function parseMarkdown(content: string): ParsedSpell[] {
   let descriptionLines: string[] = [];
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    const line = lines[i]!;
 
     // Skip section headers like "### H Spells" or "## Spells"
     if (line.startsWith('#') && !line.startsWith('####')) {
@@ -239,7 +239,7 @@ export function parseMarkdown(content: string): ParsedSpell[] {
         // Level X School
         const levelMatch = text.match(/Level\s*(\d+)\s+(\w+)/i);
         if (levelMatch) {
-          currentSpell.level = parseInt(levelMatch[1]);
+          currentSpell.level = parseInt(levelMatch[1]!);
           currentSpell.school = levelMatch[2];
         }
       }
@@ -377,9 +377,9 @@ export function transformSpell(parsed: ParsedSpell): Spell {
         (d): d is typeof d => (d.type as string) !== 'Unknown',
       )?.type;
       if (knownType && knownType !== ('Unknown' as unknown as DamageType)) {
-        const upgradedEntries = spell.cantripUpgrade.map((entry) => {
+        const upgradedEntries = spell.cantripUpgrade.map((entry: CantripUpgradeEntry) => {
           if (!entry.damage) return entry;
-          const fixedDamage = entry.damage.map((d) => {
+          const fixedDamage = entry.damage.map((d: DamageEntry) => {
             if ((d.type as string) === 'Unknown') {
               return { ...d, type: knownType } as unknown as DamageEntry;
             }

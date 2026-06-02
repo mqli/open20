@@ -22,26 +22,32 @@ export function stripItalic(text: string): string {
 export function parseParentheticalCommaList(text: string): string[] {
   const match = text.match(/\(([^)]+)\)/);
   if (!match) return [];
-  return match[1].split(',').map(v => v.trim()).filter(Boolean);
+  return match![1]!
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
 }
 
-export function parseMarkdownTable(lines: string[], startIndex: number): { rows: string[][]; nextIndex: number } | null {
+export function parseMarkdownTable(
+  lines: string[],
+  startIndex: number,
+): { rows: string[][]; nextIndex: number } | null {
   if (!lines[startIndex]?.trim().startsWith('|')) return null;
   const rows: string[][] = [];
   let i = startIndex;
-  while (i < lines.length && lines[i].trim().startsWith('|')) {
-    const trimmed = lines[i].trim();
+  while (i < lines.length && lines[i]!.trim().startsWith('|')) {
+    const trimmed = lines[i]!.trim();
     const cells = trimmed
       .slice(1, -1)
       .split('|')
-      .map(cell => cell.trim());
+      .map((cell) => cell.trim());
     rows.push(cells);
     i += 1;
   }
 
   // Drop markdown separator row like |---|---|
   const contentRows = rows.filter(
-    r => !r.every(cell => /^:?-{2,}:?$/.test(cell) || cell === ''),
+    (r) => !r.every((cell) => /^:?-{2,}:?$/.test(cell) || cell === ''),
   );
   if (contentRows.length < 2) return null;
 
@@ -63,8 +69,8 @@ export function splitFeatureList(value: string): string[] {
   if (normalized === '-' || normalized.length === 0) return [];
   return normalized
     .split(',')
-    .map(item => item.trim())
-    .filter(item => item.length > 0);
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 }
 
 export function collapseParagraphLines(lines: string[]): string {
