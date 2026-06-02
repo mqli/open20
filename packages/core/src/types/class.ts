@@ -33,18 +33,45 @@ export interface Spellcasting {
 }
 
 // 职业特性条目
-export interface Feature {
+// Discriminated union based on featureType
+export type FeatureType = 'generic' | 'acFormula';
+
+// Requirement enums for AC formulas
+export type ACRequirement = 'noArmor' | 'noShield' | 'noHeavyArmor';
+
+// Data-driven AC formula (e.g., Unarmored Defense)
+export interface ACFormula {
+  readonly baseAC: number;
+  readonly addModifiers?: readonly AbilityName[];
+  readonly requires?: readonly ACRequirement[];
+}
+
+// Base fields shared by all Feature variants
+interface FeatureBase {
   readonly name: string;
   readonly description: string;
-  readonly resourceId?: string; // 关联的资源ID（如有）
-  readonly level?: number; // 获得该特性的等级
-  // 资源属性（可选，如果定义则优先使用）
-  // 用法：resourceMax 用于固定值；resourceMaxByLevel 用于按等级查表（Option B）
-  readonly resourceMax?: number; // 资源最大使用次数（固定值）
-  readonly resourceMaxByLevel?: Record<number, number>; // 按等级查表，key=等级，value=最大值
-  readonly resourceResetOn?: ResetType; // 重置时机
-  readonly resourceScaleWithPB?: boolean; // 是否随熟练加值变化
+  readonly level?: number;
 }
+
+// Variant: generic (most features, may carry resource info)
+export type FeatureGeneric = FeatureBase & {
+  readonly featureType?: 'generic';
+  // Resource properties (optional, only relevant for resource-granting features)
+  readonly resourceId?: string;
+  readonly resourceMax?: number;
+  readonly resourceMaxByLevel?: Record<number, number>;
+  readonly resourceResetOn?: ResetType;
+  readonly resourceScaleWithPB?: boolean;
+};
+
+// Variant: carries an AC formula (e.g., Unarmored Defense)
+export type FeatureACFormula = FeatureBase & {
+  readonly featureType: 'acFormula';
+  readonly acFormula: ACFormula;
+};
+
+// Feature discriminated union
+export type Feature = FeatureGeneric | FeatureACFormula;
 
 // 职业类型
 export interface Class {

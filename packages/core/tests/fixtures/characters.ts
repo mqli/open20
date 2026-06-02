@@ -82,12 +82,24 @@ export const SAGE_BACKGROUND: Background = {
 
 export const FIGHTER_FEATURES_L1: Feature[] = [
   { name: 'Fighting Style', description: 'Choose a fighting style', level: 1 },
-  { name: 'Second Wind', description: 'Heal yourself', resourceId: 'Second Wind', resourceScaleWithPB: true, resourceResetOn: ResetType.ShortRest, level: 1 },
+  {
+    name: 'Second Wind',
+    description: 'Heal yourself',
+    resourceId: 'Second Wind',
+    resourceScaleWithPB: true,
+    resourceResetOn: ResetType.ShortRest,
+    level: 1,
+  },
   { name: 'Weapon Mastery', description: 'Master weapons', level: 1 },
 ];
 
 export const FIGHTER_FEATURES_L2: Feature[] = [
-  { name: 'Action Surge', description: 'Take an extra action', resourceId: 'Action Surge', level: 2 },
+  {
+    name: 'Action Surge',
+    description: 'Take an extra action',
+    resourceId: 'Action Surge',
+    level: 2,
+  },
   { name: 'Tactical Mind', description: 'Turn failure to success', level: 2 },
 ];
 
@@ -97,8 +109,21 @@ export const FIGHTER_FEATURES_L5: Feature[] = [
 ];
 
 export const BARBARIAN_FEATURES_L1: Feature[] = [
-  { name: 'Rage', description: 'Enter a rage', resourceId: 'Rage', resourceMaxByLevel: { "1": 2, "3": 3, "6": 4, "9": 4, "12": 5, "15": 5, "17": 6, "20": 6 }, resourceResetOn: ResetType.LongRest, level: 1 },
-  { name: 'Unarmored Defense', description: 'AC = 10 + Dex + Con', level: 1 },
+  {
+    name: 'Rage',
+    description: 'Enter a rage',
+    resourceId: 'Rage',
+    resourceMaxByLevel: { '1': 2, '3': 3, '6': 4, '9': 4, '12': 5, '15': 5, '17': 6, '20': 6 },
+    resourceResetOn: ResetType.LongRest,
+    level: 1,
+  },
+  {
+    name: 'Unarmored Defense',
+    description: 'AC = 10 + Dex + Con',
+    level: 1,
+    featureType: 'acFormula',
+    acFormula: { baseAC: 10, addModifiers: ['Dexterity', 'Constitution'], requires: ['noArmor'] },
+  },
   { name: 'Weapon Mastery', description: 'Master weapons', level: 1 },
 ];
 
@@ -150,7 +175,12 @@ export const WIZARD_CLASS: Class = {
   armorTraining: [],
   weaponMastery: false,
   featuresByLevel: [{ level: 1, preparedSpells: 4, features: WIZARD_FEATURES_L1 }],
-  spellcasting: {ability: 'Intelligence', knownSource: 'spellbook', preparationTiming: 'long_rest', changesPerPreparation: 'all' },
+  spellcasting: {
+    ability: 'Intelligence',
+    knownSource: 'spellbook',
+    preparationTiming: 'long_rest',
+    changesPerPreparation: 'all',
+  },
 };
 
 export const ROGUE_CLASS: Class = {
@@ -181,7 +211,16 @@ export const CHAMPION_SUBCLASS: Subclass = {
   grantedAtLevel: 3,
   featuresByLevel: [
     { level: 3, features: [{ name: 'Improved Critical', description: 'Crit on 19-20', level: 3 }] },
-    { level: 7, features: [{ name: 'Remarkable Athlete', description: 'Add half proficiency to Str/Dex/Con checks', level: 7 }] },
+    {
+      level: 7,
+      features: [
+        {
+          name: 'Remarkable Athlete',
+          description: 'Add half proficiency to Str/Dex/Con checks',
+          level: 7,
+        },
+      ],
+    },
   ],
 };
 
@@ -202,7 +241,12 @@ export const CLERIC_CLASS: Class = {
   weaponProficiencies: ['Simple'],
   weaponMastery: false,
   featuresByLevel: [{ level: 1, preparedSpells: 4, features: CLERIC_FEATURES_L1 }],
-  spellcasting: {ability: 'Wisdom', knownSource: 'class_list', preparationTiming: 'long_rest', changesPerPreparation: 'all' },
+  spellcasting: {
+    ability: 'Wisdom',
+    knownSource: 'class_list',
+    preparationTiming: 'long_rest',
+    changesPerPreparation: 'all',
+  },
 };
 
 export const LIFE_DOMAIN_SUBCLASS: Subclass = {
@@ -210,8 +254,18 @@ export const LIFE_DOMAIN_SUBCLASS: Subclass = {
   parentClass: 'Cleric',
   grantedAtLevel: 1,
   featuresByLevel: [
-    { level: 1, features: [{ name: 'Disciple of Life', description: 'Healing spells are more effective', level: 1 }] },
-    { level: 2, features: [{ name: 'Channel Divinity: Preserve Life', description: 'Heal nearby creatures', level: 2 }] },
+    {
+      level: 1,
+      features: [
+        { name: 'Disciple of Life', description: 'Healing spells are more effective', level: 1 },
+      ],
+    },
+    {
+      level: 2,
+      features: [
+        { name: 'Channel Divinity: Preserve Life', description: 'Heal nearby creatures', level: 2 },
+      ],
+    },
   ],
   alwaysPreparedSpells: [
     { level: 1, spells: ['bless', 'cure-wounds'] },

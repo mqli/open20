@@ -5,10 +5,44 @@
 
 import type { AbilityScores } from '@/types/ability';
 import type { Armor, EquipmentItem } from '@/types/equipment';
-import type { Feature } from '@/types/class';
+import type { Feature, FeatureACFormula } from '@/types/class';
 import type { DataLoader } from '@/data/loader';
 import type { FeatACBonus } from '@/types/feat';
 import { getModifier, getTotalScore } from './ability-modifier';
+
+/**
+ * Compute AC values from features with featureType === 'acFormula'.
+ * Uses filter/map to replace the imperative for-loop.
+ */
+function computeFormulaACs(
+  features: readonly Feature[],
+  scores: AbilityScores,
+  hasArmor: boolean,
+  hasShield: boolean,
+  equippedArmor: readonly Armor[],
+): number[] {
+  return features
+    .filter((f): f is FeatureACFormula => f.featureType === 'acFormula' && !!f.acFormula)
+    .filter((f) => {
+      const { requires } = f.acFormula;
+      if (!requires) return true;
+      if (requires.includes('noArmor') && hasArmor) return false;
+      if (requires.includes('noShield') && hasShield) return false;
+      if (requires.includes('noHeavyArmor') && equippedArmor.some((a) => a.category === 'Heavy'))
+        return false;
+      return true;
+    })
+    .map((f) => {
+      const { baseAC, addModifiers } = f.acFormula;
+      let ac = baseAC;
+      if (addModifiers) {
+        for (const ability of addModifiers) {
+          ac += getModifier(getTotalScore(scores, ability));
+        }
+      }
+      return ac;
+    });
+}
 
 /**
  * 计算AC(Armor Class)
@@ -16,8 +50,7 @@ import { getModifier, getTotalScore } from './ability-modifier';
  * 规则（2024 PHB）：
  * - 无甲(无特性): 10 + Dex调整值
  * - Mage Armor: 13 + Dex调整值（通过法术或条件触发）
- * - Barbarian Unarmored Defense: 10 + Dex + Con
- * - Monk Unarmored Defense: 10 + Dex + Wis
+ * - Data-driven Unarmored Defense via Feature.acFormula
  * - 轻甲: 护甲AC + Dex
  * - 中甲: 护甲AC + min(Dex, +2)
  * - 重甲: 护甲AC
@@ -39,13 +72,9 @@ export function calculateAC(
   features: readonly Feature[],
   data: DataLoader,
   conditions: readonly { source?: string; id?: string }[] = [],
-  featACBonuses?: readonly FeatACBonus[]
+  featACBonuses?: readonly FeatACBonus[],
 ): number {
   const dexMod = getModifier(getTotalScore(scores, 'Dexterity'));
-  const conMod = getModifier(getTotalScore(scores, 'Constitution'));
-  const wisMod = getModifier(getTotalScore(scores, 'Wisdom'));
-
-  const featureNames = new Set(features.map(f => f.name));
 
   // 1. 收集所有装备的护甲和盾牌
   const equippedArmor = getEquippedArmor(equipment, data);
@@ -60,28 +89,13 @@ export function calculateAC(
   acOptions.push(unarmoredAC);
 
   // Mage Armor（13 + Dex，通过法术或状态触发）
-  const hasMageArmor = conditions.some(c => c.source === 'Mage Armor' || c.id === 'mage-armor');
+  const hasMageArmor = conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
   if (hasMageArmor) {
     acOptions.push(13 + dexMod);
   }
 
-  // Barbarian Unarmored Defense: 10 + Dex + Con
-  // 2024 PHB: requires no armor AND no shield (same as Monk)
-  if (
-    !hasShield &&
-    (featureNames.has('Unarmored Defense') || featureNames.has('Unarmored Defense (Barbarian)'))
-  ) {
-    acOptions.push(10 + dexMod + conMod);
-  }
-
-  // Monk Unarmored Defense: 10 + Dex + Wis
-  // 2024 PHB: requires no armor AND no shield
-  if (
-    !hasShield &&
-    (featureNames.has('Unarmored Defense (Monk)') || featureNames.has('Unarmored Defense [Monk]'))
-  ) {
-    acOptions.push(10 + dexMod + wisMod);
-  }
+  // Data-driven AC formulas from features (e.g., Unarmored Defense)
+  acOptions.push(...computeFormulaACs(features, scores, hasArmor, hasShield, equippedArmor));
 
   // 护甲选项
   for (const armor of equippedArmor) {
@@ -102,7 +116,7 @@ export function calculateAC(
     for (const bonus of featACBonuses) {
       // 检查是否穿着符合条件的护甲
       const armorTypes = bonus.whileWearing ?? [];
-      const hasMatchingArmor = equippedArmor.some(a => {
+      const hasMatchingArmor = equippedArmor.some((a) => {
         if (armorTypes.includes('Light') && a.category === 'Light') return true;
         if (armorTypes.includes('Medium') && a.category === 'Medium') return true;
         if (armorTypes.includes('Heavy') && a.category === 'Heavy') return true;
@@ -111,11 +125,11 @@ export function calculateAC(
 
       if (hasMatchingArmor) {
         // 应用对应的加值
-        if (bonus.lightArmor && equippedArmor.some(a => a.category === 'Light')) {
+        if (bonus.lightArmor && equippedArmor.some((a) => a.category === 'Light')) {
           ac += bonus.lightArmor;
-        } else if (bonus.mediumArmor && equippedArmor.some(a => a.category === 'Medium')) {
+        } else if (bonus.mediumArmor && equippedArmor.some((a) => a.category === 'Medium')) {
           ac += bonus.mediumArmor;
-        } else if (bonus.heavyArmor && equippedArmor.some(a => a.category === 'Heavy')) {
+        } else if (bonus.heavyArmor && equippedArmor.some((a) => a.category === 'Heavy')) {
           ac += bonus.heavyArmor;
         } else if (bonus.lightArmor || bonus.mediumArmor || bonus.heavyArmor) {
           // 如果只指定了一个通用加值，应用它
@@ -151,8 +165,8 @@ function calculateArmorAC(armor: Armor, dexMod: number): number {
  */
 function getEquippedArmor(equipment: readonly EquipmentItem[], data: DataLoader): Armor[] {
   return equipment
-    .filter(e => e.equipped && e.type === 'armor')
-    .map(e => data.getArmor(e.id))
+    .filter((e) => e.equipped && e.type === 'armor')
+    .map((e) => data.getArmor(e.id))
     .filter((a): a is Armor => a != null && a.category !== 'Shield');
 }
 
@@ -160,7 +174,7 @@ function getEquippedArmor(equipment: readonly EquipmentItem[], data: DataLoader)
  * 检查是否装备了盾牌
  */
 function hasEquippedShield(equipment: readonly EquipmentItem[], data: DataLoader): boolean {
-  return equipment.some(e => {
+  return equipment.some((e) => {
     if (!e.equipped || e.type !== 'armor') return false;
     const armor = data.getArmor(e.id);
     return armor != null && armor.category === 'Shield';

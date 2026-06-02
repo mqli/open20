@@ -3,7 +3,7 @@
 // Returns Record<string, CharacterClassResources> keyed by classId.
 // Shared by create.ts, recompute.ts, and level-up.ts.
 
-import type { Feature, Class, Subclass } from '@/types/class';
+import type { Feature, FeatureGeneric, Class, Subclass } from '@/types/class';
 import type { Resource, CharacterClassResources } from '@/types/resource';
 import { ResetType } from '@/types/resource';
 import { getProficiencyBonus } from '@/engine/proficiency-bonus';
@@ -21,7 +21,7 @@ import type { AbilityScores } from '@/types/ability';
 export function extractAllClassResources(
   charClasses: ReadonlyArray<{ classId: string; level: number; subclassId: string | null }>,
   abilityScores: AbilityScores,
-  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined }
+  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined },
 ): Record<string, CharacterClassResources> {
   const result: Record<string, CharacterClassResources> = {};
 
@@ -49,7 +49,7 @@ function buildResourcesForClass(
   classData: Class,
   subclassData: Subclass | undefined,
   level: number,
-  abilityScores: AbilityScores
+  abilityScores: AbilityScores,
 ): readonly Resource[] {
   const resources: Resource[] = [];
   const pb = getProficiencyBonus(level);
@@ -58,10 +58,12 @@ function buildResourcesForClass(
   const allFeatures = gatherFeaturesUpToLevel(classData, subclassData, level);
 
   for (const feature of allFeatures) {
+    // Only FeatureGeneric can carry resource fields
+    if (feature.featureType === 'acFormula') continue;
     if (!feature.resourceId) continue;
 
     // Avoid duplicates
-    if (resources.some(r => r.id === feature.resourceId)) continue;
+    if (resources.some((r) => r.id === feature.resourceId)) continue;
 
     const resource = buildResourceFromFeature(feature, level, pb, abilityScores);
     if (resource) {
@@ -78,7 +80,7 @@ function buildResourcesForClass(
 function gatherFeaturesUpToLevel(
   classData: Class,
   subclassData: Subclass | undefined,
-  level: number
+  level: number,
 ): Feature[] {
   const features: Feature[] = [];
 
@@ -109,10 +111,10 @@ function gatherFeaturesUpToLevel(
  * from the feature JSON. Falls back to defaults.
  */
 function buildResourceFromFeature(
-  feature: Feature,
+  feature: FeatureGeneric,
   level: number,
   pb: number,
-  abilityScores: AbilityScores
+  abilityScores: AbilityScores,
 ): Resource | null {
   const resourceId = feature.resourceId!;
   const chaMod = getModifier(getTotalScore(abilityScores, 'Charisma'));
@@ -147,7 +149,7 @@ function buildResourceFromFeature(
  */
 function resolveResourceMaxByLevel(
   table: Record<number, number> | Record<string, number>,
-  level: number
+  level: number,
 ): number {
   // Normalize to Record<string, number> for uniform access
   const normalized: Record<string, number> = {};
@@ -227,7 +229,7 @@ export function recomputeResources(
   resources: Record<string, CharacterClassResources> | readonly Resource[],
   charClasses: ReadonlyArray<{ classId: string; level: number; subclassId: string | null }>,
   abilityScores: AbilityScores,
-  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined }
+  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined },
 ): Record<string, CharacterClassResources> {
   // Always rebuild from scratch using current levels/features
   const newResources = extractAllClassResources(charClasses, abilityScores, data);
@@ -239,7 +241,7 @@ export function recomputeResources(
       if (!newCcr) continue;
 
       // Copy used counts from old resources to new resources
-      const updatedResources = newCcr.resources.map(newR => {
+      const updatedResources = newCcr.resources.map((newR) => {
         const oldR = ccr.resources.find((r: Resource) => r.id === newR.id);
         if (oldR) {
           return { ...newR, used: Math.min(oldR.used, newR.max) };

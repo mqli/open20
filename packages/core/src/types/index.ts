@@ -20,7 +20,13 @@ export type { AttackNotation, SavingThrowEffect, MonsterSpellcasting } from './m
 export type { DieType } from '../dice';
 
 // 伤害类型
-export type { DamageType, DamageDefenses, DamageDefenseSource, DamageResult, DamageEntry } from './damage';
+export type {
+  DamageType,
+  DamageDefenses,
+  DamageDefenseSource,
+  DamageResult,
+  DamageEntry,
+} from './damage';
 
 // 属性
 export type { AbilityName, AbilityScores } from './ability';
@@ -33,7 +39,15 @@ export type { Species, SpeciesTrait, SpeciesGrant, SpeciesSubtype } from './spec
 export type { Background } from './background';
 
 // 职业
-export type { Class, Subclass, Feature, Spellcasting } from './class';
+export type {
+  Class,
+  Subclass,
+  Feature,
+  Spellcasting,
+  FeatureType,
+  ACRequirement,
+  ACFormula,
+} from './class';
 
 // 技能
 export type { SkillName, SkillEntry } from './skill';
