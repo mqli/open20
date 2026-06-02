@@ -99,11 +99,13 @@ export interface SpellDamage {
   readonly entries: readonly DamageEntry[];
   readonly additional?: readonly DamageEntry[]; // Extra damage (doesn't scale with upcast)
   readonly perSlot?: readonly DamageEntry[]; // Damage increase per slot level above base (for upcasting)
+  readonly includeSpellcastingModifier?: boolean; // e.g., "plus your spellcasting ability modifier"
 }
 
 export interface SpellHeal {
   readonly dice: string;
   readonly perSlot?: string; // e.g., "2d8" for Cure Wounds (healing increase per slot level above base)
+  readonly includeSpellcastingModifier?: boolean; // e.g., "plus your spellcasting ability modifier"
 }
 
 // Spell template (static data from JSON)

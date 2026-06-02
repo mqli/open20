@@ -55,4 +55,5 @@ export interface DamageEntry {
   readonly dice: string; // e.g., "1d6"
   readonly type: DamageType;
   readonly bonus?: number; // e.g., +2 from Str mod
+  readonly includeSpellcastingModifier?: boolean; // e.g., "plus your spellcasting ability modifier"
 }

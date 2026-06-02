@@ -19,6 +19,8 @@ import {
   isSpellbookCaster,
   canChangeSpellsOnLongRest,
   canChangeSpellsOnLevelUp,
+  getModifier,
+  getTotalScore,
   type AttackRollResult,
   type DamageRollResult,
   type DataLoader,
@@ -321,14 +323,31 @@ export class CharacterService {
     });
   }
 
-  rollSpellDamage(spellId: string, slotLevel?: SpellLevel): DamageRollResult {
+  rollSpellDamage(
+    character: AppCharacter,
+    spellId: string,
+    slotLevel?: SpellLevel,
+  ): DamageRollResult {
     const spell = this.spellService.getSpell(spellId);
     if (!spell) throw new Error(`Spell not found: ${spellId}`);
+
+    // Get spellcasting ability modifier
+    const classSpellcasting = character.spells.classSpellcasting;
+    const primaryClassId = Object.keys(classSpellcasting)[0];
+    const spellcastingAbility = primaryClassId
+      ? classSpellcasting[primaryClassId].spellcastingAbility
+      : ('Intelligence' as const);
+    const spellcastingModifier = getModifier(
+      getTotalScore(character.abilityScores, spellcastingAbility),
+    );
 
     return rollSpellDamage({
       spell,
       slotLevel: slotLevel ?? spell.level,
       rng: defaultRandom,
+      spellcastingModifier: spell.damage?.includeSpellcastingModifier
+        ? spellcastingModifier
+        : undefined,
     });
   }
 }

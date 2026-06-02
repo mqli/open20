@@ -1,5 +1,12 @@
-import { canUpcast, defaultRandom, rollDiceExpression, type Spell } from 'open20-core';
-import type { SpellLevel } from 'open20-core/types';
+import {
+  canUpcast,
+  defaultRandom,
+  rollDiceExpression,
+  getModifier,
+  getTotalScore,
+  type Spell,
+} from 'open20-core';
+import type { SpellLevel, AbilityName } from 'open20-core/types';
 import type { ComponentProps, ReactNode } from 'react';
 import { useState, useMemo } from 'react';
 import { SpellCard as SpellCardUI } from '@open20/ui';
@@ -223,9 +230,9 @@ export function SpellCardWrapper({
   };
 
   const handleDamageRoll = () => {
-    if (!hasDamageEntries) return;
+    if (!hasDamageEntries || !activeCharacter) return;
 
-    const result = characterService.rollSpellDamage(spell.id, effectiveCastLevel);
+    const result = characterService.rollSpellDamage(activeCharacter, spell.id, effectiveCastLevel);
     const diceExpr = result.entries
       .map((entry) => `${entry.results.join('+')} (${entry.type})`)
       .join(' + ');
@@ -242,13 +249,30 @@ export function SpellCardWrapper({
   };
 
   const handleHealRoll = () => {
-    if (!effectiveHealDice) return;
+    if (!effectiveHealDice || !activeCharacter) return;
 
     const result = rollDiceExpression(defaultRandom, effectiveHealDice);
+    let total = result.total;
+    let expression = effectiveHealDice;
+
+    // Add spellcasting ability modifier if the spell includes it
+    if (spell.heal?.includeSpellcastingModifier) {
+      const classSpellcasting = activeCharacter.spells.classSpellcasting;
+      const primaryClassId = Object.keys(classSpellcasting)[0];
+      const spellcastingAbility = primaryClassId
+        ? classSpellcasting[primaryClassId].spellcastingAbility
+        : ('Intelligence' as AbilityName);
+      const modifier = getModifier(
+        getTotalScore(activeCharacter.abilityScores, spellcastingAbility),
+      );
+      total += modifier;
+      expression += ` + ${modifier}`;
+    }
+
     addRoll({
       label: t('healingRoll'),
-      expression: effectiveHealDice,
-      total: result.total,
+      expression,
+      total,
     });
   };
 

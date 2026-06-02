@@ -126,6 +126,11 @@ function extractHeal(description: string): SpellHeal | undefined {
     result.perSlot = perSlotMatch[1];
   }
 
+  // Check for "plus your spellcasting ability modifier"
+  if (/plus your spellcasting ability modifier/i.test(description)) {
+    result.includeSpellcastingModifier = true;
+  }
+
   return result;
 }
 

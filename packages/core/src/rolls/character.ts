@@ -39,7 +39,7 @@ export interface CharacterSkillCheckParams {
  * Wraps Layer 2 mechanics with character-specific logic
  */
 export function rollCharacterSkillCheck(
-  params: CharacterSkillCheckParams
+  params: CharacterSkillCheckParams,
 ): CheckResult & { skillName: SkillName; ability: AbilityName } {
   const { character, skill, rollModifier = 'none', dc, rng } = params;
 
@@ -52,7 +52,7 @@ export function rollCharacterSkillCheck(
     character.abilityScores,
     skillEntry ?? { proficient: false, expertise: false },
     ability,
-    proficiencyBonus
+    proficiencyBonus,
   );
 
   const result = rollSkillCheck({
@@ -231,6 +231,7 @@ export interface SpellDamageParams {
   slotLevel: SpellLevel;
   isCritical?: boolean;
   rng: RandomProvider;
+  spellcastingModifier?: number; // Character's spellcasting ability modifier (if spell includes it)
 }
 
 /**
@@ -238,7 +239,7 @@ export interface SpellDamageParams {
  * Supports upcasting (higher level damage)
  */
 export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
-  const { spell, slotLevel, rng } = params;
+  const { spell, slotLevel, rng, spellcastingModifier } = params;
 
   if (!spell.damage) {
     return {
@@ -292,8 +293,19 @@ export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
     }
   }
 
+  // Add spellcasting ability modifier if the spell includes it
+  const modifiers: Array<{ value: number; type: string; description: string }> = [];
+  if (spell.damage.includeSpellcastingModifier && spellcastingModifier !== undefined) {
+    modifiers.push({
+      value: spellcastingModifier,
+      type: 'ability',
+      description: 'spellcasting ability modifier',
+    });
+  }
+
   return rollDamage({
     entries: damageEntries,
+    modifiers,
     isCritical: false, // Spells don't normally crit (unless specific feature)
     rng,
   });
@@ -333,7 +345,7 @@ export function applyDamageWithDefenses(
   char: Character,
   damage: number,
   damageType: import('../types/damage').DamageType,
-  dataLoader: DataLoader
+  dataLoader: DataLoader,
 ): { char: Character; result: DamageResult; defenses: import('../types/damage').DamageDefenses } {
   const { defenses } = getActiveDamageDefenses(char, dataLoader);
   const result = calculateTypedDamage(damage, damageType, defenses);
