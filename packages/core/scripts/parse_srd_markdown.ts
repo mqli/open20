@@ -26,6 +26,7 @@ interface SpellDamage {
 
 interface SpellHeal {
   dice: string;
+  perSlot?: string; // e.g., "2d8" for Cure Wounds
 }
 
 interface Spell {
@@ -116,7 +117,16 @@ function extractHeal(description: string): SpellHeal | undefined {
   const healingKeywords = /(regain|heal|hit point).*(\d+d\d+)/i;
   const match = healingKeywords.exec(description);
   if (!match) return undefined;
-  return { dice: match[2] };
+
+  const result: SpellHeal = { dice: match[2] };
+
+  // Check for upcast healing: "The healing increases by XdY for each spell slot level above Z"
+  const perSlotMatch = /healing increases by (\d+d\d+)/i.exec(description);
+  if (perSlotMatch) {
+    result.perSlot = perSlotMatch[1];
+  }
+
+  return result;
 }
 
 // ── Cantrip Upgrade Parser ─────────────────────────────────────
@@ -417,7 +427,17 @@ export function transformSpell(parsed: ParsedSpell): Spell {
 
     spell.damage = damage;
   }
-  if (heal) spell.heal = heal;
+  if (heal) {
+    spell.heal = heal;
+    // Check usingAHigherLevelSpellSlot for healing upcast (e.g., Cure Wounds)
+    if (spell.usingAHigherLevelSpellSlot) {
+      const upcastText = spell.usingAHigherLevelSpellSlot.join(' ');
+      const perSlotMatch = /healing increases by (\d+d\d+)/i.exec(upcastText);
+      if (perSlotMatch) {
+        spell.heal = { ...spell.heal, perSlot: perSlotMatch[1] };
+      }
+    }
+  }
   if (save) spell.save = save as Spell['save'];
   if (attack) spell.attack = attack;
 

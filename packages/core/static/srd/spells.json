@@ -1252,7 +1252,8 @@
       "The healing increases by 2d8 for each spell slot level above 1."
     ],
     "heal": {
-      "dice": "2d8"
+      "dice": "2d8",
+      "perSlot": "2d8"
     }
   },
   {
@@ -1689,7 +1690,8 @@
       "The healing increases by 2d4 for each spell slot level above 1."
     ],
     "heal": {
-      "dice": "2d4"
+      "dice": "2d4",
+      "perSlot": "2d4"
     }
   },
   {
@@ -3259,7 +3261,8 @@
       "The healing increases by 1d8 for each spell slot level above 2."
     ],
     "heal": {
-      "dice": "2d8"
+      "dice": "2d8",
+      "perSlot": "1d8"
     }
   },
   {
@@ -4121,7 +4124,8 @@
       "The healing increases by 1d4 for each spell slot level above 3."
     ],
     "heal": {
-      "dice": "2d4"
+      "dice": "2d4",
+      "perSlot": "1d4"
     }
   },
   {
@@ -6045,7 +6049,8 @@
       "The healing increases by 1d8 for each spell slot level above 5."
     ],
     "heal": {
-      "dice": "5d8"
+      "dice": "5d8",
+      "perSlot": "1d8"
     }
   },
   {

@@ -84,10 +84,9 @@ export function SpellCardWrapper({
   } = useSpellCapabilities(spell);
 
   const damageEntries = spell.damage?.entries ?? [];
-  const healDice = spell.heal?.dice;
   const isIconStyle = actionStyle === 'icon';
   const hasDamageEntries = damageEntries.length > 0;
-  const hasHealEntry = !!healDice;
+  const hasHealEntry = !!spell.heal?.dice;
   const canShowConcentrationAction =
     showConcentrationAction && spell.concentration && !!activeCharacter;
   const shouldUseSpellbookStateStyling = showSpellbookActions || showSpellbookBadges;
@@ -182,6 +181,26 @@ export function SpellCardWrapper({
       return entry;
     });
   }, [spell, effectiveCastLevel]);
+
+  const effectiveHealDice = useMemo(() => {
+    const baseDice = spell.heal?.dice;
+    const perSlot = spell.heal?.perSlot;
+    if (!baseDice) return undefined;
+    if (!perSlot || effectiveCastLevel <= spell.level) return baseDice;
+
+    const numLevels = effectiveCastLevel - spell.level;
+    const baseMatch = baseDice.match(/(\d+)d(\d+)/);
+    const slotMatch = perSlot.match(/(\d+)d(\d+)/);
+
+    if (baseMatch && slotMatch && baseMatch[2] === slotMatch[2]) {
+      const baseCount = parseInt(baseMatch[1]!);
+      const slotCount = parseInt(slotMatch[1]!);
+      return `${baseCount + slotCount * numLevels}d${baseMatch[2]}`;
+    }
+
+    return baseDice;
+  }, [spell.heal?.dice, spell.heal?.perSlot, effectiveCastLevel]);
+
   // ── Handlers ──
 
   const handleCast = () => {
@@ -223,12 +242,12 @@ export function SpellCardWrapper({
   };
 
   const handleHealRoll = () => {
-    if (!healDice) return;
+    if (!effectiveHealDice) return;
 
-    const result = rollDiceExpression(defaultRandom, healDice);
+    const result = rollDiceExpression(defaultRandom, effectiveHealDice);
     addRoll({
       label: t('healingRoll'),
-      expression: healDice,
+      expression: effectiveHealDice,
       total: result.total,
     });
   };
@@ -352,7 +371,7 @@ export function SpellCardWrapper({
                   hasDamageEntries={hasDamageEntries}
                   hasHealEntry={hasHealEntry}
                   effectiveDamageEntries={effectiveDamageEntries}
-                  healDice={healDice}
+                  healDice={effectiveHealDice}
                   availableCastLevels={availableCastLevels}
                   effectiveCastLevel={effectiveCastLevel}
                   selectedCastLevel={selectedCastLevel}

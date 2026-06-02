@@ -1,7 +1,8 @@
 // types/spell.ts
-// 法术相关类型定义（零依赖）
+// 法术相关类型定义
 
 import type { AbilityName } from './ability';
+import type { DamageEntry } from './damage';
 
 // 法术等级
 export type SpellLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -28,7 +29,7 @@ export type AlwaysPreparedSpells = readonly string[];
 export interface ClassSpellData {
   readonly classId: string;
   readonly spellcastingAbility: AbilityName;
-  readonly spellSaveDC: number;  // 8 + proficiency + ability mod
+  readonly spellSaveDC: number; // 8 + proficiency + ability mod
   readonly spellAttackBonus: number;
 
   // 已知的戏法（有限数量，由职业表决定）
@@ -87,27 +88,22 @@ export type CastingTime = 'Action' | 'Bonus Action' | 'Reaction' | 'Minute' | 'H
 // 法术成分
 export type SpellComponent = 'V' | 'S' | 'M';
 
-// 法术伤害条目
-export interface SpellDamageEntry {
-  readonly dice: string; // 如 "2d6", "1d10"
-  readonly type: string; // 伤害类型，如 "Fire", "Piercing", "Poison"
-}
-
 // 戏法升级条目（自动计算伤害）
 export interface CantripUpgradeEntry {
   readonly atCharacterLevel: 5 | 11 | 17;
-  readonly damage?: readonly SpellDamageEntry[];
+  readonly damage?: readonly DamageEntry[];
 }
 
 // Spell damage/effect data
 export interface SpellDamage {
-  readonly entries: readonly SpellDamageEntry[];
-  readonly additional?: readonly SpellDamageEntry[]; // Extra damage (doesn't scale with upcast)
-  readonly perSlot?: readonly SpellDamageEntry[]; // Damage increase per slot level above base (for upcasting)
+  readonly entries: readonly DamageEntry[];
+  readonly additional?: readonly DamageEntry[]; // Extra damage (doesn't scale with upcast)
+  readonly perSlot?: readonly DamageEntry[]; // Damage increase per slot level above base (for upcasting)
 }
 
 export interface SpellHeal {
   readonly dice: string;
+  readonly perSlot?: string; // e.g., "2d8" for Cure Wounds (healing increase per slot level above base)
 }
 
 // Spell template (static data from JSON)
