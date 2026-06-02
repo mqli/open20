@@ -83,7 +83,9 @@ export interface FeatSpellsEntry {
 }
 
 // 法术施法时间
-export type CastingTime = 'Action' | 'Bonus Action' | 'Reaction' | 'Minute' | 'Hour' | 'Special';
+// Stored as the canonical string from the source (e.g. "1 action", "1 minute", "10 minutes").
+// Use `normalizeCastingTime()` from spell-casting.ts to get a category for filtering.
+export type CastingTime = string;
 
 // 法术成分
 export type SpellComponent = 'V' | 'S' | 'M';

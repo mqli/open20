@@ -8,9 +8,23 @@ export type { AbilityName, AbilityScores } from './types';
 export type { Species, SpeciesTrait, SpeciesSubtype } from './types';
 export type { Background } from './types';
 export type { Class, Subclass, Feature, Spellcasting } from './types';
-export type { Feat, FeatCategory, FeatSpellSelection, FeatSpellChoice, CharacterFeatEntry } from './types/feat';
+export type {
+  Feat,
+  FeatCategory,
+  FeatSpellSelection,
+  FeatSpellChoice,
+  CharacterFeatEntry,
+} from './types/feat';
 export type { Weapon, Armor, GearItem, EquipmentItem } from './types';
-export type { Spell, CharacterSpells, ClassSpellData, AlwaysPreparedSpells, SpellSlotEntry, PactMagicSlots, FeatSpellsEntry } from './types/spell';
+export type {
+  Spell,
+  CharacterSpells,
+  ClassSpellData,
+  AlwaysPreparedSpells,
+  SpellSlotEntry,
+  PactMagicSlots,
+  FeatSpellsEntry,
+} from './types/spell';
 export type { Resource, ResetType } from './types';
 export type { CombatStats, CharacterAttack, ActiveCondition, ConditionName } from './types';
 export type { BaseAttack } from './types';
@@ -53,11 +67,7 @@ export { isCriticalHit, isCriticalFail } from './engine';
 
 // ── Engine: Concentration Management ─────────────────
 export type { ConcentrationCheckResult } from './engine';
-export {
-  isConcentrating,
-  getConcentratingSpellId,
-  calculateConcentrationDC,
-} from './engine';
+export { isConcentrating, getConcentratingSpellId, calculateConcentrationDC } from './engine';
 
 // ── Engine: Combat Helpers ───────────────────────────
 export {
@@ -83,6 +93,7 @@ export {
   canCastAsRitual,
   castAsRitual,
   getRitualCastingTime,
+  normalizeCastingTime,
   isCantrip,
   canCastCantrip,
   canUpcast,
@@ -239,13 +250,7 @@ export type {
   DamageDefenses,
   InitiativeRollParams,
 } from './engine';
-export {
-  rollSkillCheck,
-  rollSavingThrow,
-  rollAttack,
-  rollDamage,
-  rollInitiative,
-} from './engine';
+export { rollSkillCheck, rollSavingThrow, rollAttack, rollDamage, rollInitiative } from './engine';
 
 // Layer 4: Application (rolls module)
 export type {

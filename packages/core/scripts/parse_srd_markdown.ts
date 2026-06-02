@@ -6,51 +6,14 @@ import {
   stripMarkdownHeading,
 } from './srd_markdown_helpers.ts';
 
-// ── Types ────────────────────────────────────────────────────────
-
-interface CantripUpgradeEntry {
-  atCharacterLevel: 5 | 11 | 17;
-  damage?: { dice: string; type: string }[];
-}
-
-interface SpellDamageEntry {
-  dice: string;
-  type: string;
-}
-
-interface SpellDamage {
-  entries: SpellDamageEntry[];
-  additional?: SpellDamageEntry[];
-  perSlot?: SpellDamageEntry[];
-}
-
-interface SpellHeal {
-  dice: string;
-  perSlot?: string; // e.g., "2d8" for Cure Wounds
-}
-
-interface Spell {
-  id: string;
-  name: string;
-  level: number;
-  school: string;
-  castingTime: string;
-  range: string;
-  components: string[];
-  duration: string;
-  concentration: boolean;
-  ritual: boolean;
-  description: string[];
-  cantripUpgrade?: CantripUpgradeEntry[];
-  cantripUpgradeText?: string;
-  usingAHigherLevelSpellSlot?: string[];
-  damage?: SpellDamage;
-  heal?: SpellHeal;
-  save?: string;
-  attack?: boolean;
-  source: string;
-  classes?: string[];
-}
+import type {
+  Spell,
+  SpellDamage,
+  SpellHeal,
+  CantripUpgradeEntry,
+  CastingTime,
+} from '../src/types/spell';
+import type { DamageEntry, DamageType } from '../src/types/damage';
 
 export function parseComponents(compStr: string): string[] {
   const comps: string[] = [];
@@ -109,8 +72,8 @@ export function extractDamage(description: string): SpellDamage | undefined {
     entries: matches.map((m) => ({
       dice: m[1],
       type: m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase(),
-    })),
-  };
+    })) as unknown as readonly DamageEntry[],
+  } as SpellDamage;
 }
 
 function extractHeal(description: string): SpellHeal | undefined {
@@ -175,15 +138,15 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
     if (damageByLevel.has(level)) {
       entries.push({
         atCharacterLevel: level as 5 | 11 | 17,
-        damage: [{ dice: damageByLevel.get(level)!, type }],
-      });
+        damage: [{ dice: damageByLevel.get(level)!, type }] as unknown as readonly DamageEntry[],
+      } as CantripUpgradeEntry);
     }
   }
 
   return entries;
 }
 
-function parsePerSlotDamage(text: string, defaultType: string): SpellDamageEntry[] | undefined {
+function parsePerSlotDamage(text: string, defaultType: string): DamageEntry[] | undefined {
   // Pattern: "increases by 1d6 for each spell slot level above N"
   const match = text.match(/increases\s+by\s+(\d+d\d+)/i);
   if (!match) return undefined;
@@ -196,7 +159,7 @@ function parsePerSlotDamage(text: string, defaultType: string): SpellDamageEntry
     ? typeMatch[1].charAt(0).toUpperCase() + typeMatch[1].slice(1).toLowerCase()
     : defaultType;
 
-  return [{ dice: match[1], type }];
+  return [{ dice: match[1], type: type as DamageType }];
 }
 
 // ── Markdown Parser ────────────────────────────────────────────
@@ -367,21 +330,20 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   const durationInfo = parseDuration(parsed.duration || '');
   const fullDesc = descLines.join(' ');
 
-  const spell: Spell = {
+  const spell: any = {
     id: slugify(parsed.name || ''),
     name: parsed.name || '',
-    level: parsed.level ?? 0,
-    school:
-      (parsed.school || 'Unknown').charAt(0).toUpperCase() +
-      (parsed.school || 'unknown').slice(1).toLowerCase(),
-    castingTime: parseCastingTime(castingTime),
+    level: (parsed.level ?? 0) as Spell['level'],
+    school: ((parsed.school || 'Unknown').charAt(0).toUpperCase() +
+      (parsed.school || 'Unknown').slice(1).toLowerCase()) as SpellSchool,
+    castingTime: parseCastingTime(castingTime) as CastingTime,
     range: parsed.range || 'Self',
-    components: parseComponents(parsed.components || ''),
+    components: parseComponents(parsed.components || '') as readonly string[],
     duration: durationInfo.duration,
     concentration: durationInfo.concentration,
     ritual: descLines.some((desc) => checkRitual(castingTime, desc)),
     description: descLines,
-    source: 'SRD 5.2',
+    source: 'SRD 5.2' as const,
   };
 
   if (parsed.classes) spell.classes = parsed.classes;
@@ -446,5 +408,5 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   if (save) spell.save = save as Spell['save'];
   if (attack) spell.attack = attack;
 
-  return spell;
+  return spell as unknown as Spell;
 }

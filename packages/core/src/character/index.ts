@@ -53,6 +53,7 @@ export {
   canCastAsRitual,
   castAsRitual,
   getRitualCastingTime,
+  normalizeCastingTime,
   isCantrip,
   canCastCantrip,
   canUpcast,

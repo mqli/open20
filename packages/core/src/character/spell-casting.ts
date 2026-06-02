@@ -4,7 +4,7 @@
 //
 // Lives in character/ (not engine/) because it operates on Character state.
 
-import type { Spell, SpellLevel, ClassSpellData } from '@/types';
+import type { Spell, SpellLevel, ClassSpellData, CastingTime } from '@/types';
 import type { FeatSpellsEntry } from '@/types/spell';
 import type { Character } from '@/types';
 import type { DataLoader } from '@/data/loader';
@@ -28,7 +28,7 @@ function isFeatSpell(char: Character, spellId: string): boolean {
 /** Get feat spell entries (with their feat IDs) that contain a specific spell. */
 function getFeatSpellEntriesForSpell(
   char: Character,
-  spellId: string
+  spellId: string,
 ): { featId: string; entry: FeatSpellsEntry }[] {
   if (!char.spells.featSpells) return [];
   const result: { featId: string; entry: FeatSpellsEntry }[] = [];
@@ -49,7 +49,7 @@ function getFeatSpellEntriesForSpell(
 export function canCastAsRitual(char: Character, spell: Spell, _data: DataLoader): boolean {
   if (!spell.ritual) return false;
 
-  const hasRitualCasterFeat = char.feats?.some(f => f.featId === 'ritual-caster') ?? false;
+  const hasRitualCasterFeat = char.feats?.some((f) => f.featId === 'ritual-caster') ?? false;
   if (hasRitualCasterFeat) return true;
 
   const ritualCastingClasses = ['Bard', 'Cleric', 'Druid', 'Wizard'];
@@ -65,7 +65,7 @@ export function canCastAsRitual(char: Character, spell: Spell, _data: DataLoader
 export function castAsRitual(
   char: Character,
   spell: Spell,
-  data: DataLoader
+  data: DataLoader,
 ): { success: boolean; char: Character; message?: string } {
   if (!canCastAsRitual(char, spell, data)) {
     return { success: false, char, message: 'Cannot cast this spell as a ritual.' };
@@ -77,13 +77,36 @@ export function castAsRitual(
   };
 }
 
-/** Get ritual casting time (normal time + 10 minutes). */
-export function getRitualCastingTime(normalTime: string): string {
-  if (normalTime === '1 action' || normalTime === '1 bonus action') return '10 minutes';
+/** Normalize a free-text casting time to a category for filtering. */
+export function normalizeCastingTime(castingTime: CastingTime): string {
+  const lower = castingTime.toLowerCase();
+  if (lower.includes('action') && !lower.includes('bonus')) return 'Action';
+  if (lower.includes('bonus')) return 'Bonus Action';
+  if (lower.includes('reaction')) return 'Reaction';
+  if (lower.includes('minute')) return 'Minute';
+  if (lower.includes('hour')) return 'Hour';
+  return 'Special';
+}
 
-  const minuteMatch = normalTime.match(/^(\d+)\s*minute/);
+/** Get ritual casting time (normal time + 10 minutes). */
+export function getRitualCastingTime(normalTime: CastingTime): string {
+  const lower = normalTime.toLowerCase();
+
+  // "1 action" or "1 bonus action" → ritual casts in 10 minutes
+  if (lower === '1 action' || lower === '1 bonus action') return '10 minutes';
+
+  // "X minute(s)" → add 10
+  const minuteMatch = lower.match(/^(\d+)\s*minute/);
   if (minuteMatch) return `${parseInt(minuteMatch[1]!, 10) + 10} minutes`;
 
+  // "X hour(s)" → add 10 minutes
+  const hourMatch = lower.match(/^(\d+)\s*hour/);
+  if (hourMatch) {
+    const h = parseInt(hourMatch[1]!, 10);
+    return h === 1 ? '1 hour 10 minutes' : `${h} hours 10 minutes`;
+  }
+
+  // Fallback: append "+ 10 minutes"
   return `${normalTime} + 10 minutes`;
 }
 
@@ -151,7 +174,7 @@ export function castSpell(
   char: Character,
   spellId: string,
   slotLevel: SpellLevel,
-  data: DataLoader
+  data: DataLoader,
 ): { success: boolean; char: Character; message?: string; castingClassId?: string } {
   const spell = data.getSpell(spellId);
   if (!spell) return { success: false, char, message: 'Spell not found.' };
@@ -216,7 +239,7 @@ export function castSpell(
   }
 
   // Warlock Pact Magic: Warlock spells use pact magic slots, not regular spell slots
-  const isWarlockCaster = castingClasses.some(csd => csd.classId === 'Warlock');
+  const isWarlockCaster = castingClasses.some((csd) => csd.classId === 'Warlock');
   if (isWarlockCaster && char.spells.pactMagicSlots) {
     const pact = char.spells.pactMagicSlots;
     if (pact.used >= pact.total) {
