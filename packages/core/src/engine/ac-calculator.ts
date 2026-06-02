@@ -10,39 +10,18 @@ import type { DataLoader } from '@/data/loader';
 import type { FeatACBonus } from '@/types/feat';
 import { getModifier, getTotalScore } from './ability-modifier';
 
-/**
- * Compute AC values from features with featureType === 'acFormula'.
- * Uses filter/map to replace the imperative for-loop.
- */
-function computeFormulaACs(
-  features: readonly Feature[],
-  scores: AbilityScores,
-  hasArmor: boolean,
-  hasShield: boolean,
-  equippedArmor: readonly Armor[],
-): number[] {
-  return features
-    .filter((f): f is FeatureACFormula => f.featureType === 'acFormula' && !!f.acFormula)
-    .filter((f) => {
-      const { requires } = f.acFormula;
-      if (!requires) return true;
-      if (requires.includes('noArmor') && hasArmor) return false;
-      if (requires.includes('noShield') && hasShield) return false;
-      if (requires.includes('noHeavyArmor') && equippedArmor.some((a) => a.category === 'Heavy'))
-        return false;
-      return true;
-    })
-    .map((f) => {
-      const { baseAC, addModifiers } = f.acFormula;
-      let ac = baseAC;
-      if (addModifiers) {
-        for (const ability of addModifiers) {
-          ac += getModifier(getTotalScore(scores, ability));
-        }
-      }
-      return ac;
-    });
-}
+type ACBreakdown = {
+  ac: number;
+  source: {
+    type: string;
+    value: string;
+  };
+};
+
+type ACResult = {
+  ac: number;
+  breakdown: readonly ACBreakdown[];
+};
 
 /**
  * 计算AC(Armor Class)
@@ -64,7 +43,7 @@ function computeFormulaACs(
  * @param data - DataLoader（查护甲数据）
  * @param conditions - 角色当前状态列表（用于检测Mage Armor等，可选，默认空）
  * @param featACBonuses - 专长给予的AC加值（可选，用于战斗风格）
- * @returns AC值
+ * @returns AC值及其来源的详细分解
  */
 export function calculateAC(
   scores: AbilityScores,
@@ -73,7 +52,7 @@ export function calculateAC(
   data: DataLoader,
   conditions: readonly { source?: string; id?: string }[] = [],
   featACBonuses?: readonly FeatACBonus[],
-): number {
+): ACResult {
   const dexMod = getModifier(getTotalScore(scores, 'Dexterity'));
 
   // 1. 收集所有装备的护甲和盾牌
@@ -82,20 +61,25 @@ export function calculateAC(
   const hasArmor = equippedArmor.length > 0;
 
   // 2. 计算所有可能的AC来源
-  const acOptions: number[] = [];
+  const acOptions: ACBreakdown[] = [];
 
   // 无甲选项
-  const unarmoredAC = 10 + dexMod;
-  acOptions.push(unarmoredAC);
+  const unarmored = {
+    source: { type: 'Unarmored', value: '10 + Dex' },
+    ac: 10 + dexMod,
+  };
 
   // Mage Armor（13 + Dex，通过法术或状态触发）
   const hasMageArmor = conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
   if (hasMageArmor) {
-    acOptions.push(13 + dexMod);
+    acOptions.push({
+      source: { type: 'Mage Armor', value: 'Mage Armor: 13 + Dex' },
+      ac: 13 + dexMod,
+    });
   }
 
   // Data-driven AC formulas from features (e.g., Unarmored Defense)
-  acOptions.push(...computeFormulaACs(features, scores, hasArmor, hasShield, equippedArmor));
+  acOptions.push(...calculateFeatureACs(features, scores, hasArmor, hasShield, equippedArmor));
 
   // 护甲选项
   for (const armor of equippedArmor) {
@@ -103,61 +87,135 @@ export function calculateAC(
   }
 
   // 3. 取最高AC
-  let ac = Math.max(...acOptions);
+  const baseAC = acOptions.reduce((max, option) => {
+    return option.ac > max.ac ? option : max;
+  }, unarmored);
 
   // 4. 叠加盾牌
-  if (hasShield) {
-    ac += 2;
-  }
+  const shieldAC = hasShield ? [{ ac: 2, source: { type: 'shield', value: 'Shield' } }] : [];
 
   // 5. 应用专长AC加值（如 Defense 战斗风格 +1）
-  // Defense: +1 AC when wearing Light, Medium, or Heavy armor
-  if (featACBonuses && featACBonuses.length > 0 && hasArmor) {
-    for (const bonus of featACBonuses) {
-      // 检查是否穿着符合条件的护甲
-      const armorTypes = bonus.whileWearing ?? [];
-      const hasMatchingArmor = equippedArmor.some((a) => {
-        if (armorTypes.includes('Light') && a.category === 'Light') return true;
-        if (armorTypes.includes('Medium') && a.category === 'Medium') return true;
-        if (armorTypes.includes('Heavy') && a.category === 'Heavy') return true;
-        return false;
-      });
+  const acBonuses = calculateFeatACBonuses(featACBonuses, equippedArmor);
+  const breakdown = [baseAC, ...shieldAC, ...acBonuses] as const;
+  return { ac: breakdown.reduce((sum, option) => sum + option.ac, 0), breakdown };
+}
 
-      if (hasMatchingArmor) {
-        // 应用对应的加值
-        if (bonus.lightArmor && equippedArmor.some((a) => a.category === 'Light')) {
-          ac += bonus.lightArmor;
-        } else if (bonus.mediumArmor && equippedArmor.some((a) => a.category === 'Medium')) {
-          ac += bonus.mediumArmor;
-        } else if (bonus.heavyArmor && equippedArmor.some((a) => a.category === 'Heavy')) {
-          ac += bonus.heavyArmor;
-        } else if (bonus.lightArmor || bonus.mediumArmor || bonus.heavyArmor) {
-          // 如果只指定了一个通用加值，应用它
-          ac += bonus.lightArmor ?? bonus.mediumArmor ?? bonus.heavyArmor ?? 0;
+/**
+ * Compute AC values from features with featureType === 'acFormula'.
+ * Uses filter/map to replace the imperative for-loop.
+ */
+function calculateFeatureACs(
+  features: readonly Feature[],
+  scores: AbilityScores,
+  hasArmor: boolean,
+  hasShield: boolean,
+  equippedArmor: readonly Armor[],
+): ACBreakdown[] {
+  return features
+    .filter((f): f is FeatureACFormula => f.featureType === 'acFormula' && !!f.acFormula)
+    .filter((f) => {
+      const { requires } = f.acFormula;
+      if (!requires) return true;
+      if (requires.includes('noArmor') && hasArmor) return false;
+      if (requires.includes('noShield') && hasShield) return false;
+      if (requires.includes('noHeavyArmor') && equippedArmor.some((a) => a.category === 'Heavy'))
+        return false;
+      return true;
+    })
+    .map((f) => {
+      const { baseAC, addModifiers } = f.acFormula;
+      let ac = baseAC;
+      if (addModifiers) {
+        for (const ability of addModifiers) {
+          ac += getModifier(getTotalScore(scores, ability));
         }
       }
+      return {
+        ac,
+        source: { type: 'feature', value: f.name },
+      };
+    });
+}
+
+/**
+ * 应用专长AC加值（如 Defense 战斗风格 +1）
+ * 检查装备的护甲是否匹配专长要求的护甲类型，并应用对应的加值
+ */
+function calculateFeatACBonuses(
+  featACBonuses: readonly FeatACBonus[] | undefined,
+  equippedArmor: readonly Armor[],
+): ACBreakdown[] {
+  if (!featACBonuses || featACBonuses.length === 0 || equippedArmor.length === 0) {
+    return [];
+  }
+
+  let totalBonus = 0;
+  let matchedFeat: FeatACBonus | undefined;
+
+  for (const bonus of featACBonuses) {
+    const armorTypes = bonus.whileWearing ?? [];
+
+    // 检查是否穿着符合条件的护甲
+    const hasMatchingArmor = equippedArmor.some((a) => {
+      if (armorTypes.includes('Light') && a.category === 'Light') return true;
+      if (armorTypes.includes('Medium') && a.category === 'Medium') return true;
+      if (armorTypes.includes('Heavy') && a.category === 'Heavy') return true;
+      return false;
+    });
+
+    if (!hasMatchingArmor) continue;
+
+    // 应用对应的加值
+    if (bonus.lightArmor && equippedArmor.some((a) => a.category === 'Light')) {
+      totalBonus += bonus.lightArmor;
+      matchedFeat = bonus;
+    } else if (bonus.mediumArmor && equippedArmor.some((a) => a.category === 'Medium')) {
+      totalBonus += bonus.mediumArmor;
+      matchedFeat = bonus;
+    } else if (bonus.heavyArmor && equippedArmor.some((a) => a.category === 'Heavy')) {
+      totalBonus += bonus.heavyArmor;
+      matchedFeat = bonus;
+    } else if (bonus.lightArmor || bonus.mediumArmor || bonus.heavyArmor) {
+      // 如果只指定了一个通用加值，应用它
+      totalBonus += bonus.lightArmor ?? bonus.mediumArmor ?? bonus.heavyArmor ?? 0;
     }
   }
 
-  return ac;
+  return matchedFeat
+    ? [
+        {
+          ac: totalBonus,
+          source: { type: 'feat', value: matchedFeat.whileWearing![0] ?? '' },
+        },
+      ]
+    : [];
 }
 
 /**
  * 计算单件护甲提供的AC
  */
-function calculateArmorAC(armor: Armor, dexMod: number): number {
+function calculateArmorAC(armor: Armor, dexMod: number): ACBreakdown {
   if (!armor.dexBonus) {
     // 重甲：不加Dex
-    return armor.baseAC;
+    return {
+      ac: armor.baseAC,
+      source: { type: 'armor', value: armor.id },
+    };
   }
 
   if (armor.dexCap != null) {
     // 中甲：护甲AC + min(Dex, cap)
-    return armor.baseAC + Math.min(dexMod, armor.dexCap);
+    return {
+      ac: armor.baseAC + Math.min(dexMod, armor.dexCap),
+      source: { type: 'armor', value: armor.id },
+    };
   }
 
   // 轻甲：护甲AC + Dex
-  return armor.baseAC + dexMod;
+  return {
+    ac: armor.baseAC + dexMod,
+    source: { type: 'armor', value: armor.id },
+  };
 }
 
 /**

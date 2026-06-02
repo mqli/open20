@@ -35,7 +35,7 @@ import type { FeatAttackBonus, FeatACBonus } from '@/types/feat';
  */
 function computeFeatGrants(
   char: Character,
-  data: DataLoader
+  data: DataLoader,
 ): Partial<Record<AbilityName, number>> {
   const featGrants: Partial<Record<AbilityName, number>> = {};
 
@@ -74,7 +74,7 @@ function computeFeatGrants(
 function applyFeatSkillProficiencies(
   skills: Record<string, import('../types/skill').SkillEntry>,
   char: Character,
-  data: DataLoader
+  data: DataLoader,
 ): Record<string, import('../types/skill').SkillEntry> {
   const updatedSkills = { ...skills };
 
@@ -163,14 +163,22 @@ function computeCombatStats(
   weaponProficiencies: string[],
   data: DataLoader,
   featAttackBonuses: readonly import('../types/feat').FeatAttackBonus[],
-  featACBonuses: readonly import('../types/feat').FeatACBonus[]
+  featACBonuses: readonly import('../types/feat').FeatACBonus[],
 ) {
-  const newAC = calculateAC(abilityScores, equipment, features, data, conditions, featACBonuses);
+  const acBreakdown = calculateAC(
+    abilityScores,
+    equipment,
+    features,
+    data,
+    conditions,
+    featACBonuses,
+  );
+  const newAC = acBreakdown.ac;
   const newInitiative = calculateInitiative(
     abilityScores,
-    feats.map(f => f.featId),
+    feats.map((f) => f.featId),
     features,
-    pb
+    pb,
   );
   const newPassivePerception = calculatePassivePerception(abilityScores, skills, pb, conditions);
   const newAttacks = calculateAttacks(
@@ -180,7 +188,7 @@ function computeCombatStats(
     features,
     data,
     weaponProficiencies,
-    featAttackBonuses
+    featAttackBonuses,
   );
 
   return { newAC, newInitiative, newPassivePerception, newAttacks };
@@ -198,7 +206,7 @@ function computeClassSpellData(
   data: DataLoader,
   pb: number,
   abilityScores: AbilityScores,
-  existing: Record<string, ClassSpellData>
+  existing: Record<string, ClassSpellData>,
 ): Record<string, ClassSpellData> {
   const result: Record<string, ClassSpellData> = {};
   for (const charClass of char.classes) {
@@ -222,15 +230,15 @@ function computeClassSpellData(
 function computePactMagic(
   char: Character,
   data: DataLoader,
-  existingSlots: Character['spells']['pactMagicSlots']
+  existingSlots: Character['spells']['pactMagicSlots'],
 ) {
-  const hasWarlock = char.classes.some(c => c.classId === 'Warlock');
+  const hasWarlock = char.classes.some((c) => c.classId === 'Warlock');
 
   if (!hasWarlock) {
     return { ...char.spells, pactMagicSlots: null };
   }
 
-  const warlockLevel = char.classes.find(c => c.classId === 'Warlock')!.level;
+  const warlockLevel = char.classes.find((c) => c.classId === 'Warlock')!.level;
   const pactResult = calculatePactMagic(warlockLevel, data);
   if (!pactResult) return char.spells;
 
@@ -250,7 +258,7 @@ function computePactMagic(
 /** Recalculate regular spell slots, preserving used counts. */
 function computeSpellSlots(char: Character, data: DataLoader) {
   const newSlots = calculateSpellSlotsFromClasses(char.classes, data);
-  const hasNonZero = Object.values(newSlots).some(entry => entry.total > 0);
+  const hasNonZero = Object.values(newSlots).some((entry) => entry.total > 0);
 
   if (!hasNonZero) return char.spells.spellSlots;
 
@@ -276,7 +284,7 @@ function computeSpellSlots(char: Character, data: DataLoader) {
  */
 function computeFeatSpells(
   char: Character,
-  data: DataLoader
+  data: DataLoader,
 ): Record<string, import('../types/spell').FeatSpellsEntry> | undefined {
   const existingFeatSpells = char.spells.featSpells;
   const featSpells: Record<string, import('../types/spell').FeatSpellsEntry> = {};
@@ -378,7 +386,7 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
     weaponProficiencies,
     data,
     featAttackBonuses,
-    featACBonuses
+    featACBonuses,
   );
 
   // 5. Spell data (per-class)
@@ -404,7 +412,7 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
     char.resources,
     char.classes,
     updatedAbilityScores,
-    data
+    data,
   );
 
   // 9. Max HP (cap current at new max; never heal via recompute)
