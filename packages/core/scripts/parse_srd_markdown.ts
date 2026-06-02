@@ -12,6 +12,7 @@ import type {
   SpellHeal,
   CantripUpgradeEntry,
   CastingTime,
+  SpellSchool,
 } from '../src/types/spell';
 import type { DamageEntry, DamageType } from '../src/types/damage';
 
@@ -62,18 +63,16 @@ function checkAttack(description: string): boolean {
 }
 
 export function extractDamage(description: string): SpellDamage | undefined {
-  const matches = [
-    ...description.matchAll(
-      /(\d+d\d+(?:\s*\+\s*\d+)?)\s+(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/gi,
-    ),
-  ];
+  const regex =
+    /(\d+d\d+(?:\s*\+\s*\d+)?)\s+(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/gi;
+  const matches = Array.from(description.matchAll(regex));
   if (matches.length === 0) return undefined;
   return {
     entries: matches.map((m) => ({
       dice: m[1],
       type: m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase(),
     })) as unknown as readonly DamageEntry[],
-  } as SpellDamage;
+  };
 }
 
 function extractHeal(description: string): SpellHeal | undefined {
@@ -81,20 +80,17 @@ function extractHeal(description: string): SpellHeal | undefined {
   const match = healingKeywords.exec(description);
   if (!match) return undefined;
 
-  const result: SpellHeal = { dice: match[2] };
-
   // Check for upcast healing: "The healing increases by XdY for each spell slot level above Z"
   const perSlotMatch = /healing increases by (\d+d\d+)/i.exec(description);
-  if (perSlotMatch) {
-    result.perSlot = perSlotMatch[1];
-  }
 
   // Check for "plus your spellcasting ability modifier"
-  if (/plus your spellcasting ability modifier/i.test(description)) {
-    result.includeSpellcastingModifier = true;
-  }
+  const includeMod = /plus your spellcasting ability modifier/i.test(description);
 
-  return result;
+  return {
+    dice: match[2],
+    ...(perSlotMatch ? { perSlot: perSlotMatch[1] } : {}),
+    ...(includeMod ? { includeSpellcastingModifier: true } : {}),
+  };
 }
 
 // ── Cantrip Upgrade Parser ─────────────────────────────────────
@@ -112,7 +108,8 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
   const normalizeDice = (d: string): string => (/^d\d+$/i.test(d) ? `1${d.toLowerCase()}` : d);
 
   // Match "level X (YdZ)" or "X (YdZ)" — Y is optional to allow "(d10)".
-  const parenMatches = [...text.matchAll(/(?:level\s*)?(5|11|17)\s*\((\d*d\d+)\)/gi)];
+  const parenRegex = /(?:level\s*)?(5|11|17)\s*\((\d*d\d+)\)/gi;
+  const parenMatches = Array.from(text.matchAll(parenRegex));
   for (const m of parenMatches) {
     damageByLevel.set(parseInt(m[1]), normalizeDice(m[2]));
   }
@@ -130,15 +127,20 @@ export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
   const typeMatch = text.match(
     /(acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder)/i,
   );
-  const type = typeMatch
-    ? typeMatch[1].charAt(0).toUpperCase() + typeMatch[1].slice(1).toLowerCase()
+  const type: DamageType | 'Unknown' = typeMatch
+    ? ((typeMatch[1].charAt(0).toUpperCase() + typeMatch[1].slice(1).toLowerCase()) as DamageType)
     : 'Unknown';
 
   for (const level of [5, 11, 17]) {
     if (damageByLevel.has(level)) {
       entries.push({
         atCharacterLevel: level as 5 | 11 | 17,
-        damage: [{ dice: damageByLevel.get(level)!, type }] as unknown as readonly DamageEntry[],
+        damage: [
+          {
+            dice: damageByLevel.get(level)!,
+            type: type === 'Unknown' ? (type as unknown as DamageType) : type,
+          },
+        ] as unknown as readonly DamageEntry[],
       } as CantripUpgradeEntry);
     }
   }
@@ -363,7 +365,7 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   }
 
   // Extract damage/heal/save/attack from description
-  const damage = extractDamage(fullDesc);
+  let damage = extractDamage(fullDesc);
   const heal = extractHeal(fullDesc);
   const save = extractSave(fullDesc);
   const attack = checkAttack(fullDesc);
@@ -371,15 +373,21 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   if (damage) {
     // If cantripUpgrade has "Unknown" type, try to get it from damage entries
     if (spell.cantripUpgrade) {
-      const knownType = damage.entries.find((d) => d.type !== 'Unknown')?.type;
-      if (knownType) {
-        for (const entry of spell.cantripUpgrade) {
-          if (entry.damage) {
-            for (const d of entry.damage) {
-              if (d.type === 'Unknown') d.type = knownType;
+      const knownType = damage.entries.find(
+        (d): d is typeof d => (d.type as string) !== 'Unknown',
+      )?.type;
+      if (knownType && knownType !== ('Unknown' as unknown as DamageType)) {
+        const upgradedEntries = spell.cantripUpgrade.map((entry) => {
+          if (!entry.damage) return entry;
+          const fixedDamage = entry.damage.map((d) => {
+            if ((d.type as string) === 'Unknown') {
+              return { ...d, type: knownType } as unknown as DamageEntry;
             }
-          }
-        }
+            return d;
+          });
+          return { ...entry, damage: fixedDamage } as unknown as CantripUpgradeEntry;
+        });
+        spell.cantripUpgrade = upgradedEntries;
       }
     }
 
@@ -387,9 +395,11 @@ export function transformSpell(parsed: ParsedSpell): Spell {
     if (usingAHigherLevelSpellSlotText) {
       const perSlot = parsePerSlotDamage(
         usingAHigherLevelSpellSlotText,
-        damage.entries[0]?.type || 'Unknown',
+        (damage.entries[0]?.type as string) || 'Unknown',
       );
-      if (perSlot) damage.perSlot = perSlot;
+      if (perSlot) {
+        damage = { ...damage, perSlot: perSlot as unknown as readonly DamageEntry[] };
+      }
     }
 
     spell.damage = damage;
