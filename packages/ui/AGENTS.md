@@ -45,8 +45,11 @@ packages/ui/
 │   │   ├── design-tokens.ts          # All cva variant classes (single source of truth)
 │   │   └── index.css                # Theme variables (@theme + dark overrides)
 │   └── components/
+│       ├── CardSurface/              # Shared clickable card wrapper (accessibility + glow)
+│       ├── CardMetaItem/             # Shared icon+label inline meta component
 │       ├── [ComponentName]/         # Each follows Three-File Rule (ComponentName.tsx, index.ts, ComponentName.stories.tsx)
 │       ├── Dialog/                  # Radix UI wrappers (namespace exports)
+│       ├── feat/                    # FeatCard component
 │       ├── spell/                   # Spell-specific components (e.g., SpellCard)
 │       └── ...                      # Other shared UI components
 └── dist/                            # Build output
@@ -88,7 +91,12 @@ Use namespace exports (`Dialog.Root`, `Dialog.Trigger`, etc.) plus flat aliases 
 
 ### 5. Reuse Existing Components
 
-Prefer composition (`Surface` + `Text`) over raw divs. Available primitives: `Surface`, `Text`, `Badge`, `IconButton`, `Button`, `Input`, `EmptyState`, `SectionHeader`, `SlotPips`.
+Prefer composition over raw divs. Available primitives: `Surface`, `Text`, `Badge`, `IconButton`, `Button`, `Input`, `EmptyState`, `SectionHeader`, `SlotPips`.
+
+**Shared card primitives** (use these instead of duplicating card logic):
+
+- `CardSurface` — clickable card wrapper (accessibility: `role`/`tabIndex`/`onKeyDown`), optional glow, `density` gap variant. Used by `SpellCard`, `FeatCard`, and any future card.
+- `CardMetaItem` — icon + label inline pair for meta rows. Replaces hand-rolled icon+text spans.
 
 ### Accessibility (A11y)
 
@@ -150,7 +158,8 @@ More on tokens: [`../../.agents/ui/design-tokens.md`](../../.agents/ui/design-to
 - ✅ Follow the 3-file pattern for every component
 - ✅ Use cva + cn() for all component styling
 - ✅ Put variant classes in `design-tokens.ts`
-- ✅ Reuse existing components (`Surface`, `Text`, `Badge`)
+- ✅ Reuse existing components (`Surface`, `Text`, `Badge`, `CardSurface`, `CardMetaItem`)
+- ✅ For any new card-like component, use `CardSurface` (not raw `Surface`) to get clickable accessibility + glow for free
 - ✅ Write Storybook stories for every component
 - ✅ Import types from `open20-core` (NOT copy/duplicate)
 - ✅ Run `typecheck && lint && build` before committing
@@ -177,12 +186,15 @@ More on tokens: [`../../.agents/ui/design-tokens.md`](../../.agents/ui/design-to
 | Storybook  | `pnpm run storybook`                                    |
 | All checks | `pnpm run typecheck && pnpm run lint && pnpm run build` |
 
-| File                          | Purpose                         |
-| ----------------------------- | ------------------------------- |
-| `src/styles/design-tokens.ts` | All cva variant class strings   |
-| `src/lib/cn.ts`               | `clsx + tailwind-merge` utility |
-| `src/index.ts`                | Package barrel export           |
-| `tailwind.config.js`          | Extends `@open20/config` base   |
+| File                           | Purpose                          |
+| ------------------------------ | -------------------------------- |
+| `src/styles/design-tokens.ts`  | All cva variant class strings    |
+| `src/lib/cn.ts`                | `clsx + tailwind-merge` utility  |
+| `src/index.ts`                 | Package barrel export            |
+| `src/components/CardSurface/`  | Shared clickable card wrapper    |
+| `src/components/CardMetaItem/` | Shared icon+label meta component |
+| `tailwind.config.js`           | Extends `@open20/config` base    |
+| `.storybook/`                  | Storybook config                 |
 
 ---
 
