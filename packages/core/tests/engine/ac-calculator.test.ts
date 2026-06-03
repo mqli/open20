@@ -48,7 +48,7 @@ describe('calculateAC', () => {
     // 11 + 2(Dex) = 13
     const result = calculateAC(defaultScores, equip, noFeatures, data);
     expect(result.ac).toBe(13);
-    expect(result.breakdown[0].source.type).toBe('armor');
+    expect(result.breakdown[0].source.type).toBe('Armor');
     expect(result.breakdown[0].source.value).toContain('Leather Armor');
   });
 
@@ -69,7 +69,7 @@ describe('calculateAC', () => {
     // 16 (no Dex bonus)
     const result = calculateAC(defaultScores, equip, noFeatures, data);
     expect(result.ac).toBe(16);
-    expect(result.breakdown[0].source.type).toBe('armor');
+    expect(result.breakdown[0].source.type).toBe('Armor');
     expect(result.breakdown[0].source.value).toContain('Chain Mail');
   });
 
@@ -363,7 +363,7 @@ describe('calculateAC', () => {
     // Mage Armor: 13 + Dex mod (3) = 16
     const result = calculateAC(scores, equip, features, data, conditions);
     expect(result.ac).toBe(16);
-    expect(result.breakdown[0].source.type).toContain('Mage Armor');
+    expect(result.breakdown[0].source.type).toContain('Spell');
   });
 
   it('should not apply Mage Armor AC when condition is absent', () => {

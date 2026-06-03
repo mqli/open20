@@ -73,7 +73,7 @@ export function calculateAC(
   const hasMageArmor = conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
   if (hasMageArmor) {
     acOptions.push({
-      source: { type: 'Mage Armor', value: 'Mage Armor: 13 + Dex' },
+      source: { type: 'Spell', value: 'Mage Armor: 13 + Dex' },
       ac: 13 + dexMod,
     });
   }
@@ -132,7 +132,7 @@ function calculateFeatureACs(
       }
       return {
         ac,
-        source: { type: 'feature', value: f.name },
+        source: { type: 'Feature', value: f.name },
       };
     });
 }
@@ -185,7 +185,7 @@ function calculateFeatACBonuses(
     ? [
         {
           ac: totalBonus,
-          source: { type: 'feat', value: matchedFeat.whileWearing![0] ?? '' },
+          source: { type: 'Feat', value: matchedFeat.whileWearing![0] ?? '' },
         },
       ]
     : [];
@@ -199,7 +199,7 @@ function calculateArmorAC(armor: Armor, dexMod: number): ACBreakdown {
     // 重甲：不加Dex
     return {
       ac: armor.baseAC,
-      source: { type: 'armor', value: armor.id },
+      source: { type: 'Armor', value: armor.id },
     };
   }
 
@@ -207,14 +207,14 @@ function calculateArmorAC(armor: Armor, dexMod: number): ACBreakdown {
     // 中甲：护甲AC + min(Dex, cap)
     return {
       ac: armor.baseAC + Math.min(dexMod, armor.dexCap),
-      source: { type: 'armor', value: armor.id },
+      source: { type: 'Armor', value: armor.id },
     };
   }
 
   // 轻甲：护甲AC + Dex
   return {
     ac: armor.baseAC + dexMod,
-    source: { type: 'armor', value: armor.id },
+    source: { type: 'Armor', value: armor.id },
   };
 }
 
