@@ -78,49 +78,109 @@ function formatPrerequisite(feat: Feat): string | null {
 
 function formatGrants(feat: Feat): string[] {
   const grants = feat.grants;
-  if (!grants) return [];
+  if (!grants || grants.length === 0) return [];
 
   const lines: string[] = [];
 
-  if (grants.abilityBonus) {
-    const parts = Object.entries(grants.abilityBonus)
-      .map(([k, v]) => `+${v} ${ABILITY_ABBREVS[k as AbilityName] ?? k}`)
-      .join(', ');
-    lines.push(`Ability: ${parts}`);
-  }
+  for (const grant of grants) {
+    switch (grant.type) {
+      case 'abilityBonus': {
+        const parts = Object.entries(grant.bonus)
+          .map(([k, v]) => `+${v} ${ABILITY_ABBREVS[k as AbilityName] ?? k}`)
+          .join(', ');
+        lines.push(`Ability: ${parts}`);
+        break;
+      }
 
-  if (grants.abilityBonusChoice) {
-    const c = grants.abilityBonusChoice;
-    lines.push(`Choose ${c.count}× +${c.valuePerChoice} ability`);
-  }
+      case 'abilityBonusChoice': {
+        const c = grant.choice;
+        lines.push(`Choose ${c.count}× +${c.valuePerChoice} ability`);
+        break;
+      }
 
-  if (grants.skillProficiencies && grants.skillProficiencies.length > 0) {
-    lines.push(`Skills: ${grants.skillProficiencies.join(', ')}`);
-  }
+      case 'skillProficiencies': {
+        if (grant.skills.length > 0) {
+          lines.push(`Skills: ${grant.skills.join(', ')}`);
+        }
+        break;
+      }
 
-  if (grants.skillProficiencyChoice) {
-    lines.push(`Choose ${grants.skillProficiencyChoice.count} skill/tool`);
-  }
+      case 'skillProficiencyChoice': {
+        lines.push(`Choose ${grant.choice.count} skill/tool`);
+        break;
+      }
 
-  if (grants.toolProficiencies && grants.toolProficiencies.length > 0) {
-    lines.push(`Tools: ${grants.toolProficiencies.join(', ')}`);
-  }
+      case 'toolProficiencies': {
+        if (grant.tools.length > 0) {
+          lines.push(`Tools: ${grant.tools.join(', ')}`);
+        }
+        break;
+      }
 
-  if (grants.languages && grants.languages.length > 0) {
-    lines.push(`Languages: ${grants.languages.join(', ')}`);
-  }
+      case 'toolProficiencyChoice': {
+        lines.push(`Choose ${grant.choice.count} tool`);
+        break;
+      }
 
-  if (grants.armorTraining && grants.armorTraining.length > 0) {
-    lines.push(`Armor: ${grants.armorTraining.join(', ')}`);
-  }
+      case 'languages': {
+        if (grant.languages.length > 0) {
+          lines.push(`Languages: ${grant.languages.join(', ')}`);
+        }
+        break;
+      }
 
-  if (grants.specialAbilities && grants.specialAbilities.length > 0) {
-    lines.push(`Special: ${grants.specialAbilities.join(', ')}`);
-  }
+      case 'armorTraining': {
+        if (grant.armors.length > 0) {
+          lines.push(`Armor: ${grant.armors.join(', ')}`);
+        }
+        break;
+      }
 
-  if (grants.spellChoices && grants.spellChoices.length > 0) {
-    const count = grants.spellChoices.reduce((s, c) => s + c.count, 0);
-    lines.push(`Spells: ${count} spell(s)`);
+      case 'weaponMastery': {
+        if (grant.weapons.length > 0) {
+          lines.push(`Weapons: ${grant.weapons.join(', ')}`);
+        }
+        break;
+      }
+
+      case 'attackBonus': {
+        const parts: string[] = [];
+        if (grant.bonus.ranged) parts.push(`Ranged +${grant.bonus.ranged}`);
+        if (grant.bonus.melee) parts.push(`Melee +${grant.bonus.melee}`);
+        if (parts.length > 0) lines.push(`Attack: ${parts.join(', ')}`);
+        break;
+      }
+
+      case 'acBonus': {
+        const parts: string[] = [];
+        if (grant.bonus.lightArmor) parts.push(`Light +${grant.bonus.lightArmor}`);
+        if (grant.bonus.mediumArmor) parts.push(`Medium +${grant.bonus.mediumArmor}`);
+        if (grant.bonus.heavyArmor) parts.push(`Heavy +${grant.bonus.heavyArmor}`);
+        if (parts.length > 0) lines.push(`AC: ${parts.join(', ')}`);
+        break;
+      }
+
+      case 'specialAbilities': {
+        if (grant.abilities.length > 0) {
+          lines.push(`Special: ${grant.abilities.join(', ')}`);
+        }
+        break;
+      }
+
+      case 'spellChoices': {
+        const count = grant.choices.reduce((s, c) => s + c.count, 0);
+        if (count > 0) {
+          lines.push(`Spells: ${count} spell(s)`);
+        }
+        break;
+      }
+
+      default: {
+        // Exhaustiveness check — should never happen
+        const _exhaustive: never = grant;
+        return _exhaustive;
+      }
+    }
   }
 
   return lines;

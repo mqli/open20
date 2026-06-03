@@ -14,16 +14,20 @@ function createMockDataLoader(): DataLoader {
       id: 'ability-score-improvement',
       source: 'SRD 5.2',
       name: 'Ability Score Improvement',
-      description: 'Increase one ability score of your choice by 2, or increase two ability scores of your choice by 1.',
+      description:
+        'Increase one ability score of your choice by 2, or increase two ability scores of your choice by 1.',
       category: 'General',
       prerequisites: null, // Simplified for testing
-      grants: {
-        abilityBonusChoice: {
-          options: [],
-          valuePerChoice: 2,
-          count: 1,
+      grants: [
+        {
+          type: 'abilityBonusChoice',
+          choice: {
+            options: [],
+            valuePerChoice: 2,
+            count: 1,
+          },
         },
-      },
+      ],
       repeatable: true,
     },
     {
@@ -33,13 +37,16 @@ function createMockDataLoader(): DataLoader {
       description: 'Increase your Strength or Dexterity score by 1.',
       category: 'General',
       prerequisites: null, // Simplified for testing
-      grants: {
-        abilityBonusChoice: {
-          options: ['Strength', 'Dexterity'],
-          valuePerChoice: 1,
-          count: 1,
+      grants: [
+        {
+          type: 'abilityBonusChoice',
+          choice: {
+            options: ['Strength', 'Dexterity'],
+            valuePerChoice: 1,
+            count: 1,
+          },
         },
-      },
+      ],
     },
     {
       id: 'skilled',
@@ -48,7 +55,7 @@ function createMockDataLoader(): DataLoader {
       description: 'Gain proficiency in any combination of three skills or tools of your choice.',
       category: 'Origin',
       prerequisites: null,
-      grants: {},
+      grants: [],
       repeatable: true,
     },
     {
@@ -58,9 +65,7 @@ function createMockDataLoader(): DataLoader {
       description: 'You gain Initiative Proficiency.',
       category: 'Origin',
       prerequisites: null,
-      grants: {
-        specialAbilities: ['Initiative Proficiency'],
-      },
+      grants: [{ type: 'specialAbilities', abilities: ['Initiative Proficiency'] }],
     },
   ];
 
@@ -88,7 +93,14 @@ function createMockDataLoader(): DataLoader {
 
   // Mock skills
   const skills = new Map();
-  const skillList = ['Athletics', 'Stealth', 'Perception', 'Intimidation', "Thieves' Tools", "Cook's Utensils"];
+  const skillList = [
+    'Athletics',
+    'Stealth',
+    'Perception',
+    'Intimidation',
+    "Thieves' Tools",
+    "Cook's Utensils",
+  ];
   for (const skillName of skillList) {
     skills.set(skillName, {
       id: skillName,
@@ -109,9 +121,7 @@ function createMockDataLoader(): DataLoader {
     featuresByLevel: [
       {
         level: 1,
-        features: [
-          { name: 'Fighting Style', source: 'PHB', description: '' },
-        ],
+        features: [{ name: 'Fighting Style', source: 'PHB', description: '' }],
       },
     ],
     spellcasting: null,
@@ -135,20 +145,23 @@ describe('feat choices', () => {
 
   describe('Ability Score Improvement feat', () => {
     it('should apply +2 to chosen ability (Strength)', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 15,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add ASI feat with ability bonus choice: +2 to Strength
       const updated = addFeat(char, 'ability-score-improvement', data, {
@@ -163,20 +176,23 @@ describe('feat choices', () => {
     });
 
     it('should apply +1 to two abilities (Strength and Dexterity)', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 15,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add ASI feat with ability bonus choices: +1 to Strength, +1 to Dexterity
       const updated = addFeat(char, 'ability-score-improvement', data, {
@@ -190,20 +206,23 @@ describe('feat choices', () => {
 
   describe('Grappler feat', () => {
     it('should apply +1 to chosen ability (Strength)', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 16,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 16,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add Grappler feat with ability bonus choice: +1 to Strength
       const updated = addFeat(char, 'grappler', data, {
@@ -215,20 +234,23 @@ describe('feat choices', () => {
     });
 
     it('should apply +1 to Dexterity when chosen', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 16,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 16,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add Grappler feat with ability bonus choice: +1 to Dexterity
       const updated = addFeat(char, 'grappler', data, {
@@ -242,20 +264,23 @@ describe('feat choices', () => {
 
   describe('Skilled feat', () => {
     it('should apply skill proficiencies from choices', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 15,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add Skilled feat with choices: Athletics, Stealth, Perception
       const updated = addFeat(char, 'skilled', data, {
@@ -271,20 +296,23 @@ describe('feat choices', () => {
     });
 
     it('should apply skill proficiencies from choices (multiple skills)', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 15,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add Skilled feat with skill choices (different from background)
       const updated = addFeat(char, 'skilled', data, {
@@ -302,20 +330,23 @@ describe('feat choices', () => {
 
   describe('updateFeatChoices', () => {
     it('should update ability bonus choices (Record<string, number>)', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 15,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add ASI feat (no choices yet)
       let updated = addFeat(char, 'ability-score-improvement', data);
@@ -325,11 +356,13 @@ describe('feat choices', () => {
         updated,
         'ability-score-improvement',
         { abilityChoices: { Strength: 2 } },
-        data
+        data,
       );
 
       // Verify the choice was stored correctly
-      expect(updated.feats.find(f => f.featId === 'ability-score-improvement')?.abilityChoices).toEqual({ Strength: 2 });
+      expect(
+        updated.feats.find((f) => f.featId === 'ability-score-improvement')?.abilityChoices,
+      ).toEqual({ Strength: 2 });
 
       // Verify recompute applies the bonus
       const result = recomputeDerivedStats(updated, data);
@@ -337,20 +370,23 @@ describe('feat choices', () => {
     });
 
     it('should update skill choices (readonly string[])', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 15,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add Skilled feat with initial choices
       let updated = addFeat(char, 'skilled', data, {
@@ -362,30 +398,37 @@ describe('feat choices', () => {
         updated,
         'skilled',
         { skillChoices: ['Perception', 'Investigation', 'Nature'] },
-        data
+        data,
       );
 
       // Verify the choices were updated
-      expect(updated.feats.find(f => f.featId === 'skilled')?.skillChoices).toEqual(['Perception', 'Investigation', 'Nature']);
+      expect(updated.feats.find((f) => f.featId === 'skilled')?.skillChoices).toEqual([
+        'Perception',
+        'Investigation',
+        'Nature',
+      ]);
     });
   });
 
   describe('multiple feats with choices', () => {
     it('should apply bonuses from multiple feats', () => {
-      const char = createCharacter({
-        name: 'Test',
-        speciesId: 'Human',
-        backgroundId: 'Soldier',
-        classId: 'Fighter',
-        abilityScores: {
-          Strength: 15,
-          Dexterity: 14,
-          Constitution: 13,
-          Intelligence: 12,
-          Wisdom: 10,
-          Charisma: 8,
+      const char = createCharacter(
+        {
+          name: 'Test',
+          speciesId: 'Human',
+          backgroundId: 'Soldier',
+          classId: 'Fighter',
+          abilityScores: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 13,
+            Intelligence: 12,
+            Wisdom: 10,
+            Charisma: 8,
+          },
         },
-      }, data);
+        data,
+      );
 
       // Add ASI feat: +2 to Strength (using abilityChoices in addFeat)
       let updated = addFeat(char, 'ability-score-improvement', data, {

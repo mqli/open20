@@ -70,9 +70,7 @@ const archeryFeat: Feat = {
   name: 'Archery',
   description: 'You gain a +2 bonus to attack rolls you make with Ranged weapons.',
   category: 'Fighting Style',
-  grants: {
-    attackBonus: { ranged: 2 },
-  },
+  grants: [{ type: 'attackBonus', bonus: { ranged: 2 } }],
 };
 
 const epicBoonOfFateFeat: Feat = {
@@ -92,12 +90,15 @@ const skilledFeat: Feat = {
   name: 'Skilled',
   description: 'You gain Proficiency in any combination of three Skills or Tools of your choice.',
   category: 'General',
-  grants: {
-    skillProficiencyChoice: {
-      options: [],
-      count: 3,
+  grants: [
+    {
+      type: 'skillProficiencyChoice',
+      choice: {
+        options: [],
+        count: 3,
+      },
     },
-  },
+  ],
 };
 
 const asiFeat: Feat = {
@@ -107,13 +108,16 @@ const asiFeat: Feat = {
   description:
     "You gain the following benefits.\n• Ability Score Increase. Increase one Ability Score of your choice by 2, or increase two Ability Scores of your choice by 1. These increases can't take an Ability Score above 20.",
   category: 'General',
-  grants: {
-    abilityBonusChoice: {
-      options: ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'],
-      valuePerChoice: 2,
-      count: 1,
+  grants: [
+    {
+      type: 'abilityBonusChoice',
+      choice: {
+        options: ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'],
+        valuePerChoice: 2,
+        count: 1,
+      },
     },
-  },
+  ],
 };
 
 const magicInitiateFeat: Feat = {
@@ -124,23 +128,26 @@ const magicInitiateFeat: Feat = {
     'You gain the following benefits.\n• Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list.\n• Level 1 Spell. Learn one Level 1 spell of your choice from the same list. You can cast this spell without a spell slot, and you must finish a Long Rest to cast it again.',
   category: 'General',
   prerequisites: { ability: { Intelligence: 13 } },
-  grants: {
-    spellChoices: [
-      {
-        id: 'cantrips',
-        classOptions: ['cleric', 'druid', 'wizard'],
-        spellLevel: 0,
-        count: 2,
-      },
-      {
-        id: 'level1Spell',
-        classOptions: ['cleric', 'druid', 'wizard'],
-        spellLevel: 1,
-        count: 1,
-        oncePerLongRest: true,
-      },
-    ],
-  },
+  grants: [
+    {
+      type: 'spellChoices',
+      choices: [
+        {
+          id: 'cantrips',
+          classOptions: ['cleric', 'druid', 'wizard'],
+          spellLevel: 0,
+          count: 2,
+        },
+        {
+          id: 'level1Spell',
+          classOptions: ['cleric', 'druid', 'wizard'],
+          spellLevel: 1,
+          count: 1,
+          oncePerLongRest: true,
+        },
+      ],
+    },
+  ],
 };
 
 const savageAttackerFeat: Feat = {
@@ -150,9 +157,7 @@ const savageAttackerFeat: Feat = {
   description:
     "Once per turn when you roll Damage for a Melee weapon attack, you can reroll the weapon's Damage die and use either total.",
   category: 'General',
-  grants: {
-    specialAbilities: ['Savage Attacker'],
-  },
+  grants: [{ type: 'specialAbilities', abilities: ['Savage Attacker'] }],
 };
 
 /* -------------------------------------------------------------------------- */

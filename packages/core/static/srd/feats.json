@@ -6,9 +6,9 @@
     "description": "You gain the following benefits: Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll. Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.",
     "category": "Origin",
     "prerequisites": null,
-    "grants": {
-      "specialAbilities": ["Initiative Proficiency", "Initiative Swap"]
-    }
+    "grants": [
+      { "type": "specialAbilities", "abilities": ["Initiative Proficiency", "Initiative Swap"] }
+    ]
   },
   {
     "id": "magic-initiate",
@@ -17,24 +17,27 @@
     "description": "You gain the following benefits: Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat's spells (choose when you select this feat). Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat's cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list. Repeatable. You can take this feat more than once, but you must choose a different spell list each time.",
     "category": "Origin",
     "prerequisites": null,
-    "grants": {
-      "spellChoices": [
-        {
-          "id": "cantrips",
-          "classOptions": ["Cleric", "Druid", "Wizard"],
-          "spellLevel": 0,
-          "count": 2
-        },
-        {
-          "id": "level1Spell",
-          "classOptions": ["Cleric", "Druid", "Wizard"],
-          "spellLevel": 1,
-          "count": 1,
-          "alwaysPrepared": true,
-          "oncePerLongRest": true
-        }
-      ]
-    },
+    "grants": [
+      {
+        "type": "spellChoices",
+        "choices": [
+          {
+            "id": "cantrips",
+            "classOptions": ["Cleric", "Druid", "Wizard"],
+            "spellLevel": 0,
+            "count": 2
+          },
+          {
+            "id": "level1Spell",
+            "classOptions": ["Cleric", "Druid", "Wizard"],
+            "spellLevel": 1,
+            "count": 1,
+            "alwaysPrepared": true,
+            "oncePerLongRest": true
+          }
+        ]
+      }
+    ],
     "repeatable": true
   },
   {
@@ -44,9 +47,7 @@
     "description": "You've trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon's damage dice twice and use either roll against the target.",
     "category": "Origin",
     "prerequisites": null,
-    "grants": {
-      "specialAbilities": ["Savage Attacker"]
-    }
+    "grants": [{ "type": "specialAbilities", "abilities": ["Savage Attacker"] }]
   },
   {
     "id": "skilled",
@@ -55,10 +56,10 @@
     "description": "You gain the following benefits: Skill Proficiencies. You gain Proficiency in any combination of three skills or tools of your choice. Repeatable. You can take this feat more than once.",
     "category": "Origin",
     "prerequisites": null,
-    "grants": {
-      "skillProficiencies": [],
-      "toolProficiencies": []
-    },
+    "grants": [
+      { "type": "skillProficiencies", "skills": [] },
+      { "type": "toolProficiencies", "tools": [] }
+    ],
     "repeatable": true
   },
   {
@@ -70,13 +71,16 @@
     "prerequisites": {
       "level": 4
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": [],
-        "valuePerChoice": 2,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": [],
+          "valuePerChoice": 2,
+          "count": 1
+        }
       }
-    },
+    ],
     "repeatable": true
   },
   {
@@ -91,14 +95,20 @@
         "Strength": 13
       }
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": ["Strength", "Dexterity"],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": ["Strength", "Dexterity"],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Punch and Grab", "Attack Advantage", "Fast Wrestler"]
-    }
+      {
+        "type": "specialAbilities",
+        "abilities": ["Punch and Grab", "Attack Advantage", "Fast Wrestler"]
+      }
+    ]
   },
   {
     "id": "archery",
@@ -109,11 +119,14 @@
     "prerequisites": {
       "feature": "Fighting Style Feature"
     },
-    "grants": {
-      "attackBonus": {
-        "ranged": 2
+    "grants": [
+      {
+        "type": "attackBonus",
+        "bonus": {
+          "ranged": 2
+        }
       }
-    }
+    ]
   },
   {
     "id": "defense",
@@ -124,14 +137,17 @@
     "prerequisites": {
       "feature": "Fighting Style Feature"
     },
-    "grants": {
-      "acBonus": {
-        "lightArmor": 1,
-        "mediumArmor": 1,
-        "heavyArmor": 1,
-        "whileWearing": ["Light", "Medium", "Heavy"]
+    "grants": [
+      {
+        "type": "acBonus",
+        "bonus": {
+          "lightArmor": 1,
+          "mediumArmor": 1,
+          "heavyArmor": 1,
+          "whileWearing": ["Light", "Medium", "Heavy"]
+        }
       }
-    }
+    ]
   },
   {
     "id": "great-weapon-fighting",
@@ -142,9 +158,7 @@
     "prerequisites": {
       "feature": "Fighting Style Feature"
     },
-    "grants": {
-      "specialAbilities": ["Great Weapon Fighting"]
-    }
+    "grants": [{ "type": "specialAbilities", "abilities": ["Great Weapon Fighting"] }]
   },
   {
     "id": "two-weapon-fighting",
@@ -155,9 +169,7 @@
     "prerequisites": {
       "feature": "Fighting Style Feature"
     },
-    "grants": {
-      "specialAbilities": ["Two-Weapon Fighting"]
-    }
+    "grants": [{ "type": "specialAbilities", "abilities": ["Two-Weapon Fighting"] }]
   },
   {
     "id": "boon-of-combat-prowess",
@@ -168,14 +180,17 @@
     "prerequisites": {
       "level": 19
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": [],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": [],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Peerless Aim"]
-    }
+      { "type": "specialAbilities", "abilities": ["Peerless Aim"] }
+    ]
   },
   {
     "id": "boon-of-dimensional-travel",
@@ -186,14 +201,17 @@
     "prerequisites": {
       "level": 19
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": [],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": [],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Blink Steps"]
-    }
+      { "type": "specialAbilities", "abilities": ["Blink Steps"] }
+    ]
   },
   {
     "id": "boon-of-fate",
@@ -204,14 +222,17 @@
     "prerequisites": {
       "level": 19
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": [],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": [],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Improve Fate"]
-    }
+      { "type": "specialAbilities", "abilities": ["Improve Fate"] }
+    ]
   },
   {
     "id": "boon-of-irresistible-offense",
@@ -222,14 +243,17 @@
     "prerequisites": {
       "level": 19
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": ["Strength", "Dexterity"],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": ["Strength", "Dexterity"],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Overcome Defenses", "Overwhelming Strike"]
-    }
+      { "type": "specialAbilities", "abilities": ["Overcome Defenses", "Overwhelming Strike"] }
+    ]
   },
   {
     "id": "boon-of-spell-recall",
@@ -241,14 +265,17 @@
       "level": 19,
       "feature": "Spellcasting Feature"
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": ["Intelligence", "Wisdom", "Charisma"],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": ["Intelligence", "Wisdom", "Charisma"],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Free Casting"]
-    }
+      { "type": "specialAbilities", "abilities": ["Free Casting"] }
+    ]
   },
   {
     "id": "boon-of-the-night-spirit",
@@ -259,14 +286,17 @@
     "prerequisites": {
       "level": 19
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": [],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": [],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Merge with Shadows", "Shadowy Form"]
-    }
+      { "type": "specialAbilities", "abilities": ["Merge with Shadows", "Shadowy Form"] }
+    ]
   },
   {
     "id": "boon-of-truesight",
@@ -277,13 +307,16 @@
     "prerequisites": {
       "level": 19
     },
-    "grants": {
-      "abilityBonusChoice": {
-        "options": [],
-        "valuePerChoice": 1,
-        "count": 1
+    "grants": [
+      {
+        "type": "abilityBonusChoice",
+        "choice": {
+          "options": [],
+          "valuePerChoice": 1,
+          "count": 1
+        }
       },
-      "specialAbilities": ["Truesight"]
-    }
+      { "type": "specialAbilities", "abilities": ["Truesight"] }
+    ]
   }
 ]

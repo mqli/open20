@@ -12,29 +12,29 @@ import { recomputeDerivedStats } from './recompute';
 
 /** Check if a character has a feat by featId. */
 function hasFeat(char: Character, featId: string): boolean {
-  return char.feats.some(f => f.featId === featId);
+  return char.feats.some((f) => f.featId === featId);
 }
 
 /** Find a feat entry by featId (returns undefined if not found). */
 function findFeatEntry(char: Character, featId: string): CharacterFeatEntry | undefined {
-  return char.feats.find(f => f.featId === featId);
+  return char.feats.find((f) => f.featId === featId);
 }
 
 /** Build a new feats array with one entry added or replaced. */
 function upsertFeatEntry(
   feats: readonly CharacterFeatEntry[],
-  entry: CharacterFeatEntry
+  entry: CharacterFeatEntry,
 ): CharacterFeatEntry[] {
-  const filtered = feats.filter(f => f.featId !== entry.featId);
+  const filtered = feats.filter((f) => f.featId !== entry.featId);
   return [...filtered, entry];
 }
 
 /** Build a new feats array with one entry removed. */
 function removeFeatEntry(
   feats: readonly CharacterFeatEntry[],
-  featId: string
+  featId: string,
 ): CharacterFeatEntry[] {
-  return feats.filter(f => f.featId !== featId);
+  return feats.filter((f) => f.featId !== featId);
 }
 
 // ── Public Interface ──────────────────────────────────────
@@ -78,7 +78,7 @@ export function addFeat(
   char: Character,
   featId: string,
   data: DataLoader,
-  options?: AddFeatOptions
+  options?: AddFeatOptions,
 ): Character {
   const feat = data.getFeat(featId);
   if (!feat) {
@@ -163,7 +163,7 @@ export function updateFeatChoices(
     skillChoices?: readonly string[];
     abilityChoices?: Partial<Record<import('../types/ability').AbilityName, number>>;
   },
-  data: DataLoader
+  data: DataLoader,
 ): Character {
   if (!hasFeat(char, featId)) {
     throw new Error(`Feat "${featId}" not found on character`);
@@ -217,7 +217,7 @@ export function updateFeatSpellChoices(
   char: Character,
   featId: string,
   spellSelection: FeatSpellSelection,
-  data: DataLoader
+  data: DataLoader,
 ): Character {
   if (!hasFeat(char, featId)) {
     throw new Error(`Feat "${featId}" not found on character`);
@@ -228,7 +228,9 @@ export function updateFeatSpellChoices(
     throw new Error(`Feat "${featId}" not found in data`);
   }
 
-  if (!feat.grants?.spellChoices) {
+  // Find spellChoices grant in the grants array
+  const hasSpellChoices = feat.grants?.some((g) => g.type === 'spellChoices');
+  if (!hasSpellChoices) {
     throw new Error(`Feat "${featId}" does not have spell choices`);
   }
 
@@ -268,8 +270,13 @@ export function getFeatSpecialAbilities(char: Character, data: DataLoader): stri
 
   for (const entry of char.feats) {
     const feat = data.getFeat(entry.featId);
-    if (feat?.grants?.specialAbilities) {
-      abilities.push(...feat.grants.specialAbilities);
+    if (!feat?.grants) continue;
+
+    // Find specialAbilities grant in the grants array
+    for (const grant of feat.grants) {
+      if (grant.type === 'specialAbilities') {
+        abilities.push(...grant.abilities);
+      }
     }
   }
 

@@ -43,12 +43,17 @@ function computeFeatGrants(
     const feat = data.getFeat(entry.featId);
     if (!feat) continue;
 
-    // 1. Apply fixed ability bonuses (if any)
-    if (feat.grants?.abilityBonus) {
-      for (const [ability, bonus] of Object.entries(feat.grants.abilityBonus)) {
-        const numBonus = bonus as number;
-        if (numBonus !== 0) {
-          featGrants[ability as AbilityName] = (featGrants[ability as AbilityName] ?? 0) + numBonus;
+    // 1. Apply fixed ability bonuses from grants array (if any)
+    if (feat.grants) {
+      for (const grant of feat.grants) {
+        if (grant.type === 'abilityBonus') {
+          for (const [ability, bonus] of Object.entries(grant.bonus)) {
+            const numBonus = bonus as number;
+            if (numBonus !== 0) {
+              featGrants[ability as AbilityName] =
+                (featGrants[ability as AbilityName] ?? 0) + numBonus;
+            }
+          }
         }
       }
     }
@@ -82,11 +87,16 @@ function applyFeatSkillProficiencies(
     const feat = data.getFeat(entry.featId);
     if (!feat) continue;
 
-    // Apply predefined skill proficiencies from feat data
-    const skillProficiencies = feat.grants?.skillProficiencies ?? [];
-    for (const skill of skillProficiencies) {
-      if (updatedSkills[skill]) {
-        updatedSkills[skill] = { ...updatedSkills[skill], proficient: true };
+    // Apply predefined skill proficiencies from feat data (grants array)
+    if (feat.grants) {
+      for (const grant of feat.grants) {
+        if (grant.type === 'skillProficiencies') {
+          for (const skill of grant.skills) {
+            if (updatedSkills[skill]) {
+              updatedSkills[skill] = { ...updatedSkills[skill], proficient: true };
+            }
+          }
+        }
       }
     }
 
@@ -110,8 +120,12 @@ function computeFeatAttackBonuses(char: Character, data: DataLoader): readonly F
   const bonuses: FeatAttackBonus[] = [];
   for (const entry of char.feats) {
     const feat = data.getFeat(entry.featId);
-    if (feat?.grants?.attackBonus) {
-      bonuses.push(feat.grants.attackBonus);
+    if (!feat?.grants) continue;
+
+    for (const grant of feat.grants) {
+      if (grant.type === 'attackBonus') {
+        bonuses.push(grant.bonus);
+      }
     }
   }
   return bonuses;
@@ -124,8 +138,12 @@ function computeFeatACBonuses(char: Character, data: DataLoader): readonly FeatA
   const bonuses: FeatACBonus[] = [];
   for (const entry of char.feats) {
     const feat = data.getFeat(entry.featId);
-    if (feat?.grants?.acBonus) {
-      bonuses.push(feat.grants.acBonus);
+    if (!feat?.grants) continue;
+
+    for (const grant of feat.grants) {
+      if (grant.type === 'acBonus') {
+        bonuses.push(grant.bonus);
+      }
     }
   }
   return bonuses;
@@ -293,7 +311,11 @@ function computeFeatSpells(
     if (!entry.spellChoices) continue;
 
     const feat = data.getFeat(entry.featId);
-    if (!feat?.grants?.spellChoices) continue;
+    if (!feat?.grants) continue;
+
+    // Find spellChoices grant in the grants array
+    const spellChoicesGrant = feat.grants.find((g) => g.type === 'spellChoices');
+    if (!spellChoicesGrant) continue;
 
     const selection = entry.spellChoices;
 
@@ -309,13 +331,11 @@ function computeFeatSpells(
 
     // Determine which spells can be cast once per long rest
     const oncePerLongRest: Record<string, boolean> = {};
-    if (feat.grants.spellChoices) {
-      for (const spellChoice of feat.grants.spellChoices) {
-        if (spellChoice.oncePerLongRest) {
-          const spellsForChoice = selection.spells[spellChoice.id] ?? [];
-          for (const spell of spellsForChoice) {
-            oncePerLongRest[spell] = true;
-          }
+    for (const spellChoice of spellChoicesGrant.choices) {
+      if (spellChoice.oncePerLongRest) {
+        const spellsForChoice = selection.spells[spellChoice.id] ?? [];
+        for (const spell of spellsForChoice) {
+          oncePerLongRest[spell] = true;
         }
       }
     }

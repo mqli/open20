@@ -14,7 +14,7 @@ export interface Feat {
   readonly description: string;
   readonly category: FeatCategory;
   readonly prerequisites?: FeatPrerequisite; // 前提条件
-  readonly grants?: FeatGrant; // 给予的能力
+  readonly grants?: readonly FeatGrant[]; // 给予的能力（判别联合类型数组）
   readonly repeatable?: boolean; // 是否可重复选择
 }
 
@@ -28,41 +28,22 @@ export interface FeatPrerequisite {
   readonly feature?: string; // 需要特定特性（如 "Fighting Style Feature"）
 }
 
-// 专长给予的能力
-export interface FeatGrant {
-  // 固定能力加值（无选择）
-  // 注意：大多数专长的能力加值是选择性的，应使用 abilityBonusChoice
-  readonly abilityBonus?: Partial<Record<AbilityName, number>>;
-
-  // 固定技能/工具熟练
-  readonly skillProficiencies?: readonly string[];
-  readonly toolProficiencies?: readonly string[];
-  readonly languages?: readonly string[];
-  readonly armorTraining?: readonly string[];
-  readonly weaponMastery?: readonly string[]; // 武器精通属性
-
-  // 战斗风格加值
-  readonly attackBonus?: FeatAttackBonus; // 攻击加值（如 Archery +2）
-  readonly acBonus?: FeatACBonus; // AC加值（如 Defense +1）
-
-  // 特殊能力标记（用于引擎识别）
-  readonly specialAbilities?: readonly string[]; // 如 ['Savage Attacker', 'Great Weapon Fighting']
-
-  // ── 选择性加值（需要玩家选择）─────────────────
-  // 定义玩家可以做的选择
-
-  // 能力加值选择（如 ASI: 选择1个能力+2，或2个能力+1）
-  readonly abilityBonusChoice?: FeatAbilityBonusChoice;
-
-  // 技能熟练选择（如 Skilled: 选择3个技能/工具）
-  readonly skillProficiencyChoice?: FeatProficiencyChoice;
-
-  // 工具熟练选择
-  readonly toolProficiencyChoice?: FeatProficiencyChoice;
-
-  // 法术选择（用于 Magic Initiate 等专长）
-  readonly spellChoices?: readonly FeatSpellChoice[];
-}
+// 专长给予的能力（判别联合类型）
+// 使用 type 字段作为判别式，每个变体有必需的对应字段
+export type FeatGrant =
+  | { readonly type: 'abilityBonus'; readonly bonus: Partial<Record<AbilityName, number>> }
+  | { readonly type: 'abilityBonusChoice'; readonly choice: FeatAbilityBonusChoice }
+  | { readonly type: 'skillProficiencies'; readonly skills: readonly string[] }
+  | { readonly type: 'skillProficiencyChoice'; readonly choice: FeatProficiencyChoice }
+  | { readonly type: 'toolProficiencies'; readonly tools: readonly string[] }
+  | { readonly type: 'toolProficiencyChoice'; readonly choice: FeatProficiencyChoice }
+  | { readonly type: 'languages'; readonly languages: readonly string[] }
+  | { readonly type: 'armorTraining'; readonly armors: readonly string[] }
+  | { readonly type: 'weaponMastery'; readonly weapons: readonly string[] }
+  | { readonly type: 'attackBonus'; readonly bonus: FeatAttackBonus }
+  | { readonly type: 'acBonus'; readonly bonus: FeatACBonus }
+  | { readonly type: 'specialAbilities'; readonly abilities: readonly string[] }
+  | { readonly type: 'spellChoices'; readonly choices: readonly FeatSpellChoice[] };
 
 // 能力加值选择定义
 export interface FeatAbilityBonusChoice {
@@ -139,4 +120,3 @@ export interface CharacterFeatEntry {
   // Spell choices (e.g., Magic Initiate)
   readonly spellChoices?: FeatSpellSelection;
 }
-

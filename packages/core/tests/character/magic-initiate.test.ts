@@ -10,15 +10,22 @@ import type { FeatSpellSelection } from '../../src/types/feat';
 import type { DataLoader } from '../../src/data/loader';
 
 // Mock DataLoader
-function createMockDataLoader(spells: Record<string, { id: string; level: number; classes?: string[] }> = {}) {
+function createMockDataLoader(
+  spells: Record<string, { id: string; level: number; classes?: string[] }> = {},
+) {
   const defaultSpells = {
     'fire-bolt': { id: 'fire-bolt', name: 'Fire Bolt', level: 0, classes: ['Wizard'] },
     'ray-of-frost': { id: 'ray-of-frost', name: 'Ray of Frost', level: 0, classes: ['Wizard'] },
-    'shocking-grasp': { id: 'shocking-grasp', name: 'Shocking Grasp', level: 0, classes: ['Wizard'] },
+    'shocking-grasp': {
+      id: 'shocking-grasp',
+      name: 'Shocking Grasp',
+      level: 0,
+      classes: ['Wizard'],
+    },
     'magic-missile': { id: 'magic-missile', name: 'Magic Missile', level: 1, classes: ['Wizard'] },
-    'shield': { id: 'shield', name: 'Shield', level: 1, classes: ['Wizard'] },
+    shield: { id: 'shield', name: 'Shield', level: 1, classes: ['Wizard'] },
     'healing-word': { id: 'healing-word', name: 'Healing Word', level: 1, classes: ['Cleric'] },
-    'guidance': { id: 'guidance', name: 'Guidance', level: 0, classes: ['Cleric', 'Druid'] },
+    guidance: { id: 'guidance', name: 'Guidance', level: 0, classes: ['Cleric', 'Druid'] },
     'sacred-flame': { id: 'sacred-flame', name: 'Sacred Flame', level: 0, classes: ['Cleric'] },
   };
 
@@ -34,24 +41,27 @@ function createMockDataLoader(spells: Record<string, { id: string; level: number
           description: 'You gain the following benefits...',
           category: 'Origin',
           prerequisites: null,
-          grants: {
-            spellChoices: [
-              {
-                id: 'cantrips',
-                classOptions: ['Cleric', 'Druid', 'Wizard'],
-                spellLevel: 0,
-                count: 2,
-              },
-              {
-                id: 'level1Spell',
-                classOptions: ['Cleric', 'Druid', 'Wizard'],
-                spellLevel: 1,
-                count: 1,
-                alwaysPrepared: true,
-                oncePerLongRest: true,
-              },
-            ],
-          },
+          grants: [
+            {
+              type: 'spellChoices',
+              choices: [
+                {
+                  id: 'cantrips',
+                  classOptions: ['Cleric', 'Druid', 'Wizard'],
+                  spellLevel: 0,
+                  count: 2,
+                },
+                {
+                  id: 'level1Spell',
+                  classOptions: ['Cleric', 'Druid', 'Wizard'],
+                  spellLevel: 1,
+                  count: 1,
+                  alwaysPrepared: true,
+                  oncePerLongRest: true,
+                },
+              ],
+            },
+          ],
           repeatable: true,
         },
       };
@@ -59,7 +69,7 @@ function createMockDataLoader(spells: Record<string, { id: string; level: number
     },
     getClass: (id: string) => {
       const classes: Record<string, unknown> = {
-        'Wizard': {
+        Wizard: {
           id: 'Wizard',
           name: 'Wizard',
           hitDie: 6,
@@ -72,7 +82,7 @@ function createMockDataLoader(spells: Record<string, { id: string; level: number
             { level: 2, features: [] },
           ],
         },
-        'Cleric': {
+        Cleric: {
           id: 'Cleric',
           name: 'Cleric',
           hitDie: 8,
@@ -85,7 +95,7 @@ function createMockDataLoader(spells: Record<string, { id: string; level: number
             { level: 2, features: [] },
           ],
         },
-        'Druid': {
+        Druid: {
           id: 'Druid',
           name: 'Druid',
           hitDie: 8,
@@ -98,7 +108,7 @@ function createMockDataLoader(spells: Record<string, { id: string; level: number
             { level: 2, features: [] },
           ],
         },
-        'Fighter': {
+        Fighter: {
           id: 'Fighter',
           name: 'Fighter',
           hitDie: 10,
@@ -134,28 +144,32 @@ function createMockDataLoader(spells: Record<string, { id: string; level: number
     }),
     getEquipment: () => null,
     getAllSpells: () => Object.values(allSpells),
-    getSpell: (id: string) => (allSpells as Record<string, typeof allSpells[keyof typeof allSpells]>)[id] ?? null,
+    getSpell: (id: string) =>
+      (allSpells as Record<string, (typeof allSpells)[keyof typeof allSpells]>)[id] ?? null,
   } as unknown as DataLoader;
 }
 
 describe('Magic Initiate feat spell choices', () => {
   it('should add Magic Initiate with spell choices (Wizard)', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 4,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     const spellSelection: FeatSpellSelection = {
       classId: 'Wizard',
@@ -168,10 +182,10 @@ describe('Magic Initiate feat spell choices', () => {
     const updated = addFeat(char, 'magic-initiate', data, { spellSelection });
 
     // Check that feat was added
-    expect(updated.feats.some(f => f.featId === 'magic-initiate')).toBe(true);
+    expect(updated.feats.some((f) => f.featId === 'magic-initiate')).toBe(true);
 
     // Check that spell choices are stored
-    const miEntry = updated.feats.find(f => f.featId === 'magic-initiate');
+    const miEntry = updated.feats.find((f) => f.featId === 'magic-initiate');
     expect(miEntry?.spellChoices).toBeDefined();
     expect(miEntry?.spellChoices?.classId).toBe('Wizard');
     expect(miEntry?.spellChoices?.spells['cantrips']).toEqual(['fire-bolt', 'ray-of-frost']);
@@ -188,21 +202,24 @@ describe('Magic Initiate feat spell choices', () => {
 
   it('should add Magic Initiate with spell choices (Cleric)', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 4,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     const spellSelection: FeatSpellSelection = {
       classId: 'Cleric',
@@ -215,7 +232,7 @@ describe('Magic Initiate feat spell choices', () => {
     const updated = addFeat(char, 'magic-initiate', data, { spellSelection });
 
     // Check that spell choices are stored
-    const miEntry = updated.feats.find(f => f.featId === 'magic-initiate');
+    const miEntry = updated.feats.find((f) => f.featId === 'magic-initiate');
     expect(miEntry?.spellChoices?.classId).toBe('Cleric');
 
     // Check that spells are added to spells.featSpells
@@ -230,21 +247,24 @@ describe('Magic Initiate feat spell choices', () => {
 
   it('should update spell choices for Magic Initiate', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 4,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     // Add Magic Initiate with initial choices
     const initialSelection: FeatSpellSelection = {
@@ -269,7 +289,7 @@ describe('Magic Initiate feat spell choices', () => {
     const updated = updateFeatSpellChoices(withFeat, 'magic-initiate', newSelection, data);
 
     // Check that spell choices are updated
-    const miEntry = updated.feats.find(f => f.featId === 'magic-initiate');
+    const miEntry = updated.feats.find((f) => f.featId === 'magic-initiate');
     expect(miEntry?.spellChoices?.spells['cantrips']).toEqual(['shocking-grasp', 'ray-of-frost']);
     expect(miEntry?.spellChoices?.spells['level1Spell']).toEqual(['shield']);
 
@@ -283,21 +303,24 @@ describe('Magic Initiate feat spell choices', () => {
 
   it('should remove Magic Initiate and its spell choices', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 4,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     const spellSelection: FeatSpellSelection = {
       classId: 'Wizard',
@@ -310,18 +333,18 @@ describe('Magic Initiate feat spell choices', () => {
     const withFeat = addFeat(char, 'magic-initiate', data, { spellSelection });
 
     // Verify feat and spell choices are added
-    expect(withFeat.feats.some(f => f.featId === 'magic-initiate')).toBe(true);
-    const miEntry = withFeat.feats.find(f => f.featId === 'magic-initiate');
+    expect(withFeat.feats.some((f) => f.featId === 'magic-initiate')).toBe(true);
+    const miEntry = withFeat.feats.find((f) => f.featId === 'magic-initiate');
     expect(miEntry?.spellChoices).toBeDefined();
 
     // Remove the feat
     const removed = removeFeat(withFeat, 'magic-initiate', data);
 
     // Check that feat is removed
-    expect(removed.feats.some(f => f.featId === 'magic-initiate')).toBe(false);
+    expect(removed.feats.some((f) => f.featId === 'magic-initiate')).toBe(false);
 
     // Check that spell choices are removed
-    expect(removed.feats.find(f => f.featId === 'magic-initiate')).toBeUndefined();
+    expect(removed.feats.find((f) => f.featId === 'magic-initiate')).toBeUndefined();
 
     // Check that spells are removed from spells.featSpells
     expect(removed.spells.featSpells?.['magic-initiate']).toBeUndefined();
@@ -329,21 +352,24 @@ describe('Magic Initiate feat spell choices', () => {
 
   it('should handle multiple feats with spell choices', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 8,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 8,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     // Add Magic Initiate (Wizard)
     const wizardSelection: FeatSpellSelection = {
@@ -368,7 +394,7 @@ describe('Magic Initiate feat spell choices', () => {
     // Note: The current implementation doesn't track multiple instances of repeatable feats
     // This test might need adjustment based on how repeatable feats are handled
     // For now, just check that the first one works
-    expect(withWizard.feats.find(f => f.featId === 'magic-initiate')?.spellChoices).toBeDefined();
+    expect(withWizard.feats.find((f) => f.featId === 'magic-initiate')?.spellChoices).toBeDefined();
     const wizardFeatSpells = withWizard.spells.featSpells?.['magic-initiate'];
     expect(wizardFeatSpells).toBeDefined();
   });
@@ -377,21 +403,24 @@ describe('Magic Initiate feat spell choices', () => {
 describe('Casting Magic Initiate spells', () => {
   it('should be able to cast Magic Initiate cantrips', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 4,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     const spellSelection: FeatSpellSelection = {
       classId: 'Wizard',
@@ -422,21 +451,24 @@ describe('Casting Magic Initiate spells', () => {
 
   it('should successfully cast Magic Initiate cantrip', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 4,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     const spellSelection: FeatSpellSelection = {
       classId: 'Wizard',
@@ -458,21 +490,24 @@ describe('Casting Magic Initiate spells', () => {
 
   it('should be able to cast Magic Initiate level 1 spell (once per long rest)', () => {
     const data = createMockDataLoader();
-    const char = createCharacter({
-      name: 'Test Char',
-      speciesId: 'human',
-      backgroundId: 'sage',
-      classId: 'Fighter',
-      classLevel: 4,
-      abilityScores: {
-        Strength: 15,
-        Dexterity: 14,
-        Constitution: 13,
-        Intelligence: 12,
-        Wisdom: 10,
-        Charisma: 8,
+    const char = createCharacter(
+      {
+        name: 'Test Char',
+        speciesId: 'human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
       },
-    }, data);
+      data,
+    );
 
     const spellSelection: FeatSpellSelection = {
       classId: 'Wizard',
@@ -495,4 +530,3 @@ describe('Casting Magic Initiate spells', () => {
     expect(canCastSpell(withFeat, magicMissile!)).toBe(true);
   });
 });
-
