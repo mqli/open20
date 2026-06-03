@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { calculateAC } from '../../src/engine/ac-calculator';
 import type { Feature } from '../../src/types/class';
 import { createAbilityScores } from '../fixtures/ability-scores';
-import { createMockDataLoader } from '../fixtures/data-loader';
+import { createMockDataLoader, createSRDDataLoader } from '../fixtures/data-loader';
 import { LEATHER_ARMOR, CHAIN_MAIL, HALF_PLATE, SHIELD } from '../fixtures/equipment';
 
 // ── Test Data ──────────────────────────────────────
@@ -27,8 +27,8 @@ describe('calculateAC', () => {
     // Dex 14 → +2
     const result = calculateAC(defaultScores, [], noFeatures, data);
     expect(result.ac).toBe(12);
-    expect(result.breakdown[0].source.type).toBe('Unarmored');
-    expect(result.breakdown[0].source.value).toContain('10 + Dex');
+    expect(result.breakdown[0]!.source.type).toBe('Unarmored');
+    expect(result.breakdown[0]!.source.value).toContain('10 + Dex');
   });
 
   it('light armor = armor AC + Dex', () => {
@@ -48,8 +48,26 @@ describe('calculateAC', () => {
     // 11 + 2(Dex) = 13
     const result = calculateAC(defaultScores, equip, noFeatures, data);
     expect(result.ac).toBe(13);
-    expect(result.breakdown[0].source.type).toBe('armor');
-    expect(result.breakdown[0].source.value).toContain('Leather Armor');
+    expect(result.breakdown[0]!.source.type).toBe('armor');
+    expect(result.breakdown[0]!.source.value).toContain('Leather Armor');
+  });
+
+  it('uses SRD armor AC fields from the default loader', () => {
+    const equip = [
+      {
+        id: 'leather-armor',
+        name: 'Leather Armor',
+        type: 'armor' as const,
+        weight: 10,
+        cost: '10 gp',
+        equipped: true,
+      },
+    ];
+    const data = createSRDDataLoader();
+
+    const result = calculateAC(defaultScores, equip, noFeatures, data);
+    expect(result.ac).toBe(13);
+    expect(result.breakdown[0]!.source.value).toBe('leather-armor');
   });
 
   it('heavy armor = armor AC only (no Dex)', () => {
@@ -69,8 +87,8 @@ describe('calculateAC', () => {
     // 16 (no Dex bonus)
     const result = calculateAC(defaultScores, equip, noFeatures, data);
     expect(result.ac).toBe(16);
-    expect(result.breakdown[0].source.type).toBe('armor');
-    expect(result.breakdown[0].source.value).toContain('Chain Mail');
+    expect(result.breakdown[0]!.source.type).toBe('armor');
+    expect(result.breakdown[0]!.source.value).toContain('Chain Mail');
   });
 
   it('medium armor = armor AC + min(Dex, +2)', () => {
@@ -90,7 +108,7 @@ describe('calculateAC', () => {
     // Dex +2, cap +2 → 15 + 2 = 17
     const result = calculateAC(defaultScores, equip, noFeatures, data);
     expect(result.ac).toBe(17);
-    expect(result.breakdown[0].source.value).toBe('Half Plate');
+    expect(result.breakdown[0]!.source.value).toBe('Half Plate');
   });
 
   it('medium armor caps Dex at +2 even if Dex is higher', () => {
@@ -118,7 +136,7 @@ describe('calculateAC', () => {
     // 15 + min(5, 2) = 17 (not 20)
     const result = calculateAC(highDex, equip, noFeatures, data);
     expect(result.ac).toBe(17);
-    expect(result.breakdown[0].source.value).toBe('Half Plate');
+    expect(result.breakdown[0]!.source.value).toBe('Half Plate');
   });
 
   it('shield adds +2 to any armor', () => {
@@ -150,10 +168,31 @@ describe('calculateAC', () => {
     // 16 + 2 = 18
     const result = calculateAC(defaultScores, equip, noFeatures, data);
     expect(result.ac).toBe(18);
-    expect(result.breakdown[0].source.value).toBe('Chain Mail');
-    expect(result.breakdown[1]).toEqual({
+    expect(result.breakdown[0]!.source.value).toBe('Chain Mail');
+    expect(result.breakdown[1]!).toEqual({
       ac: 2,
       source: { type: 'shield', value: 'Shield' },
+    });
+  });
+
+  it('uses the equipped shield AC value from SRD data', () => {
+    const equip = [
+      {
+        id: 'buckler',
+        name: 'Buckler',
+        type: 'armor' as const,
+        weight: 2,
+        cost: '5 gp',
+        equipped: true,
+      },
+    ];
+    const data = createSRDDataLoader();
+
+    const result = calculateAC(defaultScores, equip, noFeatures, data);
+    expect(result.ac).toBe(13);
+    expect(result.breakdown[1]!).toEqual({
+      ac: 1,
+      source: { type: 'shield', value: 'buckler' },
     });
   });
 
@@ -174,7 +213,7 @@ describe('calculateAC', () => {
     // Dex +2, Con +2 → 10 + 2 + 2 = 14
     const result = calculateAC(defaultScores, [], features, data);
     expect(result.ac).toBe(14);
-    expect(result.breakdown[0].source.value).toBe('Unarmored Defense');
+    expect(result.breakdown[0]!.source.value).toBe('Unarmored Defense');
   });
 
   it('Monk Unarmored Defense = 10 + Dex + Wis', () => {
@@ -194,7 +233,7 @@ describe('calculateAC', () => {
     // Dex +2, Wis +1 → 10 + 2 + 1 = 13
     const result = calculateAC(defaultScores, [], features, data);
     expect(result.ac).toBe(13);
-    expect(result.breakdown[0].source.value).toBe('Unarmored Defense');
+    expect(result.breakdown[0]!.source.value).toBe('Unarmored Defense');
   });
 
   it('Barbarian UD works WITH shield (requires noArmor only)', () => {
@@ -226,7 +265,7 @@ describe('calculateAC', () => {
     // UD: 10+2+2=14, Shield +2 → 16
     const result = calculateAC(defaultScores, equip, features, data);
     expect(result.ac).toBe(16);
-    expect(result.breakdown[0].source.value).toBe('Unarmored Defense');
+    expect(result.breakdown[0]!.source.value).toBe('Unarmored Defense');
     // expect(result.bonuses).toContainEqual({ ac: 2, source: 'Shield' });
   });
 
@@ -259,7 +298,7 @@ describe('calculateAC', () => {
     // UD blocked, unarmored 10+2=12, Shield +2 → 14
     const result = calculateAC(defaultScores, equip, features, data);
     expect(result.ac).toBe(14);
-    expect(result.breakdown[0].source.type).toContain('Unarmored');
+    expect(result.breakdown[0]!.source.type).toContain('Unarmored');
     // expect(result.bonuses).toContainEqual({ ac: 2, source: 'Shield' });
   });
 
@@ -292,7 +331,7 @@ describe('calculateAC', () => {
     // UD blocked, Leather 11+2=13
     const result = calculateAC(defaultScores, equip, features, data);
     expect(result.ac).toBe(13);
-    expect(result.breakdown[0].source.value).toBe('Leather Armor');
+    expect(result.breakdown[0]!.source.value).toBe('Leather Armor');
   });
 
   it('Barbarian Unarmored Defense does not stack with armor (takes highest)', () => {
@@ -313,7 +352,7 @@ describe('calculateAC', () => {
     // Unarmored: 10+2+2=14, Chain Mail: 16 → takes 16
     const result = calculateAC(defaultScores, equip, features, data);
     expect(result.ac).toBe(16);
-    expect(result.breakdown[0].source.value).toBe('Chain Mail');
+    expect(result.breakdown[0]!.source.value).toBe('Chain Mail');
   });
 
   it('unequipped armor does not count', () => {
@@ -333,7 +372,7 @@ describe('calculateAC', () => {
     // No armor equipped → falls back to unarmored 10+2=12
     const result = calculateAC(defaultScores, equip, noFeatures, data);
     expect(result.ac).toBe(12);
-    expect(result.breakdown[0].source.type).toContain('Unarmored');
+    expect(result.breakdown[0]!.source.type).toContain('Unarmored');
   });
 
   // Test: Mage Armor (via conditions)
@@ -363,7 +402,38 @@ describe('calculateAC', () => {
     // Mage Armor: 13 + Dex mod (3) = 16
     const result = calculateAC(scores, equip, features, data, conditions);
     expect(result.ac).toBe(16);
-    expect(result.breakdown[0].source.type).toContain('Mage Armor');
+    expect(result.breakdown[0]!.source.type).toContain('Mage Armor');
+  });
+
+  it('should not apply Mage Armor while wearing armor', () => {
+    const scores = createAbilityScores({
+      Strength: 10,
+      Dexterity: 16,
+      Constitution: 10,
+      Intelligence: 10,
+      Wisdom: 10,
+      Charisma: 10,
+    });
+    const equip = [
+      {
+        id: 'Leather Armor',
+        name: 'Leather Armor',
+        type: 'armor' as const,
+        weight: 10,
+        cost: '10 gp',
+        equipped: true,
+      },
+    ];
+    const conditions: readonly { source?: string; id?: string }[] = [
+      { id: 'mage-armor', source: 'Mage Armor' },
+    ];
+    const data = createMockDataLoader({
+      getArmor: (id: string) => (id === 'Leather Armor' ? LEATHER_ARMOR : undefined),
+    });
+
+    const result = calculateAC(scores, equip, noFeatures, data, conditions);
+    expect(result.ac).toBe(14);
+    expect(result.breakdown[0]!.source.value).toBe('Leather Armor');
   });
 
   it('should not apply Mage Armor AC when condition is absent', () => {
@@ -390,6 +460,6 @@ describe('calculateAC', () => {
     // No Mage Armor → unarmored 10 + 3 = 13
     const result = calculateAC(scores, equip, features, data, conditions);
     expect(result.ac).toBe(13);
-    expect(result.breakdown[0].source.type).toContain('Unarmored');
+    expect(result.breakdown[0]!.source.type).toContain('Unarmored');
   });
 });

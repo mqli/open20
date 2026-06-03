@@ -8,65 +8,55 @@ import type { Armor, Weapon } from '../../src/types/equipment';
 export const LEATHER_ARMOR: Armor = {
   id: 'Leather Armor',
   name: 'Leather Armor',
-  type: 'armor',
   category: 'Light',
-  baseAC: 11,
+  ac: 11,
   dexBonus: true,
-  equipped: true,
   weight: 10,
-  cost: '10 gp',
+  cost: { quantity: 10, unit: 'gp' },
 };
 
 export const CHAIN_MAIL: Armor = {
   id: 'Chain Mail',
   name: 'Chain Mail',
-  type: 'armor',
   category: 'Heavy',
-  baseAC: 16,
+  ac: 16,
   dexBonus: false,
   strengthRequirement: 13,
   stealthDisadvantage: true,
-  equipped: true,
   weight: 55,
-  cost: '75 gp',
+  cost: { quantity: 75, unit: 'gp' },
 };
 
 export const HALF_PLATE: Armor = {
   id: 'Half Plate',
   name: 'Half Plate',
-  type: 'armor',
   category: 'Medium',
-  baseAC: 15,
+  ac: 15,
   dexBonus: true,
-  dexCap: 2,
+  maxDexBonus: 2,
   stealthDisadvantage: true,
-  equipped: true,
   weight: 40,
-  cost: '750 gp',
+  cost: { quantity: 750, unit: 'gp' },
 };
 
 export const SHIELD: Armor = {
   id: 'Shield',
   name: 'Shield',
-  type: 'armor',
   category: 'Shield',
-  baseAC: 2,
+  ac: 2,
   dexBonus: false,
-  equipped: true,
   weight: 6,
-  cost: '10 gp',
+  cost: { quantity: 10, unit: 'gp' },
 };
 
 export const STUDDED_LEATHER: Armor = {
   id: 'Studded Leather',
   name: 'Studded Leather',
-  type: 'armor',
   category: 'Light',
-  baseAC: 12,
+  ac: 12,
   dexBonus: true,
-  equipped: true,
   weight: 13,
-  cost: '45 gp',
+  cost: { quantity: 45, unit: 'gp' },
 };
 
 // ── Weapon Fixtures ─────────────────────────────────────
@@ -145,7 +135,10 @@ export const GREATAXE: Weapon = {
  * Creates an equipped weapon EquipmentItem reference.
  * Use with createMockDataLoader that has weapon data.
  */
-export function makeEquippedWeapon(id: string, overrides?: Record<string, unknown>): { id: string; name: string; type: 'weapon'; weight: number; equipped: boolean } {
+export function makeEquippedWeapon(
+  id: string,
+  overrides?: Record<string, unknown>,
+): { id: string; name: string; type: 'weapon'; weight: number; equipped: boolean } {
   return {
     id,
     name: id,
@@ -159,7 +152,12 @@ export function makeEquippedWeapon(id: string, overrides?: Record<string, unknow
 /**
  * Creates an equipped armor EquipmentItem reference.
  */
-export function makeEquippedArmor(id: string): { id: string; name: string; type: 'armor'; equipped: boolean } {
+export function makeEquippedArmor(id: string): {
+  id: string;
+  name: string;
+  type: 'armor';
+  equipped: boolean;
+} {
   return {
     id,
     name: id,

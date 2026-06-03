@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { createCharacter } from '../../src/character/create';
 import type { CreateCharacterParams } from '../../src/character/create';
 import type { AbilityName } from '../../src/types/ability';
-import type { EquipmentItem, Armor } from '../../src/types/equipment';
+import type { EquipmentItem } from '../../src/types/equipment';
 import type { ConditionName } from '../../src/types/character';
 
 import {
@@ -29,9 +29,7 @@ import {
 
 // ── Shared Fixtures ──────────────────────────────────────────
 
-import {
-  createMockDataLoader,
-} from '../fixtures/data-loader';
+import { createMockDataLoader } from '../fixtures/data-loader';
 
 import {
   HUMAN_SPECIES,
@@ -122,13 +120,10 @@ const SWORD: EquipmentItem = {
   equipped: false,
 };
 
-const SHIELD: Armor = {
+const SHIELD: EquipmentItem = {
   id: 'shield-1',
   name: 'Shield',
   type: 'armor',
-  category: 'Shield',
-  baseAC: 2,
-  dexBonus: false,
   weight: 6,
   equipped: true,
 };
@@ -221,7 +216,7 @@ describe('consumeResource', () => {
     const char = makeFighter();
     // Fighter has Second Wind (max: 1 at level 1, used: 0)
     const result = consumeResource(char, 'Fighter', 'Second Wind');
-    const sw = result.resources['Fighter']!.resources.find(r => r.id === 'Second Wind');
+    const sw = result.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind');
     expect(sw!.used).toBe(1);
   });
 
@@ -232,7 +227,7 @@ describe('consumeResource', () => {
     consumed = consumeResource(consumed, 'Fighter', 'Second Wind');
     // Second Wind max=2, used=2 after two consumes
     const result = consumeResource(consumed, 'Fighter', 'Second Wind');
-    const sw = result.resources['Fighter']!.resources.find(r => r.id === 'Second Wind');
+    const sw = result.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind');
     expect(sw!.used).toBe(2); // still 2 (maxed)
   });
 
@@ -253,16 +248,20 @@ describe('recoverResource', () => {
   it('recovers used resource: used decrements', () => {
     const char = makeFighter();
     const consumed = consumeResource(char, 'Fighter', 'Second Wind');
-    expect(consumed.resources['Fighter']!.resources.find(r => r.id === 'Second Wind')!.used).toBe(1);
+    expect(consumed.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind')!.used).toBe(
+      1,
+    );
 
     const recovered = recoverResource(consumed, 'Fighter', 'Second Wind');
-    expect(recovered.resources['Fighter']!.resources.find(r => r.id === 'Second Wind')!.used).toBe(0);
+    expect(
+      recovered.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind')!.used,
+    ).toBe(0);
   });
 
   it('recovers fully-recovered resource: no change (used=0)', () => {
     const char = makeFighter();
     const result = recoverResource(char, 'Fighter', 'Second Wind');
-    const sw = result.resources['Fighter']!.resources.find(r => r.id === 'Second Wind');
+    const sw = result.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind');
     expect(sw!.used).toBe(0);
   });
 
@@ -347,7 +346,7 @@ describe('equipItem / unequipItem', () => {
     const char = makeFighter();
     const withSword = addEquipment(char, SWORD);
     const result = equipItem(withSword, 'longsword-1');
-    expect(result.equipment.find(e => e.id === 'longsword-1')!.equipped).toBe(true);
+    expect(result.equipment.find((e) => e.id === 'longsword-1')!.equipped).toBe(true);
   });
 
   it('equips already equipped: no change', () => {
@@ -355,14 +354,14 @@ describe('equipItem / unequipItem', () => {
     const withShield = addEquipment(char, SHIELD);
     const result = equipItem(withShield, 'shield-1');
     // Already equipped, so should be same object
-    expect(result.equipment.find(e => e.id === 'shield-1')!.equipped).toBe(true);
+    expect(result.equipment.find((e) => e.id === 'shield-1')!.equipped).toBe(true);
   });
 
   it('unequips equipped item: equipped becomes false', () => {
     const char = makeFighter();
     const withShield = addEquipment(char, SHIELD);
     const result = unequipItem(withShield, 'shield-1');
-    expect(result.equipment.find(e => e.id === 'shield-1')!.equipped).toBe(false);
+    expect(result.equipment.find((e) => e.id === 'shield-1')!.equipped).toBe(false);
   });
 
   it('unequips non-existent item: no change', () => {
@@ -384,7 +383,9 @@ describe('prepareSpellForClass / unprepareSpellForClass (deprecated API tests)',
     const char = makeWizard();
     const prepared = prepareSpellForClass(char, 'Wizard', 'fireball');
     const result = prepareSpellForClass(prepared, 'Wizard', 'fireball');
-    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells.filter(id => id === 'fireball')).toHaveLength(1);
+    expect(
+      result.spells.classSpellcasting['Wizard']!.preparedSpells.filter((id) => id === 'fireball'),
+    ).toHaveLength(1);
   });
 
   it('unprepares prepared spell: removed from preparedSpells', () => {
@@ -397,7 +398,9 @@ describe('prepareSpellForClass / unprepareSpellForClass (deprecated API tests)',
   it('unprepares non-prepared spell: no change', () => {
     const char = makeWizard();
     const result = unprepareSpellForClass(char, 'Wizard', 'fireball');
-    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells).toEqual(char.spells.classSpellcasting['Wizard']!.preparedSpells);
+    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells).toEqual(
+      char.spells.classSpellcasting['Wizard']!.preparedSpells,
+    );
   });
 });
 
@@ -418,7 +421,9 @@ describe('prepareSpellForClass / unprepareSpellForClass', () => {
     const char = makeWizard();
     const prepared = prepareSpellForClass(char, 'Wizard', 'fireball');
     const result = prepareSpellForClass(prepared, 'Wizard', 'fireball');
-    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells.filter(id => id === 'fireball')).toHaveLength(1);
+    expect(
+      result.spells.classSpellcasting['Wizard']!.preparedSpells.filter((id) => id === 'fireball'),
+    ).toHaveLength(1);
   });
 
   it('unprepares prepared spell for class: removed from class preparedSpells', () => {
@@ -437,7 +442,9 @@ describe('prepareSpellForClass / unprepareSpellForClass', () => {
   it('unprepares non-prepared spell: no change', () => {
     const char = makeWizard();
     const result = unprepareSpellForClass(char, 'Wizard', 'fireball');
-    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells).toEqual(char.spells.classSpellcasting['Wizard']!.preparedSpells);
+    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells).toEqual(
+      char.spells.classSpellcasting['Wizard']!.preparedSpells,
+    );
   });
 
   it('multiclass: prepares spell for correct class only', () => {
@@ -545,7 +552,9 @@ describe('addKnownSpell / removeKnownSpell', () => {
     const char = makeWizard();
     const once = addKnownSpell(char, 'Wizard', 'magic-missile');
     const twice = addKnownSpell(once, 'Wizard', 'magic-missile');
-    expect(twice.spells.classSpellcasting['Wizard']!.knownSpells.filter(id => id === 'magic-missile')).toHaveLength(1);
+    expect(
+      twice.spells.classSpellcasting['Wizard']!.knownSpells.filter((id) => id === 'magic-missile'),
+    ).toHaveLength(1);
   });
 
   it('removes known spell: removed from knownSpells', () => {
@@ -562,7 +571,9 @@ describe('addKnownSpell / removeKnownSpell', () => {
     expect(prepared.spells.classSpellcasting['Wizard']!.preparedSpells).toContain('magic-missile');
 
     const result = removeKnownSpell(prepared, 'Wizard', 'magic-missile');
-    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells).not.toContain('magic-missile');
+    expect(result.spells.classSpellcasting['Wizard']!.preparedSpells).not.toContain(
+      'magic-missile',
+    );
   });
 
   it('removes non-existent known spell: no change', () => {

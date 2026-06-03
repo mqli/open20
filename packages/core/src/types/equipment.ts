@@ -73,12 +73,16 @@ export type WeaponMasteryProperty =
   | 'Vex';
 
 // 护甲类型
-export interface Armor extends EquipmentItem {
-  readonly type: 'armor';
+export interface Armor {
+  readonly id: string;
+  readonly name: string;
+  readonly source?: string;
+  readonly weight: number;
+  readonly cost?: { readonly quantity: number; readonly unit: string };
   readonly category: 'Light' | 'Medium' | 'Heavy' | 'Shield';
-  readonly baseAC: number;
+  readonly ac: number;
   readonly dexBonus: boolean; // 是否加Dex调整值
-  readonly dexCap?: number; // Dex上限（中甲为2，轻甲无上限）
+  readonly maxDexBonus?: number | null; // Dex上限（中甲为2，轻甲无上限）
   readonly strengthRequirement?: number; // 力量需求（重甲）
   readonly stealthDisadvantage?: boolean;
 }

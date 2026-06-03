@@ -57,7 +57,8 @@ export function calculateAC(
 
   // 1. 收集所有装备的护甲和盾牌
   const equippedArmor = getEquippedArmor(equipment, data);
-  const hasShield = hasEquippedShield(equipment, data);
+  const equippedShields = getEquippedShields(equipment, data);
+  const hasShield = equippedShields.length > 0;
   const hasArmor = equippedArmor.length > 0;
 
   // 2. 计算所有可能的AC来源
@@ -71,7 +72,7 @@ export function calculateAC(
 
   // Mage Armor（13 + Dex，通过法术或状态触发）
   const hasMageArmor = conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
-  if (hasMageArmor) {
+  if (hasMageArmor && !hasArmor) {
     acOptions.push({
       source: { type: 'Mage Armor', value: 'Mage Armor: 13 + Dex' },
       ac: 13 + dexMod,
@@ -92,7 +93,7 @@ export function calculateAC(
   }, unarmored);
 
   // 4. 叠加盾牌
-  const shieldAC = hasShield ? [{ ac: 2, source: { type: 'shield', value: 'Shield' } }] : [];
+  const shieldAC = calculateShieldAC(equippedShields);
 
   // 5. 应用专长AC加值（如 Defense 战斗风格 +1）
   const acBonuses = calculateFeatACBonuses(featACBonuses, equippedArmor);
@@ -198,22 +199,22 @@ function calculateArmorAC(armor: Armor, dexMod: number): ACBreakdown {
   if (!armor.dexBonus) {
     // 重甲：不加Dex
     return {
-      ac: armor.baseAC,
+      ac: armor.ac,
       source: { type: 'armor', value: armor.id },
     };
   }
 
-  if (armor.dexCap != null) {
+  if (armor.maxDexBonus != null) {
     // 中甲：护甲AC + min(Dex, cap)
     return {
-      ac: armor.baseAC + Math.min(dexMod, armor.dexCap),
+      ac: armor.ac + Math.min(dexMod, armor.maxDexBonus),
       source: { type: 'armor', value: armor.id },
     };
   }
 
   // 轻甲：护甲AC + Dex
   return {
-    ac: armor.baseAC + dexMod,
+    ac: armor.ac + dexMod,
     source: { type: 'armor', value: armor.id },
   };
 }
@@ -229,12 +230,24 @@ function getEquippedArmor(equipment: readonly EquipmentItem[], data: DataLoader)
 }
 
 /**
- * 检查是否装备了盾牌
+ * 获取所有已装备的盾牌
  */
-function hasEquippedShield(equipment: readonly EquipmentItem[], data: DataLoader): boolean {
-  return equipment.some((e) => {
-    if (!e.equipped || e.type !== 'armor') return false;
-    const armor = data.getArmor(e.id);
-    return armor != null && armor.category === 'Shield';
+function getEquippedShields(equipment: readonly EquipmentItem[], data: DataLoader): Armor[] {
+  return equipment
+    .filter((e) => e.equipped && e.type === 'armor')
+    .map((e) => data.getArmor(e.id))
+    .filter((a): a is Armor => a != null && a.category === 'Shield');
+}
+
+/**
+ * 计算盾牌提供的AC（多个盾牌取最高值，不叠加）
+ */
+function calculateShieldAC(equippedShields: readonly Armor[]): ACBreakdown[] {
+  if (equippedShields.length === 0) return [];
+
+  const bestShield = equippedShields.reduce((best, shield) => {
+    return shield.ac > best.ac ? shield : best;
   });
+
+  return [{ ac: bestShield.ac, source: { type: 'shield', value: bestShield.id } }];
 }
