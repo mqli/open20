@@ -155,15 +155,10 @@ export function FeatCard({
       clickable={!!onClick}
       onClick={onClick ? () => onClick(feat) : undefined}
       glow={glow}
+      source={feat.source}
+      renderActions={renderActions}
       className={className}
     >
-      {/* ── Background glow ────────────────────────────────────────────── */}
-      {glow && (
-        <div className="absolute -top-1 -right-1 p-2 opacity-10 pointer-events-none">
-          <div className="w-12 h-12 rounded-full bg-primary-500" />
-        </div>
-      )}
-
       {/* ── Header Row ─────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
@@ -214,23 +209,6 @@ export function FeatCard({
           ))}
         </div>
       )}
-
-      {/* ── Source / Actions Row ─────────────────────────────────────────── */}
-      <div
-        className={cn(
-          'flex items-center pt-1',
-          renderActions ? 'justify-between' : 'justify-start',
-        )}
-      >
-        <Text variant="caption" as="p" className="uppercase opacity-70">
-          {feat.source}
-        </Text>
-        {renderActions && (
-          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-            {renderActions()}
-          </div>
-        )}
-      </div>
     </CardSurface>
   );
 }

@@ -177,16 +177,46 @@ export function SpellCard({
       clickable={!!onClick}
       onClick={onClick ? () => onClick(spell) : undefined}
       glow={glow}
+      renderGlow={
+        glow
+          ? () => (
+              <MagicIcon className="w-12 h-12 text-primary-500 group-hover:opacity-20 transition-opacity" />
+            )
+          : undefined
+      }
+      source={spell.source}
+      renderSourceSuffix={
+        isCompact
+          ? () => (
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDesc((prev) => !prev);
+                }}
+                className={collapseToggle}
+              >
+                {showDesc ? (
+                  <>
+                    <ChevronUp className={I.xs} />
+                    {t('common.less')}
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className={I.xs} />
+                    {t('common.details')}
+                  </>
+                )}
+              </Button>
+            )
+          : undefined
+      }
+      renderActions={renderActions}
       className={cn(cardVariants({ emphasis }), className)}
       {...props}
     >
-      {/* ── Background glow ────────────────────────────────────── */}
-      {glow && (
-        <div className="absolute -top-1 -right-1 p-2 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
-          <MagicIcon className="w-12 h-12 text-primary-500" />
-        </div>
-      )}
-
       {/* ── Header Row ─────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
@@ -227,52 +257,6 @@ export function SpellCard({
           label={formatComponents(spell.components)}
         />
         <CardMetaItem icon={<Hourglass className={I.sm} />} label={spell.duration} />
-      </div>
-
-      {/* ── Source / Actions Row ─────────────────────────────────── */}
-      <div
-        className={cn(
-          'flex items-center pt-1',
-          renderActions ? 'justify-between' : 'justify-start',
-        )}
-      >
-        <div className="flex items-center gap-2">
-          <Text variant="caption" as="p" className="uppercase opacity-70">
-            {spell.source}
-          </Text>
-          {isCompact && (
-            <Button
-              variant="ghost"
-              size="sm"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowDesc((prev) => !prev);
-              }}
-              className={collapseToggle}
-            >
-              {showDesc ? (
-                <>
-                  <ChevronUp className={I.xs} />
-                  {t('common.less')}
-                </>
-              ) : (
-                <>
-                  <ChevronDown className={I.xs} />
-                  {t('common.details')}
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-        {renderActions && (
-          <div
-            className={cn('flex items-center gap-1.5', !isCompact && 'flex-wrap justify-end')}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {renderActions()}
-          </div>
-        )}
       </div>
 
       {/* ── Description ────────────────────────────────────────── */}
