@@ -1,4 +1,4 @@
-# Agent Guidance: UI Design Tokens (@open20/ui)
+# Agent Guidance: UI Design Tokens
 
 Use this guide when editing tokenized styles in:
 
@@ -15,6 +15,26 @@ Keep design tokens consistent, semantic, and fully backed by theme variables so 
 - Theme source of truth: `packages/ui/src/styles/index.css` (`@theme` + dark overrides).
 - Variant/class source of truth: `packages/ui/src/styles/design-tokens.ts`.
 - Components should consume tokens through `cva` + `cn`, not inline class maps.
+
+## Token Extraction Guidelines
+
+### When to extract a token
+
+- ✅ Used in 3+ places
+- ✅ Complex classname string (3+ utilities)
+- ✅ Variant object used by cva
+- ❌ Single Tailwind utility used once
+- ❌ Trivial 2-class combos like `flex items-center gap-1` — just inline
+
+### Current token categories
+
+| Token                                                                     | Type                 | Usage                   |
+| ------------------------------------------------------------------------- | -------------------- | ----------------------- |
+| `badgeVariants`, `buttonVariants`, `textVariants`, `surfaceVariants`      | Variant objects      | cva variants            |
+| `overlayClasses`, `inputBaseClasses`, `dropdownContentClasses`            | String               | Single DOM element      |
+| `spellSchoolVariants`                                                     | Variant object       | 8 D&D school colors     |
+| `chipBase`, `inlineMeta`, `sectionDivider`, `collapseToggle`, `iconSizes` | Generic              | Cross-component reuse   |
+| `closeButtonClasses`, `slider*Classes`, `slotPipStateVariants`            | Domain string/object | Single component family |
 
 ## Hard Rules
 
