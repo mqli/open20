@@ -55,48 +55,35 @@ export function calculateAC(
 ): ACResult {
   const dexMod = getModifier(getTotalScore(scores, 'Dexterity'));
 
-  // 1. 收集所有装备的护甲和盾牌
-  const equippedArmor = getEquippedArmor(equipment, data);
+  const equippedArmors = getEquippedArmor(equipment, data);
   const equippedShields = getEquippedShields(equipment, data);
   const hasShield = equippedShields.length > 0;
-  const hasArmor = equippedArmor.length > 0;
+  const hasArmor = equippedArmors.length > 0;
+  const hasMageArmor =
+    !hasArmor && conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
 
-  // 2. 计算所有可能的AC来源
-  const acOptions: ACBreakdown[] = [];
-
-  // 无甲选项
   const unarmored = {
     source: { type: 'Unarmored', value: '10 + Dex' },
     ac: 10 + dexMod,
   };
+  const magicAmor = {
+    source: { type: 'Spell', value: 'Mage Armor: 13 + Dex' },
+    ac: 13 + dexMod,
+  };
+  const baseACCandiates = [
+    ...(hasArmor ? [] : [unarmored]), // default
+    ...(hasMageArmor ? [magicAmor] : []), // mage amor
+    ...equippedArmors.map((a) => calculateArmorAC(a, dexMod)), // armors
+    ...calculateFeatureACs(features, scores, hasArmor, hasShield, equippedArmors), // feature like unarmored defense
+  ];
 
-  // Mage Armor（13 + Dex，通过法术或状态触发）
-  const hasMageArmor = conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
-  if (hasMageArmor && !hasArmor) {
-    acOptions.push({
-      source: { type: 'Spell', value: 'Mage Armor: 13 + Dex' },
-      ac: 13 + dexMod,
-    });
-  }
+  const baseAC = baseACCandiates.reduce((max, current) =>
+    !max || current.ac > max.ac ? current : max,
+  );
 
-  // Data-driven AC formulas from features (e.g., Unarmored Defense)
-  acOptions.push(...calculateFeatureACs(features, scores, hasArmor, hasShield, equippedArmor));
-
-  // 护甲选项
-  for (const armor of equippedArmor) {
-    acOptions.push(calculateArmorAC(armor, dexMod));
-  }
-
-  // 3. 取最高AC
-  const baseAC = acOptions.reduce((max, option) => {
-    return option.ac > max.ac ? option : max;
-  }, unarmored);
-
-  // 4. 叠加盾牌
   const shieldAC = calculateShieldAC(equippedShields);
 
-  // 5. 应用专长AC加值（如 Defense 战斗风格 +1）
-  const acBonuses = calculateFeatACBonuses(featACBonuses, equippedArmor);
+  const acBonuses = calculateFeatACBonuses(featACBonuses, equippedArmors);
   const breakdown = [baseAC, ...shieldAC, ...acBonuses] as const;
   return { ac: breakdown.reduce((sum, option) => sum + option.ac, 0), breakdown };
 }
@@ -200,7 +187,7 @@ function calculateArmorAC(armor: Armor, dexMod: number): ACBreakdown {
     // 重甲：不加Dex
     return {
       ac: armor.ac,
-      source: { type: 'armor', value: armor.id },
+      source: { type: 'Armor', value: armor.id },
     };
   }
 
@@ -208,14 +195,14 @@ function calculateArmorAC(armor: Armor, dexMod: number): ACBreakdown {
     // 中甲：护甲AC + min(Dex, cap)
     return {
       ac: armor.ac + Math.min(dexMod, armor.maxDexBonus),
-      source: { type: 'armor', value: armor.id },
+      source: { type: 'Armor', value: armor.id },
     };
   }
 
   // 轻甲：护甲AC + Dex
   return {
     ac: armor.ac + dexMod,
-    source: { type: 'armor', value: armor.id },
+    source: { type: 'Armor', value: armor.id },
   };
 }
 
