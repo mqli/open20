@@ -17,10 +17,6 @@ const meta: Meta<typeof SpellCard> = {
     layout: 'padded',
   },
   argTypes: {
-    density: {
-      control: 'select',
-      options: ['default', 'compact'],
-    },
     surfaceVariant: {
       control: 'select',
       options: surfaceVariantOptions,
@@ -174,42 +170,36 @@ const renderHighlightedDescription: NonNullable<SpellCardProps['renderDescriptio
 export const Default: Story = {
   args: {
     spell: fireballSpell,
-    density: 'default',
   },
 };
 
 export const Compact: Story = {
   args: {
     spell: fireballSpell,
-    density: 'compact',
   },
 };
 
 export const Cantrip: Story = {
   args: {
     spell: eldritchBlastSpell,
-    density: 'default',
   },
 };
 
 export const ConcentrationRitual: Story = {
   args: {
     spell: detectMagicSpell,
-    density: 'default',
   },
 };
 
 export const Healing: Story = {
   args: {
     spell: cureWoundsSpell,
-    density: 'default',
   },
 };
 
 export const DescriptionCollapsed: Story = {
   args: {
     spell: fireballSpell,
-    density: 'default',
     showDescription: false,
   },
 };
@@ -217,7 +207,6 @@ export const DescriptionCollapsed: Story = {
 export const ClickableWithSlots: Story = {
   args: {
     spell: fireballSpell,
-    density: 'default',
     onClick: () => undefined,
     glow: true,
     surfaceVariant: 'tint',
@@ -229,7 +218,6 @@ export const ClickableWithSlots: Story = {
 export const CustomDescription: Story = {
   args: {
     spell: fireballSpell,
-    density: 'default',
     renderDescription: renderHighlightedDescription,
   },
 };
@@ -237,7 +225,6 @@ export const CustomDescription: Story = {
 export const SurfaceVariantsPreview: Story = {
   args: {
     spell: fireballSpell,
-    density: 'compact',
     showDescription: false,
   },
   render: (args) => (

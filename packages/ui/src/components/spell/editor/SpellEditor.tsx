@@ -99,7 +99,7 @@ export function SpellEditor({
             <Text as="h3" variant="labelSm" className="mb-2">
               {t('spellEditor.livePreview')}
             </Text>
-            <SpellCard spell={formDataToSpell(formData)} density="compact" />
+            <SpellCard spell={formDataToSpell(formData)} />
           </div>
         )}
 
