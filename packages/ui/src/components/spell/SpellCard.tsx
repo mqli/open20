@@ -19,13 +19,13 @@ import {
   chipBase,
   collapseToggle,
   iconSizes,
-  inlineMeta,
   spellSchoolVariants,
   sectionDivider,
 } from '@/styles/design-tokens';
-import { Surface } from '@/components/Surface';
-import type { SurfaceProps } from '@/components/Surface';
 import { Text } from '@/components/Text';
+import { CardSurface } from '@/components/CardSurface';
+import type { CardSurfaceDensity } from '@/components/CardSurface';
+import { CardMetaItem } from '@/components/CardMetaItem';
 import { useTranslation } from '@/i18n';
 
 import type { Spell } from 'open20-core';
@@ -34,12 +34,11 @@ import type { Spell } from 'open20-core';
 /*  Component Variants                                                        */
 /* -------------------------------------------------------------------------- */
 
-const cardVariants = cva('flex flex-col gap-3 transition-all', {
+const cardVariants = cva('', {
   variants: {
     emphasis: { default: '', tint: '' },
-    density: { default: '', compact: 'gap-2' },
   },
-  defaultVariants: { emphasis: 'default', density: 'default' },
+  defaultVariants: { emphasis: 'default' },
 });
 
 const levelBadgeVariants = cva(cn(chipBase, 'tracking-wide'), {
@@ -85,13 +84,15 @@ export interface SpellCardProps
   /** Called when the card is clicked, receives the spell as argument */
   onClick?: (spell: Spell) => void;
   /** Override the Surface variant (e.g. 'selected', 'warning', 'info') */
-  surfaceVariant?: SurfaceProps['variant'];
+  surfaceVariant?: 'default' | 'tint' | 'selected' | 'warning' | 'info';
+  /** Density variant */
+  density?: CardSurfaceDensity;
   /** Slot for action buttons rendered in the bottom row (click events are stopPropagation'd) */
   renderActions?: () => ReactNode;
   /** Slot for badge chips rendered next to the school badge (e.g. "Known", "Prepared") */
   renderBadges?: () => ReactNode;
   /** Slot for description rendered below the header (e.g. "Known", "Prepared") */
-  renderDescription?: (string: string) => ReactNode;
+  renderDescription?: (s: string) => ReactNode;
   /** Show decorative sparkle glow in the background (e.g. when spell is prepared) */
   glow?: boolean;
 }
@@ -103,7 +104,7 @@ export interface SpellCardProps
 export function SpellCard({
   spell,
   emphasis,
-  density,
+  density: densityProp,
   showDescription: showDescProp,
   onClick,
   surfaceVariant,
@@ -115,6 +116,7 @@ export function SpellCard({
   ...props
 }: SpellCardProps) {
   const t = useTranslation();
+  const density = (densityProp ?? 'default') as CardSurfaceDensity;
   const isCompact = density === 'compact';
   const [showDesc, setShowDesc] = useState(showDescProp ?? !isCompact);
 
@@ -128,12 +130,10 @@ export function SpellCard({
   const isCantrip = spell.level === 0;
   const higherLevelText = spell.usingAHigherLevelSpellSlot;
   const cantripUpgrades = spell.cantripUpgrade;
-  const isClickable = !!onClick;
-  const isDefaultVariant = !surfaceVariant || surfaceVariant === 'default';
-  const descriptions = spell.description;
 
-  const styledDescriptions = [];
-  let ul = [];
+  const descriptions = spell.description;
+  const styledDescriptions: ReactNode[] = [];
+  let ul: string[] = [];
   for (let i = 0; i < descriptions.length; i++) {
     const description = descriptions[i];
     if (description.startsWith('- ')) {
@@ -142,8 +142,8 @@ export function SpellCard({
       const styledDescription =
         ul.length > 0 ? (
           <ul key={i}>
-            {ul.map((p, i) => (
-              <li key={i}>{renderDescription(p)}</li>
+            {ul.map((p, j) => (
+              <li key={j}>{renderDescription(p)}</li>
             ))}
           </ul>
         ) : (
@@ -161,45 +161,33 @@ export function SpellCard({
     styledDescriptions.push(
       <Text key={styledDescriptions.length} variant="bodySm" as="div" className="leading-relaxed">
         <ul>
-          {ul.map((p, i) => (
-            <li key={i}>{renderDescription(p)}</li>
+          {ul.map((p, j) => (
+            <li key={j}>{renderDescription(p)}</li>
           ))}
         </ul>
       </Text>,
     );
   }
+
   return (
-    <Surface
-      variant={surfaceVariant}
-      className={cn(
-        cardVariants({ emphasis, density }),
-        glow && 'relative overflow-hidden',
-        isClickable &&
-          isDefaultVariant &&
-          'cursor-pointer hover:shadow-md hover:border-primary-300',
-        className,
-      )}
+    <CardSurface
+      surfaceVariant={surfaceVariant}
+      density={density}
       padding={isCompact ? 'sm' : 'md'}
+      clickable={!!onClick}
       onClick={onClick ? () => onClick(spell) : undefined}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') onClick(spell);
-            }
-          : undefined
-      }
+      glow={glow}
+      className={cn(cardVariants({ emphasis }), className)}
       {...props}
     >
-      {/* ── Background glow ────────────────────────────────────────────── */}
+      {/* ── Background glow ────────────────────────────────────── */}
       {glow && (
         <div className="absolute -top-1 -right-1 p-2 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
           <MagicIcon className="w-12 h-12 text-primary-500" />
         </div>
       )}
 
-      {/* ── Header Row ─────────────────────────────────────────────────── */}
+      {/* ── Header Row ─────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
           <Text as="h3" variant="heading" size="lg" className="truncate">
@@ -230,15 +218,18 @@ export function SpellCard({
         </div>
       </div>
 
-      {/* ── Meta Row ───────────────────────────────────────────────────── */}
+      {/* ── Meta Row ───────────────────────────────────────────── */}
       <div className={cn('flex flex-wrap items-center gap-x-3 gap-y-1', isCompact && 'gap-x-2')}>
-        <MetaItem icon={<Clock className={I.sm} />} label={spell.castingTime} />
-        <MetaItem icon={<RangeIcon size="sm" />} label={spell.range} />
-        <MetaItem icon={<MaterialIcon size="sm" />} label={formatComponents(spell.components)} />
-        <MetaItem icon={<Hourglass className={I.sm} />} label={spell.duration} />
+        <CardMetaItem icon={<Clock className={I.sm} />} label={spell.castingTime} />
+        <CardMetaItem icon={<RangeIcon size="sm" />} label={spell.range} />
+        <CardMetaItem
+          icon={<MaterialIcon size="sm" />}
+          label={formatComponents(spell.components)}
+        />
+        <CardMetaItem icon={<Hourglass className={I.sm} />} label={spell.duration} />
       </div>
 
-      {/* ── Source / Actions Row ─────────────────────────────────────────── */}
+      {/* ── Source / Actions Row ─────────────────────────────────── */}
       <div
         className={cn(
           'flex items-center pt-1',
@@ -284,36 +275,34 @@ export function SpellCard({
         )}
       </div>
 
-      {/* ── Description ────────────────────────────────────────────────── */}
+      {/* ── Description ────────────────────────────────────────── */}
       {effectiveShowDesc && styledDescriptions.length > 0 && (
         <div className="space-y-1.5">
-          {styledDescriptions.map((p) => (
-            <>{p}</>
-          ))}
+          {styledDescriptions.map((p) => p)}
 
           {/* Damage / Heal / Save / Attack */}
           {(spell.damage || spell.heal || spell.save || spell.attack) && (
             <div className={cn('mt-2 flex flex-wrap items-center gap-x-3 gap-y-1', sectionDivider)}>
               {spell.damage && (
-                <MetaItem
+                <CardMetaItem
                   icon={<DamageIcon size="sm" className="text-amber-500" />}
                   label={spell.damage.entries.map((e) => `${e.dice} ${e.type}`).join(' + ')}
                 />
               )}
               {spell.heal && (
-                <MetaItem
+                <CardMetaItem
                   icon={<HealIcon size="sm" className="text-rose-500" />}
                   label={spell.heal.dice}
                 />
               )}
               {spell.save && (
-                <MetaItem
+                <CardMetaItem
                   icon={<DefenseIcon size="sm" className="text-text-tertiary" />}
                   label={`${spell.save} save`}
                 />
               )}
               {spell.attack && (
-                <MetaItem
+                <CardMetaItem
                   icon={<AttackIcon size="sm" className="text-text-tertiary" />}
                   label="Attack roll"
                 />
@@ -323,7 +312,7 @@ export function SpellCard({
         </div>
       )}
 
-      {/* ── At Higher Levels ───────────────────────────────────────────── */}
+      {/* ── At Higher Levels ───────────────────────────────────── */}
       {effectiveShowDesc && higherLevelText && higherLevelText.length > 0 && (
         <div className={cn(sectionDivider, 'space-y-1')}>
           <Text variant="labelSm" as="p" className="flex items-center gap-1">
@@ -338,7 +327,7 @@ export function SpellCard({
         </div>
       )}
 
-      {/* ── Cantrip Upgrade ─────────────────────────────────────────────── */}
+      {/* ── Cantrip Upgrade ─────────────────────────────────────── */}
       {effectiveShowDesc && cantripUpgrades && cantripUpgrades.length > 0 && (
         <div className={cn(sectionDivider, 'space-y-1')}>
           <Text variant="labelSm" as="p" className="flex items-center gap-1">
@@ -357,19 +346,6 @@ export function SpellCard({
           ))}
         </div>
       )}
-    </Surface>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Internal helper                                                           */
-/* -------------------------------------------------------------------------- */
-
-function MetaItem({ icon, label }: { icon: ReactNode; label: string }) {
-  return (
-    <span className={inlineMeta}>
-      {icon}
-      <span>{label}</span>
-    </span>
+    </CardSurface>
   );
 }
