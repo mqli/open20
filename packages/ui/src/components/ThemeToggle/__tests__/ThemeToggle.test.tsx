@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { ThemeToggle, I18nProvider } from '../../src';
+import { ThemeToggle, I18nProvider } from '../../..';
 
 describe('ThemeToggle', () => {
   const renderWithI18n = (ui: React.ReactElement) => {

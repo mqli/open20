@@ -104,7 +104,7 @@ Keyboard operable, visible `focus-visible` states, appropriate ARIA roles, Story
 
 ### Testing
 
-Unit tests (vitest + @testing-library/react) in `tests/` folder adjacent to component. Storybook for edge cases. Pre-merge: `typecheck && lint && build`.
+Unit tests (vitest + @testing-library/react) in `__tests__/` folder within each component directory. Storybook for edge cases. Pre-merge: `typecheck && lint && build`.
 
 ### ForwardRef & typing
 
