@@ -31,6 +31,8 @@ export interface Character {
   readonly combatStats: CombatStats;
   readonly currency: Currency;
   readonly conditions: readonly ActiveCondition[];
+  readonly concentration: ConcentrationState | null;
+  readonly activeEffects: readonly ActiveEffect[];
   readonly damageDefenses: DamageDefenses;
   readonly notes: string;
   readonly createdAt: string; // ISO 8601
@@ -85,10 +87,20 @@ export interface ActiveCondition {
   readonly level?: number;
 }
 
-// 状态名称 — 标准 D&D 条件 + 引擎追踪状态
-// NOTE: 'Raging' and 'Concentrating' are not standard D&D conditions;
-// they are engine-level state trackers mixed in for convenience.
-// Future refactor: separate into ConditionName | FeatureState | ActiveEffect.
+// 专注状态 — 独立字段，不再混在 conditions 中
+export interface ConcentrationState {
+  readonly spellId: string; // 正在专注的法术 ID，如 'bless'
+  readonly startedAt: string; // ISO 8601
+}
+
+// 活跃效果 — 临时状态（狂暴、护盾术等）
+export interface ActiveEffect {
+  readonly id: string; // 效果标识，如 'rage', 'shield', 'mage-armor'
+  readonly source: string; // 来源（法术 ID、特性 ID、物品 ID）
+  readonly appliedAt: string; // ISO 8601
+}
+
+// 状态名称 — 仅标准 D&D 2024 条件
 export type ConditionName =
   | 'Blinded'
   | 'Charmed'
@@ -103,10 +115,8 @@ export type ConditionName =
   | 'Poisoned'
   | 'Prone'
   | 'Restrained'
-  | 'Raging' // 野蛮人狂暴（激活时生效）
   | 'Stunned'
-  | 'Unconscious'
-  | 'Concentrating'; // 非官方但需追踪（专注）
+  | 'Unconscious';
 
 // 金币
 export interface Currency {

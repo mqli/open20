@@ -22,6 +22,7 @@ export {
   startConcentration,
   endConcentration,
   makeConcentrationCheck,
+  toggleActiveEffect,
   addAlwaysPreparedSpell,
   removeAlwaysPreparedSpell,
   addKnownSpell,

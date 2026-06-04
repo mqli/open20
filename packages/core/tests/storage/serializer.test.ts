@@ -14,7 +14,7 @@ import type { Character } from '../../src/types/character';
 
 function createMinimalCharacter(overrides?: Partial<Character>): Character {
   return {
-    schemaVersion: '2024.1',
+    schemaVersion: '2024.2',
     name: 'Test Character',
     species: 'Human',
     speciesSubtype: null,
@@ -46,7 +46,10 @@ function createMinimalCharacter(overrides?: Partial<Character>): Character {
     equipment: [],
     spells: {
       classSpellcasting: {},
-      spellSlots: {} as Record<import('../../src/types/spell').SpellLevel, import('../../src/types/spell').SpellSlotEntry>,
+      spellSlots: {} as Record<
+        import('../../src/types/spell').SpellLevel,
+        import('../../src/types/spell').SpellSlotEntry
+      >,
       pactMagicSlots: null,
     },
     resources: {},
@@ -84,7 +87,7 @@ describe('serialize', () => {
     expect(typeof json).toBe('string');
     const parsed = JSON.parse(json);
     expect(parsed.name).toBe('Test Character');
-    expect(parsed.schemaVersion).toBe('2024.1');
+    expect(parsed.schemaVersion).toBe('2024.2');
   });
 
   it('round-trips: serialize then deserialize gives equivalent character', () => {
@@ -108,7 +111,7 @@ describe('deserialize', () => {
     const result = deserialize(json);
 
     expect(result.name).toBe('Test Character');
-    expect(result.schemaVersion).toBe('2024.1');
+    expect(result.schemaVersion).toBe('2024.2');
   });
 
   it('throws on invalid JSON', () => {

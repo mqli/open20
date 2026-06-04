@@ -46,47 +46,48 @@ describe('calculateConcentrationDC', () => {
 // For now, we test the logic with manually constructed objects
 
 describe('isConcentrating', () => {
-  it('should return true if character has Concentrating condition', () => {
+  it('should return true if character has concentration', () => {
     const char = {
-      conditions: [{ id: 'Concentrating', source: 'bless', appliedAt: '2024-01-01' }],
+      concentration: { spellId: 'bless', startedAt: '2024-01-01' },
     } as any;
     expect(isConcentrating(char)).toBe(true);
   });
 
-  it('should return false if character does not have Concentrating condition', () => {
+  it('should return false if character does not have concentration', () => {
     const char = {
-      conditions: [],
+      concentration: null,
     } as any;
     expect(isConcentrating(char)).toBe(false);
   });
 
-  it('should return false if character has other conditions but not Concentrating', () => {
+  it('should return false if character has activeEffects but not concentration', () => {
     const char = {
-      conditions: [{ id: 'Raging', source: '', appliedAt: '2024-01-01' }],
+      concentration: null,
+      activeEffects: [{ id: 'rage', source: 'barbarian', appliedAt: '2024-01-01' }],
     } as any;
     expect(isConcentrating(char)).toBe(false);
   });
 });
 
 describe('getConcentratingSpellId', () => {
-  it('should return spell ID from Concentrating condition source', () => {
+  it('should return spell ID from concentration field', () => {
     const char = {
-      conditions: [{ id: 'Concentrating', source: 'bless', appliedAt: '2024-01-01' }],
+      concentration: { spellId: 'bless', startedAt: '2024-01-01' },
     } as any;
     expect(getConcentratingSpellId(char)).toBe('bless');
   });
 
   it('should return null if not concentrating', () => {
     const char = {
-      conditions: [],
+      concentration: null,
     } as any;
     expect(getConcentratingSpellId(char)).toBe(null);
   });
 
-  it('should return null if source is empty', () => {
+  it('should return null if concentration spellId is empty', () => {
     const char = {
-      conditions: [{ id: 'Concentrating', source: '', appliedAt: '2024-01-01' }],
+      concentration: { spellId: '', startedAt: '2024-01-01' },
     } as any;
-    expect(getConcentratingSpellId(char)).toBe(null);
+    expect(getConcentratingSpellId(char)).toBe('');
   });
 });

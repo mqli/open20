@@ -13,7 +13,7 @@ import type { DataLoader } from '@/data/loader';
 function hasDefense(
   defenses: DamageDefenses,
   damageType: DamageType,
-  check: 'resistance' | 'immunity' | 'vulnerability'
+  check: 'resistance' | 'immunity' | 'vulnerability',
 ): boolean {
   switch (check) {
     case 'resistance':
@@ -42,7 +42,7 @@ function hasDefense(
 export function calculateTypedDamage(
   damage: number,
   damageType: DamageType,
-  defenses: DamageDefenses
+  defenses: DamageDefenses,
 ): DamageResult {
   const modifiers: Array<DamageResult['modifiers'][number]> = [];
 
@@ -195,10 +195,10 @@ function parseDefenseFromDescription(description: string): DamageType[] {
 }
 
 /**
- * Check if a character has the 'Raging' condition active
+ * Check if a character has the 'rage' active effect
  */
 function isRaging(char: Character): boolean {
-  return char.conditions.some(c => c.id === 'Raging');
+  return char.activeEffects.some((e) => e.id === 'rage');
 }
 
 /**
@@ -341,7 +341,7 @@ function getEquipmentDefenses(char: Character): DamageDefenseSource[] {
  */
 export function getActiveDamageDefenses(
   char: Character,
-  dataLoader: DataLoader
+  dataLoader: DataLoader,
 ): {
   defenses: DamageDefenses;
   sources: readonly DamageDefenseSource[];

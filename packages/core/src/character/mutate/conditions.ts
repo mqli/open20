@@ -1,7 +1,7 @@
 // character/mutate/conditions.ts
 // Condition and concentration-related character mutations
 
-import type { Character, ConditionName, ActiveCondition } from '@/types/character';
+import type { Character, ConditionName, ActiveCondition, ActiveEffect } from '@/types/character';
 import type { DataLoader } from '@/data/loader';
 import type { RandomProvider } from '@/dice/core';
 import type { ConcentrationCheckResult } from '@/engine/concentration';
@@ -11,7 +11,7 @@ import { rollSavingThrow } from '@/dice/mechanics';
 import { withUpdate } from './hp';
 
 export function toggleCondition(char: Character, conditionId: ConditionName): Character {
-  const existingIdx = char.conditions.findIndex(c => c.id === conditionId);
+  const existingIdx = char.conditions.findIndex((c) => c.id === conditionId);
 
   if (existingIdx !== -1) {
     // Remove existing condition
@@ -38,24 +38,41 @@ export function startConcentration(char: Character, spellId: string): Character 
     updated = endConcentration(char);
   }
 
-  // Add Concentrating condition with spell ID as source
-  const newCondition: ActiveCondition = {
-    id: 'Concentrating',
-    source: spellId,
-    appliedAt: new Date().toISOString(),
-  };
-
   return withUpdate(updated, {
-    conditions: [...updated.conditions, newCondition],
+    concentration: { spellId, startedAt: new Date().toISOString() },
   });
 }
 
 export function endConcentration(char: Character): Character {
-  const conditionIdx = char.conditions.findIndex(c => c.id === 'Concentrating');
-  if (conditionIdx === -1) return char;
+  if (!char.concentration) return char;
 
   return withUpdate(char, {
-    conditions: char.conditions.filter((_, i) => i !== conditionIdx),
+    concentration: null,
+  });
+}
+
+/**
+ * Toggle an active effect on the character.
+ * If the effect is already present, remove it; otherwise add it.
+ */
+export function toggleActiveEffect(char: Character, effectId: string): Character {
+  const existingIdx = char.activeEffects.findIndex((e) => e.id === effectId);
+
+  if (existingIdx !== -1) {
+    // Remove existing effect
+    const newEffects = char.activeEffects.filter((_, i) => i !== existingIdx);
+    return withUpdate(char, { activeEffects: newEffects });
+  }
+
+  // Add new effect
+  const newEffect: ActiveEffect = {
+    id: effectId,
+    source: effectId,
+    appliedAt: new Date().toISOString(),
+  };
+
+  return withUpdate(char, {
+    activeEffects: [...char.activeEffects, newEffect],
   });
 }
 
@@ -63,7 +80,7 @@ export function makeConcentrationCheck(
   char: Character,
   damageAmount: number,
   data: DataLoader,
-  rng: RandomProvider
+  rng: RandomProvider,
 ): { char: Character; result: ConcentrationCheckResult } {
   // Calculate DC
   const dc = calculateConcentrationDC(damageAmount);

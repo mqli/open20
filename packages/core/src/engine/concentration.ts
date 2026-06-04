@@ -9,28 +9,26 @@ import type { CheckResult } from '@/dice/mechanics';
  * Check if a character is currently concentrating on a spell
  *
  * @param char - The character to check
- * @returns True if the character has the 'Concentrating' condition
+ * @returns True if the character has an active concentration
  *
  * @example
  * isConcentrating(char) // true if concentrating on a spell
  */
 export function isConcentrating(char: Character): boolean {
-  return char.conditions.some(c => c.id === 'Concentrating');
+  return char.concentration !== null;
 }
 
 /**
  * Get the spell ID that the character is concentrating on
  *
  * @param char - The character to check
- * @returns The spell ID from the condition source, or null if not concentrating
+ * @returns The spell ID, or null if not concentrating
  *
  * @example
  * getConcentratingSpellId(char) // 'bless' or null
  */
 export function getConcentratingSpellId(char: Character): string | null {
-  const condition = char.conditions.find(c => c.id === 'Concentrating');
-  if (!condition) return null;
-  return condition.source || null;
+  return char.concentration?.spellId ?? null;
 }
 
 /**

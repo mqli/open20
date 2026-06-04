@@ -5,7 +5,7 @@
 export type { Character, CharacterClass } from './character';
 export type { HitPoints, DeathSaves } from './character';
 export type { CombatStats, CharacterAttack, ActiveCondition } from './character';
-export type { ConditionName, Currency } from './character';
+export type { ConditionName, Currency, ConcentrationState, ActiveEffect } from './character';
 
 // 攻击类型
 export type { BaseAttack } from './attack';

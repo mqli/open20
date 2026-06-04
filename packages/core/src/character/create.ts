@@ -90,7 +90,7 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
       subclassLevel: params.subclassId ? primaryLevel : null,
       hitDice: { die: classData.hitDie, used: 0 },
     },
-    ...additionalClasses.map(ac => ({
+    ...additionalClasses.map((ac) => ({
       classId: ac.classId,
       level: ac.level,
       subclassId: ac.subclassId ?? null,
@@ -106,7 +106,7 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
   const skills = buildSkills(
     backgroundData.skillProficiencies,
     classData,
-    params.skillChoices ?? []
+    params.skillChoices ?? [],
   );
 
   // 5. Build Resources (per-class tracking, same pattern as classSpellcasting)
@@ -140,7 +140,7 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
     classes: charClasses,
     abilityScores,
     skills,
-    feats: (params.featIds ?? []).map(featId => ({ featId })),
+    feats: (params.featIds ?? []).map((featId) => ({ featId })),
     equipment: [],
     spells: emptyCharacterSpells(),
     resources, // Record<string, CharacterClassResources>
@@ -160,6 +160,8 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
     },
     currency,
     conditions: [],
+    concentration: null,
+    activeEffects: [],
     damageDefenses: emptyDamageDefenses,
     notes: '',
     createdAt: now,
@@ -188,7 +190,7 @@ export function isProficient(
   skillName: string,
   backgroundSkillProficiencies: readonly string[],
   _classData: Class,
-  skillChoices: readonly string[]
+  skillChoices: readonly string[],
 ): boolean {
   if (backgroundSkillProficiencies.includes(skillName)) return true;
 
@@ -204,7 +206,7 @@ export function isProficient(
 function buildSkills(
   backgroundSkillProficiencies: readonly string[],
   classData: Class,
-  skillChoices: readonly string[]
+  skillChoices: readonly string[],
 ): Record<string, SkillEntry> {
   const skills: Record<string, SkillEntry> = {};
   for (const skillName of [

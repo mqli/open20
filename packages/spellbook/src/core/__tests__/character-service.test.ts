@@ -84,12 +84,11 @@ describe('CharacterService', () => {
     const spellId = 'haste';
 
     const concentratingChar = characterService.startConcentration(character, spellId);
-    const condition = concentratingChar.conditions.find((c) => c.id === 'Concentrating');
-    expect(condition).toBeDefined();
-    expect(condition?.source).toBe(spellId);
+    expect(concentratingChar.concentration).toBeDefined();
+    expect(concentratingChar.concentration?.spellId).toBe(spellId);
 
     const endedChar = characterService.endConcentration(concentratingChar);
-    expect(endedChar.conditions.find((c) => c.id === 'Concentrating')).toBeUndefined();
+    expect(endedChar.concentration).toBeNull();
   });
 
   it('should handle learning and unlearning spells', () => {

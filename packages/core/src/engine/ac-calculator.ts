@@ -8,6 +8,7 @@ import type { Armor, EquipmentItem } from '@/types/equipment';
 import type { Feature, FeatureACFormula } from '@/types/class';
 import type { DataLoader } from '@/data/loader';
 import type { FeatACBonus } from '@/types/feat';
+import type { ActiveEffect } from '@/types/character';
 import { getModifier, getTotalScore } from './ability-modifier';
 
 type ACBreakdown = {
@@ -41,7 +42,7 @@ type ACResult = {
  * @param equipment - 装备列表
  * @param features - 角色拥有的特性列表
  * @param data - DataLoader（查护甲数据）
- * @param conditions - 角色当前状态列表（用于检测Mage Armor等，可选，默认空）
+ * @param activeEffects - 活跃效果列表（用于检测Mage Armor等，可选，默认空）
  * @param featACBonuses - 专长给予的AC加值（可选，用于战斗风格）
  * @returns AC值及其来源的详细分解
  */
@@ -50,7 +51,7 @@ export function calculateAC(
   equipment: readonly EquipmentItem[],
   features: readonly Feature[],
   data: DataLoader,
-  conditions: readonly { source?: string; id?: string }[] = [],
+  activeEffects: readonly ActiveEffect[] = [],
   featACBonuses?: readonly FeatACBonus[],
 ): ACResult {
   const dexMod = getModifier(getTotalScore(scores, 'Dexterity'));
@@ -59,7 +60,7 @@ export function calculateAC(
   const equippedShields = getEquippedShields(equipment, data);
   const hasShield = equippedShields.length > 0;
   const hasArmor = equippedArmors.length > 0;
-  const hasMageArmor = conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
+  const hasMageArmor = activeEffects.some((e) => e.id === 'mage-armor');
 
   const baseAcs = [
     // base ac candiates
@@ -69,13 +70,18 @@ export function calculateAC(
     ...calculateFeatureACs(features, scores, hasArmor, hasShield, equippedArmors), // feature like unarmored defense
   ].reduce((max, current) => (!max || current.ac > max.ac ? current : max));
 
-  const shieldAC = calculateShieldAC(equippedShields).reduce((max, current) =>
-    !max || current.ac > max.ac ? current : max,
-  );
+  const shieldAC =
+    equippedShields.length > 0
+      ? [
+          calculateShieldAC(equippedShields).reduce((max, current) =>
+            !max || current.ac > max.ac ? current : max,
+          ),
+        ]
+      : [];
 
   const acBonuses = calculateFeatACBonuses(featACBonuses, equippedArmors);
 
-  const breakdown = [baseAcs, shieldAC, ...acBonuses] as const;
+  const breakdown = [baseAcs, ...shieldAC, ...acBonuses] as const;
   return { ac: breakdown.reduce((sum, option) => sum + option.ac, 0), breakdown };
 }
 

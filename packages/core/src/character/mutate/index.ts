@@ -1,17 +1,9 @@
 // character/mutate/index.ts
 // Barrel export — all mutation functions
 
-export {
-  withUpdate,
-  modifyHP,
-  setTemporaryHP,
-  applyTypedDamage,
-} from './hp';
+export { withUpdate, modifyHP, setTemporaryHP, applyTypedDamage } from './hp';
 
-export {
-  consumeResource,
-  recoverResource,
-} from './resources';
+export { consumeResource, recoverResource } from './resources';
 
 export {
   consumeSpellSlot,
@@ -35,6 +27,7 @@ export {
   startConcentration,
   endConcentration,
   makeConcentrationCheck,
+  toggleActiveEffect,
 } from './conditions';
 
 export {
@@ -46,6 +39,4 @@ export {
   removeEquipment,
 } from './equipment';
 
-export {
-  modifyCurrency,
-} from './currency';
+export { modifyCurrency } from './currency';

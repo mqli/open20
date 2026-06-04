@@ -259,7 +259,7 @@ describe('getActiveDamageDefenses', () => {
             Charisma: 11,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const { defenses, sources } = getActiveDamageDefenses(dwarf, dataLoader);
@@ -288,7 +288,7 @@ describe('getActiveDamageDefenses', () => {
             Charisma: 11,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const { defenses } = getActiveDamageDefenses(dwarf, dataLoader);
@@ -315,7 +315,7 @@ describe('getActiveDamageDefenses', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const { defenses, sources } = getActiveDamageDefenses(human, dataLoader);
@@ -345,7 +345,7 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     const { defenses } = getActiveDamageDefenses(barbarian, dataLoader);
@@ -372,19 +372,19 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     // Add Raging condition
     barbarian = modifyHP(barbarian, 0); // No HP change, just trigger withUpdate
-    // Manually add the Raging condition
+    // Manually add the rage active effect
     barbarian = {
       ...barbarian,
-      conditions: [
-        ...barbarian.conditions,
+      activeEffects: [
+        ...barbarian.activeEffects,
         {
-          id: 'Raging' as any,
-          source: 'Player',
+          id: 'rage',
+          source: 'barbarian',
           appliedAt: new Date().toISOString(),
         },
       ],
@@ -399,7 +399,7 @@ describe('Rage condition integration', () => {
     expect(defenses.resistances).toContain('Slashing');
 
     // Should have rage source
-    const rageSource = sources.find(s => s.source.includes('Rage'));
+    const rageSource = sources.find((s) => s.source.includes('Rage'));
     expect(rageSource).toBeDefined();
     expect(rageSource!.type).toBe('class');
   });
@@ -420,17 +420,17 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
-    // Add Raging condition
+    // Add rage active effect
     barbarian = {
       ...barbarian,
-      conditions: [
-        ...barbarian.conditions,
+      activeEffects: [
+        ...barbarian.activeEffects,
         {
-          id: 'Raging' as any,
-          source: 'Player',
+          id: 'rage',
+          source: 'barbarian',
           appliedAt: new Date().toISOString(),
         },
       ],
@@ -442,7 +442,7 @@ describe('Rage condition integration', () => {
       barbarian,
       10,
       'Slashing',
-      dataLoader
+      dataLoader,
     );
 
     // Should be halved due to rage resistance
@@ -468,17 +468,17 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
-    // Add Raging condition
+    // Add rage active effect
     barbarian = {
       ...barbarian,
-      conditions: [
-        ...barbarian.conditions,
+      activeEffects: [
+        ...barbarian.activeEffects,
         {
-          id: 'Raging' as any,
-          source: 'Player',
+          id: 'rage',
+          source: 'barbarian',
           appliedAt: new Date().toISOString(),
         },
       ],
@@ -512,7 +512,7 @@ describe('applyDamageWithDefenses', () => {
           Charisma: 11,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     const originalHP = dwarf.hitPoints.current;
@@ -545,7 +545,7 @@ describe('applyDamageWithDefenses', () => {
           Charisma: 11,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     // Add custom immunity to fire
@@ -584,7 +584,7 @@ describe('getDamageDefenses (convenience function)', () => {
           Charisma: 11,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     const defenses = getDamageDefenses(dwarf, dataLoader);

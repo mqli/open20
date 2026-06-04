@@ -41,11 +41,6 @@ export interface SpellCapabilities {
   maxPrepared: number;
 }
 
-interface ConcentrationCondition {
-  id: string;
-  source?: string;
-}
-
 export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapabilities {
   const { activeCharacter } = useCharacterStore();
 
@@ -78,36 +73,36 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     if (!character || !spell) return empty;
 
     // ── matching class IDs ──
-    const matchingClassIds = (character.classes?.map(c => c.classId) ?? [])
-      .filter(id => spell.classes?.includes(id) ?? false);
+    const matchingClassIds = (character.classes?.map((c) => c.classId) ?? []).filter(
+      (id) => spell.classes?.includes(id) ?? false,
+    );
 
     // ── prepared / always prepared / cantripKnown ──
-    const alwaysPreparedClassIds = matchingClassIds.filter(classId => {
+    const alwaysPreparedClassIds = matchingClassIds.filter((classId) => {
       const classData = character.spells.classSpellcasting[classId];
       return classData?.alwaysPreparedSpells?.includes(spell.id) ?? false;
     });
 
-    const preparedClassIds = matchingClassIds.filter(classId => {
+    const preparedClassIds = matchingClassIds.filter((classId) => {
       const classData = character.spells.classSpellcasting[classId];
       const isPrepared = classData?.preparedSpells?.includes(spell.id) ?? false;
       const isAlwaysPrepared = classData?.alwaysPreparedSpells?.includes(spell.id) ?? false;
       return isPrepared || isAlwaysPrepared;
     });
 
-    const cantripKnownClassIds = spell.level === 0
-      ? matchingClassIds.filter(classId => {
-          const classData = character.spells.classSpellcasting[classId];
-          return classData?.knownCantrips?.includes(spell.id) ?? false;
-        })
-      : [];
+    const cantripKnownClassIds =
+      spell.level === 0
+        ? matchingClassIds.filter((classId) => {
+            const classData = character.spells.classSpellcasting[classId];
+            return classData?.knownCantrips?.includes(spell.id) ?? false;
+          })
+        : [];
 
     const isKnown = spellService.isSpellKnown(character, spell.id);
     const isPrepared = spellService.isSpellPrepared(character, spell.id);
     const isCantripKnown = cantripKnownClassIds.length > 0;
     const isClassSpell = spellService.isSpellForCharacter(character, spell);
-    const isConcentratingOnThis = character.conditions.some(
-      c => c.id === 'Concentrating' && (c as ConcentrationCondition).source === spell.id
-    );
+    const isConcentratingOnThis = character.concentration?.spellId === spell.id;
 
     // ── caster type ──
     const casterType = getCasterType(character);
@@ -122,45 +117,55 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     if (statsClassId && classSpellcasting[statsClassId]) {
       const classData = classSpellcasting[statsClassId];
       if (isClassSpell) {
-        preparedCount = (classData.preparedSpells?.length ?? 0) + (classData.alwaysPreparedSpells?.length ?? 0);
+        preparedCount =
+          (classData.preparedSpells?.length ?? 0) + (classData.alwaysPreparedSpells?.length ?? 0);
         maxPrepared = classData.maxPrepared ?? 0;
       }
     }
 
     // ── spell attack bonus ──
     const spellAttackBonus = statsClassId
-      ? classSpellcasting[statsClassId]?.spellAttackBonus ?? 0
+      ? (classSpellcasting[statsClassId]?.spellAttackBonus ?? 0)
       : 0;
 
     // ── slots ──
-    const isWarlock = character.classes?.some(c => c.classId === 'Warlock') ?? false;
+    const isWarlock = character.classes?.some((c) => c.classId === 'Warlock') ?? false;
     const pactMagic = character.spells.pactMagicSlots;
     const spellSlots = character.spells.spellSlots;
 
     const hasRegularSlot =
-      spell.level === 0 || (spellSlots[spell.level]?.total ?? 0) > (spellSlots[spell.level]?.used ?? 0);
+      spell.level === 0 ||
+      (spellSlots[spell.level]?.total ?? 0) > (spellSlots[spell.level]?.used ?? 0);
     const hasPactSlot = !!(
-      isWarlock && pactMagic && pactMagic.used < pactMagic.total && spell.level <= pactMagic.level
+      isWarlock &&
+      pactMagic &&
+      pactMagic.used < pactMagic.total &&
+      spell.level <= pactMagic.level
     );
 
     // ── knows (spellbook-caster-aware) ──
     const knows = casterType.isSpellbookCaster ? isKnown : true;
 
     // Character must be high enough level to access this spell level (slots exist at all)
-    const canAccessSpellLevel = spell.level === 0
-      || (spellSlots[spell.level]?.total ?? 0) > 0
-      || !!(pactMagic && spell.level <= pactMagic.level);
+    const canAccessSpellLevel =
+      spell.level === 0 ||
+      (spellSlots[spell.level]?.total ?? 0) > 0 ||
+      !!(pactMagic && spell.level <= pactMagic.level);
 
     // ── canCast ──
-    const canCast = isClassSpell && (knows || spell.level === 0) && (spell.level === 0 || isPrepared) && (
-      hasRegularSlot || hasPactSlot
-    );
+    const canCast =
+      isClassSpell &&
+      (knows || spell.level === 0) &&
+      (spell.level === 0 || isPrepared) &&
+      (hasRegularSlot || hasPactSlot);
 
     // ── button visibility ──
-    const showPrepareButton = isClassSpell && casterType.canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
+    const showPrepareButton =
+      isClassSpell && casterType.canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
     // Learn toggle: cantrips for all casters, regular spells only for spellbook casters
     // Spellbook casters also need high enough level to learn spells of this level
-    const showLearnButton = isClassSpell && spell.level > 0 && casterType.canLearn && canAccessSpellLevel;
+    const showLearnButton =
+      isClassSpell && spell.level > 0 && casterType.canLearn && canAccessSpellLevel;
     const showCantripButton = isClassSpell && spell.level === 0;
 
     return {

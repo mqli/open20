@@ -31,11 +31,6 @@ const SPELL_LEVEL_LABELS = [
   'ninthLevel',
 ];
 
-interface ConcentrationCondition {
-  id: string;
-  source?: string;
-}
-
 export function CharacterSheet({
   open,
   onOpenChange,
@@ -50,12 +45,10 @@ export function CharacterSheet({
 
   if (!activeCharacter) return null;
 
-  const { spells, classes, conditions } = activeCharacter;
+  const { spells, classes, concentration } = activeCharacter;
   const classSpellcasting = spells.classSpellcasting ?? {};
 
-  const concentratingSpellId = (
-    conditions?.find((c) => c.id === 'Concentrating') as ConcentrationCondition | undefined
-  )?.source;
+  const concentratingSpellId = concentration?.spellId ?? null;
 
   const spellcastingClasses = classes?.filter((c) => classSpellcasting[c.classId]) ?? [];
   const classTabEntries = spellcastingClasses.map((spellcastingClass, index) => ({

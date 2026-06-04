@@ -30,13 +30,16 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const initialHP = (barbarian as any).hitPoints.current;
 
-      (barbarian as any).conditions.push({ id: 'Raging', source: 'test', appliedAt: '2024-01-01' });
-      expect(barbarian.conditions.some(c => c.id === 'Raging')).toBe(true);
+      (barbarian as any).activeEffects = [
+        ...barbarian.activeEffects,
+        { id: 'rage', source: 'barbarian', appliedAt: '2024-01-01' },
+      ];
+      expect(barbarian.activeEffects.some((e) => e.id === 'rage')).toBe(true);
 
       const defenses: DamageDefenses = {
         resistances: ['Bludgeoning', 'Piercing', 'Slashing'],
@@ -50,8 +53,8 @@ describe('D&D Player Behavior - Adventure Arc', () => {
       ({ char: damaged } = applyTypedDamage(damaged, 15, 'Fire', defenses));
       expect(damaged.hitPoints.current).toBe(initialHP - 25);
 
-      (damaged as any).conditions = damaged.conditions.filter(c => c.id !== 'Raging');
-      expect(damaged.conditions.some(c => c.id === 'Raging')).toBe(false);
+      (damaged as any).activeEffects = damaged.activeEffects.filter((e) => e.id !== 'rage');
+      expect(damaged.activeEffects.some((e) => e.id === 'rage')).toBe(false);
 
       const defensesNotRaging: DamageDefenses = {
         resistances: [],
@@ -80,7 +83,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const initialInitiative = rogue.combatStats.initiative;
@@ -111,7 +114,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 15,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(hero.classes[0]!.level).toBe(1);
@@ -161,7 +164,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 1,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(hero.abilityScores.base['Strength']).toBe(1);
@@ -183,7 +186,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       hero = modifyHP(hero, -hero.hitPoints.current);
@@ -209,7 +212,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const level1Slots = hero.spells.spellSlots[1]!.total;

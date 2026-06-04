@@ -26,7 +26,14 @@ export type {
   FeatSpellsEntry,
 } from './types/spell';
 export type { Resource, ResetType } from './types';
-export type { CombatStats, CharacterAttack, ActiveCondition, ConditionName } from './types';
+export type {
+  CombatStats,
+  CharacterAttack,
+  ActiveCondition,
+  ConditionName,
+  ConcentrationState,
+  ActiveEffect,
+} from './types';
 export type { BaseAttack } from './types';
 
 // ── Data Loaders ────────────────────────────────────────
@@ -116,6 +123,7 @@ export {
   startConcentration,
   endConcentration,
   makeConcentrationCheck,
+  toggleActiveEffect,
   addAlwaysPreparedSpell,
   removeAlwaysPreparedSpell,
   addKnownSpell,

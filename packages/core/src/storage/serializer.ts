@@ -58,7 +58,11 @@ const CharacterSchema = z.object({
     gp: z.number(),
     pp: z.number(),
   }),
-  conditions: z.array(z.any()),
+  conditions: z.array(z.any()).optional(),
+  concentration: z.object({ spellId: z.string(), startedAt: z.string() }).nullable().optional(),
+  activeEffects: z
+    .array(z.object({ id: z.string(), source: z.string(), appliedAt: z.string() }))
+    .optional(),
   damageDefenses: z
     .object({
       resistances: z.array(z.string()),
@@ -74,7 +78,7 @@ const CharacterSchema = z.object({
 
 // ── Compatible Schema Versions ────────────────────────────────────
 
-const COMPATIBLE_VERSIONS = ['2024.1'];
+const COMPATIBLE_VERSIONS = ['2024.1', '2024.2'];
 
 // ── Public Functions ──────────────────────────────────────────────
 
@@ -102,7 +106,7 @@ export function deserialize(json: string): Character {
     const version = (raw as { schemaVersion: unknown }).schemaVersion;
     if (typeof version !== 'string' || !COMPATIBLE_VERSIONS.includes(version)) {
       throw new Error(
-        `Incompatible schema version: "${version}". Compatible versions: ${COMPATIBLE_VERSIONS.join(', ')}`
+        `Incompatible schema version: "${version}". Compatible versions: ${COMPATIBLE_VERSIONS.join(', ')}`,
       );
     }
   } else {
@@ -113,8 +117,53 @@ export function deserialize(json: string): Character {
   if (raw && typeof raw === 'object' && Array.isArray((raw as Record<string, unknown>).feats)) {
     const feats = (raw as Record<string, unknown>).feats as unknown[];
     if (feats.length > 0 && typeof feats[0] === 'string') {
-      (raw as Record<string, unknown>).feats = (feats as string[]).map(featId => ({ featId }));
+      (raw as Record<string, unknown>).feats = (feats as string[]).map((featId) => ({ featId }));
     }
+  }
+
+  // Migration: v2024.1 → v2024.2
+  // Move 'Concentrating' and 'Raging' out of conditions into dedicated fields
+  if (
+    raw &&
+    typeof raw === 'object' &&
+    (raw as Record<string, unknown>).schemaVersion === '2024.1'
+  ) {
+    const rawObj = raw as Record<string, unknown>;
+    let conditions = (rawObj['conditions'] as Array<Record<string, unknown>> | undefined) ?? [];
+
+    // Migrate Concentrating → concentration field
+    const concentratingEntry = conditions.find((c) => c['id'] === 'Concentrating');
+    if (concentratingEntry) {
+      rawObj['concentration'] = {
+        spellId: (concentratingEntry['source'] as string) ?? '',
+        startedAt: (concentratingEntry['appliedAt'] as string) ?? new Date().toISOString(),
+      };
+      conditions = conditions.filter((c) => c['id'] !== 'Concentrating');
+    }
+
+    // Migrate Raging → activeEffects field
+    const ragingEntry = conditions.find((c) => c['id'] === 'Raging');
+    if (ragingEntry) {
+      rawObj['activeEffects'] = [
+        {
+          id: 'rage',
+          source: (ragingEntry['source'] as string) ?? 'barbarian',
+          appliedAt: (ragingEntry['appliedAt'] as string) ?? new Date().toISOString(),
+        },
+      ];
+      conditions = conditions.filter((c) => c['id'] !== 'Raging');
+    }
+
+    // Ensure fields exist for Zod optional check
+    if (!rawObj['activeEffects']) {
+      rawObj['activeEffects'] = [];
+    }
+    if (!('concentration' in rawObj)) {
+      rawObj['concentration'] = null;
+    }
+
+    rawObj['conditions'] = conditions;
+    rawObj['schemaVersion'] = '2024.2';
   }
 
   return CharacterSchema.parse(raw) as Character;

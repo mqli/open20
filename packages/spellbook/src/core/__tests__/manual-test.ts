@@ -1,9 +1,5 @@
 import { characterService } from '@/core/character-service';
 
-interface ConcentrationCondition {
-  source?: string;
-}
-
 async function runTests() {
   console.log('Running manual integration tests...');
 
@@ -63,18 +59,12 @@ async function runTests() {
 
     const spellId2 = 'haste';
     const concentratingChar = characterService.startConcentration(character, spellId2);
-    const concentrationCondition = concentratingChar.conditions.find(
-      (c) => c.id === 'Concentrating',
-    );
-    if (
-      concentrationCondition &&
-      (concentrationCondition as ConcentrationCondition).source === spellId2
-    ) {
+    if (concentratingChar.concentration?.spellId === spellId2) {
       console.log('✅ Concentration start success');
     } else {
       console.log(
-        '❌ Concentration failed. Conditions:',
-        JSON.stringify(concentratingChar.conditions),
+        '❌ Concentration failed. Concentration:',
+        JSON.stringify(concentratingChar.concentration),
       );
     }
   } catch (err) {

@@ -175,6 +175,7 @@ function computeCombatStats(
   equipment: Character['equipment'],
   features: Feature[],
   conditions: Character['conditions'],
+  activeEffects: Character['activeEffects'],
   feats: Character['feats'],
   skills: Character['skills'],
   pb: number,
@@ -188,7 +189,7 @@ function computeCombatStats(
     equipment,
     features,
     data,
-    conditions,
+    activeEffects,
     featACBonuses,
   );
   const newAC = acBreakdown.ac;
@@ -400,6 +401,7 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
     char.equipment,
     features,
     char.conditions,
+    char.activeEffects,
     char.feats,
     updatedSkills,
     pb,
