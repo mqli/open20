@@ -8,6 +8,7 @@ import { recomputeDerivedStats } from '../../src/character/recompute';
 import { serialize, deserialize } from '../../src/storage/serializer';
 import { applyTypedDamage } from '../../src/character/mutate';
 import type { DamageDefenses } from '../../src/types/damage';
+import type { ActiveEffect } from '../../src/types';
 
 const dataLoader = createDataLoader();
 
@@ -39,7 +40,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
         ...barbarian.activeEffects,
         { id: 'rage', source: 'barbarian', appliedAt: '2024-01-01' },
       ];
-      expect(barbarian.activeEffects.some((e) => e.id === 'rage')).toBe(true);
+      expect(barbarian.activeEffects.some((e: ActiveEffect) => e.id === 'rage')).toBe(true);
 
       const defenses: DamageDefenses = {
         resistances: ['Bludgeoning', 'Piercing', 'Slashing'],
@@ -53,8 +54,10 @@ describe('D&D Player Behavior - Adventure Arc', () => {
       ({ char: damaged } = applyTypedDamage(damaged, 15, 'Fire', defenses));
       expect(damaged.hitPoints.current).toBe(initialHP - 25);
 
-      (damaged as any).activeEffects = damaged.activeEffects.filter((e) => e.id !== 'rage');
-      expect(damaged.activeEffects.some((e) => e.id === 'rage')).toBe(false);
+      (damaged as any).activeEffects = damaged.activeEffects.filter(
+        (e: ActiveEffect) => e.id !== 'rage',
+      );
+      expect(damaged.activeEffects.some((e: ActiveEffect) => e.id === 'rage')).toBe(false);
 
       const defensesNotRaging: DamageDefenses = {
         resistances: [],

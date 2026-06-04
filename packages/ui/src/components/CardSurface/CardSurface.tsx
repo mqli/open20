@@ -66,7 +66,6 @@ export function CardSurface({
   glow = false,
   renderGlow,
   source,
-  renderSourceSuffix,
   renderActions,
   className,
   ...props

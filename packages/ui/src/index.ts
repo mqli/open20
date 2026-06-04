@@ -6,10 +6,12 @@ import { Tabs } from './components/Tabs/index';
 
 export { Badge } from './components/Badge/index';
 export type { BadgeProps } from './components/Badge/index';
-export { CardMetaItem } from './components/CardMetaItem/index';
-export type { CardMetaItemProps } from './components/CardMetaItem/index';
-export { CardSurface } from './components/CardSurface/index';
-export type { CardSurfaceProps, CardSurfaceDensity } from './components/CardSurface/index';
+export { CardSurface, CardMetaItem } from './components/CardSurface/index';
+export type {
+  CardSurfaceProps,
+  CardSurfaceDensity,
+  CardMetaItemProps,
+} from './components/CardSurface/index';
 export { Button } from './components/Button/index';
 export type { ButtonProps } from './components/Button/index';
 export { Dialog };

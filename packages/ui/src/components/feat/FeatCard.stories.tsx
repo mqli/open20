@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import type { Feat } from 'open20-core';
-import { Badge } from '@/components/Badge';
-import { Button } from '@/components/Button';
-import { surfaceVariants } from '@/styles/design-tokens';
+import { Badge } from '../Badge';
+import { Button } from '../Button';
+import { surfaceVariants } from '../../styles/design-tokens';
 import { FeatCard, type FeatCardProps } from './FeatCard';
 
 const surfaceVariantOptions = Object.keys(surfaceVariants) as Array<

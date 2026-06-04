@@ -5,7 +5,7 @@ import { Text } from '@/components/Text';
 import { Badge, type BadgeProps } from '@/components/Badge';
 import { CardSurface } from '@/components/CardSurface';
 import type { CardSurfaceDensity } from '@/components/CardSurface';
-import { CardMetaItem } from '@/components/CardMetaItem';
+import { CardMetaItem } from '@/components/CardSurface';
 
 import type { Feat, FeatCategory, AbilityName } from 'open20-core';
 

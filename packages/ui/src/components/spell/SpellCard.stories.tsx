@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import type { Spell } from 'open20-core';
-import { Badge } from '@/components/Badge/Badge';
-import { Button } from '@/components/Button/Button';
-import { surfaceVariants } from '@/styles/design-tokens';
+import { Badge } from '../Badge/Badge';
+import { Button } from '..//Button/Button';
+import { surfaceVariants } from '../../styles/design-tokens';
 import { SpellCard, type SpellCardProps } from './SpellCard';
 
 const surfaceVariantOptions = Object.keys(surfaceVariants) as Array<

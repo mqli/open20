@@ -8,6 +8,7 @@ import { validateCharacter } from '../../src/character/validate';
 import { serialize, deserialize } from '../../src/storage/serializer';
 import { applyTypedDamage } from '../../src/character/mutate';
 import type { DamageDefenses } from '../../src/types/damage';
+import type { ActiveCondition } from '../../src/types/character';
 
 const dataLoader = createDataLoader();
 
@@ -29,7 +30,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(char.classes[0]!.level).toBe(1);
@@ -79,7 +80,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const initialHP = fighter.hitPoints.current;
@@ -125,7 +126,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(wizard.spells.spellSlots[1]!.total).toBe(4);
@@ -162,7 +163,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const originalHP = (fighter as any).hitPoints.current;
@@ -185,7 +186,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
         {
           name: 'Sylara',
           speciesId: 'Elf',
-          backgroundId: 'sage',  // SRD 5.2: acolyte, criminal, sage, soldier
+          backgroundId: 'sage', // SRD 5.2: acolyte, criminal, sage, soldier
           classId: 'Ranger',
           abilityScores: {
             Strength: 14,
@@ -196,14 +197,16 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       (ranger as any).conditions.push({ id: 'Poisoned', source: 'test', appliedAt: '2024-01-01' });
-      expect(ranger.conditions.some(c => c.id === 'Poisoned')).toBe(true);
+      expect(ranger.conditions.some((c: ActiveCondition) => c.id === 'Poisoned')).toBe(true);
 
-      (ranger as any).conditions = ranger.conditions.filter(c => c.id !== 'Poisoned');
-      expect(ranger.conditions.some(c => c.id === 'Poisoned')).toBe(false);
+      (ranger as any).conditions = ranger.conditions.filter(
+        (c: ActiveCondition) => c.id !== 'Poisoned',
+      );
+      expect(ranger.conditions.some((c: ActiveCondition) => c.id === 'Poisoned')).toBe(false);
     });
   });
 
@@ -224,7 +227,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const initialHP = hero.hitPoints.current;
@@ -265,7 +268,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 11,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const defenses: DamageDefenses = {

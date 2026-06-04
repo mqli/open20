@@ -69,6 +69,8 @@ function createMinimalCharacter(overrides?: Partial<Character>): Character {
     },
     currency: { cp: 0, sp: 0, ep: 0, gp: 10, pp: 0 },
     conditions: [],
+    concentration: null,
+    activeEffects: [],
     damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },
     notes: '',
     createdAt: '2025-01-01T00:00:00.000Z',
