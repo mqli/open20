@@ -9,7 +9,7 @@
  * @param {StorybookMainConfigOptions} [options]
  */
 export function createStorybookMainConfig({
-  stories = ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  stories = ['../src/**/storybook/*.stories.@(js|jsx|mjs|ts|tsx)'],
   addons = ['@storybook/addon-links', '@storybook/addon-essentials'],
   frameworkName = '@storybook/react-vite',
 } = {}) {

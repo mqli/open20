@@ -9,6 +9,5 @@
       "@": ["./src/index.ts"]
     }
   },
-  "include": ["src", "vitest.d.ts"],
-  "exclude": ["src/**/*.stories.ts", "src/**/*.stories.tsx"]
+  "include": ["src", "vitest.d.ts"]
 }

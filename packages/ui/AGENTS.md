@@ -46,8 +46,17 @@ packages/ui/
 │   │   └── index.css                # Theme variables (@theme + dark overrides)
 │   └── components/
 │       ├── CardSurface/              # Shared clickable card wrapper (accessibility + glow)
+│       │   ├── storybook/           # Storybook stories (moved from root)
+│       │   ├── CardSurface.tsx
+│       │   └── index.ts
 │       ├── CardMetaItem/             # Shared icon+label inline meta component
-│       ├── [ComponentName]/         # Each follows Three-File Rule (ComponentName.tsx, index.ts, ComponentName.stories.tsx)
+│       ├── [ComponentName]/
+│       │   ├── storybook/           # Each component has its own storybook/ subfolder
+│       │   │   └── ComponentName.stories.tsx
+│       │   ├── __tests__/           # Unit tests (vitest + @testing-library/react)
+│       │   │   └── ComponentName.test.tsx
+│       │   ├── ComponentName.tsx    # Component implementation
+│       │   └── index.ts            # Barrel export
 │       ├── Dialog/                  # Radix UI wrappers (namespace exports)
 │       ├── feat/                    # FeatCard component
 │       ├── spell/                   # Spell-specific components (e.g., SpellCard)
@@ -61,9 +70,14 @@ packages/ui/
 
 Full code examples: [`../../.agents/ui/component-patterns.md`](../../.agents/ui/component-patterns.md)
 
-### 1. Three-File Rule
+### 1. Four-Folder Rule
 
-Every component has exactly 3 files: `ComponentName.tsx`, `index.ts`, `ComponentName.stories.tsx`.
+Every component has:
+
+- `ComponentName.tsx` - Component implementation
+- `index.ts` - Barrel export
+- `storybook/` - Contains `ComponentName.stories.tsx`
+- `__tests__/` - Contains `ComponentName.test.tsx` (vitest + @testing-library/react)
 
 ### 2. cva + cn Pattern
 
