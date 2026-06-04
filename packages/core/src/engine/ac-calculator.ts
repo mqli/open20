@@ -59,33 +59,38 @@ export function calculateAC(
   const equippedShields = getEquippedShields(equipment, data);
   const hasShield = equippedShields.length > 0;
   const hasArmor = equippedArmors.length > 0;
-  const hasMageArmor =
-    !hasArmor && conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
+  const hasMageArmor = conditions.some((c) => c.source === 'Mage Armor' || c.id === 'mage-armor');
 
-  const unarmored = {
-    source: { type: 'Unarmored', value: '10 + Dex' },
-    ac: 10 + dexMod,
-  };
-  const magicAmor = {
-    source: { type: 'Spell', value: 'Mage Armor: 13 + Dex' },
-    ac: 13 + dexMod,
-  };
-  const baseACCandiates = [
-    ...(hasArmor ? [] : [unarmored]), // default
-    ...(hasMageArmor ? [magicAmor] : []), // mage amor
-    ...equippedArmors.map((a) => calculateArmorAC(a, dexMod)), // armors
+  const baseAcs = [
+    // base ac candiates
+    ...(hasArmor
+      ? equippedArmors.map((a) => calculateArmorAC(a, dexMod)) // armors
+      : [hasMageArmor ? magicArmorBaseAc(dexMod) : unarmoredBaseAc(dexMod)]), // mage armor or basic unarmored
     ...calculateFeatureACs(features, scores, hasArmor, hasShield, equippedArmors), // feature like unarmored defense
-  ];
+  ].reduce((max, current) => (!max || current.ac > max.ac ? current : max));
 
-  const baseAC = baseACCandiates.reduce((max, current) =>
+  const shieldAC = calculateShieldAC(equippedShields).reduce((max, current) =>
     !max || current.ac > max.ac ? current : max,
   );
 
-  const shieldAC = calculateShieldAC(equippedShields);
-
   const acBonuses = calculateFeatACBonuses(featACBonuses, equippedArmors);
-  const breakdown = [baseAC, ...shieldAC, ...acBonuses] as const;
+
+  const breakdown = [baseAcs, shieldAC, ...acBonuses] as const;
   return { ac: breakdown.reduce((sum, option) => sum + option.ac, 0), breakdown };
+}
+
+function unarmoredBaseAc(dexMod: number) {
+  return {
+    source: { type: 'Unarmored', value: '10 + Dex' },
+    ac: 10 + dexMod,
+  };
+}
+
+function magicArmorBaseAc(dexMod: number) {
+  return {
+    source: { type: 'Spell', value: 'Mage Armor: 13 + Dex' },
+    ac: 13 + dexMod,
+  };
 }
 
 /**
