@@ -8,8 +8,8 @@ function getSubclassFeatureNames(subclassId: string, level: number) {
   const subclass = dataLoader.getSubclass(subclassId);
   expect(subclass).toBeDefined();
   return subclass!.featuresByLevel
-    .find(entry => entry.level === level)!
-    .features.map(feature => feature.name);
+    .find((entry) => entry.level === level)!
+    .features.map((feature) => feature.name);
 }
 
 describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
@@ -35,7 +35,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 9,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(champion.classes[0]!.classId).toBe('Fighter');
@@ -62,7 +62,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 9,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(champion.classes[0]!.level).toBe(3);
@@ -93,14 +93,14 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(battlemaster.classes[0]!.classId).toBe('Fighter');
       expect(battlemaster.classes[0]!.level).toBe(3);
       expect(battlemaster.classes[0]!.subclassId).toBe('Battle Master');
       expect(getSubclassFeatureNames('Battle Master', 3)).toEqual(
-        expect.arrayContaining(['Combat Superiority', 'Student of War'])
+        expect.arrayContaining(['Combat Superiority', 'Student of War']),
       );
     });
 
@@ -122,13 +122,13 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(battlemaster.classes[0]!.level).toBe(3);
       expect(battlemaster.classes[0]!.subclassId).toBe('Battle Master');
       expect(getSubclassFeatureNames('Battle Master', 3)).toEqual(
-        expect.arrayContaining(['Combat Superiority', 'Student of War'])
+        expect.arrayContaining(['Combat Superiority', 'Student of War']),
       );
     });
   });
@@ -155,7 +155,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       // Note: Eldritch Knight spellcasting is granted by a subclass feature at level 3
@@ -164,7 +164,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
       expect(ek.classes[0]!.level).toBe(7);
       expect(ek.classes[0]!.subclassId).toBe('Eldritch Knight');
       expect(getSubclassFeatureNames('Eldritch Knight', 3)).toEqual(
-        expect.arrayContaining(['Spellcasting', 'Weapon Bond'])
+        expect.arrayContaining(['Spellcasting', 'Weapon Bond']),
       );
       expect(getSubclassFeatureNames('Eldritch Knight', 7)).toContain('War Magic');
     });
@@ -187,13 +187,13 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(ek.classes[0]!.level).toBe(3);
       expect(ek.classes[0]!.subclassId).toBe('Eldritch Knight');
       expect(getSubclassFeatureNames('Eldritch Knight', 3)).toEqual(
-        expect.arrayContaining(['Spellcasting', 'Weapon Bond'])
+        expect.arrayContaining(['Spellcasting', 'Weapon Bond']),
       );
     });
 
@@ -215,7 +215,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(ek.classes[0]!.level).toBe(7);

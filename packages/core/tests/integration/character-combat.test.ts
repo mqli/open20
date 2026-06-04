@@ -27,7 +27,7 @@ describe('D&D Player Behavior - Combat and Damage', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const dying = modifyHP(fighter, -fighter.hitPoints.max);
@@ -53,7 +53,7 @@ describe('D&D Player Behavior - Combat and Damage', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       fighter = modifyHP(fighter, -fighter.hitPoints.max);
@@ -134,7 +134,7 @@ describe('D&D Player Behavior - Combat and Damage', () => {
             Charisma: 11,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const defenses: DamageDefenses = {
@@ -164,7 +164,7 @@ describe('D&D Player Behavior - Combat and Damage', () => {
             Charisma: 11,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const defenses: DamageDefenses = {
@@ -195,7 +195,7 @@ describe('D&D Player Behavior - Combat and Damage', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const defenses: DamageDefenses = {

@@ -22,7 +22,7 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 8,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     expect(fighter.name).toBe('Sir Roland');
@@ -52,7 +52,7 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 11,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     expect(fighter.species).toBe('Dwarf');
@@ -78,14 +78,15 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 8,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     expect(fighter.classes[0]!.level).toBe(5);
     expect(fighter.combatStats.proficiencyBonus).toBe(3);
-    const level5Features = dataLoader.getClass('Fighter')!.featuresByLevel
-      .find(entry => entry.level === 5)!
-      .features.map(feature => feature.name);
+    const level5Features = dataLoader
+      .getClass('Fighter')!
+      .featuresByLevel.find((entry) => entry.level === 5)!
+      .features.map((feature) => feature.name);
     expect(level5Features).toContain('Extra Attack');
   });
 
@@ -105,7 +106,7 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 8,
         },
       },
-      dataLoader
+      dataLoader,
     );
 
     const validation = validateCharacter(fighter, dataLoader);

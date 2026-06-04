@@ -35,7 +35,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const secondWind = getResource(fighter, 'Fighter', 'Second Wind');
@@ -61,7 +61,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const secondWind = getResource(fighter, 'Fighter', 'Second Wind');
@@ -91,7 +91,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const secondWind = getResource(fighter, 'Fighter', 'Second Wind');
@@ -121,7 +121,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       fighter = modifyHP(fighter, -15);
@@ -163,7 +163,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const actionSurge = getResource(fighter, 'Fighter', 'Action Surge');
@@ -190,7 +190,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const actionSurge = getResource(fighter, 'Fighter', 'Action Surge');
@@ -220,7 +220,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(fighter.classes[0]!.level).toBe(4);
@@ -245,14 +245,14 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(fighter.classes[0]!.level).toBe(5);
       const fighterClass = dataLoader.getClass('Fighter')!;
       const level5Features = fighterClass.featuresByLevel
-        .find(entry => entry.level === 5)!
-        .features.map(feature => feature.name);
+        .find((entry) => entry.level === 5)!
+        .features.map((feature) => feature.name);
       expect(level5Features).toContain('Extra Attack');
     });
 
@@ -273,14 +273,14 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(fighter.classes[0]!.level).toBe(11);
       const fighterClass = dataLoader.getClass('Fighter')!;
       const level11Features = fighterClass.featuresByLevel
-        .find(entry => entry.level === 11)!
-        .features.map(feature => feature.name);
+        .find((entry) => entry.level === 11)!
+        .features.map((feature) => feature.name);
       expect(level11Features).toContain('Two Extra Attacks');
     });
 
@@ -301,14 +301,14 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(fighter.classes[0]!.level).toBe(20);
       const fighterClass = dataLoader.getClass('Fighter')!;
       const level20Features = fighterClass.featuresByLevel
-        .find(entry => entry.level === 20)!
-        .features.map(feature => feature.name);
+        .find((entry) => entry.level === 20)!
+        .features.map((feature) => feature.name);
       expect(level20Features).toContain('Three Extra Attacks');
     });
   });
@@ -334,7 +334,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const indomitable = getResource(fighter, 'Fighter', 'Indomitable');
@@ -361,7 +361,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const indomitable = getResource(fighter, 'Fighter', 'Indomitable');

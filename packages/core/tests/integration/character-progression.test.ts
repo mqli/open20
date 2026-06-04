@@ -30,7 +30,7 @@ describe('D&D Player Behavior - Character Progression', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
     });
 
@@ -55,7 +55,7 @@ describe('D&D Player Behavior - Character Progression', () => {
             asi: { Intelligence: 1 },
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(levelUpResult.classes[0]!.level).toBe(2);
@@ -85,7 +85,7 @@ describe('D&D Player Behavior - Character Progression', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const result = validateCharacter(char, dataLoader);
@@ -110,7 +110,7 @@ describe('D&D Player Behavior - Character Progression', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const damaged = modifyHP(original, -10);
@@ -141,7 +141,7 @@ describe('D&D Player Behavior - Character Progression', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const recomputed = recomputeDerivedStats(char, dataLoader);

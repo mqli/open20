@@ -29,7 +29,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       const initialHP = fighter.hitPoints.current;
@@ -49,21 +49,23 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
       expect(fighter.hitPoints.current).toBeLessThan(initialHP);
 
       const fighterResources = fighter.resources['Fighter'];
-      const secondWind = fighterResources!.resources.find(r => r.id === 'Second Wind');
-      const actionSurge = fighterResources!.resources.find(r => r.id === 'Action Surge');
-      const indomitable = fighterResources!.resources.find(r => r.id === 'Indomitable');
+      const secondWind = fighterResources!.resources.find((r) => r.id === 'Second Wind');
+      const actionSurge = fighterResources!.resources.find((r) => r.id === 'Action Surge');
+      const indomitable = fighterResources!.resources.find((r) => r.id === 'Indomitable');
 
       expect(secondWind).toBeDefined();
       expect(actionSurge).toBeDefined();
       expect(indomitable).toBeDefined();
 
       fighter = consumeResource(fighter, 'Fighter', 'Second Wind');
-      const swAfterConsume = fighter.resources['Fighter']!.resources.find(r => r.id === 'Second Wind');
+      const swAfterConsume = fighter.resources['Fighter']!.resources.find(
+        (r) => r.id === 'Second Wind',
+      );
       expect(swAfterConsume!.used).toBe(1);
 
       fighter = shortRest(fighter, 1, dataLoader);
 
-      const afterRest = fighter.resources['Fighter']!.resources.find(r => r.id === 'Second Wind');
+      const afterRest = fighter.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind');
       expect(afterRest!.used).toBe(0);
     });
 
@@ -85,7 +87,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       // Note: Eldritch Knight spellcasting is granted by a subclass feature at level 3
@@ -95,8 +97,8 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
       expect(ek.classes[0]!.subclassId).toBe('Eldritch Knight');
       const eldritchKnight = dataLoader.getSubclass('Eldritch Knight')!;
       const level7Features = eldritchKnight.featuresByLevel
-        .find(entry => entry.level === 7)!
-        .features.map(feature => feature.name);
+        .find((entry) => entry.level === 7)!
+        .features.map((feature) => feature.name);
       expect(level7Features).toContain('War Magic');
     });
   });
@@ -121,14 +123,14 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(fighter.classes[0]!.level).toBe(1);
       const fighterClass = dataLoader.getClass('Fighter')!;
       const level1Features = fighterClass.featuresByLevel
-        .find(entry => entry.level === 1)!
-        .features.map(feature => feature.name);
+        .find((entry) => entry.level === 1)!
+        .features.map((feature) => feature.name);
       expect(level1Features).toContain('Fighting Style');
     });
   });
@@ -153,14 +155,15 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(fighter.classes[0]!.classId).toBe('Fighter');
       expect(dataLoader.getClass('Fighter')!.weaponMastery).toBe(true);
-      const level1Features = dataLoader.getClass('Fighter')!.featuresByLevel
-        .find(entry => entry.level === 1)!
-        .features.map(feature => feature.name);
+      const level1Features = dataLoader
+        .getClass('Fighter')!
+        .featuresByLevel.find((entry) => entry.level === 1)!
+        .features.map((feature) => feature.name);
       expect(level1Features).toContain('Weapon Mastery');
     });
   });

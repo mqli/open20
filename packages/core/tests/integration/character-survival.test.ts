@@ -24,7 +24,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 12,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       dyingHero = modifyHP(dyingHero, -dyingHero.hitPoints.max);
@@ -51,7 +51,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
         {
           name: 'Lucky',
           speciesId: 'Human',
-          backgroundId: 'soldier',  // SRD 5.2 only: Acolyte, Criminal, Sage, soldier
+          backgroundId: 'soldier', // SRD 5.2 only: Acolyte, Criminal, Sage, soldier
           classId: 'Fighter',
           abilityScores: {
             Strength: 12,
@@ -62,7 +62,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 16,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       dyingHero = modifyHP(dyingHero, -dyingHero.hitPoints.max);
@@ -97,7 +97,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(wizard.spells.spellSlots[1]!.total).toBe(4);
@@ -120,7 +120,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
         {
           name: 'Shadow',
           speciesId: 'Tiefling',
-          backgroundId: 'soldier',  // SRD 5.2 only: Acolyte, Criminal, Sage, soldier
+          backgroundId: 'soldier', // SRD 5.2 only: Acolyte, Criminal, Sage, soldier
           classId: 'Warlock',
           abilityScores: {
             Strength: 10,
@@ -131,7 +131,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 17,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       // Warlock uses Charisma for spellcasting

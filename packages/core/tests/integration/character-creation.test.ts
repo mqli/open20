@@ -24,7 +24,7 @@ describe('D&D Player Behavior - Character Creation', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(char.name).toBe('Tordek');
@@ -50,7 +50,7 @@ describe('D&D Player Behavior - Character Creation', () => {
             Charisma: 10,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(char.name).toBe('Elara');
@@ -79,7 +79,7 @@ describe('D&D Player Behavior - Character Creation', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
     });
 
@@ -117,7 +117,7 @@ describe('D&D Player Behavior - Character Creation', () => {
             Charisma: 8,
           },
         },
-        dataLoader
+        dataLoader,
       );
 
       fighter = modifyHP(fighter, -15);

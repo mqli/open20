@@ -25,7 +25,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Wizard', level: 1 }],
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(char.classes).toHaveLength(2);
@@ -54,7 +54,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Fighter', level: 2 }],
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(char.classes).toHaveLength(2);
@@ -83,7 +83,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Wizard', level: 1 }],
         },
-        dataLoader
+        dataLoader,
       );
 
       const result = validateCharacter(char, dataLoader);
@@ -107,7 +107,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Fighter', level: 1 }],
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(char.classes).toHaveLength(2);
@@ -142,7 +142,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Wizard', level: 5 }],
         },
-        dataLoader
+        dataLoader,
       );
 
       expect(char.spells.spellSlots[1]!.total).toBe(4);
