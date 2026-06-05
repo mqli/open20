@@ -17,9 +17,9 @@ import {
 } from '../../src/rolls/character';
 import { rollCharacterWeaponDamage } from '../../src/rolls/character';
 import { rollSpellDamage } from '../../src/rolls/character';
-import type { Character } from '../../src/types/character';
 import type { Weapon } from '../../src/types/equipment';
 import type { Spell } from '../../src/types/spell';
+import { createMockCharacter } from '../fixtures/characters';
 
 // ── Mock Random Provider ─────────────────────────────────────────
 
@@ -34,83 +34,6 @@ function createMockRNG(values: number[]): RandomProvider {
 }
 
 // ── Test Data ─────────────────────────────────────────────────────
-
-function createMockCharacter(): Character {
-  return {
-    schemaVersion: '2024.1',
-    name: 'Test Hero',
-    species: 'Human',
-    speciesSubtype: null,
-    background: 'Soldier',
-    classes: [
-      {
-        classId: 'Fighter',
-        level: 5,
-        subclassId: null,
-        subclassLevel: null,
-        hitDice: { die: 'd10', used: 0 },
-      },
-    ],
-    abilityScores: {
-      base: {
-        Strength: 18,
-        Dexterity: 14,
-        Constitution: 16,
-        Intelligence: 10,
-        Wisdom: 12,
-        Charisma: 8,
-      },
-      racialBonuses: {},
-      featBonuses: {},
-      temporaryBonuses: {},
-    },
-    skills: { Athletics: { proficient: true, expertise: false } },
-    feats: [],
-    equipment: [],
-    spells: {
-      classSpellcasting: {
-        fighter: {
-          classId: 'fighter',
-          spellcastingAbility: 'Intelligence',
-          spellSaveDC: 14,
-          spellAttackBonus: 5,
-          knownCantrips: [],
-          maxCantripsKnown: 0,
-          knownSpells: [],
-          preparedSpells: [],
-          alwaysPreparedSpells: [],
-          maxPrepared: 0,
-        },
-      },
-      spellSlots: {} as Record<
-        0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
-        { total: number; used: number }
-      >,
-      pactMagicSlots: null,
-    },
-    resources: {},
-    hitPoints: {
-      max: 44,
-      current: 44,
-      temporary: 0,
-      deathSaves: { successes: 0, failures: 0, isStable: false },
-    },
-    combatStats: {
-      AC: 18,
-      initiative: 2,
-      speed: 30,
-      passivePerception: 12,
-      proficiencyBonus: 3,
-      attacks: [],
-    },
-    currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
-    conditions: [],
-    damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },
-    notes: '',
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  };
-}
 
 // ── Tests ─────────────────────────────────────────────────────────
 
@@ -271,7 +194,9 @@ describe('rollAttack', () => {
 describe('rollSkillCheck', () => {
   it('calculates skill check correctly', () => {
     const rng = createMockRNG([12]);
-    const character = createMockCharacter();
+    const character = createMockCharacter({
+      skills: { Athletics: { proficient: true, expertise: false } },
+    });
     // Str 18 (+4), Athletics proficient, Prof +3 → total bonus +7
     const result = rollCharacterSkillCheck({
       character,
@@ -381,7 +306,21 @@ describe('rollSavingThrow', () => {
 describe('rollCharacterWeaponDamage', () => {
   it('calculates weapon damage correctly', () => {
     const rng = createMockRNG([4]); // 1d8
-    const character = createMockCharacter();
+    const character = createMockCharacter({
+      abilityScores: {
+        base: {
+          Strength: 18,
+          Dexterity: 14,
+          Constitution: 16,
+          Intelligence: 10,
+          Wisdom: 12,
+          Charisma: 8,
+        },
+        racialBonuses: {},
+        featBonuses: {},
+        temporaryBonuses: {},
+      },
+    });
     const weapon: Weapon = {
       id: 'longsword',
       name: 'Longsword',
@@ -465,7 +404,22 @@ describe('rollCharacterWeaponDamage', () => {
 
   it('ability modifier only applies to physical damage', () => {
     const rng = createMockRNG([4, 3]); // 1d8 slashing + 1d6 fire
-    const character = createMockCharacter(); // Str 18 = +4
+    const character = createMockCharacter({
+      // Str 18 = +4
+      abilityScores: {
+        base: {
+          Strength: 18,
+          Dexterity: 14,
+          Constitution: 16,
+          Intelligence: 10,
+          Wisdom: 12,
+          Charisma: 8,
+        },
+        racialBonuses: {},
+        featBonuses: {},
+        temporaryBonuses: {},
+      },
+    });
     const weapon: Weapon = {
       id: 'flametongue-longsword',
       name: 'Flametongue Longsword',

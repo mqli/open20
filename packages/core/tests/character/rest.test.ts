@@ -18,6 +18,7 @@ import type { Class } from '../../src/types/class';
 
 import { shortRest, longRest } from '../../src/character/rest';
 import type { RandomProvider } from '../../src/character/rest';
+import { createMockCharacter } from '../fixtures/characters';
 
 // ── Helper ─────────────────────────────────────────
 
@@ -121,68 +122,6 @@ function createMockDataLoader(): DataLoader {
 
 // ── Character Builders ─────────────────────────────────────────
 
-function makeCharacter(overrides: Partial<Character> = {}): Character {
-  const defaultChar: Character = {
-    schemaVersion: '2024.1',
-    name: 'Test Hero',
-    species: 'Human',
-    speciesSubtype: null,
-    background: 'Soldier',
-    classes: [
-      {
-        classId: 'Fighter',
-        level: 5,
-        subclassId: null,
-        subclassLevel: null,
-        hitDice: { die: 'd10', used: 0 },
-      },
-    ],
-    abilityScores: {
-      base: {
-        Strength: 16,
-        Dexterity: 14,
-        Constitution: 16,
-        Intelligence: 10,
-        Wisdom: 12,
-        Charisma: 8,
-      },
-      racialBonuses: {},
-      featBonuses: {},
-      temporaryBonuses: {},
-    },
-    skills: {},
-    feats: [],
-    equipment: [],
-    spells: {
-      classSpellcasting: {},
-      spellSlots: {} as Record<SpellLevel, SpellSlotEntry>,
-      pactMagicSlots: null,
-    },
-    resources: {},
-    hitPoints: {
-      max: 49,
-      current: 49,
-      temporary: 0,
-      deathSaves: { successes: 0, failures: 0, isStable: false },
-    },
-    combatStats: {
-      AC: 16,
-      initiative: 2,
-      speed: 30,
-      passivePerception: 12,
-      proficiencyBonus: 3,
-      attacks: [],
-    },
-    currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
-    conditions: [],
-    damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },
-    notes: '',
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  };
-  return { ...defaultChar, ...overrides };
-}
-
 function makeFighterWithResources(): Character {
   const shortRestResource: Resource = {
     id: 'Second Wind',
@@ -206,7 +145,7 @@ function makeFighterWithResources(): Character {
     resetOn: ResetType.PerTurn,
   };
 
-  return makeCharacter({
+  return createMockCharacter({
     hitPoints: {
       max: 49,
       current: 25,
@@ -252,7 +191,7 @@ function makeWarlock(): Character {
     9: { total: 0, used: 0 },
   };
 
-  return makeCharacter({
+  return createMockCharacter({
     classes: [
       {
         classId: 'Warlock',
@@ -295,7 +234,7 @@ function makeWarlock(): Character {
 function getResource(char: Character, classId: string, resourceId: string): Resource | undefined {
   const ccr = char.resources[classId];
   if (!ccr) return undefined;
-  return ccr.resources.find(r => r.id === resourceId);
+  return ccr.resources.find((r) => r.id === resourceId);
 }
 
 // ── Tests ──────────────────────────────────────────────────────
@@ -366,7 +305,7 @@ describe('shortRest', () => {
   });
 
   it('HP is capped at max', () => {
-    const char = makeCharacter({
+    const char = createMockCharacter({
       hitPoints: {
         max: 49,
         current: 45,
@@ -440,7 +379,7 @@ describe('longRest', () => {
       9: { total: 0, used: 0 },
     };
 
-    const char = makeCharacter({
+    const char = createMockCharacter({
       classes: [
         {
           classId: 'Wizard',
@@ -529,7 +468,7 @@ describe('shortRest with multi-class', () => {
   const data = createMockDataLoader();
 
   it('spends hit dice across classes in order', () => {
-    const char = makeCharacter({
+    const char = createMockCharacter({
       classes: [
         {
           classId: 'Fighter',

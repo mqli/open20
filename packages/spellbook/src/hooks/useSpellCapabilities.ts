@@ -35,42 +35,40 @@ export interface SpellCapabilities {
   alwaysPreparedClassIds: string[];
   cantripKnownClassIds: string[];
 
-  // Derived stats
+  // Derived stats (for single-class; multiclass uses per-class in UI components)
   spellAttackBonus: number;
-  preparedCount: number;
-  maxPrepared: number;
 }
+
+// Module-level constant to avoid re-creating on every memo invalidation
+const EMPTY_CAPABILITIES: SpellCapabilities = {
+  isKnown: false,
+  isPrepared: false,
+  isCantripKnown: false,
+  isClassSpell: false,
+  isConcentratingOnThis: false,
+  casterType: { canLearn: false, canPrepare: false, isSpellbookCaster: false },
+  knows: false,
+  canCast: false,
+  showPrepareButton: false,
+  showLearnButton: false,
+  showCantripButton: false,
+  hasRegularSlot: false,
+  hasPactSlot: false,
+  isWarlock: false,
+  matchingClassIds: [],
+  preparedClassIds: [],
+  alwaysPreparedClassIds: [],
+  cantripKnownClassIds: [],
+  spellAttackBonus: 0,
+};
 
 export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapabilities {
   const { activeCharacter } = useCharacterStore();
 
   return useMemo(() => {
-    const character = activeCharacter;
-    const empty: SpellCapabilities = {
-      isKnown: false,
-      isPrepared: false,
-      isCantripKnown: false,
-      isClassSpell: false,
-      isConcentratingOnThis: false,
-      casterType: { canLearn: false, canPrepare: false, isSpellbookCaster: false },
-      knows: false,
-      canCast: false,
-      showPrepareButton: false,
-      showLearnButton: false,
-      showCantripButton: false,
-      hasRegularSlot: false,
-      hasPactSlot: false,
-      isWarlock: false,
-      matchingClassIds: [],
-      preparedClassIds: [],
-      alwaysPreparedClassIds: [],
-      cantripKnownClassIds: [],
-      spellAttackBonus: 0,
-      preparedCount: 0,
-      maxPrepared: 0,
-    };
+    if (!activeCharacter || !spell) return EMPTY_CAPABILITIES;
 
-    if (!character || !spell) return empty;
+    const character = activeCharacter;
 
     // ── matching class IDs ──
     const matchingClassIds = (character.classes?.map((c) => c.classId) ?? []).filter(
@@ -109,19 +107,21 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
 
     const classSpellcasting = character.spells.classSpellcasting;
     const primaryClassId = Object.keys(classSpellcasting)[0] ?? null;
-    const statsClassId = matchingClassIds[0] ?? primaryClassId;
 
-    // ── prepare count ──
-    let preparedCount = 0;
-    let maxPrepared = 0;
-    if (statsClassId && classSpellcasting[statsClassId]) {
-      const classData = classSpellcasting[statsClassId];
-      if (isClassSpell) {
-        preparedCount =
-          (classData.preparedSpells?.length ?? 0) + (classData.alwaysPreparedSpells?.length ?? 0);
-        maxPrepared = classData.maxPrepared ?? 0;
-      }
-    }
+    // ── statsClassId: pick best class for display purposes ──
+    // For single-class or single-match: use that class.
+    // For multiclass matching multiple classes: pick the one with highest spellAttackBonus
+    // (reasonable heuristic; true D&D 5e multiclass would let the player choose).
+    const statsClassId = (() => {
+      if (matchingClassIds.length === 0) return primaryClassId;
+      if (matchingClassIds.length === 1) return matchingClassIds[0];
+      // Multiple matches: pick highest spellAttackBonus
+      return matchingClassIds.reduce((best, id) => {
+        const bestBonus = classSpellcasting[best]?.spellAttackBonus ?? -Infinity;
+        const currentBonus = classSpellcasting[id]?.spellAttackBonus ?? -Infinity;
+        return currentBonus > bestBonus ? id : best;
+      }, matchingClassIds[0]);
+    })();
 
     // ── spell attack bonus ──
     const spellAttackBonus = statsClassId
@@ -133,6 +133,8 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     const pactMagic = character.spells.pactMagicSlots;
     const spellSlots = character.spells.spellSlots;
 
+    // Cantrips never consume slots — hasRegularSlot is only meaningful for leveled spells.
+    // For UI indicators, treat cantrips as always having a "slot".
     const hasRegularSlot =
       spell.level === 0 ||
       (spellSlots[spell.level]?.total ?? 0) > (spellSlots[spell.level]?.used ?? 0);
@@ -144,6 +146,8 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     );
 
     // ── knows (spellbook-caster-aware) ──
+    // For spellbook casters (Wizard), must have learned the spell.
+    // For other casters (Cleric, Druid, etc.), all class spells are "known".
     const knows = casterType.isSpellbookCaster ? isKnown : true;
 
     // Character must be high enough level to access this spell level (slots exist at all)
@@ -153,13 +157,23 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
       !!(pactMagic && spell.level <= pactMagic.level);
 
     // ── canCast ──
-    const canCast =
-      isClassSpell &&
-      (knows || spell.level === 0) &&
-      (spell.level === 0 || isPrepared) &&
-      (hasRegularSlot || hasPactSlot);
+    // Cantrips: can cast if isClassSpell (no preparation or slot consumption).
+    // Leveled spells: must be prepared (or always prepared) AND have a slot.
+    const canCast = (() => {
+      if (!isClassSpell) return false;
+
+      if (spell.level === 0) {
+        // Cantrips: castable if known (for cantrip-known casters) or automatically for others
+        return knows;
+      }
+
+      // Leveled spells: must be prepared and have a slot
+      return (knows || isPrepared) && (hasRegularSlot || hasPactSlot);
+    })();
 
     // ── button visibility ──
+    // Prepare button: show for prepared casters (canPrepare) when the spell is known/accessible.
+    // For spellbook casters, must also have learned the spell first.
     const showPrepareButton =
       isClassSpell && casterType.canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
     // Learn toggle: cantrips for all casters, regular spells only for spellbook casters
@@ -188,8 +202,6 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
       alwaysPreparedClassIds,
       cantripKnownClassIds,
       spellAttackBonus,
-      preparedCount,
-      maxPrepared,
     };
   }, [activeCharacter, spell]);
 }

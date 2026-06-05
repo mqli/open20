@@ -6,6 +6,94 @@ import { ResetType } from '../../src/types/resource';
 import type { Species } from '../../src/types/species';
 import type { Background } from '../../src/types/background';
 import type { Class, Feature, Subclass } from '../../src/types/class';
+import type { Character } from '../../src/types/character';
+import type { SpellLevel, SpellSlotEntry } from '../../src/types/spell';
+
+// ── Mock Character Factory ──────────────────────────────────────
+
+/**
+ * Create a mock Character with all required fields.
+ * Accepts partial overrides for test-specific customizations.
+ *
+ * @example
+ * const char = createMockCharacter({ name: 'My Hero' });
+ * const charWithOverrides = createMockCharacter({ classes: [wizardClass] });
+ */
+export function createMockCharacter(overrides: Partial<Character> = {}): Character {
+  const defaultChar: Character = {
+    schemaVersion: '2024.1',
+    name: 'Test Hero',
+    species: 'Human',
+    speciesSubtype: null,
+    background: 'Soldier',
+    classes: [
+      {
+        classId: 'Fighter',
+        level: 1,
+        subclassId: null,
+        subclassLevel: null,
+        hitDice: { die: 'd10', used: 0 },
+      },
+    ],
+    abilityScores: {
+      base: {
+        Strength: 18,
+        Dexterity: 14,
+        Constitution: 16,
+        Intelligence: 10,
+        Wisdom: 12,
+        Charisma: 8,
+      },
+      racialBonuses: {},
+      featBonuses: {},
+      temporaryBonuses: {},
+    },
+    skills: {},
+    feats: [],
+    equipment: [],
+    spells: {
+      classSpellcasting: {},
+      spellSlots: {
+        0: { total: 0, used: 0 },
+        1: { total: 0, used: 0 },
+        2: { total: 0, used: 0 },
+        3: { total: 0, used: 0 },
+        4: { total: 0, used: 0 },
+        5: { total: 0, used: 0 },
+        6: { total: 0, used: 0 },
+        7: { total: 0, used: 0 },
+        8: { total: 0, used: 0 },
+        9: { total: 0, used: 0 },
+      } as Record<SpellLevel, SpellSlotEntry>,
+      pactMagicSlots: null,
+    },
+    resources: {},
+    hitPoints: {
+      max: 10,
+      current: 10,
+      temporary: 0,
+      deathSaves: { successes: 0, failures: 0, isStable: false },
+    },
+    combatStats: {
+      AC: 14,
+      initiative: 2,
+      speed: 30,
+      passivePerception: 11,
+      proficiencyBonus: 3,
+      attacks: [],
+    },
+    currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
+    conditions: [],
+    concentration: null,
+    activeEffects: [],
+    damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },
+    notes: '',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+  };
+
+  return { ...defaultChar, ...overrides };
+}
 
 // ── Species ──────────────────────────────────────────────────
 

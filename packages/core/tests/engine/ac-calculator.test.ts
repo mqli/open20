@@ -394,8 +394,8 @@ describe('calculateAC', () => {
       equipped: boolean;
     }[] = [];
     const features: readonly Feature[] = [];
-    const conditions: readonly { source?: string; id?: string }[] = [
-      { id: 'mage-armor', source: 'Mage Armor' },
+    const conditions = [
+      { id: 'mage-armor', source: 'Mage Armor', appliedAt: '2024-01-01T00:00:00.000Z' },
     ];
     const data = createMockDataLoader();
 
@@ -424,8 +424,8 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const conditions: readonly { source?: string; id?: string }[] = [
-      { id: 'mage-armor', source: 'Mage Armor' },
+    const conditions = [
+      { id: 'mage-armor', source: 'Mage Armor', appliedAt: '2024-01-01T00:00:00.000Z' },
     ];
     const data = createMockDataLoader({
       getArmor: (id: string) => (id === 'Leather Armor' ? LEATHER_ARMOR : undefined),
@@ -454,7 +454,7 @@ describe('calculateAC', () => {
       equipped: boolean;
     }[] = [];
     const features: readonly Feature[] = [];
-    const conditions: readonly { source?: string; id?: string }[] = [];
+    const conditions: { id: string; source: string; appliedAt: string }[] = [];
     const data = createMockDataLoader();
 
     // No Mage Armor → unarmored 10 + 3 = 13
