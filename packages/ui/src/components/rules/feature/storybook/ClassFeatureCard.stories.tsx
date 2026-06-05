@@ -5,7 +5,7 @@ import { Button } from '@/components/Button';
 import { ClassFeatureCard, type ClassFeatureCardProps } from '../ClassFeatureCard';
 
 const meta: Meta<typeof ClassFeatureCard> = {
-  title: 'Feat/ClassFeatureCard',
+  title: 'rules/ClassFeatureCard',
   component: ClassFeatureCard,
   tags: ['autodocs'],
   parameters: {

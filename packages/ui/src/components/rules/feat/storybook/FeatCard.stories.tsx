@@ -10,7 +10,7 @@ const surfaceVariantOptions = Object.keys(surfaceVariants) as Array<
 >;
 
 const meta: Meta<typeof FeatCard> = {
-  title: 'Feat/FeatCard',
+  title: 'rules/FeatCard',
   component: FeatCard,
   tags: ['autodocs'],
   parameters: {
