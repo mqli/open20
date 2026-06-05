@@ -10,6 +10,11 @@ vi.mock('@/stores/spell-store', () => ({
   useSpellStore: vi.fn(),
 }));
 
+// Mock useIsLargeScreen to return false (tests expect Sheet behavior)
+vi.mock('@/hooks/use-breakpoint', () => ({
+  useIsLargeScreen: () => false,
+}));
+
 // Mock the SpellCardWrapper component
 vi.mock('@/components/spell/SpellCardWrapper', () => ({
   SpellCardWrapper: ({ spell, showDescription }: any) => (
@@ -29,20 +34,39 @@ vi.mock('@/components/spell/SpellCardWrapper', () => ({
   ),
 }));
 
-// Mock the Sheet components from @open20/ui
+// Mock the Sheet and Dialog components from @open20/ui
 vi.mock('@open20/ui', async () => {
   const actual = await vi.importActual('@open20/ui');
+
+  // Create Sheet mock with nested components (matching actual API)
+  const SheetMock = vi.fn(({ children, open }: any) => (
+    <div data-testid="sheet-root" data-open={open}>
+      {open ? children : null}
+    </div>
+  ));
+  SheetMock.Content = ({ children }: any) => <div data-testid="sheet-content">{children}</div>;
+  SheetMock.Header = ({ children }: any) => <div data-testid="sheet-header">{children}</div>;
+  SheetMock.Body = ({ children }: any) => <div data-testid="sheet-body">{children}</div>;
+  SheetMock.Close = ({ children, asChild }: any) => (
+    <div data-testid="sheet-close">{asChild ? children : null}</div>
+  );
+
   return {
     ...(actual as object),
-    SheetRoot: ({ children, open }: any) => (
-      <div data-testid="sheet-root" data-open={open}>
-        {open ? children : null}
-      </div>
-    ),
-    SheetContent: ({ children }: any) => <div data-testid="sheet-content">{children}</div>,
-    SheetHeader: ({ children }: any) => <div data-testid="sheet-header">{children}</div>,
-    SheetBody: ({ children }: any) => <div data-testid="sheet-body">{children}</div>,
-    SheetClose: ({ children }: any) => <div data-testid="sheet-close">{children}</div>,
+    Sheet: SheetMock,
+    // Mock Dialog component (used for desktop)
+    Dialog: {
+      Root: ({ children, open }: any) => (
+        <div data-testid="dialog-root" data-open={open}>
+          {children}
+        </div>
+      ),
+      Overlay: () => <div data-testid="dialog-overlay" />,
+      Content: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+      Close: ({ children, asChild }: any) => (
+        <div data-testid="dialog-close">{asChild ? children : null}</div>
+      ),
+    },
     IconButton: ({ children }: any) => <button data-testid="icon-button">{children}</button>,
   };
 });
