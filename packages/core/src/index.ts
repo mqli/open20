@@ -11,6 +11,8 @@ export type {
   Class,
   Subclass,
   Feature,
+  FeatureGeneric,
+  FeatureACFormula,
   FeatureType,
   ACFormula,
   ACRequirement,

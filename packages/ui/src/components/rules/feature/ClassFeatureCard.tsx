@@ -8,7 +8,14 @@ import { CardMetaItem } from '@/components/CardSurface';
 import { useTranslation } from '@/i18n';
 
 import { ResetType } from 'open20-core';
-import type { Feature, FeatureType, ACFormula, ACRequirement, AbilityName } from 'open20-core';
+import type {
+  Feature,
+  FeatureGeneric,
+  FeatureType,
+  ACFormula,
+  ACRequirement,
+  AbilityName,
+} from 'open20-core';
 
 /* -------------------------------------------------------------------------- */
 /*  Feature type color map                                                    */
@@ -45,7 +52,103 @@ export interface ClassFeatureCardProps {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Component                                                                 */
+/*  Sub-components with i18n                                                   */
+/* -------------------------------------------------------------------------- */
+
+function FeatureACFormula({ acFormula }: { acFormula: ACFormula }) {
+  const t = useTranslation();
+  const parts: string[] = [t('feature.baseAC', { ac: acFormula.baseAC })];
+
+  if (acFormula.addModifiers && acFormula.addModifiers.length > 0) {
+    const mods = acFormula.addModifiers.map((m: AbilityName) => {
+      const abbrev = m.substring(0, 3).toUpperCase();
+      return `+${abbrev}`;
+    });
+    parts.push(`+ ${mods.join(' + ')}`);
+  }
+
+  if (acFormula.requires && acFormula.requires.length > 0) {
+    const reqs = acFormula.requires.map((r: ACRequirement) => {
+      switch (r) {
+        case 'noArmor':
+          return t('feature.noArmor');
+        case 'noShield':
+          return t('feature.noShield');
+        case 'noHeavyArmor':
+          return t('feature.noHeavyArmor');
+      }
+    });
+    parts.push(t('feature.requires', { reqs: reqs.join(', ') }));
+  }
+
+  return (
+    <CardMetaItem
+      icon={<span className="text-text-tertiary text-xs font-semibold">AC</span>}
+      label={parts.join(' ')}
+      className={sectionDivider}
+    />
+  );
+}
+
+function FeatureResourceSummary({ feature }: { feature: FeatureGeneric }) {
+  const t = useTranslation();
+
+  if (!feature.resourceId) return null;
+
+  const parts: string[] = [];
+
+  // Resource max
+  if (feature.resourceMax) {
+    parts.push(t('feature.max', { max: feature.resourceMax }));
+  } else if (feature.resourceMaxByLevel) {
+    parts.push(t('feature.maxScalesByLevel'));
+  }
+
+  // Reset type
+  if (feature.resourceResetOn) {
+    let resetText: string;
+    switch (feature.resourceResetOn) {
+      case ResetType.LongRest:
+        resetText = t('feature.longRest');
+        break;
+      case ResetType.ShortRest:
+        resetText = t('feature.shortRest');
+        break;
+      case ResetType.Daily:
+        resetText = t('feature.daily');
+        break;
+      case ResetType.PerTurn:
+        resetText = t('feature.perTurn');
+        break;
+      case ResetType.Never:
+        resetText = t('feature.never');
+        break;
+      default: {
+        const _exhaustive: never = feature.resourceResetOn;
+        return _exhaustive;
+      }
+    }
+    parts.push(t('feature.reset', { reset: resetText }));
+  }
+
+  // Scale with PB
+  if (feature.resourceScaleWithPB) {
+    parts.push(t('feature.scalesWithPB'));
+  }
+
+  if (parts.length === 0) return null;
+
+  return (
+    <CardMetaItem
+      icon={<span className="text-text-tertiary text-xs font-semibold">RES</span>}
+      label={parts.join(', ')}
+      className={sectionDivider}
+    />
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Main Component                                                            */
 /* -------------------------------------------------------------------------- */
 
 export function ClassFeatureCard({
@@ -62,88 +165,9 @@ export function ClassFeatureCard({
   const t = useTranslation();
   const isCompact = density === 'compact';
 
-  // ── Inner helpers (use t from closure) ─────────────────────────────
-  function formatResetType(reset: ResetType): string {
-    switch (reset) {
-      case ResetType.LongRest:
-        return t('feature.longRest');
-      case ResetType.ShortRest:
-        return t('feature.shortRest');
-      case ResetType.Daily:
-        return t('feature.daily');
-      case ResetType.PerTurn:
-        return t('feature.perTurn');
-      case ResetType.Never:
-        return t('feature.never');
-      default: {
-        const _exhaustive: never = reset;
-        return _exhaustive;
-      }
-    }
-  }
-
-  function formatACFormula(acFormula: ACFormula): string {
-    const parts: string[] = [t('feature.baseAC', { ac: acFormula.baseAC })];
-
-    if (acFormula.addModifiers && acFormula.addModifiers.length > 0) {
-      const mods = acFormula.addModifiers.map((m: AbilityName) => {
-        const abbrev = m.substring(0, 3).toUpperCase();
-        return `$${abbrev}`;
-      });
-      parts.push(`+ ${mods.join(' + ')}`);
-    }
-
-    if (acFormula.requires && acFormula.requires.length > 0) {
-      const reqs = acFormula.requires.map((r: ACRequirement) => {
-        switch (r) {
-          case 'noArmor':
-            return t('feature.noArmor');
-          case 'noShield':
-            return t('feature.noShield');
-          case 'noHeavyArmor':
-            return t('feature.noHeavyArmor');
-        }
-      });
-      parts.push(t('feature.requires', { reqs: reqs.join(', ') }));
-    }
-
-    return parts.join(' ');
-  }
-
-  function getResourceSummary(): string | null {
-    if (feature.featureType === 'acFormula') return null;
-    if (!feature.resourceId) return null;
-
-    const parts: string[] = [];
-
-    // Resource max
-    if (feature.resourceMax) {
-      parts.push(t('feature.max', { max: feature.resourceMax }));
-    } else if (feature.resourceMaxByLevel) {
-      parts.push(t('feature.maxScalesByLevel'));
-    }
-
-    // Reset type
-    if (feature.resourceResetOn) {
-      parts.push(t('feature.reset', { reset: formatResetType(feature.resourceResetOn) }));
-    }
-
-    // Scale with PB
-    if (feature.resourceScaleWithPB) {
-      parts.push(t('feature.scalesWithPB'));
-    }
-
-    return parts.length > 0 ? parts.join(', ') : null;
-  }
-
   const displayName = feature.name;
   const displayLevel = levelProp ?? feature.level;
   const showDesc = showDescProp ?? !isCompact;
-  const resourceSummary = getResourceSummary();
-
-  // For AC formula features, get the formatted AC formula
-  const acFormulaText =
-    feature.featureType === 'acFormula' ? formatACFormula(feature.acFormula) : null;
 
   return (
     <CardSurface
@@ -176,22 +200,10 @@ export function ClassFeatureCard({
       </div>
 
       {/* ── AC Formula (for acFormula feature type) ───────────────────── */}
-      {acFormulaText && (
-        <CardMetaItem
-          icon={<span className="text-text-tertiary text-xs font-semibold">AC</span>}
-          label={acFormulaText}
-          className={sectionDivider}
-        />
-      )}
+      {feature.featureType === 'acFormula' && <FeatureACFormula acFormula={feature.acFormula} />}
 
       {/* ── Resource Summary (for resource-granting features) ──────────── */}
-      {resourceSummary && (
-        <CardMetaItem
-          icon={<span className="text-text-tertiary text-xs font-semibold">RES</span>}
-          label={resourceSummary}
-          className={sectionDivider}
-        />
-      )}
+      {feature.featureType === 'generic' && <FeatureResourceSummary feature={feature} />}
 
       {/* ── Description ────────────────────────────────────────────────── */}
       {showDesc && (
