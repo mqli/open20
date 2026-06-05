@@ -68,4 +68,5 @@ export type { AlwaysPreparedSpells, ClassSpellData } from './spell';
 export type { SpellLevel, SpellSchool, CastingTime, SpellComponent } from './spell';
 
 // 资源
-export type { Resource, ResetType } from './resource';
+export type { Resource } from './resource';
+export { ResetType } from './resource';

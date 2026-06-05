@@ -7,7 +7,15 @@ export type { Character, CharacterClass, HitPoints, DeathSaves, Currency } from 
 export type { AbilityName, AbilityScores } from './types';
 export type { Species, SpeciesTrait, SpeciesSubtype } from './types';
 export type { Background } from './types';
-export type { Class, Subclass, Feature, Spellcasting } from './types';
+export type {
+  Class,
+  Subclass,
+  Feature,
+  FeatureType,
+  ACFormula,
+  ACRequirement,
+  Spellcasting,
+} from './types/class';
 export type {
   Feat,
   FeatCategory,
@@ -25,7 +33,8 @@ export type {
   PactMagicSlots,
   FeatSpellsEntry,
 } from './types/spell';
-export type { Resource, ResetType } from './types';
+export type { Resource } from './types';
+export { ResetType } from './types';
 export type {
   CombatStats,
   CharacterAttack,
