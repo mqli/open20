@@ -5,6 +5,7 @@ import {
   getModifier,
   getTotalScore,
   type Spell,
+  rollSpellDamage,
 } from 'open20-core';
 import type { SpellLevel, AbilityName } from 'open20-core/types';
 import type { ComponentProps, ReactNode } from 'react';
@@ -230,9 +231,14 @@ export function SpellCardWrapper({
   };
 
   const handleDamageRoll = () => {
-    if (!hasDamageEntries || !activeCharacter) return;
-
-    const result = characterService.rollSpellDamage(activeCharacter, spell.id, effectiveCastLevel);
+    if (!hasDamageEntries) return;
+    const result = activeCharacter
+      ? characterService.rollSpellDamage(activeCharacter, spell.id, effectiveCastLevel)
+      : rollSpellDamage({
+          spell,
+          slotLevel: effectiveCastLevel,
+          rng: defaultRandom,
+        });
     const diceExpr = result.entries
       .map((entry) => `${entry.results.join('+')} (${entry.type})`)
       .join(' + ');
@@ -249,14 +255,14 @@ export function SpellCardWrapper({
   };
 
   const handleHealRoll = () => {
-    if (!effectiveHealDice || !activeCharacter) return;
+    if (!effectiveHealDice) return;
 
     const result = rollDiceExpression(defaultRandom, effectiveHealDice);
     let total = result.total;
     let expression = effectiveHealDice;
 
     // Add spellcasting ability modifier if the spell includes it
-    if (spell.heal?.includeSpellcastingModifier) {
+    if (spell.heal?.includeSpellcastingModifier && activeCharacter) {
       const classSpellcasting = activeCharacter.spells.classSpellcasting;
       const primaryClassId = Object.keys(classSpellcasting)[0];
       const spellcastingAbility = primaryClassId
