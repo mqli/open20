@@ -47,7 +47,46 @@ export type BaseTranslationKeys =
   | 'dialog.close'
   // Select
   | 'select.noOptions'
-  | 'select.searchPlaceholder';
+  | 'select.searchPlaceholder'
+  // Rules - Feat
+  | 'feat.repeatable'
+  | 'feat.levelReq'
+  | 'feat.abilityBonus'
+  | 'feat.abilityBonusChoice'
+  | 'feat.skillProficiencies'
+  | 'feat.skillProficiencyChoice'
+  | 'feat.toolProficiencies'
+  | 'feat.toolProficiencyChoice'
+  | 'feat.languages'
+  | 'feat.armorTraining'
+  | 'feat.weaponMastery'
+  | 'feat.attackBonus'
+  | 'feat.attackBonusRanged'
+  | 'feat.attackBonusMelee'
+  | 'feat.acBonus'
+  | 'feat.acBonusLight'
+  | 'feat.acBonusMedium'
+  | 'feat.acBonusHeavy'
+  | 'feat.specialAbilities'
+  | 'feat.spellChoices'
+  | 'feat.spellsCount'
+  | 'feat.prerequisite'
+  // Rules - Feature
+  | 'feature.level'
+  | 'feature.longRest'
+  | 'feature.shortRest'
+  | 'feature.daily'
+  | 'feature.perTurn'
+  | 'feature.never'
+  | 'feature.max'
+  | 'feature.maxScalesByLevel'
+  | 'feature.reset'
+  | 'feature.scalesWithPB'
+  | 'feature.baseAC'
+  | 'feature.noArmor'
+  | 'feature.noShield'
+  | 'feature.noHeavyArmor'
+  | 'feature.requires';
 
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
@@ -105,6 +144,47 @@ export const defaultTranslations: Translations = {
 
   'select.noOptions': 'No options available',
   'select.searchPlaceholder': 'Search...',
+
+  // Rules - Feat
+  'feat.repeatable': 'Repeatable',
+  'feat.levelReq': 'Level {level}+',
+  'feat.abilityBonus': 'Ability: {bonus}',
+  'feat.abilityBonusChoice': 'Choose {count}× +{value} ability',
+  'feat.skillProficiencies': 'Skills: {skills}',
+  'feat.skillProficiencyChoice': 'Choose {count} skill/tool',
+  'feat.toolProficiencies': 'Tools: {tools}',
+  'feat.toolProficiencyChoice': 'Choose {count} tool',
+  'feat.languages': 'Languages: {languages}',
+  'feat.armorTraining': 'Armor: {armors}',
+  'feat.weaponMastery': 'Weapons: {weapons}',
+  'feat.attackBonus': 'Attack: {bonus}',
+  'feat.attackBonusRanged': 'Ranged +{bonus}',
+  'feat.attackBonusMelee': 'Melee +{bonus}',
+  'feat.acBonus': 'AC: {bonus}',
+  'feat.acBonusLight': 'Light +{bonus}',
+  'feat.acBonusMedium': 'Medium +{bonus}',
+  'feat.acBonusHeavy': 'Heavy +{bonus}',
+  'feat.specialAbilities': 'Special: {abilities}',
+  'feat.spellChoices': 'Spells: {count} spell(s)',
+  'feat.spellsCount': '{count} spell(s)',
+  'feat.prerequisite': 'REQ',
+
+  // Rules - Feature
+  'feature.level': 'Level {level}',
+  'feature.longRest': 'Long Rest',
+  'feature.shortRest': 'Short Rest',
+  'feature.daily': 'Daily',
+  'feature.perTurn': 'Per Turn',
+  'feature.never': 'Never',
+  'feature.max': 'Max: {max}',
+  'feature.maxScalesByLevel': 'Max: scales by level',
+  'feature.reset': 'Reset: {reset}',
+  'feature.scalesWithPB': 'Scales with PB',
+  'feature.baseAC': 'Base {ac}',
+  'feature.noArmor': 'no armor',
+  'feature.noShield': 'no shield',
+  'feature.noHeavyArmor': 'no heavy armor',
+  'feature.requires': '(requires {reqs})',
 };
 
 // Chinese (Simplified) translations (flat dot-notation keys)
@@ -155,6 +235,47 @@ export const zhCNTranslations: Translations = {
 
   'select.noOptions': '没有可用选项',
   'select.searchPlaceholder': '搜索...',
+
+  // Rules - Feat
+  'feat.repeatable': '可重复',
+  'feat.levelReq': '等级 {level}+',
+  'feat.abilityBonus': '属性：{bonus}',
+  'feat.abilityBonusChoice': '选择 {count}× +{value} 属性',
+  'feat.skillProficiencies': '技能：{skills}',
+  'feat.skillProficiencyChoice': '选择 {count} 技能/工具',
+  'feat.toolProficiencies': '工具：{tools}',
+  'feat.toolProficiencyChoice': '选择 {count} 工具',
+  'feat.languages': '语言：{languages}',
+  'feat.armorTraining': '护甲：{armors}',
+  'feat.weaponMastery': '武器：{weapons}',
+  'feat.attackBonus': '攻击：{bonus}',
+  'feat.attackBonusRanged': '远程 +{bonus}',
+  'feat.attackBonusMelee': '近战 +{bonus}',
+  'feat.acBonus': 'AC：{bonus}',
+  'feat.acBonusLight': '轻甲 +{bonus}',
+  'feat.acBonusMedium': '中甲 +{bonus}',
+  'feat.acBonusHeavy': '重甲 +{bonus}',
+  'feat.specialAbilities': '特殊：{abilities}',
+  'feat.spellChoices': '法术：{count} 个法术',
+  'feat.spellsCount': '{count} 个法术',
+  'feat.prerequisite': '需求',
+
+  // Rules - Feature
+  'feature.level': '等级 {level}',
+  'feature.longRest': '长休',
+  'feature.shortRest': '短休',
+  'feature.daily': '每日',
+  'feature.perTurn': '每回合',
+  'feature.never': '永不',
+  'feature.max': '上限：{max}',
+  'feature.maxScalesByLevel': '上限：随等级提升',
+  'feature.reset': '重置：{reset}',
+  'feature.scalesWithPB': '随熟练加值提升',
+  'feature.baseAC': '基础 {ac}',
+  'feature.noArmor': '无护甲',
+  'feature.noShield': '无盾牌',
+  'feature.noHeavyArmor': '无重甲',
+  'feature.requires': '（需要 {reqs}）',
 };
 
 // Context type

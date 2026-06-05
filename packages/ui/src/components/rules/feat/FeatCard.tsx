@@ -6,6 +6,8 @@ import { Badge, type BadgeProps } from '@/components/Badge';
 import { CardSurface } from '@/components/CardSurface';
 import type { CardSurfaceDensity } from '@/components/CardSurface';
 import { CardMetaItem } from '@/components/CardSurface';
+import { useTranslation } from '@/i18n';
+import type { BaseTranslationKeys } from '@/i18n';
 
 import type { Feat, FeatCategory, AbilityName } from 'open20-core';
 
@@ -58,12 +60,15 @@ const ABILITY_ABBREVS: Record<AbilityName, string> = {
   Charisma: 'CHA',
 };
 
-function formatPrerequisite(feat: Feat): string | null {
+function formatPrerequisite(
+  feat: Feat,
+  t: (key: BaseTranslationKeys, params?: Record<string, string | number>) => string,
+): string | null {
   const pre = feat.prerequisites;
   if (!pre) return null;
 
   const parts: string[] = [];
-  if (pre.level !== undefined) parts.push(`Level ${pre.level}+`);
+  if (pre.level !== undefined) parts.push(t('feat.levelReq', { level: pre.level }));
   if (pre.ability) {
     for (const [ability, min] of Object.entries(pre.ability)) {
       parts.push(`${ABILITY_ABBREVS[ability as AbilityName] ?? ability} ${min}+`);
@@ -76,7 +81,10 @@ function formatPrerequisite(feat: Feat): string | null {
   return parts.join(', ');
 }
 
-function formatGrants(feat: Feat): string[] {
+function formatGrants(
+  feat: Feat,
+  t: (key: BaseTranslationKeys, params?: Record<string, string | number>) => string,
+): string[] {
   const grants = feat.grants;
   if (!grants || grants.length === 0) return [];
 
@@ -88,81 +96,85 @@ function formatGrants(feat: Feat): string[] {
         const parts = Object.entries(grant.bonus)
           .map(([k, v]) => `+${v} ${ABILITY_ABBREVS[k as AbilityName] ?? k}`)
           .join(', ');
-        lines.push(`Ability: ${parts}`);
+        lines.push(t('feat.abilityBonus', { bonus: parts }));
         break;
       }
 
       case 'abilityBonusChoice': {
         const c = grant.choice;
-        lines.push(`Choose ${c.count}× +${c.valuePerChoice} ability`);
+        lines.push(t('feat.abilityBonusChoice', { count: c.count, value: c.valuePerChoice }));
         break;
       }
 
       case 'skillProficiencies': {
         if (grant.skills.length > 0) {
-          lines.push(`Skills: ${grant.skills.join(', ')}`);
+          lines.push(t('feat.skillProficiencies', { skills: grant.skills.join(', ') }));
         }
         break;
       }
 
       case 'skillProficiencyChoice': {
-        lines.push(`Choose ${grant.choice.count} skill/tool`);
+        lines.push(t('feat.skillProficiencyChoice', { count: grant.choice.count }));
         break;
       }
 
       case 'toolProficiencies': {
         if (grant.tools.length > 0) {
-          lines.push(`Tools: ${grant.tools.join(', ')}`);
+          lines.push(t('feat.toolProficiencies', { tools: grant.tools.join(', ') }));
         }
         break;
       }
 
       case 'toolProficiencyChoice': {
-        lines.push(`Choose ${grant.choice.count} tool`);
+        lines.push(t('feat.toolProficiencyChoice', { count: grant.choice.count }));
         break;
       }
 
       case 'languages': {
         if (grant.languages.length > 0) {
-          lines.push(`Languages: ${grant.languages.join(', ')}`);
+          lines.push(t('feat.languages', { languages: grant.languages.join(', ') }));
         }
         break;
       }
 
       case 'armorTraining': {
         if (grant.armors.length > 0) {
-          lines.push(`Armor: ${grant.armors.join(', ')}`);
+          lines.push(t('feat.armorTraining', { armors: grant.armors.join(', ') }));
         }
         break;
       }
 
       case 'weaponMastery': {
         if (grant.weapons.length > 0) {
-          lines.push(`Weapons: ${grant.weapons.join(', ')}`);
+          lines.push(t('feat.weaponMastery', { weapons: grant.weapons.join(', ') }));
         }
         break;
       }
 
       case 'attackBonus': {
         const parts: string[] = [];
-        if (grant.bonus.ranged) parts.push(`Ranged +${grant.bonus.ranged}`);
-        if (grant.bonus.melee) parts.push(`Melee +${grant.bonus.melee}`);
-        if (parts.length > 0) lines.push(`Attack: ${parts.join(', ')}`);
+        if (grant.bonus.ranged)
+          parts.push(t('feat.attackBonusRanged', { bonus: grant.bonus.ranged }));
+        if (grant.bonus.melee) parts.push(t('feat.attackBonusMelee', { bonus: grant.bonus.melee }));
+        if (parts.length > 0) lines.push(t('feat.attackBonus', { bonus: parts.join(', ') }));
         break;
       }
 
       case 'acBonus': {
         const parts: string[] = [];
-        if (grant.bonus.lightArmor) parts.push(`Light +${grant.bonus.lightArmor}`);
-        if (grant.bonus.mediumArmor) parts.push(`Medium +${grant.bonus.mediumArmor}`);
-        if (grant.bonus.heavyArmor) parts.push(`Heavy +${grant.bonus.heavyArmor}`);
-        if (parts.length > 0) lines.push(`AC: ${parts.join(', ')}`);
+        if (grant.bonus.lightArmor)
+          parts.push(t('feat.acBonusLight', { bonus: grant.bonus.lightArmor }));
+        if (grant.bonus.mediumArmor)
+          parts.push(t('feat.acBonusMedium', { bonus: grant.bonus.mediumArmor }));
+        if (grant.bonus.heavyArmor)
+          parts.push(t('feat.acBonusHeavy', { bonus: grant.bonus.heavyArmor }));
+        if (parts.length > 0) lines.push(t('feat.acBonus', { bonus: parts.join(', ') }));
         break;
       }
 
       case 'specialAbilities': {
         if (grant.abilities.length > 0) {
-          lines.push(`Special: ${grant.abilities.join(', ')}`);
+          lines.push(t('feat.specialAbilities', { abilities: grant.abilities.join(', ') }));
         }
         break;
       }
@@ -170,7 +182,7 @@ function formatGrants(feat: Feat): string[] {
       case 'spellChoices': {
         const count = grant.choices.reduce((s, c) => s + c.count, 0);
         if (count > 0) {
-          lines.push(`Spells: ${count} spell(s)`);
+          lines.push(t('feat.spellChoices', { count }));
         }
         break;
       }
@@ -201,9 +213,10 @@ export function FeatCard({
   glow,
   className,
 }: FeatCardProps) {
+  const t = useTranslation();
   const isCompact = density === 'compact';
-  const prereqText = formatPrerequisite(feat);
-  const grantLines = formatGrants(feat);
+  const prereqText = formatPrerequisite(feat, t);
+  const grantLines = formatGrants(feat, t);
   const displayName = feat.name ?? feat.id;
   const showDesc = showDescProp ?? !isCompact;
 
@@ -237,7 +250,7 @@ export function FeatCard({
                 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20',
               )}
             >
-              Repeatable
+              {t('feat.repeatable')}
             </span>
           )}
         </div>
@@ -246,7 +259,11 @@ export function FeatCard({
       {/* ── Prerequisites ───────────────────────────────────────────────── */}
       {showPrerequisites && prereqText && (
         <CardMetaItem
-          icon={<span className="text-text-tertiary text-xs font-semibold">REQ</span>}
+          icon={
+            <span className="text-text-tertiary text-xs font-semibold">
+              {t('feat.prerequisite')}
+            </span>
+          }
           label={prereqText}
           className={sectionDivider}
         />

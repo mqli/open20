@@ -5,6 +5,8 @@ import { Badge, type BadgeProps } from '@/components/Badge';
 import { CardSurface } from '@/components/CardSurface';
 import type { CardSurfaceDensity } from '@/components/CardSurface';
 import { CardMetaItem } from '@/components/CardSurface';
+import { useTranslation } from '@/i18n';
+import type { BaseTranslationKeys } from '@/i18n';
 
 import { ResetType } from 'open20-core';
 import type { Feature, FeatureType, ACFormula, ACRequirement, AbilityName } from 'open20-core';
@@ -47,19 +49,18 @@ export interface ClassFeatureCardProps {
 /*  Helpers                                                                   */
 /* -------------------------------------------------------------------------- */
 
-function formatResetType(reset?: ResetType): string {
-  if (!reset) return '';
+function formatResetType(reset: ResetType, t: (key: BaseTranslationKeys) => string): string {
   switch (reset) {
     case ResetType.LongRest:
-      return 'Long Rest';
+      return t('feature.longRest');
     case ResetType.ShortRest:
-      return 'Short Rest';
+      return t('feature.shortRest');
     case ResetType.Daily:
-      return 'Daily';
+      return t('feature.daily');
     case ResetType.PerTurn:
-      return 'Per Turn';
+      return t('feature.perTurn');
     case ResetType.Never:
-      return 'Never';
+      return t('feature.never');
     default: {
       const _exhaustive: never = reset;
       return _exhaustive;
@@ -67,8 +68,11 @@ function formatResetType(reset?: ResetType): string {
   }
 }
 
-function formatACFormula(acFormula: ACFormula): string {
-  const parts: string[] = [`Base ${acFormula.baseAC}`];
+function formatACFormula(
+  acFormula: ACFormula,
+  t: (key: BaseTranslationKeys, params?: Record<string, string | number>) => string,
+): string {
+  const parts: string[] = [t('feature.baseAC', { ac: acFormula.baseAC })];
 
   if (acFormula.addModifiers && acFormula.addModifiers.length > 0) {
     const mods = acFormula.addModifiers.map((m: AbilityName) => {
@@ -82,20 +86,23 @@ function formatACFormula(acFormula: ACFormula): string {
     const reqs = acFormula.requires.map((r: ACRequirement) => {
       switch (r) {
         case 'noArmor':
-          return 'no armor';
+          return t('feature.noArmor');
         case 'noShield':
-          return 'no shield';
+          return t('feature.noShield');
         case 'noHeavyArmor':
-          return 'no heavy armor';
+          return t('feature.noHeavyArmor');
       }
     });
-    parts.push(`(requires ${reqs.join(', ')})`);
+    parts.push(t('feature.requires', { reqs: reqs.join(', ') }));
   }
 
   return parts.join(' ');
 }
 
-function getResourceSummary(feature: Feature): string | null {
+function getResourceSummary(
+  feature: Feature,
+  t: (key: BaseTranslationKeys, params?: Record<string, string | number>) => string,
+): string | null {
   if (feature.featureType === 'acFormula') return null;
   if (!feature.resourceId) return null;
 
@@ -103,19 +110,19 @@ function getResourceSummary(feature: Feature): string | null {
 
   // Resource max
   if (feature.resourceMax) {
-    parts.push(`Max: ${feature.resourceMax}`);
+    parts.push(t('feature.max', { max: feature.resourceMax }));
   } else if (feature.resourceMaxByLevel) {
-    parts.push('Max: scales by level');
+    parts.push(t('feature.maxScalesByLevel'));
   }
 
   // Reset type
   if (feature.resourceResetOn) {
-    parts.push(`Reset: ${formatResetType(feature.resourceResetOn)}`);
+    parts.push(t('feature.reset', { reset: formatResetType(feature.resourceResetOn, t) }));
   }
 
   // Scale with PB
   if (feature.resourceScaleWithPB) {
-    parts.push('Scales with PB');
+    parts.push(t('feature.scalesWithPB'));
   }
 
   return parts.length > 0 ? parts.join(', ') : null;
@@ -136,15 +143,16 @@ export function ClassFeatureCard({
   glow,
   className,
 }: ClassFeatureCardProps) {
+  const t = useTranslation();
   const isCompact = density === 'compact';
   const displayName = feature.name;
   const displayLevel = levelProp ?? feature.level;
   const showDesc = showDescProp ?? !isCompact;
-  const resourceSummary = getResourceSummary(feature);
+  const resourceSummary = getResourceSummary(feature, t);
 
   // For AC formula features, get the formatted AC formula
   const acFormulaText =
-    feature.featureType === 'acFormula' ? formatACFormula(feature.acFormula) : null;
+    feature.featureType === 'acFormula' ? formatACFormula(feature.acFormula, t) : null;
 
   return (
     <CardSurface
@@ -166,7 +174,7 @@ export function ClassFeatureCard({
 
           {displayLevel !== undefined && (
             <Badge variant="secondary" size="sm">
-              Level {displayLevel}
+              {t('feature.level', { level: displayLevel })}
             </Badge>
           )}
 
