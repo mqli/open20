@@ -121,7 +121,14 @@ export function SpellCardWrapper({
 
   const availableCastLevels = useMemo<SpellLevel[]>(() => {
     if (spell.level === 0) return [0 as SpellLevel];
-    if (!activeCharacter) return [spell.level as SpellLevel];
+    if (!activeCharacter) {
+      // No active character - allow all possible upcast levels without slot check
+      const maxLevel = canUpcast(spell) ? 9 : spell.level;
+      return Array.from(
+        { length: maxLevel - spell.level + 1 },
+        (_, i) => (spell.level + i) as SpellLevel,
+      );
+    }
 
     const levels: SpellLevel[] = [];
     const slots = activeCharacter.spells.spellSlots;
@@ -395,7 +402,7 @@ export function SpellCardWrapper({
                   spell={spell}
                   isPrepared={isPrepared}
                   isIconStyle={isIconStyle}
-                  showCastAction={showCastAction}
+                  showCastAction={activeCharacter && showCastAction}
                   showAttackAction={showAttackAction}
                   showDamageActions={showDamageActions}
                   hasDamageEntries={hasDamageEntries}
