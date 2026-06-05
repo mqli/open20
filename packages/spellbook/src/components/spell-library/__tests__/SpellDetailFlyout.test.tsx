@@ -43,7 +43,7 @@ vi.mock('@open20/ui', async () => {
     <div data-testid="sheet-root" data-open={open}>
       {open ? children : null}
     </div>
-  ));
+  )) as any;
   SheetMock.Content = ({ children }: any) => <div data-testid="sheet-content">{children}</div>;
   SheetMock.Header = ({ children }: any) => <div data-testid="sheet-header">{children}</div>;
   SheetMock.Body = ({ children }: any) => <div data-testid="sheet-body">{children}</div>;

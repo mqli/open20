@@ -402,7 +402,7 @@ export function SpellCardWrapper({
                   spell={spell}
                   isPrepared={isPrepared}
                   isIconStyle={isIconStyle}
-                  showCastAction={activeCharacter && showCastAction}
+                  showCastAction={!!activeCharacter && !!showCastAction}
                   showAttackAction={showAttackAction}
                   showDamageActions={showDamageActions}
                   hasDamageEntries={hasDamageEntries}
