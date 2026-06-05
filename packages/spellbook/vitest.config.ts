@@ -19,6 +19,7 @@ export default defineConfig({
     environmentMatchGlobs: [
       ['src/components/**', 'happy-dom'],
       ['src/components/**/__tests__/**', 'happy-dom'],
+      ['src/core/__tests__/**', 'happy-dom'],
     ],
     coverage: {
       provider: 'v8',

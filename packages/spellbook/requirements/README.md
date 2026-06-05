@@ -97,12 +97,17 @@ Closes FR-004
 ## Progress Tracking
 
 **Total Requirements**: 26  
-**Completed**: 15  
+**Completed**: 16  
 **In Progress**: 0  
-**Planned**: 11  
+**Planned**: 10  
 **Blocked**: 0  
 
-**Completion**: 0%
+**Completion**: 62%
+
+**Notes**:
+- FR-011, FR-014, FR-015, FR-016, FR-017 now have requirement folders (created 2026-06-05)
+- Test coverage added for: storage-service, SpellActionRow, DiceRollOverlay, SpellDetailFlyout, ConcentrationToggle, ConcentrationBanner, character-store (slot consumption/recovery, concentration)
+- Some completed features still need additional test coverage to reach 80%+ (P0) or 70%+ (P1)
 
 ---
 

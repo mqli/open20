@@ -227,4 +227,185 @@ describe('CharacterStore', () => {
       'magic-missile',
     );
   });
+
+  // ── FR-010: Spell Slot Consumption and Recovery Tests ──
+
+  const createMockCharWithSlots = (): AppCharacter =>
+    ({
+      id: '1',
+      name: 'Test Wizard',
+      classes: [
+        {
+          classId: 'Wizard',
+          level: 3,
+          subclassId: null,
+          subclassLevel: null,
+          hitDice: { die: 6, used: 0 },
+        },
+      ],
+      abilityScores: {
+        base: {
+          Intelligence: 16,
+          Constitution: 10,
+          Wisdom: 10,
+          Charisma: 10,
+          Strength: 10,
+          Dexterity: 10,
+        },
+        racialBonuses: {},
+        featBonuses: {},
+        temporaryBonuses: {},
+      },
+      spells: {
+        classSpellcasting: {
+          Wizard: {
+            classId: 'Wizard',
+            spellcastingAbility: 'Intelligence' as AbilityName,
+            spellSaveDC: 14,
+            spellAttackBonus: 6,
+            knownSpells: [],
+            preparedSpells: [],
+            maxPrepared: 4,
+          },
+        },
+        spellSlots: {
+          0: { total: 0, used: 0 },
+          1: { total: 3, used: 1 },
+          2: { total: 1, used: 0 },
+          3: { total: 0, used: 0 },
+          4: { total: 0, used: 0 },
+          5: { total: 0, used: 0 },
+          6: { total: 0, used: 0 },
+          7: { total: 0, used: 0 },
+          8: { total: 0, used: 0 },
+          9: { total: 0, used: 0 },
+        },
+        pactMagicSlots: null,
+      },
+      resources: [],
+      hitPoints: {
+        max: 20,
+        current: 20,
+        temporary: 0,
+        deathSaves: { successes: 0, failures: 0, isStable: false },
+      },
+      combatStats: {
+        AC: 12,
+        initiative: 0,
+        speed: 30,
+        passivePerception: 10,
+        proficiencyBonus: 2,
+        attacks: [],
+      },
+      equipment: [],
+      skills: {},
+      feats: [],
+      conditions: [],
+      currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
+      damageDefenses: { immune: [], resistant: [], vulnerable: [] },
+      notes: '',
+      createdAt: '',
+      updatedAt: '',
+      species: 'Human',
+      speciesSubtype: null,
+      background: 'Acolyte',
+    }) as unknown as AppCharacter;
+
+  it('should consume a spell slot (FR-010)', () => {
+    const mockChar = createMockCharWithSlots();
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().consumeSpellSlot(1);
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    expect(updatedChar?.spells.spellSlots[1].used).toBe(2);
+    expect(storageService.saveCharacter).toHaveBeenCalled();
+  });
+
+  it('should not consume slot if all are already used (FR-010)', () => {
+    const mockChar = createMockCharWithSlots();
+    // Use all level 1 slots
+    mockChar.spells.spellSlots[1].used = 3;
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().consumeSpellSlot(1);
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    // Should remain at 3 (not go to 4)
+    expect(updatedChar?.spells.spellSlots[1].used).toBe(3);
+  });
+
+  it('should recover a spell slot (FR-010)', () => {
+    const mockChar = createMockCharWithSlots();
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().recoverSpellSlot(1);
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    expect(updatedChar?.spells.spellSlots[1].used).toBe(0);
+    expect(storageService.saveCharacter).toHaveBeenCalled();
+  });
+
+  it('should not recover slot if none are used (FR-010)', () => {
+    const mockChar = createMockCharWithSlots();
+    // Already at 0 used
+    mockChar.spells.spellSlots[1].used = 0;
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().recoverSpellSlot(1);
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    expect(updatedChar?.spells.spellSlots[1].used).toBe(0);
+  });
+
+  it('should recover all spell slots on long rest (FR-010)', () => {
+    const mockChar = createMockCharWithSlots();
+    // Use some slots
+    mockChar.spells.spellSlots[1].used = 2;
+    mockChar.spells.spellSlots[2].used = 1;
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().longRest();
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    expect(updatedChar?.spells.spellSlots[1].used).toBe(0);
+    expect(updatedChar?.spells.spellSlots[2].used).toBe(0);
+    expect(storageService.saveCharacter).toHaveBeenCalled();
+  });
+
+  // ── FR-011: Concentration Status Tests ──
+
+  it('should start concentrating on a spell (FR-011)', () => {
+    const mockChar = createMockCharWithSlots();
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().startConcentration('fireball');
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    expect(updatedChar?.concentration).toEqual(expect.objectContaining({ spellId: 'fireball' }));
+    expect(storageService.saveCharacter).toHaveBeenCalled();
+  });
+
+  it('should end concentration (FR-011)', () => {
+    const mockChar = createMockCharWithSlots();
+    mockChar.concentration = { spellId: 'fireball', startedAt: new Date().toISOString() };
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().endConcentration();
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    expect(updatedChar?.concentration).toBeNull();
+    expect(storageService.saveCharacter).toHaveBeenCalled();
+  });
+
+  it('should replace existing concentration when starting new one (FR-011)', () => {
+    const mockChar = createMockCharWithSlots();
+    mockChar.concentration = { spellId: 'haste', startedAt: new Date().toISOString() };
+    useCharacterStore.getState().setActiveCharacter(mockChar);
+
+    useCharacterStore.getState().startConcentration('fireball');
+
+    const updatedChar = useCharacterStore.getState().activeCharacter;
+    expect(updatedChar?.concentration).toEqual(expect.objectContaining({ spellId: 'fireball' }));
+  });
 });
