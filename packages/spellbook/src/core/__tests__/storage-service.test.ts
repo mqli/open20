@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { StorageService } from '../storage-service';
 import type { AppCharacter } from '../types';
