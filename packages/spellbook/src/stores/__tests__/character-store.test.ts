@@ -325,7 +325,7 @@ describe('CharacterStore', () => {
   it('should not consume slot if all are already used (FR-010)', () => {
     const mockChar = createMockCharWithSlots();
     // Use all level 1 slots
-    mockChar.spells.spellSlots[1].used = 3;
+    (mockChar as any).spells.spellSlots[1].used = 3;
     useCharacterStore.getState().setActiveCharacter(mockChar);
 
     useCharacterStore.getState().consumeSpellSlot(1);
@@ -349,7 +349,7 @@ describe('CharacterStore', () => {
   it('should not recover slot if none are used (FR-010)', () => {
     const mockChar = createMockCharWithSlots();
     // Already at 0 used
-    mockChar.spells.spellSlots[1].used = 0;
+    (mockChar as any).spells.spellSlots[1].used = 0;
     useCharacterStore.getState().setActiveCharacter(mockChar);
 
     useCharacterStore.getState().recoverSpellSlot(1);
@@ -361,8 +361,8 @@ describe('CharacterStore', () => {
   it('should recover all spell slots on long rest (FR-010)', () => {
     const mockChar = createMockCharWithSlots();
     // Use some slots
-    mockChar.spells.spellSlots[1].used = 2;
-    mockChar.spells.spellSlots[2].used = 1;
+    (mockChar as any).spells.spellSlots[1].used = 2;
+    (mockChar as any).spells.spellSlots[2].used = 1;
     useCharacterStore.getState().setActiveCharacter(mockChar);
 
     useCharacterStore.getState().longRest();
@@ -388,7 +388,7 @@ describe('CharacterStore', () => {
 
   it('should end concentration (FR-011)', () => {
     const mockChar = createMockCharWithSlots();
-    mockChar.concentration = { spellId: 'fireball', startedAt: new Date().toISOString() };
+    (mockChar as any).concentration = { spellId: 'fireball', startedAt: new Date().toISOString() };
     useCharacterStore.getState().setActiveCharacter(mockChar);
 
     useCharacterStore.getState().endConcentration();
@@ -400,7 +400,7 @@ describe('CharacterStore', () => {
 
   it('should replace existing concentration when starting new one (FR-011)', () => {
     const mockChar = createMockCharWithSlots();
-    mockChar.concentration = { spellId: 'haste', startedAt: new Date().toISOString() };
+    (mockChar as any).concentration = { spellId: 'haste', startedAt: new Date().toISOString() };
     useCharacterStore.getState().setActiveCharacter(mockChar);
 
     useCharacterStore.getState().startConcentration('fireball');
