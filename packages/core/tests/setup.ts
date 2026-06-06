@@ -1,10 +1,10 @@
 // tests/setup.ts
-// Registers SRD content pack for all tests
+// Mock data loader for all tests
 import { createDataLoader } from '../src/data/loader';
-import { srdContentPack } from '@open20/content-srd';
+import { mockContentPack } from './fixtures/mock-content-pack';
 
 const loader = createDataLoader();
-loader.registerContentPack(srdContentPack);
+loader.registerContentPack(mockContentPack);
 
 // Export for tests that need a pre-configured loader
 export { loader };

@@ -36,7 +36,7 @@ const mockSpecies: Species[] = [
     size: 'Medium',
     speed: 30,
     languages: ['Common', 'Elvish'],
-    abilityBonuses: { DEX: 2 },
+    abilityBonuses: { Dexterity: 2 },
     baseTraits: [
       {
         name: 'Keen Senses',
@@ -54,7 +54,7 @@ const mockSpecies: Species[] = [
     size: 'Medium',
     speed: 25,
     languages: ['Common', 'Dwarvish'],
-    abilityBonuses: { CON: 2 },
+    abilityBonuses: { Constitution: 2 },
     baseTraits: [
       {
         name: 'Poison Resistance',
@@ -90,39 +90,33 @@ const mockSpecies: Species[] = [
 const mockBackgrounds: Background[] = [
   {
     id: 'acolyte',
+    name: 'Acolyte',
     source: 'Mock',
-    description: 'Acolyte mock data for testing',
     skillProficiencies: ['Insight', 'Religion'],
-    languages: 2,
-    startingEquipment: [],
-    feature: {
-      name: 'Acolyte of the Faith',
-      description: 'Test feature',
-    },
+    toolProficiencies: [],
+    languages: [],
+    originFeatId: 'Magic Initiate',
+    startingGold: 15,
   },
   {
     id: 'soldier',
+    name: 'Soldier',
     source: 'Mock',
-    description: 'Soldier mock data for testing',
     skillProficiencies: ['Athletics', 'Intimidation'],
-    languages: 0,
-    startingEquipment: [],
-    feature: {
-      name: 'Military Rank',
-      description: 'Test feature',
-    },
+    toolProficiencies: [],
+    languages: [],
+    originFeatId: 'Magic Initiate',
+    startingGold: 15,
   },
   {
     id: 'sage',
+    name: 'Sage',
     source: 'Mock',
-    description: 'Sage mock data for testing',
     skillProficiencies: ['Arcana', 'History'],
-    languages: 2,
-    startingEquipment: [],
-    feature: {
-      name: 'Researcher',
-      description: 'Test feature',
-    },
+    toolProficiencies: [],
+    languages: [],
+    originFeatId: 'Magic Initiate',
+    startingGold: 15,
   },
 ];
 
@@ -134,15 +128,11 @@ const mockClasses: Class[] = [
     id: 'Fighter',
     name: 'Fighter',
     source: 'Mock',
-    description: 'Fighter mock data for testing',
     hitDie: 'd10',
-    primaryAbility: 'STR',
-    savingThrowProficiencies: ['STR', 'CON'],
-    armorProficiencies: ['Light', 'Medium', 'Heavy', 'Shields'],
+    savingThrowProficiencies: ['Strength', 'Constitution'],
+    armorTraining: ['Light', 'Medium', 'Heavy', 'Shields'],
     weaponProficiencies: ['Simple', 'Martial'],
-    skillChoices: 2,
-    skillOptions: ['Athletics', 'Acrobatics', 'Perception', 'Survival'],
-    spellcasting: undefined,
+    weaponMastery: true,
     featuresByLevel: [
       {
         level: 1,
@@ -152,113 +142,20 @@ const mockClasses: Class[] = [
             description: 'You gain a fighting style.',
             level: 1,
           },
-          {
-            name: 'Second Wind',
-            description: 'You can use a bonus action to regain hit points.',
-            level: 1,
-            resourceMax: 1,
-            resourceResetOn: 'Long Rest',
-          },
-        ],
-      },
-      {
-        level: 2,
-        features: [
-          {
-            name: 'Action Surge',
-            description: 'You can push yourself beyond your normal limits.',
-            level: 2,
-            resourceMax: 1,
-            resourceResetOn: 'Short Rest',
-          },
-        ],
-      },
-      {
-        level: 5,
-        features: [
-          {
-            name: 'Extra Attack',
-            description: 'You can attack twice instead of once.',
-            level: 5,
-          },
-        ],
-      },
-      {
-        level: 9,
-        features: [
-          {
-            name: 'Indomitable',
-            description: 'You can reroll a saving throw.',
-            level: 9,
-            resourceMax: 1,
-            resourceResetOn: 'Long Rest',
-          },
-        ],
-      },
-      {
-        level: 11,
-        features: [
-          {
-            name: 'Extra Attack (2)',
-            description: 'You can attack three times.',
-            level: 11,
-          },
-        ],
-      },
-      {
-        level: 13,
-        features: [
-          {
-            name: 'Indomitable (2)',
-            description: 'You can reroll a saving throw twice.',
-            level: 13,
-            resourceMax: 2,
-            resourceResetOn: 'Long Rest',
-          },
-        ],
-      },
-      {
-        level: 17,
-        features: [
-          {
-            name: 'Indomitable (3)',
-            description: 'You can reroll a saving throw three times.',
-            level: 17,
-            resourceMax: 3,
-            resourceResetOn: 'Long Rest',
-          },
-        ],
-      },
-      {
-        level: 20,
-        features: [
-          {
-            name: 'Extra Attack (3)',
-            description: 'You can attack four times.',
-            level: 20,
-          },
         ],
       },
     ],
+    spellcasting: null,
   },
   {
     id: 'Wizard',
     name: 'Wizard',
     source: 'Mock',
-    description: 'Wizard mock data for testing',
     hitDie: 'd6',
-    primaryAbility: 'INT',
-    savingThrowProficiencies: ['INT', 'WIS'],
-    armorProficiencies: [],
+    savingThrowProficiencies: ['Intelligence', 'Wisdom'],
+    armorTraining: [],
     weaponProficiencies: ['Dagger', 'Dart', 'Sling', 'Quarterstaff', 'Light Crossbow'],
-    skillChoices: 2,
-    skillOptions: ['Arcana', 'History', 'Investigation', 'Nature', 'Religion'],
-    spellcasting: {
-      ability: 'INT',
-      knownSource: 'spellbook',
-      preparationTiming: 'long_rest',
-      changesPerPreparation: 'all',
-    },
+    weaponMastery: false,
     featuresByLevel: [
       {
         level: 1,
@@ -271,40 +168,35 @@ const mockClasses: Class[] = [
         ],
       },
     ],
+    spellcasting: {
+      ability: 'Intelligence',
+      knownSource: 'spellbook',
+      preparationTiming: 'long_rest',
+      changesPerPreparation: 'all',
+    },
   },
   {
     id: 'Barbarian',
     name: 'Barbarian',
     source: 'Mock',
-    description: 'Barbarian mock data for testing',
     hitDie: 'd12',
-    primaryAbility: 'STR',
-    savingThrowProficiencies: ['STR', 'CON'],
-    armorProficiencies: ['Light', 'Medium', 'Shields'],
+    savingThrowProficiencies: ['Strength', 'Constitution'],
+    armorTraining: ['Light', 'Medium', 'Shields'],
     weaponProficiencies: ['Simple', 'Martial'],
-    skillChoices: 2,
-    skillOptions: [
-      'Animal Handling',
-      'Athletics',
-      'Intimidation',
-      'Nature',
-      'Perception',
-      'Survival',
-    ],
-    spellcasting: undefined,
+    weaponMastery: true,
     featuresByLevel: [
       {
         level: 1,
         features: [
           {
             name: 'Rage',
-            description:
-              'You can enter a rage. You have resistance to bludgeoning, piercing, and slashing damage.',
+            description: 'You can enter a rage.',
             level: 1,
           },
         ],
       },
     ],
+    spellcasting: null,
   },
 ];
 
@@ -316,8 +208,6 @@ const mockSubclasses: Subclass[] = [
     id: 'Champion',
     parentClass: 'Fighter',
     grantedAtLevel: 3,
-    description: 'Champion mock data',
-    source: 'Mock',
     featuresByLevel: [
       {
         level: 3,
@@ -325,44 +215,6 @@ const mockSubclasses: Subclass[] = [
           {
             name: 'Improved Critical',
             description: 'Your critical hit range increases to 19-20.',
-            level: 3,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'Battle Master',
-    parentClass: 'Fighter',
-    grantedAtLevel: 3,
-    description: 'Battle Master mock data',
-    source: 'Mock',
-    featuresByLevel: [
-      {
-        level: 3,
-        features: [
-          {
-            name: 'Combat Superiority',
-            description: 'You gain superiority dice.',
-            level: 3,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'Eldritch Knight',
-    parentClass: 'Fighter',
-    grantedAtLevel: 3,
-    description: 'Eldritch Knight mock data',
-    source: 'Mock',
-    featuresByLevel: [
-      {
-        level: 3,
-        features: [
-          {
-            name: 'Spellcasting',
-            description: 'You gain the ability to cast wizard spells.',
             level: 3,
           },
         ],
@@ -377,12 +229,10 @@ const mockSubclasses: Subclass[] = [
 const mockFeats: Feat[] = [
   {
     id: 'Alert',
+    name: 'Alert',
     source: 'Mock',
     description: 'Alert mock data for testing',
-    prerequisites: [],
-    benefits: {
-      description: 'You gain a +5 bonus to initiative.',
-    },
+    category: 'General',
   },
 ];
 
@@ -392,34 +242,17 @@ const mockFeats: Feat[] = [
 const mockSpells: Spell[] = [
   {
     id: 'Acid Splash',
+    name: 'Acid Splash',
     source: 'Mock',
     level: 0,
     school: 'Evocation',
     castingTime: 'Action',
     range: '60 feet',
-    components: {
-      verbal: true,
-      somatic: true,
-      material: false,
-    },
+    components: ['V', 'S'],
     duration: 'Instantaneous',
-    description: 'Test spell',
-    classes: ['Wizard'],
-  },
-  {
-    id: 'Magic Missile',
-    source: 'Mock',
-    level: 1,
-    school: 'Evocation',
-    castingTime: 'Action',
-    range: '120 feet',
-    components: {
-      verbal: true,
-      somatic: true,
-      material: false,
-    },
-    duration: 'Instantaneous',
-    description: 'Test spell',
+    concentration: false,
+    ritual: false,
+    description: ['Test spell'],
     classes: ['Wizard'],
   },
 ];
@@ -430,12 +263,24 @@ const mockSpells: Spell[] = [
 const mockWeapons: Weapon[] = [
   {
     id: 'Longsword',
-    source: 'Mock',
     name: 'Longsword',
-    category: 'Martial',
-    damage: { dice: '1d8', type: 'Slashing' },
+    type: 'weapon',
+    source: 'Mock',
     weight: 3,
-    cost: 15,
+    cost: '15 gp',
+    equipped: false,
+    quantity: 1,
+    category: 'Martial',
+    damage: {
+      entries: [
+        {
+          dice: '1d8',
+          type: 'Slashing',
+        },
+      ],
+      ability: 'Strength',
+      bonus: 0,
+    },
     properties: [],
   },
 ];
@@ -446,14 +291,13 @@ const mockWeapons: Weapon[] = [
 const mockArmor: Armor[] = [
   {
     id: 'Leather',
-    source: 'Mock',
     name: 'Leather Armor',
+    source: 'Mock',
+    weight: 10,
+    cost: { quantity: 10, unit: 'gp' },
     category: 'Light',
     ac: 11,
     dexBonus: true,
-    weight: 10,
-    cost: 10,
-    stealthDisadvantage: false,
   },
 ];
 
@@ -463,10 +307,13 @@ const mockArmor: Armor[] = [
 const mockGear: GearItem[] = [
   {
     id: 'Backpack',
-    source: 'Mock',
     name: 'Backpack',
+    type: 'gear',
+    source: 'Mock',
     weight: 5,
-    cost: 2,
+    cost: '2 gp',
+    equipped: false,
+    quantity: 1,
   },
 ];
 
@@ -476,17 +323,26 @@ const mockGear: GearItem[] = [
 const mockMonsters: Monster[] = [
   {
     id: 'Goblin',
-    source: 'Mock',
     name: 'Goblin',
+    source: 'Mock',
     size: 'Small',
     type: 'Humanoid',
     alignment: 'Neutral Evil',
-    armorClass: 15,
-    hitPoints: { average: 7, formula: '2d6' },
+    armorClass: [{ value: 15, type: 'natural armor' }],
+    hitPoints: { value: 7, formula: '2d6' },
     speed: { walk: 30 },
-    abilities: { STR: 8, DEX: 14, CON: 10, INT: 10, WIS: 8, CHA: 8 },
-    challengeRating: 0.25,
-    xp: 50,
+    abilityScores: {
+      base: {
+        Strength: 8,
+        Dexterity: 14,
+        Constitution: 10,
+        Intelligence: 10,
+        Wisdom: 8,
+        Charisma: 8,
+      },
+      racialBonuses: {},
+    },
+    challengeRating: { rating: 0.25, xp: 50 },
   },
 ];
 
