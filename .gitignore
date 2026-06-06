@@ -20,3 +20,4 @@ packages/ui/storybook-static/
 *.swo
 *.tmp
 *.temp
+.codebuddy/
