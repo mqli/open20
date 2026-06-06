@@ -10,13 +10,8 @@ type Spell = ReturnType<typeof generateSpellsFromMarkdown>[number];
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '..');
-const markdownPath = resolve(
-  projectRoot,
-  'requirements',
-  '05-spell-management',
-  'srd-5.2-spell-list.md',
-);
-const outputPath = resolve(projectRoot, 'static', 'srd', 'spells.json');
+const markdownPath = resolve(projectRoot, 'src', 'markdown', 'srd-5.2-spell-list.md');
+const outputPath = resolve(projectRoot, 'data', 'spells.json');
 
 function main(): void {
   console.log(`Reading ${markdownPath}...`);

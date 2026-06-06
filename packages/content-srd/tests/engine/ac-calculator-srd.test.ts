@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { calculateAC } from 'open20-core/engine';
-import type { Feature } from 'open20-core';
+import type { AbilityScores, Feature } from 'open20-core';
 import { createTestLoader } from '../create-test-loader';
 
-const defaultScores = {
+const defaultScores: AbilityScores = {
   base: {
     Strength: 15,
     Dexterity: 14,
@@ -12,6 +12,7 @@ const defaultScores = {
     Wisdom: 13,
     Charisma: 8,
   },
+  racialBonuses: {},
 };
 
 describe('calculateAC - SRD Data', () => {

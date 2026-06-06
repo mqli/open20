@@ -4,7 +4,7 @@ import {
   stripBold,
   stripItalic,
   stripMarkdownHeading,
-} from './srd_markdown_helpers';
+} from './srd_markdown_helpers.ts';
 
 import type {
   Spell,
@@ -225,7 +225,6 @@ export function parseMarkdown(content: string): ParsedSpell[] {
     }
 
     if (!currentSpell) continue;
-
     // Parse level/school line: *Level 2 Evocation (Wizard)* or *Evocation Cantrip (Sorcerer, Wizard)*
     if (line.startsWith('*') && line.includes('(') && !line.includes('**')) {
       const text = stripItalic(line).trim();
