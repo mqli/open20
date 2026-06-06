@@ -8,6 +8,7 @@ on:
       - 'packages/core/**'
       - 'packages/ui/**'
       - 'packages/config/**'
+      - 'packages/content-*/**'
       - '.github/workflows/deploy-spellbook.yml'
   workflow_dispatch:
 
