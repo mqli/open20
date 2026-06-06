@@ -1,9 +1,25 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { FilterChips } from '@/components/spell-library/FilterChips';
 import { I18nProvider } from '@open20/ui';
 import { enTranslations } from '@/i18n';
+
+// Mock dataLoader BEFORE importing FilterChips (which uses it at module level)
+vi.mock('@/core/data-loader', () => ({
+  dataLoader: {
+    getAllClasses: () => [
+      { id: 'Wizard', spellcasting: { ability: 'Intelligence' } },
+      { id: 'Cleric', spellcasting: { ability: 'Wisdom' } },
+      { id: 'Fighter', spellcasting: null }, // No spellcasting
+    ],
+  },
+  initDataLoader: vi.fn(),
+  isDataLoaderReady: () => true,
+}));
+
+// Now import FilterChips after the mock is set up
+import { FilterChips } from '@/components/spell-library/FilterChips';
+
 const renderWithI18n = (ui: React.ReactElement) => {
   return render(
     <I18nProvider translationsSet={{ en: enTranslations }} initialLocale="en">
@@ -11,6 +27,7 @@ const renderWithI18n = (ui: React.ReactElement) => {
     </I18nProvider>,
   );
 };
+
 // Mock the store - vi.mock is hoisted to top of file
 vi.mock('../../stores/spell-store', () => ({
   useSpellStore: vi.fn(() => ({

@@ -17,6 +17,99 @@ vi.mock('@/core/storage-service', () => ({
   },
 }));
 
+// Mock the character-service module
+vi.mock('@/core/character-service', () => ({
+  CharacterService: vi.fn(),
+  characterService: {
+    createCharacter: vi.fn((char: any) => char),
+    recompute: vi.fn((char: any) => char),
+    prepareSpell: vi.fn((char: any, spellId: string) => ({
+      ...char,
+      spells: {
+        ...char.spells,
+        classSpellcasting: {
+          ...char.spells.classSpellcasting,
+          Wizard: {
+            ...char.spells.classSpellcasting['Wizard'],
+            preparedSpells: [
+              ...(char.spells.classSpellcasting['Wizard'].preparedSpells || []),
+              spellId,
+            ],
+          },
+        },
+      },
+    })),
+    unprepareSpell: vi.fn((char: any, spellId: string) => char),
+    consumeSpellSlot: vi.fn((char: any, level: number) => {
+      const slot = char.spells.spellSlots[level];
+      if (slot.used >= slot.total) return char; // Can't consume if all used
+      return {
+        ...char,
+        spells: {
+          ...char.spells,
+          spellSlots: {
+            ...char.spells.spellSlots,
+            [level]: { ...slot, used: slot.used + 1 },
+          },
+        },
+      };
+    }),
+    recoverSpellSlot: vi.fn((char: any, level: number) => {
+      const slot = char.spells.spellSlots[level];
+      if (slot.used <= 0) return char; // Can't recover if none used
+      return {
+        ...char,
+        spells: {
+          ...char.spells,
+          spellSlots: {
+            ...char.spells.spellSlots,
+            [level]: { ...slot, used: slot.used - 1 },
+          },
+        },
+      };
+    }),
+    longRest: vi.fn((char: any) => ({
+      ...char,
+      spells: {
+        ...char.spells,
+        spellSlots: Object.fromEntries(
+          Object.entries(char.spells.spellSlots).map(([k, v]: [string, any]) => [
+            k,
+            { ...v, used: 0 },
+          ]),
+        ) as Record<number, { total: number; used: number }>,
+      },
+    })),
+    shortRest: vi.fn((char: any) => char),
+    startConcentration: vi.fn((char: any, spellId: string) => ({
+      ...char,
+      concentration: { spellId },
+    })),
+    endConcentration: vi.fn((char: any) => ({
+      ...char,
+      concentration: null,
+    })),
+    learnSpell: vi.fn((char: any, spellId: string) => ({
+      ...char,
+      spells: {
+        ...char.spells,
+        classSpellcasting: {
+          ...char.spells.classSpellcasting,
+          Wizard: {
+            ...char.spells.classSpellcasting['Wizard'],
+            knownSpells: [...(char.spells.classSpellcasting['Wizard'].knownSpells || []), spellId],
+          },
+        },
+      },
+    })),
+    unlearnSpell: vi.fn((char: any, spellId: string) => char),
+    learnCantrip: vi.fn((char: any, classId: string, spellId: string) => char),
+    replaceCantrip: vi.fn((char: any, classId: string, oldId: string, newId: string) => char),
+    unlearnCantrip: vi.fn((char: any, classId: string, spellId: string) => char),
+    castSpell: vi.fn((char: any, spellId: string, level: number) => char),
+  },
+}));
+
 describe('CharacterStore', () => {
   beforeEach(() => {
     // Reset store state before each test

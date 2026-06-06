@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { spellService } from '@/core/spell-service';
 import { SchemaService } from '@/core/schema-service';
 import type { AppCharacter } from '@/core/types';
@@ -34,9 +34,21 @@ vi.mock('../data-loader', () => ({
         },
       ]),
   },
+  initDataLoader: vi.fn(),
+  isDataLoaderReady: () => true,
 }));
 
+// Initialize the spellService before tests
+vi.mock('@/core/spell-service', async () => {
+  const actual = await vi.importActual('@/core/spell-service');
+  return actual;
+});
+
 describe('SpellService', () => {
+  beforeAll(async () => {
+    await spellService.ensureInitialized();
+  });
+
   it('should get a spell by id', () => {
     const spell = spellService.getSpell('fireball');
     expect(spell).toBeDefined();
