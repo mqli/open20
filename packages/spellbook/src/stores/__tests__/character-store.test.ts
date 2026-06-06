@@ -39,7 +39,7 @@ vi.mock('@/core/character-service', () => ({
         },
       },
     })),
-    unprepareSpell: vi.fn((char: any, spellId: string) => char),
+    unprepareSpell: vi.fn((char: any) => char),
     consumeSpellSlot: vi.fn((char: any, level: number) => {
       const slot = char.spells.spellSlots[level];
       if (slot.used >= slot.total) return char; // Can't consume if all used
@@ -102,11 +102,11 @@ vi.mock('@/core/character-service', () => ({
         },
       },
     })),
-    unlearnSpell: vi.fn((char: any, spellId: string) => char),
-    learnCantrip: vi.fn((char: any, classId: string, spellId: string) => char),
-    replaceCantrip: vi.fn((char: any, classId: string, oldId: string, newId: string) => char),
-    unlearnCantrip: vi.fn((char: any, classId: string, spellId: string) => char),
-    castSpell: vi.fn((char: any, spellId: string, level: number) => char),
+    unlearnSpell: vi.fn((char: any) => char),
+    learnCantrip: vi.fn((char: any) => char),
+    replaceCantrip: vi.fn((char: any) => char),
+    unlearnCantrip: vi.fn((char: any) => char),
+    castSpell: vi.fn((char: any) => char),
   },
 }));
 
