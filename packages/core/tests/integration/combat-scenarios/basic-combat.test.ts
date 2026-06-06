@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDataLoader } from '../../../src/data/loader';
+import { createTestLoader } from '../../create-test-loader';
 import { createCharacter } from '../../../src/character/create';
 import { recomputeDerivedStats } from '../../../src/character/recompute';
 import { modifyHP } from '../../../src/character/mutate';
@@ -10,10 +10,7 @@ import {
   getMonsterAC,
 } from '../../../src/monster/combat';
 
-import {
-  rollMonsterAttack,
-  rollMonsterAttackDamage,
-} from '../../../src/rolls/monster';
+import { rollMonsterAttack, rollMonsterAttackDamage } from '../../../src/rolls/monster';
 import {
   applyHPChange,
   isDefeatedShared,
@@ -27,11 +24,11 @@ import {
 } from '../../../src/engine/combat';
 import { defaultRandom } from '../../../src/dice/core';
 import { calculateMonsterAttackBonus } from '../../../src/monster/calculator';
-import monstersArray from '../../../static/srd/monsters.json';
+import monstersArray from '@open20/content-srd/data/monsters.json';
 
 // ── Test Helpers ─────────────────────────────────────────────
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 function createTestFighter(name: string = 'Fighter') {
   const char = createCharacter(
@@ -49,7 +46,7 @@ function createTestFighter(name: string = 'Fighter') {
         Charisma: 10,
       },
     },
-    dataLoader
+    dataLoader,
   );
   return recomputeDerivedStats(char, dataLoader);
 }
@@ -64,7 +61,10 @@ function rollD20(): number {
   return Math.floor(Math.random() * 20) + 1;
 }
 
-function simulateAttackRoll(attackBonus: number, targetAC: number): {
+function simulateAttackRoll(
+  attackBonus: number,
+  targetAC: number,
+): {
   roll: number;
   total: number;
   hits: boolean;
@@ -126,7 +126,8 @@ describe('Combat Scenarios - Basic Combat (Fighter vs Goblin)', () => {
       damageEntries: [{ dice: '1d6', bonus: 2, type: 'Slashing' }],
     };
 
-    const attackBonus = goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin, goblinAttack, dataLoader);
+    const attackBonus =
+      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin, goblinAttack, dataLoader);
     const result = rollMonsterAttack({ monster: goblin, attackBonus, rng: defaultRandom });
     const { total, isCritical } = result;
     const hits = isCritical || total >= fighterAC;
@@ -134,7 +135,9 @@ describe('Combat Scenarios - Basic Combat (Fighter vs Goblin)', () => {
     if (hits) {
       const damage = rollMonsterAttackDamage(goblinAttack);
       const updatedFighter = modifyHP(fighter, -damage);
-      expect(getCharacterCurrentHP(updatedFighter)).toBeLessThanOrEqual(getCharacterCurrentHP(fighter));
+      expect(getCharacterCurrentHP(updatedFighter)).toBeLessThanOrEqual(
+        getCharacterCurrentHP(fighter),
+      );
     }
   });
 
@@ -174,7 +177,9 @@ describe('Combat Scenarios - Multi-Round Combat', () => {
       if (attackRoll.hits) {
         const damage = 8;
         currentGoblin1 = modifyMonsterHP(currentGoblin1, -damage);
-        combatLog.push(`  Fighter hits Goblin 1 for ${damage} damage (HP: ${getMonsterCurrentHP(currentGoblin1)})`);
+        combatLog.push(
+          `  Fighter hits Goblin 1 for ${damage} damage (HP: ${getMonsterCurrentHP(currentGoblin1)})`,
+        );
       } else {
         combatLog.push('  Fighter misses Goblin 1');
       }
@@ -186,12 +191,20 @@ describe('Combat Scenarios - Multi-Round Combat', () => {
           damageEntries: [{ dice: '1d6', bonus: 2, type: 'Slashing' }],
         };
 
-        const attackBonus = goblinAttack.attackBonus ?? calculateMonsterAttackBonus(currentGoblin1, goblinAttack, dataLoader);
-        const monsterAttack = rollMonsterAttack({ monster: currentGoblin1, attackBonus, rng: defaultRandom });
+        const attackBonus =
+          goblinAttack.attackBonus ??
+          calculateMonsterAttackBonus(currentGoblin1, goblinAttack, dataLoader);
+        const monsterAttack = rollMonsterAttack({
+          monster: currentGoblin1,
+          attackBonus,
+          rng: defaultRandom,
+        });
         if (monsterAttack.total >= currentFighter.combatStats.AC) {
           const damage = rollMonsterAttackDamage(goblinAttack);
           currentFighter = modifyHP(currentFighter, -damage);
-          combatLog.push(`  Goblin 1 hits Fighter for ${damage} damage (HP: ${getCharacterCurrentHP(currentFighter)})`);
+          combatLog.push(
+            `  Goblin 1 hits Fighter for ${damage} damage (HP: ${getCharacterCurrentHP(currentFighter)})`,
+          );
         } else {
           combatLog.push('  Goblin 1 misses Fighter');
         }
@@ -213,15 +226,25 @@ describe('Combat Scenarios - Multi-Round Combat', () => {
       damageEntries: [{ dice: '1d6', bonus: 2, type: 'Slashing' }],
     };
 
-    const attackBonus1 = goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin1, goblinAttack, dataLoader);
-    const attack1 = rollMonsterAttack({ monster: goblin1, attackBonus: attackBonus1, rng: defaultRandom });
+    const attackBonus1 =
+      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin1, goblinAttack, dataLoader);
+    const attack1 = rollMonsterAttack({
+      monster: goblin1,
+      attackBonus: attackBonus1,
+      rng: defaultRandom,
+    });
     if (attack1.total >= currentFighter.combatStats.AC) {
       const damage = rollMonsterAttackDamage(goblinAttack);
       currentFighter = modifyHP(currentFighter, -damage);
     }
 
-    const attackBonus2 = goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin2, goblinAttack, dataLoader);
-    const attack2 = rollMonsterAttack({ monster: goblin2, attackBonus: attackBonus2, rng: defaultRandom });
+    const attackBonus2 =
+      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin2, goblinAttack, dataLoader);
+    const attack2 = rollMonsterAttack({
+      monster: goblin2,
+      attackBonus: attackBonus2,
+      rng: defaultRandom,
+    });
     if (attack2.total >= currentFighter.combatStats.AC) {
       const damage = rollMonsterAttackDamage(goblinAttack);
       currentFighter = modifyHP(currentFighter, -damage);
@@ -247,7 +270,7 @@ describe('Combat Scenarios - Shared Combat Helpers', () => {
       getCharacterCurrentHP(fighter),
       getCharacterMaxHP(fighter),
       getCharacterTemporaryHP(fighter),
-      -10
+      -10,
     );
     expect(charResult.currentHP).toBe(getCharacterCurrentHP(fighter) - 10);
 
@@ -255,7 +278,7 @@ describe('Combat Scenarios - Shared Combat Helpers', () => {
       getMonsterCurrentHP(monster),
       getMonsterMaxHP(monster),
       getMonsterTemporaryHP(monster),
-      -5
+      -5,
     );
     expect(monResult.currentHP).toBe(getMonsterMaxHP(monster) - 5);
   });

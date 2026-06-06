@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../src/data/loader';
+import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { modifyHP } from '../../src/character/mutate';
 import { shortRest, longRest } from '../../src/character/rest';
@@ -10,7 +10,7 @@ import { applyTypedDamage } from '../../src/character/mutate';
 import type { DamageDefenses } from '../../src/types/damage';
 import type { ActiveEffect } from '../../src/types';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Adventure Arc', () => {
   describe('Session 17: Barbarian Rage and Reckless Attack', () => {

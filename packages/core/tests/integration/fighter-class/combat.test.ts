@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../../src/data/loader';
+import { createTestLoader } from '../../create-test-loader';
 import { createCharacter } from '../../../src/character/create';
 import { applyTypedDamage } from '../../../src/character/mutate';
 import { consumeResource } from '../../../src/character/mutate/resources';
 import { shortRest } from '../../../src/character/rest';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
   // ============================================================

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../src/data/loader';
+import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { modifyHP } from '../../src/character/mutate';
 import { longRest } from '../../src/character/rest';
@@ -7,7 +7,7 @@ import { calculateTypedDamage } from '../../src/engine/damage-calculator';
 import { applyTypedDamage } from '../../src/character/mutate';
 import type { DamageDefenses } from '../../src/types/damage';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Combat and Damage', () => {
   describe('Session 9: Death and Death Saves', () => {

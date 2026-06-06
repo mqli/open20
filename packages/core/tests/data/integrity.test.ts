@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import _lookupTables from '../../static/srd/lookup-tables.json';
-import _species from '../../static/srd/species.json';
-import _backgrounds from '../../static/srd/backgrounds.json';
-import _classes from '../../static/srd/classes.json';
-import _subclasses from '../../static/srd/subclasses.json';
-import _feats from '../../static/srd/feats.json';
-import _weapons from '../../static/srd/weapons.json';
-import _armors from '../../static/srd/armor.json';
-import _spells from '../../static/srd/spells.json';
+import _lookupTables from '../../static/lookup-tables.json';
+import _species from '@open20/content-srd/data/species.json';
+import _backgrounds from '@open20/content-srd/data/backgrounds.json';
+import _classes from '@open20/content-srd/data/classes.json';
+import _subclasses from '@open20/content-srd/data/subclasses.json';
+import _feats from '@open20/content-srd/data/feats.json';
+import _weapons from '@open20/content-srd/data/weapons.json';
+import _armors from '@open20/content-srd/data/armor.json';
+import _spells from '@open20/content-srd/data/spells.json';
 
 // Cast JSON imports to any to allow dynamic property access in integrity tests
 const lookupTables: any = _lookupTables;
@@ -32,31 +32,74 @@ function assertRequiredFields(collection: any[], requiredFields: string[]) {
 
 // ─── Shared Validation Lists ──────────────────────────────────────────────────
 
-const VALID_ABILITIES = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
+const VALID_ABILITIES = [
+  'Strength',
+  'Dexterity',
+  'Constitution',
+  'Intelligence',
+  'Wisdom',
+  'Charisma',
+];
 const VALID_SKILLS = [
-  'Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception',
-  'History', 'Insight', 'Intimidation', 'Investigation', 'Medicine',
-  'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion',
-  'Sleight of Hand', 'Stealth', 'Survival',
+  'Acrobatics',
+  'Animal Handling',
+  'Arcana',
+  'Athletics',
+  'Deception',
+  'History',
+  'Insight',
+  'Intimidation',
+  'Investigation',
+  'Medicine',
+  'Nature',
+  'Perception',
+  'Performance',
+  'Persuasion',
+  'Religion',
+  'Sleight of Hand',
+  'Stealth',
+  'Survival',
 ];
 const VALID_FEAT_CATEGORIES = ['Origin', 'General', 'Fighting Style', 'Epic Boon'];
 const VALID_HIT_DICE = ['d6', 'd8', 'd10', 'd12'];
 const VALID_DAMAGE_TYPES = ['bludgeoning', 'piercing', 'slashing'];
 
-const EXPECTED_WEAPON_MASTERY_PROPERTIES = ['Push', 'Slow', 'Topple', 'Vex', 'Sap', 'Graze', 'Nick', 'Cleave'];
+const EXPECTED_WEAPON_MASTERY_PROPERTIES = [
+  'Push',
+  'Slow',
+  'Topple',
+  'Vex',
+  'Sap',
+  'Graze',
+  'Nick',
+  'Cleave',
+];
 const EXPECTED_CONDITIONS = [
-  'Blinded', 'Charmed', 'Deafened', 'Exhaustion', 'Frightened', 'Grappled',
-  'Incapacitated', 'Invisible', 'Paralyzed', 'Petrified', 'Poisoned', 'Prone',
-  'Restrained', 'Stunned', 'Unconscious', 'Concentrating',
+  'Blinded',
+  'Charmed',
+  'Deafened',
+  'Exhaustion',
+  'Frightened',
+  'Grappled',
+  'Incapacitated',
+  'Invisible',
+  'Paralyzed',
+  'Petrified',
+  'Poisoned',
+  'Prone',
+  'Restrained',
+  'Stunned',
+  'Unconscious',
+  'Concentrating',
 ];
 
 // ─── Expected Counts ──────────────────────────────────────────────────────────
 
 const EXPECTED_COUNTS = {
   species: 12,
-  backgrounds: 4,  // SRD 5.2 only: Acolyte, Criminal, Sage, Soldier
+  backgrounds: 4, // SRD 5.2 only: Acolyte, Criminal, Sage, Soldier
   classes: 12,
-  feats: 14,  // SRD 5.2 only
+  feats: 14, // SRD 5.2 only
   weapons: 30,
   armors: 15,
   spells: 50,
@@ -119,7 +162,15 @@ describe('Data Integrity Tests', () => {
     });
 
     it('should have all required fields', () => {
-      assertRequiredFields(species, ['id', 'source', 'size', 'speed', 'abilityBonuses', 'baseTraits', 'subtypes']);
+      assertRequiredFields(species, [
+        'id',
+        'source',
+        'size',
+        'speed',
+        'abilityBonuses',
+        'baseTraits',
+        'subtypes',
+      ]);
     });
 
     it('should use full ability names in abilityBonuses', () => {
@@ -160,7 +211,13 @@ describe('Data Integrity Tests', () => {
     });
 
     it('should have all required fields', () => {
-      assertRequiredFields(classes, ['id', 'source', 'hitDie', 'savingThrowProficiencies', 'featuresByLevel']);
+      assertRequiredFields(classes, [
+        'id',
+        'source',
+        'hitDie',
+        'savingThrowProficiencies',
+        'featuresByLevel',
+      ]);
     });
 
     it('should have featuresByLevel as array format', () => {
@@ -183,15 +240,17 @@ describe('Data Integrity Tests', () => {
 
   describe('subclasses.json', () => {
     it('should have subclasses for all 12 classes', () => {
-      const classIds = (classes as { id: string }[]).map(c => c.id);
+      const classIds = (classes as { id: string }[]).map((c) => c.id);
       for (const classId of classIds) {
-        const subclassList = (subclasses as { parentClass: string }[]).filter(s => s.parentClass === classId);
+        const subclassList = (subclasses as { parentClass: string }[]).filter(
+          (s) => s.parentClass === classId,
+        );
         expect(subclassList.length).toBeGreaterThan(0);
       }
     });
 
     it('should have parentClass matching a valid class', () => {
-      const classIds = (classes as { id: string }[]).map(c => c.id);
+      const classIds = (classes as { id: string }[]).map((c) => c.id);
       for (const sub of subclasses as { parentClass: string }[]) {
         expect(classIds).toContain(sub.parentClass);
       }
@@ -249,7 +308,16 @@ describe('Data Integrity Tests', () => {
     });
 
     it('should have all required fields', () => {
-      assertRequiredFields(spells, ['id', 'name', 'level', 'school', 'castingTime', 'range', 'components', 'duration']);
+      assertRequiredFields(spells, [
+        'id',
+        'name',
+        'level',
+        'school',
+        'castingTime',
+        'range',
+        'components',
+        'duration',
+      ]);
     });
 
     it('should have valid level (0-9)', () => {

@@ -1,0 +1,37 @@
+{
+  "name": "@open20/content-srd",
+  "version": "0.1.0",
+  "description": "SRD 5.2 content pack for Open20",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./data/*": "./data/*"
+  },
+  "files": [
+    "dist/",
+    "data/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "dnd",
+    "dnd2024",
+    "srd",
+    "content"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "open20-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@open20/config": "workspace:*",
+    "typescript": "^5.9.3",
+    "tsc-alias": "^1.8.17",
+    "vitest": "catalog:"
+  }
+}

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../../src/data/loader';
+import { createTestLoader } from '../../create-test-loader';
 import { createCharacter } from '../../../src/character/create';
 import { modifyHP } from '../../../src/character/mutate';
 import { consumeResource } from '../../../src/character/mutate/resources';
 import { shortRest, longRest } from '../../../src/character/rest';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 // Helper: get a resource by id from the per-class Record
 function getResource(char: any, classId: string, resourceId: string) {

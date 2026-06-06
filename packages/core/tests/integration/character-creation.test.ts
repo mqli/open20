@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDataLoader } from '../../src/data/loader';
+import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { modifyHP } from '../../src/character/mutate';
 import { shortRest } from '../../src/character/rest';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Character Creation', () => {
   describe('Session 0: Character Creation', () => {

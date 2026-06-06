@@ -1,23 +1,20 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDataLoader } from '../../../src/data/loader';
+import { createTestLoader } from '../../create-test-loader';
 import { createCharacter } from '../../../src/character/create';
 import { recomputeDerivedStats } from '../../../src/character/recompute';
 import { modifyHP } from '../../../src/character/mutate';
-import {
-  initializeMonsterForCombat,
-  modifyMonsterHP,
-} from '../../../src/monster/combat';
+import { initializeMonsterForCombat, modifyMonsterHP } from '../../../src/monster/combat';
 import {
   getCharacterCurrentHP,
   getCharacterMaxHP,
   getMonsterCurrentHP,
   getMonsterMaxHP,
 } from '../../../src/engine/combat';
-import monstersArray from '../../../static/srd/monsters.json';
+import monstersArray from '@open20/content-srd/data/monsters.json';
 
 // ── Test Helpers ─────────────────────────────────────────────
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 function createTestFighter(name: string = 'Fighter') {
   const char = createCharacter(
@@ -35,7 +32,7 @@ function createTestFighter(name: string = 'Fighter') {
         Charisma: 10,
       },
     },
-    dataLoader
+    dataLoader,
   );
   return recomputeDerivedStats(char, dataLoader);
 }

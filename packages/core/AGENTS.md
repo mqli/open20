@@ -15,9 +15,9 @@ This package lives at `packages/core/` inside the [open20 monorepo](../../AGENTS
 
 ## 1. Project Overview
 
-**Project**: Open20 Core - Headless D&D 5e 2024 Game Engine
-**Goal**: A TypeScript library for D&D 5e 2024 rules engine, spell management, and character management. No UI - pure logic, testable via unit tests, usable by any framework.
-**Status**: S1-S21 complete (826 tests passing)
+**Project**: Open20 Core - Headless D&D 5e 2024 Game Engine  
+**Goal**: A TypeScript library for D&D 5e 2024 rules engine, spell management, and character management. No UI - pure logic, testable via unit tests, usable by any framework.  
+**Status**: S1-S21 complete (832 tests passing)
 
 ### Key Design Decisions
 
@@ -26,6 +26,13 @@ This package lives at `packages/core/` inside the [open20 monorepo](../../AGENTS
 - **Dependency Injection**: `DataLoader` interface for testability and future API replacement.
 - **ESM**: Project uses `"type": "module"`. Uses native ESM JSON imports (vitest supports `import data from './file.json'`).
 - **Zod Schemas**: Runtime validation for all data structures.
+- **Content Separation**: SRD content is in `@open20/content-srd` package. Core provides `DataLoader` interface; consumers register content packs via `registerContentPack()`.
+
+### Package Dependencies
+
+- `open20-core` (this package): Pure engine, no content data
+- `@open20/content-srd`: SRD 5.2 content pack (separate package)
+- Consumers (e.g., `spellbook`): Install both packages, create loader, register content pack
 
 ---
 
@@ -602,12 +609,14 @@ Requirements are tracked in `requirements/README.md` with IDs R1-R26:
 ### 9.4 How to Add a New Requirement
 
 1. Add entry to `requirements/README.md` with format:
+
    ```markdown
    ### Rxx: [Requirement Name]
 
    **Description**: [What it does]
    **Status**: 📋 Planned
    ```
+
 2. Create directory `requirements/Rxx-name/` if detailed spec needed
 3. Update `spec/high-level-design.md` if it affects architecture
 4. Add to PRD.md if it's a user-facing feature
@@ -789,7 +798,7 @@ it('should filter spells by school and level', () => {
   });
 
   expect(spells.length).toBeGreaterThan(0);
-  spells.forEach(spell => {
+  spells.forEach((spell) => {
     expect(spell.school).toBe('Evocation');
     expect(spell.level).toBeLessThanOrEqual(3);
   });

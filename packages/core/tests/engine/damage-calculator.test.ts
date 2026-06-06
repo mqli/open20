@@ -13,10 +13,10 @@ import {
 } from '../../src/engine/damage-calculator';
 import { applyDamageWithDefenses } from '../../src/rolls/character';
 import type { DamageDefenses } from '../../src/types/damage';
-import { createDataLoader } from '../../src/data/loader';
+import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { modifyHP } from '../../src/character/mutate';
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('DamageType parsing', () => {
   it('parses standard damage types case-sensitively', () => {

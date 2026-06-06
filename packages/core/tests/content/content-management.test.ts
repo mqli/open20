@@ -2,15 +2,15 @@
 // Tests for R26 Content Management System
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDataLoader } from '../../src/data';
+import { createTestLoader } from '../create-test-loader';
 import type { ContentPack } from '../../src/content';
-import { loadContentPack } from '../../src/content/io';
+import { srdContentPack } from '@open20/content-srd';
 
 describe('Content Management (R26)', () => {
-  let dataLoader: ReturnType<typeof createDataLoader>;
+  let dataLoader: ReturnType<typeof createTestLoader>;
 
   beforeEach(() => {
-    dataLoader = createDataLoader();
+    dataLoader = createTestLoader();
   });
 
   describe('Content Pack Registration', () => {
@@ -124,7 +124,7 @@ describe('Content Management (R26)', () => {
       expect(srdFireball).toBeDefined();
       // First registered (SRD) wins for getSpell()
       // Note: SRD spells have source: 'Free Basic Rules (2024)'
-      expect(['SRD 5.2', "Free Basic Rules (2024)"].includes(srdFireball?.source ?? '')).toBe(true);
+      expect(['SRD 5.2', 'Free Basic Rules (2024)'].includes(srdFireball?.source ?? '')).toBe(true);
 
       // But we can filter by source
       const homebrewSpells = dataLoader.getSpellsBySource('Homebrew');
@@ -135,14 +135,13 @@ describe('Content Management (R26)', () => {
     });
   });
 
-  describe('Import/Export (Node.js only)', () => {
-    it('should export content pack to unified format', () => {
-      // This tests the IO functions
-      const pack = loadContentPack('static/srd/');
-      expect(pack.meta).toBeDefined();
-      expect(pack.meta.id).toBe('srd-5.2');
-      expect(pack.species).toBeDefined();
-      expect(pack.spells).toBeDefined();
+  describe('SRD Content Pack (from @open20/content-srd)', () => {
+    it('should have correct SRD content pack structure', () => {
+      // Test that srdContentPack has the correct structure
+      expect(srdContentPack.meta).toBeDefined();
+      expect(srdContentPack.meta.id).toBe('srd-5.2');
+      expect(srdContentPack.species).toBeDefined();
+      expect(srdContentPack.spells).toBeDefined();
     });
   });
 });

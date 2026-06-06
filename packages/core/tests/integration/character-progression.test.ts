@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDataLoader } from '../../src/data/loader';
+import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { modifyHP } from '../../src/character/mutate';
 import { longRest } from '../../src/character/rest';
@@ -8,7 +8,7 @@ import { validateCharacter } from '../../src/character/validate';
 import { recomputeDerivedStats } from '../../src/character/recompute';
 import { serialize, deserialize } from '../../src/storage/serializer';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Character Progression', () => {
   describe('Session 3: Long Rest and Level Up', () => {

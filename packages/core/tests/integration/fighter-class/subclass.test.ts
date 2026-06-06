@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../../src/data/loader';
+import { createTestLoader } from '../../create-test-loader';
 import { createCharacter } from '../../../src/character/create';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 function getSubclassFeatureNames(subclassId: string, level: number) {
   const subclass = dataLoader.getSubclass(subclassId);

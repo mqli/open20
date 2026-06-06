@@ -202,11 +202,33 @@ importers:
         specifier: 'catalog:'
         version: 6.0.3
 
+  packages/content-srd:
+    dependencies:
+      open20-core:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@open20/config':
+        specifier: workspace:*
+        version: link:../config
+      tsc-alias:
+        specifier: ^1.8.17
+        version: 1.8.17
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@15.11.7)(jsdom@29.1.1)(vite@6.4.2(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
+
   packages/core:
     devDependencies:
       '@open20/config':
         specifier: workspace:*
         version: link:../config
+      '@open20/content-srd':
+        specifier: workspace:*
+        version: link:../content-srd
       '@types/node':
         specifier: 'catalog:'
         version: 24.12.4
@@ -240,6 +262,9 @@ importers:
 
   packages/spellbook:
     dependencies:
+      '@open20/content-srd':
+        specifier: workspace:*
+        version: link:../content-srd
       '@open20/ui':
         specifier: workspace:*
         version: link:../ui
@@ -5194,7 +5219,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.7(@types/node@24.12.4)(@vitest/coverage-v8@4.1.7)(happy-dom@15.11.7)(jsdom@29.1.1)(vite@6.4.2(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
+      vitest: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@15.11.7)(jsdom@29.1.1)(vite@6.4.2(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
 
   '@vitest/expect@4.1.7':
     dependencies:

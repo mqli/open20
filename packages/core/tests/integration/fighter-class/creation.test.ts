@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../../src/data/loader';
+import { createTestLoader } from '../../create-test-loader';
 import { createCharacter } from '../../../src/character/create';
 import { validateCharacter } from '../../../src/character/validate';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
   it('should create a level 1 Human Fighter', () => {

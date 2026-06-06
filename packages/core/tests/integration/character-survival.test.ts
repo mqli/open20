@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../src/data/loader';
+import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { modifyHP } from '../../src/character/mutate';
 import { longRest } from '../../src/character/rest';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Survival Mechanics', () => {
   describe('Session 15: Death Save Roller Coaster', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDataLoader } from '../../../src/data/loader';
+import { createTestLoader } from '../../create-test-loader';
 import { createCharacter } from '../../../src/character/create';
 import { recomputeDerivedStats } from '../../../src/character/recompute';
 import { modifyHP, applyTypedDamage } from '../../../src/character/mutate';
@@ -24,11 +24,11 @@ import {
   getMonsterMaxHP,
 } from '../../../src/engine/combat';
 import type { DamageDefenses } from '../../../src/types/damage';
-import monstersArray from '../../../static/srd/monsters.json';
+import monstersArray from '@open20/content-srd/data/monsters.json';
 
 // ── Test Helpers ─────────────────────────────────────────────
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 function createTestFighter(name: string = 'Fighter') {
   const char = createCharacter(
@@ -46,7 +46,7 @@ function createTestFighter(name: string = 'Fighter') {
         Charisma: 10,
       },
     },
-    dataLoader
+    dataLoader,
   );
   return recomputeDerivedStats(char, dataLoader);
 }
@@ -81,7 +81,7 @@ describe('Combat Scenarios - Damage Types and Defenses', () => {
       getCharacterTemporaryHP(fighter),
       20,
       'Fire',
-      defenses
+      defenses,
     );
 
     expect(result.result.effectiveDamage).toBe(10);
@@ -108,7 +108,7 @@ describe('Combat Scenarios - Damage Types and Defenses', () => {
       getCharacterTemporaryHP(fighter),
       10,
       'Cold',
-      vulnerableDefenses
+      vulnerableDefenses,
     );
 
     expect(result.result.effectiveDamage).toBe(20);
@@ -221,7 +221,7 @@ describe('Combat Scenarios - Character Damage Defenses', () => {
       0,
       10,
       'Slashing',
-      charWithDefenses.damageDefenses
+      charWithDefenses.damageDefenses,
     );
     expect(slashResult.result.effectiveDamage).toBe(5);
 
@@ -231,7 +231,7 @@ describe('Combat Scenarios - Character Damage Defenses', () => {
       0,
       20,
       'Poison',
-      charWithDefenses.damageDefenses
+      charWithDefenses.damageDefenses,
     );
     expect(poisonResult.result.effectiveDamage).toBe(0);
   });

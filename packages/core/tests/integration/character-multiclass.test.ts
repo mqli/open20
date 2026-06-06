@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { createDataLoader } from '../../src/data/loader';
+import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { levelUp } from '../../src/character/level-up';
 import { validateCharacter } from '../../src/character/validate';
 
-const dataLoader = createDataLoader();
+const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Multiclass Characters', () => {
   describe('Session 7: Multiclass Characters', () => {

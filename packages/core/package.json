@@ -60,6 +60,7 @@
   "sideEffects": false,
   "devDependencies": {
     "@open20/config": "workspace:*",
+    "@open20/content-srd": "workspace:*",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "^4.1.5",
     "esbuild": "^0.28.0",
