@@ -127,7 +127,9 @@ export type SpellbookTranslationKeys =
   | 'switchToChinese'
   | 'switchToEnglish'
   | 'chineseShort'
-  | 'englishShort';
+  | 'englishShort'
+  // Loading
+  | 'loading';
 
 // Spellbook translation structure
 export type SpellbookTranslations = BaseTranslations & Record<SpellbookTranslationKeys, string>;
@@ -259,6 +261,9 @@ export const enTranslations: SpellbookTranslations = {
   switchToEnglish: '切换到英文',
   chineseShort: '中文',
   englishShort: 'EN',
+
+  // Loading
+  loading: 'Loading...',
 };
 
 // Chinese (Simplified) translations
@@ -384,6 +389,9 @@ export const zhCNTranslations: SpellbookTranslations = {
   switchToEnglish: 'Switch to English',
   chineseShort: '中文',
   englishShort: 'EN',
+
+  // Loading
+  loading: '加载中...',
 };
 
 export { I18nProvider } from '@open20/ui';

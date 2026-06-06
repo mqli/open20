@@ -1,6 +1,6 @@
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from './types';
-import { dataLoader } from './data-loader';
+import { dataLoader, initDataLoader, isDataLoaderReady } from './data-loader';
 
 import { SchemaService } from './schema-service';
 import { isSpellPrepared, knowsSpell } from 'open20-core';
@@ -17,37 +17,53 @@ interface SpellSearchFilter {
  */
 export class SpellService {
   private cachedSpells: Spell[] | null = null;
+  private initialized = false;
+
+  async ensureInitialized(): Promise<void> {
+    if (this.initialized) return;
+    await initDataLoader();
+    this.initialized = true;
+    // Clear cache after initialization to pick up registered content
+    this.cachedSpells = null;
+  }
+
+  isReady(): boolean {
+    return isDataLoaderReady();
+  }
 
   getAllSpells(): Spell[] {
+    if (!this.initialized) {
+      // Return empty array if not initialized - caller should use async methods
+      return [];
+    }
     if (!this.cachedSpells) {
-      const rawSpells = dataLoader.getAllSpells() as unknown as import('./schema-service').RawSpell[];
+      const rawSpells =
+        dataLoader.getAllSpells() as unknown as import('./schema-service').RawSpell[];
       this.cachedSpells = SchemaService.transformSpells(rawSpells);
     }
     return this.cachedSpells;
   }
 
   getSpell(id: string): Spell | undefined {
-    return this.getAllSpells().find(s => s.id === id);
+    return this.getAllSpells().find((s) => s.id === id);
   }
 
   searchSpells(filter: SpellSearchFilter): Spell[] {
     let results = this.getAllSpells();
-    
+
     if (filter?.query) {
       const q = filter.query.toLowerCase();
-      results = results.filter(s => s.name.toLowerCase().includes(q));
+      results = results.filter((s) => s.name.toLowerCase().includes(q));
     }
 
     if (filter?.level !== undefined) {
-      results = results.filter(s => s.level === filter.level);
+      results = results.filter((s) => s.level === filter.level);
     }
 
     if (filter?.classes && filter.classes.length > 0) {
-      results = results.filter(s => 
-        s.classes?.some(c => filter.classes?.includes(c))
-      );
+      results = results.filter((s) => s.classes?.some((c) => filter.classes?.includes(c)));
     }
-    
+
     return results;
   }
 
@@ -58,7 +74,10 @@ export class SpellService {
 
   isSpellPrepared(character: AppCharacter, spellId: string): boolean {
     const isManual = isSpellPrepared(character, spellId) ?? false;
-    const isAlways = Object.values(character.spells.classSpellcasting).some(s => s.alwaysPreparedSpells?.includes(spellId)) ?? false;
+    const isAlways =
+      Object.values(character.spells.classSpellcasting).some((s) =>
+        s.alwaysPreparedSpells?.includes(spellId),
+      ) ?? false;
     return isManual || isAlways;
   }
 
@@ -68,13 +87,16 @@ export class SpellService {
     if (!this.isSpellForCharacter(character, spell)) return false;
 
     const isKnown = knowsSpell(character, spellId) ?? false;
-    const isAlwaysPrepared = Object.values(character.spells.classSpellcasting).some(s => s.alwaysPreparedSpells?.includes(spellId)) ?? false;
+    const isAlwaysPrepared =
+      Object.values(character.spells.classSpellcasting).some((s) =>
+        s.alwaysPreparedSpells?.includes(spellId),
+      ) ?? false;
     return isKnown || isAlwaysPrepared;
   }
 
   isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
-    const characterClassIds = character.classes?.map(c => c.classId.toLowerCase()) ?? [];
-    return spell.classes?.some(c => characterClassIds.includes(c.toLowerCase())) ?? false;
+    const characterClassIds = character.classes?.map((c) => c.classId.toLowerCase()) ?? [];
+    return spell.classes?.some((c) => characterClassIds.includes(c.toLowerCase())) ?? false;
   }
 }
 

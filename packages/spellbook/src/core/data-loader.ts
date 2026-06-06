@@ -1,5 +1,23 @@
 import { createDataLoader } from 'open20-core';
-import { srdContentPack } from '@open20/content-srd';
 
 export const dataLoader = createDataLoader();
-dataLoader.registerContentPack(srdContentPack);
+
+let initialized = false;
+let initPromise: Promise<void> | null = null;
+
+export async function initDataLoader(): Promise<void> {
+  if (initialized) return;
+  if (initPromise) return initPromise;
+
+  initPromise = (async () => {
+    const { srdContentPack } = await import('@open20/content-srd');
+    dataLoader.registerContentPack(srdContentPack);
+    initialized = true;
+  })();
+
+  return initPromise;
+}
+
+export function isDataLoaderReady(): boolean {
+  return initialized;
+}

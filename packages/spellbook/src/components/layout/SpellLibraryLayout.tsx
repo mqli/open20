@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSpellStore } from '@/stores/spell-store';
 import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
@@ -14,6 +14,7 @@ import { CharacterBar } from '@/components/character/CharacterBar';
 
 export function SpellLibraryLayout() {
   const t = useTranslation();
+  const [isLoading, setIsLoading] = useState(true);
   const {
     setSpells,
     filteredSpells,
@@ -30,8 +31,14 @@ export function SpellLibraryLayout() {
   }, [loadCharacters]);
 
   useEffect(() => {
-    const spells = spellService.searchSpells({});
-    setSpells(spells);
+    async function loadSpells() {
+      setIsLoading(true);
+      await spellService.ensureInitialized();
+      const spells = spellService.searchSpells({});
+      setSpells(spells);
+      setIsLoading(false);
+    }
+    loadSpells();
   }, [setSpells]);
 
   // Cross-store filtering: apply known/prepared filters here where we have both stores
@@ -106,20 +113,29 @@ export function SpellLibraryLayout() {
 
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto px-3 md:px-4 relative">
-        <FilterChips />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
-          {spellsToDisplay.map((spell) => (
-            <SpellCardWrapper
-              key={spell.id}
-              spell={spell}
-              showDescription={false}
-              showSpellbookActions
-              showSpellbookBadges
-              onClick={() => selectSpell(spell)}
-            />
-          ))}
-        </div>
-        {spellsToDisplay.length === 0 && <EmptyState title={emptyMessage} />}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64 gap-2">
+            <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+            <Text variant="body">{t('loading')}</Text>
+          </div>
+        ) : (
+          <>
+            <FilterChips />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
+              {spellsToDisplay.map((spell) => (
+                <SpellCardWrapper
+                  key={spell.id}
+                  spell={spell}
+                  showDescription={false}
+                  showSpellbookActions
+                  showSpellbookBadges
+                  onClick={() => selectSpell(spell)}
+                />
+              ))}
+            </div>
+            {spellsToDisplay.length === 0 && <EmptyState title={emptyMessage} />}
+          </>
+        )}
       </main>
       <SpellDetailFlyout />
     </div>
