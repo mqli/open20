@@ -1,9 +1,9 @@
 import type { SpellFormData } from '@/components/spell/editor/SpellEditor.types';
 import { useState, useEffect } from 'react';
-import { Input } from '@/components/Input/Input';
-import { Select } from '@/components/Select/Select';
-import { Text } from '@/components/Text/Text';
-import { Surface } from '@/components/Surface/Surface';
+import { Input } from '@/components/base/Input/Input';
+import { Select } from '@/components/base/Select/Select';
+import { Text } from '@/components/base/Text/Text';
+import { Surface } from '@/components/base/Surface/Surface';
 import {
   SPELL_SCHOOLS,
   SPELL_LEVELS,

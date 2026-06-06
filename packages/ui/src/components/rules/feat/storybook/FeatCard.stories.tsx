@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import type { Feat } from 'open20-core';
-import { Badge } from '@/components/Badge';
-import { Button } from '@/components/Button';
+import { Badge } from '@/components/base/Badge';
+import { Button } from '@/components/base/Button';
 import { surfaceVariants } from '@/styles/design-tokens';
 import { FeatCard, type FeatCardProps } from '../FeatCard';
 

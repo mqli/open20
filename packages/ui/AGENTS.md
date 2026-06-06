@@ -45,22 +45,36 @@ packages/ui/
 │   │   ├── design-tokens.ts          # All cva variant classes (single source of truth)
 │   │   └── index.css                # Theme variables (@theme + dark overrides)
 │   └── components/
-│       ├── CardSurface/              # Shared clickable card wrapper (accessibility + glow)
-│       │   ├── storybook/           # Storybook stories (moved from root)
-│       │   ├── CardSurface.tsx
-│       │   └── index.ts
-│       ├── CardMetaItem/             # Shared icon+label inline meta component
-│       ├── [ComponentName]/
-│       │   ├── storybook/           # Each component has its own storybook/ subfolder
-│       │   │   └── ComponentName.stories.tsx
-│       │   ├── __tests__/           # Unit tests (vitest + @testing-library/react)
-│       │   │   └── ComponentName.test.tsx
-│       │   ├── ComponentName.tsx    # Component implementation
-│       │   └── index.ts            # Barrel export
-│       ├── Dialog/                  # Radix UI wrappers (namespace exports)
-│       ├── feat/                    # FeatCard component
+│       ├── base/                    # Base UI components
+│       │   ├── Badge/
+│       │   ├── Button/
+│       │   ├── CardSurface/          # Shared clickable card wrapper (accessibility + glow)
+│       │   │   ├── storybook/
+│       │   │   ├── CardSurface.tsx
+│       │   │   └── index.ts
+│       │   ├── CardMetaItem/         # Shared icon+label inline meta component
+│       │   ├── Dialog/               # Radix UI wrappers (namespace exports)
+│       │   ├── Divider/
+│       │   ├── DropdownMenu/
+│       │   ├── EmptyState/
+│       │   ├── FilterChip/
+│       │   ├── IconButton/
+│       │   ├── Input/
+│       │   ├── SectionHeader/
+│       │   ├── Select/
+│       │   ├── Sheet/
+│       │   ├── Slider/
+│       │   ├── SlotPips/
+│       │   ├── Surface/
+│       │   ├── Switch/
+│       │   ├── Tabs/
+│       │   ├── Text/
+│       │   ├── ThemeToggle/
+│       │   ├── Toggle/
+│       │   ├── Tooltip/
+│       │   └── icons/
 │       ├── spell/                   # Spell-specific components (e.g., SpellCard)
-│       └── ...                      # Other shared UI components
+│       └── rules/                   # Rules-specific components (e.g., FeatCard)
 └── dist/                            # Build output
 ```
 

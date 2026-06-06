@@ -6,9 +6,9 @@ import { CastingInfoSection } from './sections/CastingInfoSection';
 import { DescriptionSection } from './sections/DescriptionSection';
 import { DamageHealSection } from './sections/DamageHealSection';
 import { CantripUpgradeSection } from './sections/CantripUpgradeSection';
-import { Button } from '@/components/Button/Button';
-import { Surface } from '@/components/Surface/Surface';
-import { Text } from '@/components/Text/Text';
+import { Button } from '@/components/base/Button/Button';
+import { Surface } from '@/components/base/Surface/Surface';
+import { Text } from '@/components/base/Text/Text';
 import { SpellCard } from '@/components/spell/SpellCard';
 import { useTranslation } from '@/i18n';
 

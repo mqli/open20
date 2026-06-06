@@ -13,8 +13,8 @@ import {
   AttackIcon,
   HealIcon,
   DamageIcon,
-  Button,
-} from '@';
+} from '@/components/base/icons';
+import { Button } from '@/components/base/Button';
 import {
   chipBase,
   collapseToggle,
@@ -22,10 +22,10 @@ import {
   spellSchoolVariants,
   sectionDivider,
 } from '@/styles/design-tokens';
-import { Text } from '@/components/Text';
-import { CardSurface } from '@/components/CardSurface';
-import type { CardSurfaceDensity } from '@/components/CardSurface';
-import { CardMetaItem } from '@/components/CardSurface';
+import { Text } from '@/components/base/Text';
+import { CardSurface } from '@/components/base/CardSurface';
+import type { CardSurfaceDensity } from '@/components/base/CardSurface';
+import { CardMetaItem } from '@/components/base/CardSurface';
 import { useTranslation } from '@/i18n';
 
 import type { Spell } from 'open20-core';

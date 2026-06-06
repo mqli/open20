@@ -1,9 +1,9 @@
 import type { SpellFormData } from '@/components/spell/editor/SpellEditor.types';
-import { Input } from '@/components/Input/Input';
-import { Select } from '@/components/Select/Select';
-import { Switch } from '@/components/Switch/Switch';
-import { Text } from '@/components/Text/Text';
-import { Surface } from '@/components/Surface/Surface';
+import { Input } from '@/components/base/Input/Input';
+import { Select } from '@/components/base/Select/Select';
+import { Switch } from '@/components/base/Switch/Switch';
+import { Text } from '@/components/base/Text/Text';
+import { Surface } from '@/components/base/Surface/Surface';
 import { CASTING_TIMES, SPELL_COMPONENTS } from '@/components/spell/editor/SpellEditor.types';
 import { cn } from '@/lib/cn';
 

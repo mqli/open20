@@ -1,7 +1,7 @@
 import type { SpellFormData } from '@/components/spell/editor/SpellEditor.types';
-import { Text } from '@/components/Text/Text';
-import { Surface } from '@/components/Surface/Surface';
-import { Button } from '@/components/Button/Button';
+import { Text } from '@/components/base/Text/Text';
+import { Surface } from '@/components/base/Surface/Surface';
+import { Button } from '@/components/base/Button/Button';
 import { useArrayField } from '@/hooks/useArrayField';
 
 interface DescriptionSectionProps {

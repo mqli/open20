@@ -1,51 +1,51 @@
-import { Dialog } from './components/Dialog/index';
-import { DropdownMenu } from './components/DropdownMenu/index';
-import { Select } from './components/Select/index';
-import { Sheet } from './components/Sheet/index';
-import { Tabs } from './components/Tabs/index';
+import { Dialog } from './components/base/Dialog/index';
+import { DropdownMenu } from './components/base/DropdownMenu/index';
+import { Select } from './components/base/Select/index';
+import { Sheet } from './components/base/Sheet/index';
+import { Tabs } from './components/base/Tabs/index';
 
-export { Badge } from './components/Badge/index';
-export type { BadgeProps } from './components/Badge/index';
-export { CardSurface, CardMetaItem } from './components/CardSurface/index';
+export { Badge } from './components/base/Badge/index';
+export type { BadgeProps } from './components/base/Badge/index';
+export { CardSurface, CardMetaItem } from './components/base/CardSurface/index';
 export type {
   CardSurfaceProps,
   CardSurfaceDensity,
   CardMetaItemProps,
-} from './components/CardSurface/index';
-export { Button } from './components/Button/index';
-export type { ButtonProps } from './components/Button/index';
+} from './components/base/CardSurface/index';
+export { Button } from './components/base/Button/index';
+export type { ButtonProps } from './components/base/Button/index';
 export { Dialog };
-export { Divider } from './components/Divider/index';
-export type { DividerProps } from './components/Divider/index';
+export { Divider } from './components/base/Divider/index';
+export type { DividerProps } from './components/base/Divider/index';
 export { DropdownMenu };
-export { EmptyState } from './components/EmptyState/index';
-export { FilterChip } from './components/FilterChip/index';
-export { IconButton } from './components/IconButton/index';
-export { Input } from './components/Input/index';
-export type { InputProps } from './components/Input/index';
-export { SectionHeader } from './components/SectionHeader/index';
+export { EmptyState } from './components/base/EmptyState/index';
+export { FilterChip } from './components/base/FilterChip/index';
+export { IconButton } from './components/base/IconButton/index';
+export { Input } from './components/base/Input/index';
+export type { InputProps } from './components/base/Input/index';
+export { SectionHeader } from './components/base/SectionHeader/index';
 export { Select };
 export { Sheet };
-export { Slider } from './components/Slider/index';
-export { SlotPips } from './components/SlotPips/index';
+export { Slider } from './components/base/Slider/index';
+export { SlotPips } from './components/base/SlotPips/index';
 export { SpellCard } from './components/spell/index';
 export type { SpellCardProps } from './components/spell/index';
 export { FeatCard } from './components/rules/feat/index';
 export type { FeatCardProps } from './components/rules/feat/index';
-export { Surface } from './components/Surface/index';
-export type { SurfaceProps } from './components/Surface/index';
-export { Switch } from './components/Switch/index';
-export type { SwitchProps } from './components/Switch/index';
+export { Surface } from './components/base/Surface/index';
+export type { SurfaceProps } from './components/base/Surface/index';
+export { Switch } from './components/base/Switch/index';
+export type { SwitchProps } from './components/base/Switch/index';
 export { Tabs };
-export { Text } from './components/Text/index';
-export type { TextProps } from './components/Text/index';
-export { ThemeToggle } from './components/ThemeToggle/index';
-export type { ThemeToggleProps } from './components/ThemeToggle/index';
-export { Toggle } from './components/Toggle/index';
-export type { ToggleProps } from './components/Toggle/index';
-export { Tooltip, TooltipProvider } from './components/Tooltip/index';
+export { Text } from './components/base/Text/index';
+export type { TextProps } from './components/base/Text/index';
+export { ThemeToggle } from './components/base/ThemeToggle/index';
+export type { ThemeToggleProps } from './components/base/ThemeToggle/index';
+export { Toggle } from './components/base/Toggle/index';
+export type { ToggleProps } from './components/base/Toggle/index';
+export { Tooltip, TooltipProvider } from './components/base/Tooltip/index';
 
-export * from './components/icons';
+export * from './components/base/icons';
 
 // Shadcn-style aliases for easier incremental migration.
 export const DialogRoot = Dialog.Root;

@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { chipBase, sectionDivider } from '@/styles/design-tokens';
-import { Text } from '@/components/Text';
-import { Badge, type BadgeProps } from '@/components/Badge';
-import { CardSurface } from '@/components/CardSurface';
-import type { CardSurfaceDensity } from '@/components/CardSurface';
-import { CardMetaItem } from '@/components/CardSurface';
+import { Text } from '@/components/base/Text';
+import { Badge, type BadgeProps } from '@/components/base/Badge';
+import { CardSurface } from '@/components/base/CardSurface';
+import type { CardSurfaceDensity } from '@/components/base/CardSurface';
+import { CardMetaItem } from '@/components/base/CardSurface';
 import { useTranslation } from '@/i18n';
 
 import type { Feat, FeatCategory, AbilityName } from 'open20-core';

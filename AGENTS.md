@@ -117,6 +117,10 @@ Vitest 4 requires Vite 6+ (and Node 20+ for test runs). To avoid peer-resolution
 4. Add turbo `build`/`test` scripts to its `package.json`
 5. Run `pnpm install` from root
 
+### Verify
+
+ALWAYS run test lint and type check after code changes.
+
 ### Modifying shared config (`packages/config/**`)
 
 Changes affect all packages — run `pnpm build && pnpm test` from root to verify nothing broke.

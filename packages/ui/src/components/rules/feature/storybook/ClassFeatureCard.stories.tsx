@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ResetType } from 'open20-core';
 import type { Feature } from 'open20-core';
-import { Button } from '@/components/Button';
+import { Button } from '@/components/base/Button';
 import { ClassFeatureCard, type ClassFeatureCardProps } from '../ClassFeatureCard';
 
 const meta: Meta<typeof ClassFeatureCard> = {
