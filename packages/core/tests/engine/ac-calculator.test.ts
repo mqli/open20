@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { calculateAC } from '../../src/engine/ac-calculator';
 import type { Feature } from '../../src/types/class';
 import { createAbilityScores } from '../fixtures/ability-scores';
-import { createMockDataLoader, createSRDDataLoader } from '../fixtures/data-loader';
+import { createMockDataLoader } from '../fixtures/data-loader';
 import { LEATHER_ARMOR, CHAIN_MAIL, HALF_PLATE, SHIELD } from '../fixtures/equipment';
 
 // ── Test Data ──────────────────────────────────────
@@ -50,24 +50,6 @@ describe('calculateAC', () => {
     expect(result.ac).toBe(13);
     expect(result.breakdown[0]!.source.type).toBe('Armor');
     expect(result.breakdown[0]!.source.value).toContain('Leather Armor');
-  });
-
-  it('uses SRD armor AC fields from the default loader', () => {
-    const equip = [
-      {
-        id: 'leather-armor',
-        name: 'Leather Armor',
-        type: 'armor' as const,
-        weight: 10,
-        cost: '10 gp',
-        equipped: true,
-      },
-    ];
-    const data = createSRDDataLoader();
-
-    const result = calculateAC(defaultScores, equip, noFeatures, data);
-    expect(result.ac).toBe(13);
-    expect(result.breakdown[0]!.source.value).toBe('leather-armor');
   });
 
   it('heavy armor = armor AC only (no Dex)', () => {
@@ -172,27 +154,6 @@ describe('calculateAC', () => {
     expect(result.breakdown[1]!).toEqual({
       ac: 2,
       source: { type: 'shield', value: 'Shield' },
-    });
-  });
-
-  it('uses the equipped shield AC value from SRD data', () => {
-    const equip = [
-      {
-        id: 'buckler',
-        name: 'Buckler',
-        type: 'armor' as const,
-        weight: 2,
-        cost: '5 gp',
-        equipped: true,
-      },
-    ];
-    const data = createSRDDataLoader();
-
-    const result = calculateAC(defaultScores, equip, noFeatures, data);
-    expect(result.ac).toBe(13);
-    expect(result.breakdown[1]!).toEqual({
-      ac: 1,
-      source: { type: 'shield', value: 'buckler' },
     });
   });
 

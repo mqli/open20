@@ -18,6 +18,10 @@ export interface SpeciesGrant {
   readonly armorTraining?: readonly string[]; // 护甲熟练（如Dwarf）
   readonly speedBonus?: number;
   readonly hpPerLevel?: number; // 如Dwarf的 +1/级
+  // 伤害防御（如矮人毒抗性）
+  readonly damageResistances?: readonly string[]; // DamageType[]
+  readonly damageImmunities?: readonly string[]; // DamageType[]
+  readonly damageVulnerabilities?: readonly string[]; // DamageType[]
 }
 
 // 物种变体（2024新机制，如Dwarf的Hill/Mountain）

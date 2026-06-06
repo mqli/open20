@@ -117,7 +117,7 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
     cp: 0,
     sp: 0,
     ep: 0,
-    gp: backgroundData.startingGold,
+    gp: backgroundData.startingGold ?? 0,
     pp: 0,
   };
 

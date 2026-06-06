@@ -1,16 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestLoader } from '../../create-test-loader';
-import { createCharacter } from '../../../src/character/create';
-import { recomputeDerivedStats } from '../../../src/character/recompute';
-import { modifyHP } from '../../../src/character/mutate';
+import { createCharacter, recomputeDerivedStats, modifyHP } from 'open20-core/character';
 import {
   initializeMonsterForCombat,
   modifyMonsterHP,
   isMonsterDefeated,
   getMonsterAC,
-} from '../../../src/monster/combat';
+} from 'open20-core/monster';
 
-import { rollMonsterAttack, rollMonsterAttackDamage } from '../../../src/rolls/monster';
+import { rollMonsterAttack, rollMonsterAttackDamage } from 'open20-core/rolls';
 import {
   applyHPChange,
   isDefeatedShared,
@@ -21,9 +19,9 @@ import {
   getMonsterCurrentHP,
   getMonsterMaxHP,
   getMonsterTemporaryHP,
-} from '../../../src/engine/combat';
-import { defaultRandom } from '../../../src/dice/core';
-import { calculateMonsterAttackBonus } from '../../../src/monster/calculator';
+} from 'open20-core/engine';
+import { defaultRandom } from 'open20-core/dice';
+import { calculateMonsterAttackBonus } from 'open20-core/monster';
 import monstersArray from '@open20/content-srd/data/monsters.json';
 
 // ── Test Helpers ─────────────────────────────────────────────

@@ -1,10 +1,10 @@
-// tests/content/content-management.test.ts
+// tests/content-management.test.ts
 // Tests for R26 Content Management System
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestLoader } from '../create-test-loader';
-import type { ContentPack } from '../../src/content';
-import { srdContentPack } from '@open20/content-srd';
+import { createTestLoader } from './create-test-loader';
+import type { ContentPack } from 'open20-core/content';
+import { srdContentPack } from '../src/index';
 
 describe('Content Management (R26)', () => {
   let dataLoader: ReturnType<typeof createTestLoader>;

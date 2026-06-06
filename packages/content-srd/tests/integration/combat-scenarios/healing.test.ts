@@ -1,15 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestLoader } from '../../create-test-loader';
-import { createCharacter } from '../../../src/character/create';
-import { recomputeDerivedStats } from '../../../src/character/recompute';
-import { modifyHP } from '../../../src/character/mutate';
-import { initializeMonsterForCombat, modifyMonsterHP } from '../../../src/monster/combat';
+import { createCharacter, recomputeDerivedStats, modifyHP } from 'open20-core/character';
+import { initializeMonsterForCombat, modifyMonsterHP } from 'open20-core/monster';
 import {
   getCharacterCurrentHP,
   getCharacterMaxHP,
   getMonsterCurrentHP,
   getMonsterMaxHP,
-} from '../../../src/engine/combat';
+} from 'open20-core/engine';
 import monstersArray from '@open20/content-srd/data/monsters.json';
 
 // ── Test Helpers ─────────────────────────────────────────────

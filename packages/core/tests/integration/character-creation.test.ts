@@ -85,10 +85,10 @@ describe('D&D Player Behavior - Character Creation', () => {
 
     it('should take damage and survive', () => {
       const initialHP = fighter.hitPoints.current;
-      const damage = 8;
+      const damage = initialHP - 1; // 确保伤害后 HP > 0
 
       const afterDamage = modifyHP(fighter, -damage);
-      expect(afterDamage.hitPoints.current).toBe(initialHP - damage);
+      expect(afterDamage.hitPoints.current).toBe(1);
       expect(afterDamage.hitPoints.current).toBeGreaterThan(0);
     });
 

@@ -226,9 +226,6 @@ importers:
       '@open20/config':
         specifier: workspace:*
         version: link:../config
-      '@open20/content-srd':
-        specifier: workspace:*
-        version: link:../content-srd
       '@types/node':
         specifier: 'catalog:'
         version: 24.12.4

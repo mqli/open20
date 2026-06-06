@@ -16,7 +16,8 @@
     "./content": "./dist/content/index.js",
     "./rolls": "./dist/rolls/index.js",
     "./dice": "./dist/dice/index.js",
-    "./storage": "./dist/storage/index.js"
+    "./storage": "./dist/storage/index.js",
+    "./static/*": "./static/*"
   },
   "scripts": {
     "prepare": "pnpm run build",
@@ -60,7 +61,6 @@
   "sideEffects": false,
   "devDependencies": {
     "@open20/config": "workspace:*",
-    "@open20/content-srd": "workspace:*",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "^4.1.5",
     "esbuild": "^0.28.0",

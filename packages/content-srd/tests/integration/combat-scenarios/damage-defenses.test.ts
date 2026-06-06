@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestLoader } from '../../create-test-loader';
-import { createCharacter } from '../../../src/character/create';
-import { recomputeDerivedStats } from '../../../src/character/recompute';
-import { modifyHP, applyTypedDamage } from '../../../src/character/mutate';
+import {
+  createCharacter,
+  recomputeDerivedStats,
+  modifyHP,
+  applyTypedDamage,
+} from 'open20-core/character';
 import {
   initializeMonsterForCombat,
   modifyMonsterHP,
@@ -10,7 +13,7 @@ import {
   addMonsterDamageResistance,
   addMonsterDamageImmunity,
   addMonsterDamageVulnerability,
-} from '../../../src/monster/combat';
+} from 'open20-core/monster';
 import {
   applyTypedDamageToHP,
   addDamageResistance,
@@ -22,8 +25,8 @@ import {
   getCharacterTemporaryHP,
   getMonsterCurrentHP,
   getMonsterMaxHP,
-} from '../../../src/engine/combat';
-import type { DamageDefenses } from '../../../src/types/damage';
+} from 'open20-core/engine';
+import type { DamageDefenses } from 'open20-core';
 import monstersArray from '@open20/content-srd/data/monsters.json';
 
 // ── Test Helpers ─────────────────────────────────────────────

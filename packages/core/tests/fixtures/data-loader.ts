@@ -4,9 +4,7 @@
 
 import type { DataLoader } from '../../src/data/loader';
 import type { ContentPack } from '../../src/content/types';
-import { createDataLoader } from '../../src/data/loader';
 import { MULTICLASS_SLOTS, FULL_CASTER_SLOTS } from './spell-slots';
-import { srdContentPack } from '@open20/content-srd';
 
 /**
  * Creates a mock DataLoader with sensible defaults.
@@ -87,16 +85,4 @@ export function createMockDataLoader(overrides: Partial<DataLoader> = {}): DataL
   };
 
   return { ...defaults, ...overrides } as DataLoader;
-}
-
-/**
- * Creates a mock DataLoader with real SRD data for integration tests.
- * Registers the SRD content pack.
- *
- * @returns A DataLoader backed by real SRD data
- */
-export function createSRDDataLoader(): DataLoader {
-  const loader = createDataLoader();
-  loader.registerContentPack(srdContentPack);
-  return loader;
 }

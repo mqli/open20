@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createTestLoader } from '../../create-test-loader';
-import { createCharacter } from '../../../src/character/create';
+import { createCharacter } from 'open20-core/character';
 
 const dataLoader = createTestLoader();
 

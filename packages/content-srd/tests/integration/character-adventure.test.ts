@@ -1,14 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { createTestLoader } from '../create-test-loader';
-import { createCharacter } from '../../src/character/create';
-import { modifyHP } from '../../src/character/mutate';
-import { shortRest, longRest } from '../../src/character/rest';
-import { levelUp } from '../../src/character/level-up';
-import { recomputeDerivedStats } from '../../src/character/recompute';
-import { serialize, deserialize } from '../../src/storage/serializer';
-import { applyTypedDamage } from '../../src/character/mutate';
-import type { DamageDefenses } from '../../src/types/damage';
-import type { ActiveEffect } from '../../src/types';
+import {
+  createCharacter,
+  modifyHP,
+  shortRest,
+  longRest,
+  levelUp,
+  recomputeDerivedStats,
+  applyTypedDamage,
+} from 'open20-core/character';
+import { serialize, deserialize } from 'open20-core/storage';
+import type { DamageDefenses } from 'open20-core';
+import type { ActiveEffect } from 'open20-core';
 
 const dataLoader = createTestLoader();
 

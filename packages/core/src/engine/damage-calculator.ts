@@ -218,9 +218,18 @@ function getSpeciesDefenses(char: Character, dataLoader: DataLoader): DamageDefe
   const allTraits = [...baseTraits, ...subtypeTraits];
 
   for (const trait of allTraits) {
-    if (!trait.description) continue;
-    const found = parseDefenseFromDescription(trait.description);
-    defenses.push(...found);
+    // Parse from description text
+    if (trait.description) {
+      const found = parseDefenseFromDescription(trait.description);
+      defenses.push(...found);
+    }
+
+    // Also read from grants (structured data)
+    if (trait.grants) {
+      if (trait.grants.damageResistances) {
+        defenses.push(...(trait.grants.damageResistances as unknown as DamageType[]));
+      }
+    }
   }
 
   if (defenses.length === 0) return null;

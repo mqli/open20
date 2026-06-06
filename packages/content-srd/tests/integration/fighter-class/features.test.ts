@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createTestLoader } from '../../create-test-loader';
-import { createCharacter } from '../../../src/character/create';
-import { modifyHP } from '../../../src/character/mutate';
-import { consumeResource } from '../../../src/character/mutate/resources';
-import { shortRest, longRest } from '../../../src/character/rest';
+import { createCharacter } from 'open20-core/character';
+import { modifyHP, consumeResource, shortRest, longRest } from 'open20-core/character';
 
 const dataLoader = createTestLoader();
 
