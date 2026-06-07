@@ -39,6 +39,8 @@
     "clsx": "catalog:",
     "lucide-react": "catalog:",
     "open20-core": "workspace:*",
+    "react-markdown": "^9.0.0",
+    "remark-gfm": "^4.0.0",
     "tailwind-merge": "catalog:"
   },
   "peerDependencies": {

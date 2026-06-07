@@ -15,7 +15,6 @@ import { characterService } from '@/core/character-service';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { useCharacterStore } from '@/stores/character-store';
 import { useRollStore } from '@/stores/roll-store';
-import { renderInlineMarkdown } from '@/utils/inline-markdown';
 import { ConcentrationToggle } from './ConcentrationToggle';
 import { SpellActionRow } from './SpellActionRow';
 import { SpellbookControls } from './SpellbookControls';
@@ -214,7 +213,7 @@ export function SpellCardWrapper({
     }
 
     return baseDice;
-  }, [spell.heal?.dice, spell.heal?.perSlot, effectiveCastLevel]);
+  }, [spell.heal?.dice, spell.heal?.perSlot, effectiveCastLevel, spell.level]);
 
   // ── Handlers ──
 
@@ -361,7 +360,6 @@ export function SpellCardWrapper({
       }
       glow={glow ?? (shouldUseSpellbookStateStyling ? isPrepared : undefined)}
       onClick={onClick ? () => onClick() : undefined}
-      renderDescription={renderInlineMarkdown}
       renderBadges={
         showSpellbookBadges
           ? () => (

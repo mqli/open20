@@ -30,7 +30,6 @@ const meta: Meta<typeof SpellCard> = {
     onClick: { action: 'clicked' },
     renderActions: { control: false },
     renderBadges: { control: false },
-    renderDescription: { control: false },
   },
 };
 
@@ -158,15 +157,6 @@ const renderKnownActions: NonNullable<SpellCardProps['renderActions']> = () => (
   </>
 );
 
-const renderHighlightedDescription: NonNullable<SpellCardProps['renderDescription']> = (
-  paragraph: string,
-) => {
-  if (paragraph.includes('saving throw')) {
-    return <strong>{paragraph}</strong>;
-  }
-  return paragraph;
-};
-
 export const Default: Story = {
   args: {
     spell: fireballSpell,
@@ -212,13 +202,6 @@ export const ClickableWithSlots: Story = {
     surfaceVariant: 'tint',
     renderBadges: renderPreparedBadges,
     renderActions: renderKnownActions,
-  },
-};
-
-export const CustomDescription: Story = {
-  args: {
-    spell: fireballSpell,
-    renderDescription: renderHighlightedDescription,
   },
 };
 

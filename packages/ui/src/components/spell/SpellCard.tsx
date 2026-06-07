@@ -24,6 +24,7 @@ import { CardMetaItem } from '@/components/base/CardSurface';
 import { useTranslation } from '@/i18n';
 
 import type { Spell } from 'open20-core';
+import { SpellDescription } from './SpellDescription';
 
 /* -------------------------------------------------------------------------- */
 /*  Component Variants                                                        */
@@ -75,8 +76,6 @@ export interface SpellCardProps
   renderActions?: () => ReactNode;
   /** Slot for badge chips rendered next to the school badge (e.g. "Known", "Prepared") */
   renderBadges?: () => ReactNode;
-  /** Slot for description rendered below the header (e.g. "Known", "Prepared") */
-  renderDescription?: (s: string) => ReactNode;
   /** Show decorative sparkle glow in the background (e.g. when spell is prepared) */
   glow?: boolean;
 }
@@ -94,7 +93,6 @@ export function SpellCard({
   surfaceVariant,
   renderActions,
   renderBadges,
-  renderDescription = (p: string) => p,
   glow,
   className,
   ...props
@@ -115,44 +113,6 @@ export function SpellCard({
   const badgeKey = isCantrip ? ('true' as const) : ('false' as const);
   const higherLevelText = spell.usingAHigherLevelSpellSlot;
   const cantripUpgrades = spell.cantripUpgrade;
-
-  const descriptions = spell.description;
-  const styledDescriptions: ReactNode[] = [];
-  let ul: string[] = [];
-  for (let i = 0; i < descriptions.length; i++) {
-    const description = descriptions[i];
-    if (description.startsWith('- ')) {
-      ul.push(description);
-    } else {
-      const styledDescription =
-        ul.length > 0 ? (
-          <ul key={i}>
-            {ul.map((p, j) => (
-              <li key={j}>{renderDescription(p)}</li>
-            ))}
-          </ul>
-        ) : (
-          <>{renderDescription(description)}</>
-        );
-      if (ul.length > 0) ul = [];
-      styledDescriptions.push(
-        <Text key={i} variant="bodySm" as="div" className="leading-relaxed">
-          {styledDescription}
-        </Text>,
-      );
-    }
-  }
-  if (ul.length > 0) {
-    styledDescriptions.push(
-      <Text key={styledDescriptions.length} variant="bodySm" as="div" className="leading-relaxed">
-        <ul>
-          {ul.map((p, j) => (
-            <li key={j}>{renderDescription(p)}</li>
-          ))}
-        </ul>
-      </Text>,
-    );
-  }
 
   return (
     <CardSurface
@@ -245,9 +205,9 @@ export function SpellCard({
       </div>
 
       {/* ── Description ────────────────────────────────────────── */}
-      {effectiveShowDesc && styledDescriptions.length > 0 && (
+      {effectiveShowDesc && (
         <div className="space-y-1.5">
-          {styledDescriptions.map((p) => p)}
+          <SpellDescription description={spell.description} />
 
           {/* Damage / Heal / Save / Attack */}
           {(spell.damage || spell.heal || spell.save || spell.attack) && (

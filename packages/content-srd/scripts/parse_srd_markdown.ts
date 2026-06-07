@@ -294,6 +294,7 @@ export function parseMarkdown(content: string): ParsedSpell[] {
 
     // Skip empty lines when not in description
     if (!line.trim()) {
+      if (inDescription) descriptionLines.push(line.trim());
       continue;
     }
 
@@ -331,7 +332,7 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   const durationInfo = parseDuration(parsed.duration || '');
   const fullDesc = descLines.join(' ');
 
-  const spell: any = {
+  const spell: Spell = {
     id: slugify(parsed.name || ''),
     name: parsed.name || '',
     level: (parsed.level ?? 0) as Spell['level'],
