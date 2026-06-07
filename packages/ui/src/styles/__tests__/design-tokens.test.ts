@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { interactiveBase } from '../design-tokens';
+import { interactiveBase, cantripBadgeVariants } from '../design-tokens';
 
 describe('interactive', () => {
   it('includes focus ring classes', () => {
@@ -16,5 +16,19 @@ describe('interactive', () => {
   it('includes transition classes', () => {
     expect(interactiveBase).toContain('transition-all');
     expect(interactiveBase).toContain('duration-200');
+  });
+});
+
+describe('cantripBadgeVariants', () => {
+  it('has true key with emerald colors', () => {
+    expect(cantripBadgeVariants.true).toContain('bg-emerald-500/15');
+    expect(cantripBadgeVariants.true).toContain('text-emerald-600');
+    expect(cantripBadgeVariants.true).toContain('dark:text-emerald-400');
+  });
+
+  it('has false key with primary colors', () => {
+    expect(cantripBadgeVariants.false).toContain('bg-primary-500/15');
+    expect(cantripBadgeVariants.false).toContain('text-primary-600');
+    expect(cantripBadgeVariants.false).toContain('dark:text-primary-400');
   });
 });

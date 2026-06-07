@@ -235,3 +235,9 @@ export const spellSchoolVariants = {
     'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
   Transmutation: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20',
 } as const;
+
+// ── Cantrip badge color (distinct from schools) ──
+export const cantripBadgeVariants = {
+  true: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+  false: 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
+} as const;

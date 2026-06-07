@@ -16,7 +16,7 @@ import {
 } from '@/components/base/icons';
 import { Button } from '@/components/base/Button';
 import { chipBase, collapseToggle, iconSizes, sectionDivider } from '@/styles/component-styles';
-import { spellSchoolVariants } from '@/styles/design-tokens';
+import { spellSchoolVariants, cantripBadgeVariants } from '@/styles/design-tokens';
 import { Text } from '@/components/base/Text';
 import { CardSurface } from '@/components/base/CardSurface';
 import type { CardSurfaceDensity } from '@/components/base/CardSurface';
@@ -34,17 +34,6 @@ const cardVariants = cva('', {
     emphasis: { default: '', tint: '' },
   },
   defaultVariants: { emphasis: 'default' },
-});
-
-const levelBadgeVariants = cva(cn(chipBase, 'tracking-wide'), {
-  variants: {
-    isCantrip: {
-      true: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
-      false:
-        'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
-    },
-  },
-  defaultVariants: { isCantrip: false },
 });
 
 /* -------------------------------------------------------------------------- */
@@ -219,7 +208,13 @@ export function SpellCard({
             {spell.name}
           </Text>
 
-          <span className={levelBadgeVariants({ isCantrip })}>
+          <span
+            className={cn(
+              chipBase,
+              'tracking-wide',
+              cantripBadgeVariants[isCantrip ? 'true' : 'false'],
+            )}
+          >
             {isCantrip ? t('common.cantrip') : `${t('common.level')} ${spell.level}`}
           </span>
 
