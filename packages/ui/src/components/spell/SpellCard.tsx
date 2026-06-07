@@ -112,6 +112,7 @@ export function SpellCard({
 
   const effectiveShowDesc = showDesc;
   const isCantrip = spell.level === 0;
+  const badgeKey = isCantrip ? ('true' as const) : ('false' as const);
   const higherLevelText = spell.usingAHigherLevelSpellSlot;
   const cantripUpgrades = spell.cantripUpgrade;
 
@@ -208,13 +209,7 @@ export function SpellCard({
             {spell.name}
           </Text>
 
-          <span
-            className={cn(
-              chipBase,
-              'tracking-wide',
-              cantripBadgeVariants[isCantrip ? 'true' : 'false'],
-            )}
-          >
+          <span className={cn(chipBase, 'tracking-wide', cantripBadgeVariants[badgeKey])}>
             {isCantrip ? t('common.cantrip') : `${t('common.level')} ${spell.level}`}
           </span>
 
