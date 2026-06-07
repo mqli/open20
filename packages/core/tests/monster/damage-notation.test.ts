@@ -6,7 +6,8 @@ import type { Monster } from '../../src/monster/types';
 describe('R28.10 - Damage Notation', () => {
   describe('parseDamageNotation', () => {
     it('should parse damage notation with fixed value and die expression', () => {
-      const description = 'Melee Attack Roll: +14, reach 10 ft. 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.';
+      const description =
+        'Melee Attack Roll: +14, reach 10 ft. 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.';
       const result = parseDamageNotation(description);
       expect(result).toBeDefined();
       expect(result!.fixedValue).toBe(13);
@@ -57,43 +58,51 @@ describe('R28.10 - Damage Notation', () => {
         hitPoints: { value: 178, formula: '17d10+85' },
         speed: { walk: 40, fly: 80 },
         abilityScores: {
-          base: { Strength: 23, Dexterity: 10, Constitution: 21, Intelligence: 14, Wisdom: 11, Charisma: 19 },
+          base: {
+            Strength: 23,
+            Dexterity: 10,
+            Constitution: 21,
+            Intelligence: 14,
+            Wisdom: 11,
+            Charisma: 19,
+          },
           racialBonuses: {},
           featBonuses: {},
-          temporaryBonuses: {}
+          temporaryBonuses: {},
         },
         challengeRating: { rating: 10, xp: 5900 },
         traits: [],
         actions: [
           {
             name: 'Rend',
-            description: 'Melee Attack Roll: +14, reach 10 ft. 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.',
+            description:
+              'Melee Attack Roll: +14, reach 10 ft. 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.',
             attacks: [
               {
                 name: 'Rend',
                 attackBonus: 14,
                 damageEntries: [
                   { dice: '1d10', type: 'Slashing', bonus: 8 },
-                  { dice: '2d4', type: 'Fire', bonus: 0 }
+                  { dice: '2d4', type: 'Fire', bonus: 0 },
                 ],
                 damageNotation: {
                   fixedValue: 13,
-                  dieExpression: '1d10+8'
-                }
-              }
-            ]
-          }
+                  dieExpression: '1d10+8',
+                },
+              },
+            ],
+          },
         ],
         reactions: [],
         legendaryActions: [],
         environments: ['mountain'],
         currentHP: 178,
-        temporaryHP: 0
-      }
+        temporaryHP: 0,
+      },
     ];
 
     const mockDataLoader = {
-      getMonster: (id: string) => mockMonsters.find(m => m.id === id),
+      getMonster: (id: string) => mockMonsters.find((m) => m.id === id),
       getSpell: () => undefined,
       getAllSpells: () => [],
       getClass: () => undefined,
@@ -120,7 +129,12 @@ describe('R28.10 - Damage Notation', () => {
     });
 
     it('should return undefined for non-existent action', () => {
-      const result = getAttackDamageNotation('test-dragon', 'NonExistent', undefined, mockDataLoader);
+      const result = getAttackDamageNotation(
+        'test-dragon',
+        'NonExistent',
+        undefined,
+        mockDataLoader,
+      );
       expect(result).toBeUndefined();
     });
 

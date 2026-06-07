@@ -78,7 +78,7 @@ export interface MonsterAttack extends BaseAttack {
   readonly reach?: number;
   readonly range?: { normal: number; long?: number };
   // damageEntries is now inherited from BaseAttack
-  
+
   // R28.10 - Damage Notation
   readonly damageNotation?: {
     readonly fixedValue?: number;

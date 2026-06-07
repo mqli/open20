@@ -48,7 +48,14 @@ describe('calculateAttacks', () => {
   it('should return empty array when no weapons are equipped', () => {
     const scores = makeScores(10, 10, 10);
     const equipment: EquipmentItem[] = [];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toEqual([]);
   });
@@ -57,7 +64,14 @@ describe('calculateAttacks', () => {
   it('should calculate attack bonus correctly for martial weapon (Longsword)', () => {
     const scores = makeScores(15); // Str 15 → mod +2
     const equipment = [makeEquippedWeapon('Longsword')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.name).toBe('Longsword');
@@ -69,7 +83,14 @@ describe('calculateAttacks', () => {
   it('should use Dexterity for Finesse weapon when Dex > Str', () => {
     const scores = makeScores(10, 16); // Str 10 (mod 0), Dex 16 (mod +3)
     const equipment = [makeEquippedWeapon('Dagger')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.name).toBe('Dagger');
@@ -81,7 +102,14 @@ describe('calculateAttacks', () => {
   it('should use Strength for Finesse weapon when Str > Dex', () => {
     const scores = makeScores(16, 10); // Str 16 (mod +3), Dex 10 (mod 0)
     const equipment = [makeEquippedWeapon('Dagger')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.attackBonus).toBe(6); // proficiency (3) + Str mod (3)
@@ -92,7 +120,14 @@ describe('calculateAttacks', () => {
   it('should use Dexterity for ranged weapon (Shortbow)', () => {
     const scores = makeScores(10, 16); // Dex 16 → mod +3
     const equipment = [makeEquippedWeapon('Shortbow')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.name).toBe('Shortbow');
@@ -104,7 +139,14 @@ describe('calculateAttacks', () => {
   it('should include versatile damage in damage string for versatile weapons', () => {
     const scores = makeScores(15); // Str 15 → mod +2
     const equipment = [makeEquippedWeapon('Longsword')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     // Versatile weapons show both damage dice: "d8(d10)"
@@ -115,7 +157,14 @@ describe('calculateAttacks', () => {
   it('should include versatile damage for Quarterstaff', () => {
     const scores = makeScores(14); // Str 14 → mod +2
     const equipment = [makeEquippedWeapon('Quarterstaff')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.damage).toBe('d6(d8)+2');
@@ -125,7 +174,14 @@ describe('calculateAttacks', () => {
   it('should include weapon mastery in the attack result', () => {
     const scores = makeScores(15);
     const equipment = [makeEquippedWeapon('Longsword')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.mastery).toContain('Topple');
@@ -135,7 +191,14 @@ describe('calculateAttacks', () => {
   it('should include Nick mastery for Dagger', () => {
     const scores = makeScores(10, 16);
     const equipment = [makeEquippedWeapon('Dagger')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result[0]!.mastery).toContain('Nick');
   });
@@ -148,7 +211,14 @@ describe('calculateAttacks', () => {
       makeEquippedWeapon('Dagger'),
       makeEquippedWeapon('Shortbow'),
     ];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(3);
     expect(result[0]!.name).toBe('Longsword');
@@ -160,7 +230,14 @@ describe('calculateAttacks', () => {
   it('should ignore non-weapon equipment like armor', () => {
     const scores = makeScores(15);
     const equipment = [makeEquippedWeapon('Longsword'), makeEquippedArmor('Chain Mail')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.name).toBe('Longsword');
@@ -173,7 +250,14 @@ describe('calculateAttacks', () => {
       { ...makeEquippedWeapon('Longsword'), equipped: false },
       makeEquippedWeapon('Dagger'),
     ];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.name).toBe('Dagger');
@@ -183,7 +267,14 @@ describe('calculateAttacks', () => {
   it('should ensure damage modifier is never negative (2024 rules)', () => {
     const scores = makeScores(8); // Str 8 → mod -1, but should be 0
     const equipment = [makeEquippedWeapon('Longsword')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     // Damage mod should be max(0, abilityMod) = max(0, -1) = 0
@@ -194,7 +285,14 @@ describe('calculateAttacks', () => {
   it('should clamp negative Dex modifier to 0 for damage', () => {
     const scores = makeScores(10, 8); // Dex 8 → mod -1
     const equipment = [makeEquippedWeapon('Shortbow')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.damage).toBe('d6+0');
@@ -204,7 +302,14 @@ describe('calculateAttacks', () => {
   it('should set attack name to match weapon id', () => {
     const scores = makeScores(15);
     const equipment = [makeEquippedWeapon('Longsword')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result[0]!.name).toBe('Longsword');
   });
@@ -213,7 +318,14 @@ describe('calculateAttacks', () => {
   it('should set attack name correctly for Dagger', () => {
     const scores = makeScores(10, 16);
     const equipment = [makeEquippedWeapon('Dagger')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result[0]!.name).toBe('Dagger');
   });
@@ -222,7 +334,14 @@ describe('calculateAttacks', () => {
   it('should filter out weapons with unknown ids (getWeapon returns undefined)', () => {
     const scores = makeScores(15);
     const equipment = [makeEquippedWeapon('Longsword'), makeEquippedWeapon('UnknownWeapon')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.name).toBe('Longsword');
@@ -234,12 +353,26 @@ describe('calculateAttacks', () => {
     const equipment = [makeEquippedWeapon('Longsword')];
 
     // Test with PB +2
-    const result1 = calculateAttacks(scores, equipment, 2, emptyFeatures, mockData, allWeaponProficiencies);
+    const result1 = calculateAttacks(
+      scores,
+      equipment,
+      2,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
     expect(result1).toHaveLength(1);
     expect(result1[0]!.attackBonus).toBe(5); // 2 + 3
 
     // Test with PB +4
-    const result2 = calculateAttacks(scores, equipment, 4, emptyFeatures, mockData, allWeaponProficiencies);
+    const result2 = calculateAttacks(
+      scores,
+      equipment,
+      4,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
     expect(result2[0]!.attackBonus).toBe(7); // 4 + 3
   });
 
@@ -247,7 +380,14 @@ describe('calculateAttacks', () => {
   it('should handle Quarterstaff versatile damage correctly', () => {
     const scores = makeScores(14); // Str 14 → mod +2
     const equipment = [makeEquippedWeapon('Quarterstaff')];
-    const result = calculateAttacks(scores, equipment, 3, emptyFeatures, mockData, allWeaponProficiencies);
+    const result = calculateAttacks(
+      scores,
+      equipment,
+      3,
+      emptyFeatures,
+      mockData,
+      allWeaponProficiencies,
+    );
 
     expect(result).toHaveLength(1);
     expect(result[0]!.name).toBe('Quarterstaff');

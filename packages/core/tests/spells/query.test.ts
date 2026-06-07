@@ -67,9 +67,9 @@ import { MOCK_SPELLS, createMockSpell, MOCK_SHIELD, MOCK_FIREBALL } from '../fix
 
 function createMockDataLoaderWithSpells(spells: Spell[] = MOCK_SPELLS): DataLoader {
   return createMockDataLoader({
-    getSpell: (id: string) => spells.find(s => s.id === id),
+    getSpell: (id: string) => spells.find((s) => s.id === id),
     getAllSpells: () => spells,
-    getSpellsByLevel: (level: SpellLevel) => spells.filter(s => s.level === level),
+    getSpellsByLevel: (level: SpellLevel) => spells.filter((s) => s.level === level),
   });
 }
 
@@ -195,25 +195,25 @@ describe('searchSpells', () => {
   it('should filter by name (case-insensitive)', () => {
     const results = searchSpells({ name: 'fire' }, data);
     expect(results.length).toBeGreaterThan(0);
-    expect(results.every(s => s.name.toLowerCase().includes('fire'))).toBe(true);
+    expect(results.every((s) => s.name.toLowerCase().includes('fire'))).toBe(true);
   });
 
   it('should filter by level', () => {
     const results = searchSpells({ level: [0, 1] }, data);
     expect(results.length).toBeGreaterThan(0);
-    expect(results.every(s => s.level === 0 || s.level === 1)).toBe(true);
+    expect(results.every((s) => s.level === 0 || s.level === 1)).toBe(true);
   });
 
   it('should filter by school', () => {
     const results = searchSpells({ school: ['Evocation'] }, data);
     expect(results.length).toBeGreaterThan(0);
-    expect(results.every(s => s.school === 'Evocation')).toBe(true);
+    expect(results.every((s) => s.school === 'Evocation')).toBe(true);
   });
 
   it('should filter by concentration', () => {
     const results = searchSpells({ concentration: true }, data);
     expect(results.length).toBeGreaterThan(0);
-    expect(results.every(s => s.concentration === true)).toBe(true);
+    expect(results.every((s) => s.concentration === true)).toBe(true);
   });
 
   it('should filter by ritual', () => {
@@ -227,7 +227,7 @@ describe('searchSpells', () => {
         level: [1],
         school: ['Evocation'],
       },
-      data
+      data,
     );
     expect(results.length).toBe(1);
     expect(results[0]!.id).toBe('healing-word');
@@ -240,9 +240,9 @@ describe('getSpellsForCharacter', () => {
   it('should return known spells with full data', () => {
     const results = getSpellsForCharacter(MOCK_CHARACTER as any, data);
     expect(results.length).toBe(3);
-    expect(results.map(s => s.id)).toContain('fireball');
-    expect(results.map(s => s.id)).toContain('shield');
-    expect(results.map(s => s.id)).toContain('fire-bolt');
+    expect(results.map((s) => s.id)).toContain('fireball');
+    expect(results.map((s) => s.id)).toContain('shield');
+    expect(results.map((s) => s.id)).toContain('fire-bolt');
   });
 
   it('should skip unknown spell ids', () => {
@@ -280,8 +280,8 @@ describe('getPreparedSpells', () => {
   it('should return prepared spells with full data', () => {
     const results = getPreparedSpells(MOCK_CHARACTER as any, data);
     expect(results.length).toBe(2);
-    expect(results.map(s => s.id)).toContain('shield');
-    expect(results.map(s => s.id)).toContain('fireball');
+    expect(results.map((s) => s.id)).toContain('shield');
+    expect(results.map((s) => s.id)).toContain('fireball');
   });
 
   it('should include always-prepared spells', () => {
@@ -304,9 +304,9 @@ describe('getPreparedSpells', () => {
       },
     };
     const results = getPreparedSpells(char as any, data);
-    expect(results.map(s => s.id)).toContain('shield'); // regularly prepared
-    expect(results.map(s => s.id)).toContain('guidance'); // always-prepared
-    expect(results.map(s => s.id)).toContain('healing-word'); // always-prepared
+    expect(results.map((s) => s.id)).toContain('shield'); // regularly prepared
+    expect(results.map((s) => s.id)).toContain('guidance'); // always-prepared
+    expect(results.map((s) => s.id)).toContain('healing-word'); // always-prepared
   });
 });
 
@@ -550,9 +550,9 @@ describe('getKnownSpellsForClass', () => {
     };
 
     return createMockDataLoader({
-      getSpell: (id: string) => spells.find(s => s.id === id),
+      getSpell: (id: string) => spells.find((s) => s.id === id),
       getAllSpells: () => spells,
-      getSpellsByLevel: (level: SpellLevel) => spells.filter(s => s.level === level),
+      getSpellsByLevel: (level: SpellLevel) => spells.filter((s) => s.level === level),
       getClass: (id: string) => {
         if (id === 'Sorcerer') return MOCK_SORCERER_CLASS;
         if (id === 'Wizard') return MOCK_WIZARD_CLASS;
@@ -602,7 +602,7 @@ describe('getKnownSpellsForClass', () => {
 
     // Level 3 Sorcerer can cast up to 2nd level spells
     const result = getKnownSpellsForClass(char as any, 'Sorcerer', data);
-    const resultIds = result.map(s => s.id);
+    const resultIds = result.map((s) => s.id);
 
     expect(resultIds).toContain('acid-splash'); // cantrip
     expect(resultIds).toContain('charm-person'); // 1st level
@@ -652,7 +652,7 @@ describe('getKnownSpellsForClass', () => {
 
     // Sorcerer is level 3, can cast up to 2nd level spells
     const result = getKnownSpellsForClass(char as any, 'Sorcerer', data);
-    const resultIds = result.map(s => s.id);
+    const resultIds = result.map((s) => s.id);
 
     expect(resultIds).toContain('mirror-image'); // 2nd level - can cast
     expect(resultIds).not.toContain('dispel-magic'); // 3rd level - cannot cast
@@ -683,7 +683,7 @@ describe('getKnownSpellsForClass', () => {
     };
 
     const result = getKnownSpellsForClass(char as any, 'Sorcerer', data);
-    const resultIds = result.map(s => s.id);
+    const resultIds = result.map((s) => s.id);
 
     expect(resultIds).toContain('acid-splash'); // cantrip - always included
     expect(resultIds).toContain('charm-person'); // 1st level - can cast

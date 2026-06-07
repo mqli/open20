@@ -5,50 +5,46 @@ import { CharacterModalForm } from './CharacterModalForm';
 import { useCharacterForm } from './useCharacterForm';
 import type { AdditionalClassEntry } from './types';
 
-export function CharacterModal({ 
-  open, 
-  onOpenChange, 
-  characterId 
-}: { 
-  open: boolean; 
+export function CharacterModal({
+  open,
+  onOpenChange,
+  characterId,
+}: {
+  open: boolean;
   onOpenChange: (open: boolean) => void;
   characterId?: string;
 }) {
   const { createCharacter, updateCharacter, characters } = useCharacterStore();
-  const editingCharacter = characters.find(c => c.id === characterId);
+  const editingCharacter = characters.find((c) => c.id === characterId);
 
-  const {
-    formData,
-    setFormData,
-    isSubmitting,
-    setIsSubmitting
-  } = useCharacterForm({ 
-    editingCharacter, 
-    open 
+  const { formData, setFormData, isSubmitting, setIsSubmitting } = useCharacterForm({
+    editingCharacter,
+    open,
   });
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) return false;
-    
+
     // Check total level doesn't exceed 20
-    const totalLevel = formData.level + formData.additionalClasses.reduce((sum, ac) => sum + ac.level, 0);
+    const totalLevel =
+      formData.level + formData.additionalClasses.reduce((sum, ac) => sum + ac.level, 0);
     if (totalLevel > 20) return false;
-    
+
     // Check ability scores are valid
     for (const score of Object.values(formData.abilities)) {
       if (score < 1 || score > 30) return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const params: CharacterCreationParams = {
         name: formData.name,
@@ -58,13 +54,14 @@ export function CharacterModal({
         classLevel: formData.level,
         subclassId: formData.subclassId || undefined,
         abilityScores: formData.abilities,
-        additionalClasses: formData.additionalClasses.length > 0 
-          ? formData.additionalClasses.map((ac: AdditionalClassEntry) => ({
-              classId: ac.classId,
-              level: ac.level,
-              subclassId: ac.subclassId
-            })) 
-          : undefined,
+        additionalClasses:
+          formData.additionalClasses.length > 0
+            ? formData.additionalClasses.map((ac: AdditionalClassEntry) => ({
+                classId: ac.classId,
+                level: ac.level,
+                subclassId: ac.subclassId,
+              }))
+            : undefined,
       };
 
       if (editingCharacter) {
@@ -83,7 +80,7 @@ export function CharacterModal({
       } else {
         createCharacter(params);
       }
-      
+
       onOpenChange(false);
     } finally {
       setIsSubmitting(false);

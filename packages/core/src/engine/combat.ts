@@ -31,7 +31,7 @@ export function applyHPChange(
   currentHP: number,
   maxHP: number,
   temporaryHP: number,
-  delta: number
+  delta: number,
 ): { currentHP: number; temporaryHP: number } {
   let remaining = delta;
   let newTemporary = temporaryHP;
@@ -75,7 +75,7 @@ export function applyTypedDamageToHP(
   temporaryHP: number,
   damage: number,
   damageType: DamageType,
-  defenses: DamageDefenses
+  defenses: DamageDefenses,
 ): { currentHP: number; temporaryHP: number; result: DamageResult } {
   const result = calculateTypedDamage(damage, damageType, defenses);
   const hpResult = applyHPChange(currentHP, maxHP, temporaryHP, -result.effectiveDamage);
@@ -166,7 +166,7 @@ export function getMonsterTemporaryHP(monster: { temporaryHP?: number }): number
  */
 export function addDamageResistance(
   defenses: DamageDefenses,
-  damageType: DamageType
+  damageType: DamageType,
 ): DamageDefenses {
   if (defenses.resistances.includes(damageType)) return defenses;
   return {
@@ -181,7 +181,7 @@ export function addDamageResistance(
  */
 export function addDamageImmunity(
   defenses: DamageDefenses,
-  damageType: DamageType
+  damageType: DamageType,
 ): DamageDefenses {
   if (defenses.immunities.includes(damageType)) return defenses;
   return {
@@ -196,7 +196,7 @@ export function addDamageImmunity(
  */
 export function addDamageVulnerability(
   defenses: DamageDefenses,
-  damageType: DamageType
+  damageType: DamageType,
 ): DamageDefenses {
   if (defenses.vulnerabilities.includes(damageType)) return defenses;
   return {

@@ -41,7 +41,7 @@ export interface FeatValidationResult {
 export function validateFeatPrerequisites(
   char: Character,
   feat: Feat,
-  data: DataLoader
+  data: DataLoader,
 ): FeatValidationResult {
   const reasons: string[] = [];
 
@@ -72,7 +72,7 @@ export function validateFeatPrerequisites(
 
   // 3. Check class prerequisite
   if (prereq.classId) {
-    const hasClass = char.classes.some(c => c.classId === prereq.classId);
+    const hasClass = char.classes.some((c) => c.classId === prereq.classId);
     if (!hasClass) {
       const classData = data.getClass(prereq.classId);
       const className = classData?.name ?? prereq.classId;
@@ -82,7 +82,7 @@ export function validateFeatPrerequisites(
 
   // 4. Check subclass prerequisite
   if (prereq.subclassId) {
-    const hasSubclass = char.classes.some(c => c.subclassId === prereq.subclassId);
+    const hasSubclass = char.classes.some((c) => c.subclassId === prereq.subclassId);
     if (!hasSubclass) {
       reasons.push(`Must have the ${prereq.subclassId} subclass`);
     }
@@ -168,7 +168,7 @@ function checkFeaturePrerequisite(char: Character, featureName: string, data: Da
  */
 export function canTakeFeat(char: Character, feat: Feat): boolean {
   // If feat is not in character's feat list, can take it
-  if (!char.feats.some(f => f.featId === feat.id)) {
+  if (!char.feats.some((f) => f.featId === feat.id)) {
     return true;
   }
 

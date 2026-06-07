@@ -12,8 +12,16 @@ export const mockStoreState = {
   selectedSchools: [],
   showRitualOnly: false,
   showConcentrationOnly: false,
-  get toggleClassFilter() { return mockToggleClassFilter; },
-  get toggleSchoolFilter() { return mockToggleSchoolFilter; },
-  get setShowRitualOnly() { return mockSetShowRitualOnly; },
-  get setShowConcentrationOnly() { return mockSetShowConcentrationOnly; },
+  get toggleClassFilter() {
+    return mockToggleClassFilter;
+  },
+  get toggleSchoolFilter() {
+    return mockToggleSchoolFilter;
+  },
+  get setShowRitualOnly() {
+    return mockSetShowRitualOnly;
+  },
+  get setShowConcentrationOnly() {
+    return mockSetShowConcentrationOnly;
+  },
 };

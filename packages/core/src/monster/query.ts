@@ -60,56 +60,56 @@ export function searchMonsters(filter: MonsterFilter, data: DataLoader): Monster
   if (filter.name) {
     const searchLower = filter.name.toLowerCase();
     monsters = monsters.filter(
-      m => m.id.toLowerCase().includes(searchLower) || m.name.toLowerCase().includes(searchLower)
+      (m) => m.id.toLowerCase().includes(searchLower) || m.name.toLowerCase().includes(searchLower),
     );
   }
 
   if (filter.size && filter.size.length > 0) {
     const sizeSet = new Set(filter.size);
-    monsters = monsters.filter(m => sizeSet.has(m.size));
+    monsters = monsters.filter((m) => sizeSet.has(m.size));
   }
 
   if (filter.type && filter.type.length > 0) {
     const typeSet = new Set(filter.type);
-    monsters = monsters.filter(m => typeSet.has(m.type));
+    monsters = monsters.filter((m) => typeSet.has(m.type));
   }
 
   if (filter.minCR !== undefined) {
-    monsters = monsters.filter(m => compareCR(m.challengeRating.rating, filter.minCR!) >= 0);
+    monsters = monsters.filter((m) => compareCR(m.challengeRating.rating, filter.minCR!) >= 0);
   }
 
   if (filter.maxCR !== undefined) {
-    monsters = monsters.filter(m => compareCR(m.challengeRating.rating, filter.maxCR!) <= 0);
+    monsters = monsters.filter((m) => compareCR(m.challengeRating.rating, filter.maxCR!) <= 0);
   }
 
   if (filter.environment && filter.environment.length > 0) {
     const envSet = new Set(filter.environment);
-    monsters = monsters.filter(m => m.environments?.some(e => envSet.has(e)));
+    monsters = monsters.filter((m) => m.environments?.some((e) => envSet.has(e)));
   }
 
   if (filter.source && filter.source.length > 0) {
     const sourceSet = new Set(filter.source);
-    monsters = monsters.filter(m => sourceSet.has(m.source));
+    monsters = monsters.filter((m) => sourceSet.has(m.source));
   }
 
   if (filter.damageResistances && filter.damageResistances.length > 0) {
     const resSet = new Set(filter.damageResistances);
-    monsters = monsters.filter(m => m.resistances?.some(r => resSet.has(r)));
+    monsters = monsters.filter((m) => m.resistances?.some((r) => resSet.has(r)));
   }
 
   if (filter.damageImmunities && filter.damageImmunities.length > 0) {
     const immSet = new Set(filter.damageImmunities);
-    monsters = monsters.filter(m => m.damageDefenses?.immunities.some(i => immSet.has(i)));
+    monsters = monsters.filter((m) => m.damageDefenses?.immunities.some((i) => immSet.has(i)));
   }
 
   if (filter.damageVulnerabilities && filter.damageVulnerabilities.length > 0) {
     const vulnSet = new Set(filter.damageVulnerabilities);
-    monsters = monsters.filter(m => m.vulnerabilities?.some(v => vulnSet.has(v)));
+    monsters = monsters.filter((m) => m.vulnerabilities?.some((v) => vulnSet.has(v)));
   }
 
   if (filter.conditionImmunities && filter.conditionImmunities.length > 0) {
     const condSet = new Set(filter.conditionImmunities);
-    monsters = monsters.filter(m => m.conditionImmunities?.some(c => condSet.has(c)));
+    monsters = monsters.filter((m) => m.conditionImmunities?.some((c) => condSet.has(c)));
   }
 
   return monsters;
@@ -126,7 +126,7 @@ export function searchMonsters(filter: MonsterFilter, data: DataLoader): Monster
 export function getMonstersByCR(
   minCR: ChallengeRating,
   maxCR: ChallengeRating,
-  data: DataLoader
+  data: DataLoader,
 ): Monster[] {
   return searchMonsters({ minCR, maxCR }, data);
 }
@@ -153,7 +153,7 @@ export function getMonstersByType(type: MonsterType, data: DataLoader): Monster[
 export function getMonstersForParty(
   partyLevel: number,
   partySize: number = 4,
-  data: DataLoader
+  data: DataLoader,
 ): Monster[] {
   // Simple CR filter: monster CR should be around partyLevel - 2 to partyLevel + 1
   const minCR = Math.max(0, partyLevel - 2) as ChallengeRating;
@@ -202,7 +202,7 @@ function crToNumber(cr: ChallengeRating): number {
  */
 export function parseLimitedUsage(
   actionName: string,
-  description?: string
+  description?: string,
 ):
   | {
       type: 'x_per_day' | 'recharge' | 'recharge_after_rest';
@@ -254,7 +254,7 @@ export function parseLimitedUsage(
 export function getActionLimitedUsage(
   monsterId: string,
   actionName: string,
-  data: DataLoader
+  data: DataLoader,
 ):
   | {
       type: 'x_per_day' | 'recharge' | 'recharge_after_rest';
@@ -265,7 +265,7 @@ export function getActionLimitedUsage(
   | undefined {
   const actions = getMonsterActions(monsterId, data);
   const action = actions.find(
-    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+    (a) => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()),
   );
 
   if (!action) return undefined;
@@ -301,7 +301,7 @@ export function getActionLimitedUsage(
  * // { fixedValue: 13, dieExpression: "1d10 + 8" }
  */
 export function parseDamageNotation(
-  description: string
+  description: string,
 ): { fixedValue?: number; dieExpression?: string } | undefined {
   if (!description) return undefined;
 
@@ -331,11 +331,11 @@ export function getAttackDamageNotation(
   monsterId: string,
   actionName: string,
   attackName: string | undefined,
-  data: DataLoader
+  data: DataLoader,
 ): { fixedValue?: number; dieExpression?: string } | undefined {
   const actions = getMonsterActions(monsterId, data);
   const action = actions.find(
-    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+    (a) => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()),
   );
 
   if (!action || !action.attacks || action.attacks.length === 0) return undefined;
@@ -343,7 +343,7 @@ export function getAttackDamageNotation(
   // Find the specific attack
   const attack = attackName
     ? action.attacks.find(
-        a => a.name === attackName || a.name.toLowerCase().includes(attackName.toLowerCase())
+        (a) => a.name === attackName || a.name.toLowerCase().includes(attackName.toLowerCase()),
       )
     : action.attacks[0];
 
@@ -373,9 +373,7 @@ export function getAttackDamageNotation(
  * parseSavingThrowEffect("*Dexterity Saving Throw*: DC 21, each creature in a 60-foot Cone. *Failure:* 59 (17d6) Fire damage. *Success:* Half damage.")
  * // { saveType: "Dexterity", dc: 21, description: "each creature in a 60-foot Cone", onSaveFailure: "59 (17d6) Fire damage.", onSaveSuccess: "Half damage.", halfDamageOnSuccess: true }
  */
-export function parseSavingThrowEffect(
-  description: string
-):
+export function parseSavingThrowEffect(description: string):
   | {
       saveType?: string;
       dc?: number;
@@ -443,7 +441,7 @@ export function parseSavingThrowEffect(
 export function getActionSavingThrowEffect(
   monsterId: string,
   actionName: string,
-  data: DataLoader
+  data: DataLoader,
 ):
   | {
       saveType?: string;
@@ -456,7 +454,7 @@ export function getActionSavingThrowEffect(
   | undefined {
   const actions = getMonsterActions(monsterId, data);
   const action = actions.find(
-    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+    (a) => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()),
   );
 
   if (!action) return undefined;
@@ -551,11 +549,11 @@ export function parseAttackNotation(description: string): AttackNotation | undef
 export function getActionAttackNotation(
   monsterId: string,
   actionName: string,
-  data: DataLoader
+  data: DataLoader,
 ): AttackNotation | undefined {
   const actions = getMonsterActions(monsterId, data);
   const action = actions.find(
-    a => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase())
+    (a) => a.name === actionName || a.name.toLowerCase().includes(actionName.toLowerCase()),
   );
 
   if (!action) return undefined;
@@ -612,7 +610,7 @@ export function getMonsterTraits(monsterId: string, data: DataLoader): readonly 
  */
 export function getMonsterReactions(
   monsterId: string,
-  data: DataLoader
+  data: DataLoader,
 ): readonly MonsterReaction[] {
   const monster = getMonster(monsterId, data);
   return monster?.reactions ?? [];
@@ -627,7 +625,7 @@ export function getMonsterReactions(
  */
 export function getMonsterLegendaryActions(
   monsterId: string,
-  data: DataLoader
+  data: DataLoader,
 ): readonly MonsterLegendaryAction[] {
   const monster = getMonster(monsterId, data);
   return monster?.legendaryActions ?? [];
@@ -647,7 +645,7 @@ export function getMonstersWithTrait(traitName: string, data: DataLoader): Monst
   const searchLower = traitName.toLowerCase();
   return data
     .getAllMonsters()
-    .filter(m => m.traits?.some(t => t.name.toLowerCase().includes(searchLower)));
+    .filter((m) => m.traits?.some((t) => t.name.toLowerCase().includes(searchLower)));
 }
 
 /**
@@ -657,7 +655,7 @@ export function getMonstersWithTrait(traitName: string, data: DataLoader): Monst
  * @returns Array of monsters with legendary actions
  */
 export function getLegendaryMonsters(data: DataLoader): Monster[] {
-  return data.getAllMonsters().filter(m => m.legendaryActions && m.legendaryActions.length > 0);
+  return data.getAllMonsters().filter((m) => m.legendaryActions && m.legendaryActions.length > 0);
 }
 
 /**
@@ -669,7 +667,7 @@ export function getLegendaryMonsters(data: DataLoader): Monster[] {
  */
 export function getMonsterAllAttacks(monsterId: string, data: DataLoader): MonsterAction[] {
   const actions = getMonsterActions(monsterId, data);
-  return actions.filter(a => a.attacks && a.attacks.length > 0);
+  return actions.filter((a) => a.attacks && a.attacks.length > 0);
 }
 
 /**
@@ -681,7 +679,7 @@ export function getMonsterAllAttacks(monsterId: string, data: DataLoader): Monst
  */
 export function searchActionsByName(
   actionName: string,
-  data: DataLoader
+  data: DataLoader,
 ): Array<{ monsterId: string; monsterName: string; action: MonsterAction }> {
   const searchLower = actionName.toLowerCase();
   const results: Array<{ monsterId: string; monsterName: string; action: MonsterAction }> = [];

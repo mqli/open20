@@ -16,7 +16,9 @@ export class RulesService {
 
     const abilityModifiers: Record<string, number> = {};
     Object.entries(character.abilityScores.base).forEach(([ability]) => {
-      abilityModifiers[ability] = getModifier(getTotalScore(character.abilityScores, ability as AbilityName));
+      abilityModifiers[ability] = getModifier(
+        getTotalScore(character.abilityScores, ability as AbilityName),
+      );
     });
 
     const classSpellcasting = character.spells.classSpellcasting;
@@ -27,7 +29,10 @@ export class RulesService {
     const spellMod = abilityModifiers[spellcastingAbility] ?? 0;
 
     // Sum maxPrepared across all spellcasting classes
-    const maxPreparedSpells = Object.values(classSpellcasting).reduce((sum, c) => sum + c.maxPrepared, 0);
+    const maxPreparedSpells = Object.values(classSpellcasting).reduce(
+      (sum, c) => sum + c.maxPrepared,
+      0,
+    );
 
     return {
       abilityModifiers,

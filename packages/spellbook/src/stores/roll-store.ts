@@ -18,14 +18,14 @@ interface RollState {
 export const useRollStore = create<RollState>((set) => ({
   recentRolls: [],
   latestRoll: null,
-  
+
   addRoll: (roll) => {
     const newRoll = {
       ...roll,
       id: Math.random().toString(36).substring(7),
       timestamp: Date.now(),
     };
-    
+
     set((state) => ({
       latestRoll: newRoll,
       recentRolls: [newRoll, ...state.recentRolls].slice(0, 10),
@@ -34,7 +34,7 @@ export const useRollStore = create<RollState>((set) => ({
     // Auto-clear latest roll after a delay
     setTimeout(() => {
       set((state) => ({
-        latestRoll: state.latestRoll?.id === newRoll.id ? null : state.latestRoll
+        latestRoll: state.latestRoll?.id === newRoll.id ? null : state.latestRoll,
       }));
     }, 5000);
   },

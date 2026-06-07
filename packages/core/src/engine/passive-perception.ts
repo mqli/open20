@@ -48,7 +48,7 @@ export function calculatePassivePerception(
   scores: AbilityScores,
   skills: Record<string, SkillEntry>,
   proficiencyBonus: number,
-  conditions: readonly ActiveCondition[]
+  conditions: readonly ActiveCondition[],
 ): number {
   const perceptionSkill = skills['Perception'];
   const base = 10;

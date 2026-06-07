@@ -37,7 +37,7 @@ export interface PactMagicResult {
 export function calculateSpellSlots(
   classId: string,
   classLevel: number,
-  data: DataLoader
+  data: DataLoader,
 ): Record<number, SpellSlotEntry> {
   const slotsByLevel = data.getSpellSlots(classId, classLevel);
   const result: Record<number, SpellSlotEntry> = {};
@@ -66,7 +66,7 @@ export function calculateSpellSlots(
  */
 export function calculateSpellSlotsFromClasses(
   classes: readonly CharacterClass[],
-  data: DataLoader
+  data: DataLoader,
 ): Record<number, SpellSlotEntry> {
   const totalLevel = getMulticlassSpellcasterLevel(classes, data);
   return calculateMulticlassSpellSlots(totalLevel, data);
@@ -121,7 +121,7 @@ export function calculatePactMagic(warlockLevel: number, data: DataLoader): Pact
  */
 export function getMulticlassSpellcasterLevel(
   classes: readonly CharacterClass[],
-  data: DataLoader
+  data: DataLoader,
 ): number {
   let totalLevel = 0;
 
@@ -156,7 +156,7 @@ export function getMulticlassSpellcasterLevel(
  */
 export function calculateMulticlassSpellSlots(
   totalSpellcasterLevel: number,
-  data: DataLoader
+  data: DataLoader,
 ): Record<number, SpellSlotEntry> {
   if (totalSpellcasterLevel < 1) {
     return emptySpellSlots();

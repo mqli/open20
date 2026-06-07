@@ -75,7 +75,12 @@ const WIZARD_CLASS: Class = {
   armorTraining: [],
   weaponMastery: false,
   featuresByLevel: [{ level: 1, features: WIZARD_FEATURES_L1 }],
-  spellcasting: {ability: 'Intelligence', knownSource: 'spellbook', preparationTiming: 'long_rest', changesPerPreparation: 'all' },
+  spellcasting: {
+    ability: 'Intelligence',
+    knownSource: 'spellbook',
+    preparationTiming: 'long_rest',
+    changesPerPreparation: 'all',
+  },
 };
 
 const ALERT_FEAT: Feat = {
@@ -90,7 +95,9 @@ const CHAMPION_SUBCLASS: Subclass = {
   id: 'Champion',
   parentClass: 'Fighter',
   grantedAtLevel: 3,
-  featuresByLevel: [{ level: 3, features: [{ name: 'Improved Critical', description: 'Crit on 19-20', level: 3 }] }],
+  featuresByLevel: [
+    { level: 3, features: [{ name: 'Improved Critical', description: 'Crit on 19-20', level: 3 }] },
+  ],
 };
 
 // ── Mock DataLoader ────────────────────────────────────────────
@@ -194,7 +201,7 @@ describe('validateCharacter', () => {
     const char = createValidCharacter(data);
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(true);
-    expect(result.errors.filter(e => e.severity === 'error')).toEqual([]);
+    expect(result.errors.filter((e) => e.severity === 'error')).toEqual([]);
   });
 
   it('returns error for empty name', () => {
@@ -203,7 +210,7 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'name', severity: 'error' })
+      expect.objectContaining({ field: 'name', severity: 'error' }),
     );
   });
 
@@ -213,7 +220,7 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'species', severity: 'error' })
+      expect.objectContaining({ field: 'species', severity: 'error' }),
     );
   });
 
@@ -223,7 +230,7 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'background', severity: 'error' })
+      expect.objectContaining({ field: 'background', severity: 'error' }),
     );
   });
 
@@ -233,7 +240,7 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'classes[0].classId', severity: 'error' })
+      expect.objectContaining({ field: 'classes[0].classId', severity: 'error' }),
     );
   });
 
@@ -247,7 +254,7 @@ describe('validateCharacter', () => {
         field: 'classes[0].level',
         severity: 'error',
         message: expect.stringContaining('>= 1'),
-      })
+      }),
     );
   });
 
@@ -261,7 +268,7 @@ describe('validateCharacter', () => {
         field: 'classes[0].level',
         severity: 'error',
         message: expect.stringContaining('<= 20'),
-      })
+      }),
     );
   });
 
@@ -290,7 +297,7 @@ describe('validateCharacter', () => {
         field: 'classes',
         severity: 'error',
         message: expect.stringContaining('Total level'),
-      })
+      }),
     );
   });
 
@@ -301,7 +308,7 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'abilityScores.base.Strength', severity: 'error' })
+      expect.objectContaining({ field: 'abilityScores.base.Strength', severity: 'error' }),
     );
   });
 
@@ -312,7 +319,7 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'abilityScores.base.Strength', severity: 'error' })
+      expect.objectContaining({ field: 'abilityScores.base.Strength', severity: 'error' }),
     );
   });
 
@@ -324,7 +331,7 @@ describe('validateCharacter', () => {
     // Should have a warning but still be valid
     expect(result.valid).toBe(true);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'abilityScores.base.Intelligence', severity: 'warning' })
+      expect.objectContaining({ field: 'abilityScores.base.Intelligence', severity: 'warning' }),
     );
   });
 
@@ -334,14 +341,14 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'hitPoints.current', severity: 'error' })
+      expect.objectContaining({ field: 'hitPoints.current', severity: 'error' }),
     );
   });
 
   it('returns error for resource used > max', () => {
     const char = createValidCharacter(data);
     mutate(char).resources = {
-      'Fighter': {
+      Fighter: {
         classId: 'Fighter',
         resources: [
           { id: 'Second Wind', name: 'Second Wind', max: 1, used: 3, resetOn: ResetType.ShortRest },
@@ -351,7 +358,7 @@ describe('validateCharacter', () => {
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
-      expect.objectContaining({ field: 'resources.Fighter.resources[0].used', severity: 'error' })
+      expect.objectContaining({ field: 'resources.Fighter.resources[0].used', severity: 'error' }),
     );
   });
 
@@ -366,7 +373,7 @@ describe('validateCharacter', () => {
         field: 'feats[0].featId',
         severity: 'warning',
         message: expect.stringContaining('NonExistentFeat'),
-      })
+      }),
     );
   });
 
@@ -377,10 +384,10 @@ describe('validateCharacter', () => {
     mutate(char).background = 'Invalid';
     const result = validateCharacter(char, data);
     expect(result.valid).toBe(false);
-    const errorFields = result.errors.filter(e => e.severity === 'error').map(e => e.field);
+    const errorFields = result.errors.filter((e) => e.severity === 'error').map((e) => e.field);
     expect(errorFields).toContain('name');
     expect(errorFields).toContain('species');
     expect(errorFields).toContain('background');
-    expect(result.errors.filter(e => e.severity === 'error').length).toBeGreaterThanOrEqual(3);
+    expect(result.errors.filter((e) => e.severity === 'error').length).toBeGreaterThanOrEqual(3);
   });
 });

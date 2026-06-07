@@ -36,14 +36,14 @@ export function calculateAttacks(
   features: readonly Feature[],
   data: DataLoader,
   weaponProficiencies: readonly string[] = [],
-  featAttackBonuses?: readonly FeatAttackBonus[]
+  featAttackBonuses?: readonly FeatAttackBonus[],
 ): CharacterAttack[] {
   const attacks: CharacterAttack[] = [];
 
   // 获取所有已装备的武器
   const equippedWeapons = equipment
-    .filter(e => e.equipped && e.type === 'weapon')
-    .map(e => ({ itemId: e.id, weapon: data.getWeapon(e.id) }))
+    .filter((e) => e.equipped && e.type === 'weapon')
+    .map((e) => ({ itemId: e.id, weapon: data.getWeapon(e.id) }))
     .filter((w): w is { itemId: string; weapon: Weapon } => w.weapon != null);
 
   for (const { weapon } of equippedWeapons) {
@@ -52,7 +52,7 @@ export function calculateAttacks(
       weapon,
       proficiencyBonus,
       weaponProficiencies,
-      featAttackBonuses
+      featAttackBonuses,
     );
 
     // 伤害字符串（使用 entries[0] 为基础伤害）
@@ -83,7 +83,7 @@ function calculateWeaponAttack(
   weapon: Weapon,
   proficiencyBonus: number,
   weaponProficiencies: readonly string[],
-  featAttackBonuses?: readonly FeatAttackBonus[]
+  featAttackBonuses?: readonly FeatAttackBonus[],
 ): { attackBonus: number; damageMod: number; abilityUsed: string } {
   const strMod = getModifier(getTotalScore(scores, 'Strength'));
   const dexMod = getModifier(getTotalScore(scores, 'Dexterity'));

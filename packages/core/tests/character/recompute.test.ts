@@ -197,7 +197,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Level 1 → PB = 2
@@ -226,7 +226,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Unarmored: 10 + Dex(+2) = 12
@@ -258,7 +258,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Dex 14 → +2
@@ -289,7 +289,7 @@ describe('recomputeDerivedStats', () => {
         },
         skillChoices: ['Perception'],
       },
-      data
+      data,
     );
 
     // Wis 12 → +1, proficient, PB 2 → 10 + 1 + 2 = 13
@@ -322,7 +322,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Level 1 Fighter, Con 15 → +2, d10: 10+2 = 12
@@ -352,7 +352,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Set current HP to max
@@ -386,7 +386,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Int 15 → +2, PB 2, DC = 8 + 2 + 2 = 12
@@ -419,7 +419,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Int 15 → +2, PB 2, Attack = 2 + 2 = 4
@@ -449,7 +449,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Level 1: 2 level-1 slots
@@ -479,7 +479,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Use 1 slot
@@ -513,7 +513,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Level 1
@@ -545,7 +545,7 @@ describe('recomputeDerivedStats', () => {
           Charisma: 10,
         },
       },
-      data
+      data,
     );
 
     // Add subclass and level up to 7
@@ -732,7 +732,7 @@ describe('recomputeDerivedStats', () => {
       getAllClasses: () => [WIZARD_CLASS, FIGHTER_CLASS, MOCK_CLERIC_CLASS, MOCK_SORCERER_CLASS],
       getSubclass: () => undefined,
       getAllSubclasses: () => [],
-      getSpell: (id: string) => spells.find(s => s.id === id),
+      getSpell: (id: string) => spells.find((s) => s.id === id),
       getAllSpells: () => spells,
       getSpellSlots: (classId: string, level: number) => {
         return fullCasterSlots[level] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
@@ -761,7 +761,7 @@ describe('recomputeDerivedStats', () => {
             Charisma: 15,
           },
         },
-        data
+        data,
       );
 
       // Level 1 Sorcerer - class_list auto-populates ALL level 1+ Sorcerer spells
@@ -788,7 +788,7 @@ describe('recomputeDerivedStats', () => {
             Charisma: 15,
           },
         },
-        data
+        data,
       );
 
       // Level 5 Sorcerer can cast up to 3rd level spells
@@ -824,7 +824,7 @@ describe('recomputeDerivedStats', () => {
             Charisma: 10,
           },
         },
-        data
+        data,
       );
 
       // Level 1 Wizard - add high level spells to spellbook
@@ -968,7 +968,7 @@ describe('recomputeDerivedStats', () => {
             Charisma: 10,
           },
         },
-        dataWithCleric
+        dataWithCleric,
       );
 
       // Level 1 Cleric can cast cantrips and 1st level spells
@@ -1066,7 +1066,7 @@ describe('recomputeDerivedStats', () => {
             Charisma: 10,
           },
         },
-        dataWithCleric
+        dataWithCleric,
       );
 
       // Level up to 5 (can cast up to 3rd level spells)
@@ -1103,7 +1103,7 @@ describe('recomputeDerivedStats', () => {
             Charisma: 15,
           },
         },
-        data
+        data,
       );
 
       // Mutate to Sorcerer 3 / Wizard 2
@@ -1167,7 +1167,7 @@ describe('recomputeDerivedStats', () => {
             Charisma: 15,
           },
         },
-        data
+        data,
       );
 
       // Mutate to Sorcerer 3 / Wizard 2

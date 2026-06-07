@@ -9,7 +9,7 @@ describe('R28.11 - Spellcasting Details', () => {
       const spellcasting: MonsterSpellcasting = {
         ability: 'Charisma',
         saveDC: 17,
-        attackBonus: 9
+        attackBonus: 9,
       };
       expect(spellcasting.ability).toBe('Charisma');
       expect(spellcasting.saveDC).toBe(17);
@@ -19,7 +19,7 @@ describe('R28.11 - Spellcasting Details', () => {
       const spellcasting: MonsterSpellcasting = {
         ability: 'Charisma',
         saveDC: 17,
-        ignoresComponents: ['M']
+        ignoresComponents: ['M'],
       };
       expect(spellcasting.ignoresComponents!).toContain('M');
     });
@@ -28,7 +28,7 @@ describe('R28.11 - Spellcasting Details', () => {
       const spellcasting: MonsterSpellcasting = {
         ability: 'Charisma',
         saveDC: 17,
-        atWill: ['Command', 'Detect Magic', 'Scorching Ray']
+        atWill: ['Command', 'Detect Magic', 'Scorching Ray'],
       };
       expect(spellcasting.atWill!).toContain('Command');
       expect(spellcasting.atWill!).toHaveLength(3);
@@ -38,7 +38,7 @@ describe('R28.11 - Spellcasting Details', () => {
       const spellcasting: MonsterSpellcasting = {
         ability: 'Charisma',
         saveDC: 17,
-        daily: [{ spell: 'Fireball', times: 1 }]
+        daily: [{ spell: 'Fireball', times: 1 }],
       };
       expect(spellcasting.daily!).toHaveLength(1);
       expect(spellcasting.daily![0]!.spell).toBe('Fireball');
@@ -61,10 +61,17 @@ describe('R28.11 - Spellcasting Details', () => {
         speed: { walk: 40, climb: 40, fly: 80 },
         initiative: { modifier: 0, score: 10 },
         abilityScores: {
-          base: { Strength: 23, Dexterity: 10, Constitution: 21, Intelligence: 14, Wisdom: 11, Charisma: 19 },
+          base: {
+            Strength: 23,
+            Dexterity: 10,
+            Constitution: 21,
+            Intelligence: 14,
+            Wisdom: 11,
+            Charisma: 19,
+          },
           racialBonuses: {},
           featBonuses: {},
-          temporaryBonuses: {}
+          temporaryBonuses: {},
         },
         savingThrows: { Dexterity: 4, Wisdom: 4 },
         skills: { Perception: 7, Stealth: 4 },
@@ -81,8 +88,8 @@ describe('R28.11 - Spellcasting Details', () => {
             attackBonus: 9,
             ignoresComponents: ['M'],
             atWill: ['Command', 'Detect Magic', 'Scorching Ray'],
-            daily: [{ spell: 'Fireball', times: 1 }]
-          }
+            daily: [{ spell: 'Fireball', times: 1 }],
+          },
         ],
         conditionImmunities: ['Charmed', 'Frightened', 'Poisoned'],
         traits: [],
@@ -91,12 +98,12 @@ describe('R28.11 - Spellcasting Details', () => {
         legendaryActions: [],
         environments: ['mountain'],
         currentHP: 178,
-        temporaryHP: 0
-      }
+        temporaryHP: 0,
+      },
     ];
 
     const mockDataLoader = {
-      getMonster: (id: string) => mockMonsters.find(m => m.id === id),
+      getMonster: (id: string) => mockMonsters.find((m) => m.id === id),
       getSpell: () => undefined,
       getAllSpells: () => [],
       getClass: () => undefined,

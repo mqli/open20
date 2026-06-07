@@ -61,10 +61,17 @@ describe('R28.12 - Limited Usage', () => {
         speed: { walk: 40, climb: 40, fly: 80 },
         initiative: { modifier: 4, score: 14 },
         abilityScores: {
-          base: { Strength: 27, Dexterity: 10, Constitution: 25, Intelligence: 16, Wisdom: 13, Charisma: 23 },
+          base: {
+            Strength: 27,
+            Dexterity: 10,
+            Constitution: 25,
+            Intelligence: 16,
+            Wisdom: 13,
+            Charisma: 23,
+          },
           racialBonuses: {},
           featBonuses: {},
-          temporaryBonuses: {}
+          temporaryBonuses: {},
         },
         savingThrows: { Dexterity: 6, Wisdom: 7 },
         skills: { Perception: 13, Stealth: 6 },
@@ -81,42 +88,45 @@ describe('R28.12 - Limited Usage', () => {
             attackBonus: 12,
             ignoresComponents: ['M'],
             atWill: ['Command', 'Detect Magic', 'Scorching Ray'],
-            daily: [{ spell: 'Fireball', times: 1 }]
-          }
+            daily: [{ spell: 'Fireball', times: 1 }],
+          },
         ],
         conditionImmunities: ['Charmed', 'Frightened', 'Poisoned'],
         traits: [
           {
             name: 'Legendary Resistance (3/Day, or 4/Day in Lair)',
-            description: 'If the dragon fails a saving throw, it can choose to succeed instead.'
-          }
+            description: 'If the dragon fails a saving throw, it can choose to succeed instead.',
+          },
         ],
         actions: [
           {
             name: 'Multiattack',
-            description: 'The dragon makes three Rend attacks. It can replace one attack with a use of Spellcasting to cast Scorching Ray.'
+            description:
+              'The dragon makes three Rend attacks. It can replace one attack with a use of Spellcasting to cast Scorching Ray.',
           },
           {
             name: 'Rend',
-            description: 'Melee Attack Roll: +14, reach 10 ft. 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.',
+            description:
+              'Melee Attack Roll: +14, reach 10 ft. 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.',
             attacks: [
               {
                 name: 'Rend',
                 attackBonus: 14,
                 damageEntries: [
                   { dice: '1d10', type: 'Slashing', bonus: 8 },
-                  { dice: '2d4', type: 'Fire', bonus: 0 }
+                  { dice: '2d4', type: 'Fire', bonus: 0 },
                 ],
-                damageNotation: { fixedValue: 13, dieExpression: '1d10+8' }
-              }
-            ]
+                damageNotation: { fixedValue: 13, dieExpression: '1d10+8' },
+              },
+            ],
           },
           {
             name: 'Fire Breath',
-            description: '*Dexterity Saving Throw*: DC 21, each creature in a 60-foot Cone. *Failure:* 59 (17d6) Fire damage. *Success:* Half damage.',
+            description:
+              '*Dexterity Saving Throw*: DC 21, each creature in a 60-foot Cone. *Failure:* 59 (17d6) Fire damage. *Success:* Half damage.',
             limitedUsage: {
               type: 'recharge',
-              rechargeRange: [5, 6]
+              rechargeRange: [5, 6],
             },
             savingThrowEffect: {
               saveType: 'Dexterity',
@@ -124,33 +134,35 @@ describe('R28.12 - Limited Usage', () => {
               description: 'each creature in a 60-foot Cone',
               onSaveFailure: '59 (17d6) Fire damage.',
               onSaveSuccess: 'Half damage.',
-              halfDamageOnSuccess: true
-            }
-          }
+              halfDamageOnSuccess: true,
+            },
+          },
         ],
         reactions: [],
         legendaryActions: [
           {
             name: 'Commanding Presence',
-            description: 'The dragon uses Spellcasting to cast Command (level 2 version). The dragon can\'t take this action again until the start of its next turn.'
+            description:
+              "The dragon uses Spellcasting to cast Command (level 2 version). The dragon can't take this action again until the start of its next turn.",
           },
           {
             name: 'Fiery Rays',
-            description: 'The dragon uses Spellcasting to cast Scorching Ray. The dragon can\'t take this action again until the start of its next turn.'
+            description:
+              "The dragon uses Spellcasting to cast Scorching Ray. The dragon can't take this action again until the start of its next turn.",
           },
           {
             name: 'Pounce',
-            description: 'The dragon moves up to half its Speed, and it makes one Rend attack.'
-          }
+            description: 'The dragon moves up to half its Speed, and it makes one Rend attack.',
+          },
         ],
         environments: ['mountain'],
         currentHP: 256,
-        temporaryHP: 0
-      }
+        temporaryHP: 0,
+      },
     ];
 
     const mockDataLoader = {
-      getMonster: (id: string) => mockMonsters.find(m => m.id === id),
+      getMonster: (id: string) => mockMonsters.find((m) => m.id === id),
       getSpell: () => undefined,
       getAllSpells: () => [],
       getClass: () => undefined,

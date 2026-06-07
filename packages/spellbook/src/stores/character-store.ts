@@ -68,7 +68,8 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   updateCharacter: (character) => {
     const recomputed = characterService.recompute(character);
     set((state) => ({
-      activeCharacter: state.activeCharacter?.id === recomputed.id ? recomputed : state.activeCharacter,
+      activeCharacter:
+        state.activeCharacter?.id === recomputed.id ? recomputed : state.activeCharacter,
       characters: state.characters.map((c) => (c.id === recomputed.id ? recomputed : c)),
     }));
     storageService.saveCharacter(recomputed);
@@ -76,11 +77,11 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
   deleteCharacter: (id) => {
     const { characters, activeCharacter } = get();
-    const updatedChars = characters.filter(c => c.id !== id);
+    const updatedChars = characters.filter((c) => c.id !== id);
     const newActive = activeCharacter?.id === id ? null : activeCharacter;
     set({
       characters: updatedChars,
-      activeCharacter: newActive
+      activeCharacter: newActive,
     });
     if (newActive) {
       localStorage.setItem('spellbook-active-character', newActive.id);
@@ -149,7 +150,12 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   replaceCantrip: (classId, oldSpellId, newSpellId) => {
     const { activeCharacter } = get();
     if (!activeCharacter) return;
-    const updated = characterService.replaceCantrip(activeCharacter, classId, oldSpellId, newSpellId);
+    const updated = characterService.replaceCantrip(
+      activeCharacter,
+      classId,
+      oldSpellId,
+      newSpellId,
+    );
     get().updateCharacter(updated);
   },
 
@@ -227,20 +233,20 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   loadCharacters: () => {
     const chars = storageService.loadCharacters();
     // Recompute to ensure derived stats and knownSpells are up-to-date
-    const recomputed = chars.map(c => characterService.recompute(c));
+    const recomputed = chars.map((c) => characterService.recompute(c));
 
     // Restore previously selected character, or fall back to first character
     const savedActiveId = localStorage.getItem('spellbook-active-character');
-    const savedChar = savedActiveId ? recomputed.find(c => c.id === savedActiveId) : null;
+    const savedChar = savedActiveId ? recomputed.find((c) => c.id === savedActiveId) : null;
 
     set({
       characters: recomputed,
-      activeCharacter: savedChar || recomputed[0] || null
+      activeCharacter: savedChar || recomputed[0] || null,
     });
   },
 
   saveCharacters: () => {
     const { characters } = get();
-    characters.forEach(c => storageService.saveCharacter(c));
-  }
+    characters.forEach((c) => storageService.saveCharacter(c));
+  },
 }));

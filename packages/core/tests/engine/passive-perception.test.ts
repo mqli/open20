@@ -33,9 +33,14 @@ function makeCondition(
   id: string,
   source = 'test',
   appliedAt = '2024-01-01T00:00:00Z',
-  level?: number
+  level?: number,
 ): ActiveCondition {
-  return { id: id as ActiveCondition['id'], source, appliedAt, ...(level != null ? { level } : {}) };
+  return {
+    id: id as ActiveCondition['id'],
+    source,
+    appliedAt,
+    ...(level != null ? { level } : {}),
+  };
 }
 
 // ============================================================================
@@ -218,7 +223,7 @@ describe('calculatePassivePerception', () => {
         { Wisdom: 12 },
         { Wisdom: 1 },
         { Wisdom: 1 },
-        { Wisdom: 2 }
+        { Wisdom: 2 },
       );
       const skills = makeSkills({ proficient: true, expertise: false });
       // Wis 总值 = 12 + 1 + 1 + 2 = 16, 调整值 = +3

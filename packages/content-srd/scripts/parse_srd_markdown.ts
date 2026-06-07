@@ -226,11 +226,11 @@ export function parseMarkdown(content: string): ParsedSpell[] {
 
     if (!currentSpell) continue;
     // Parse level/school line: *Level 2 Evocation (Wizard)* or *Evocation Cantrip (Sorcerer, Wizard)*
-    if (line.startsWith('*') && line.includes('(') && !line.includes('**')) {
+    if (line.startsWith('_') && line.includes('(') && !line.includes('**')) {
       const text = stripItalic(line).trim();
 
       // Check if cantrip
-      const cantripMatch = text.match(/(\w+)\s+Cantrip/i);
+      const cantripMatch = text.match(/_(\w+)\s+Cantrip/i);
       if (cantripMatch) {
         currentSpell.level = 0;
         currentSpell.school = cantripMatch[1];

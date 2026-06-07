@@ -23,7 +23,7 @@ export function modifyHP(char: Character, delta: number): Character {
     char.hitPoints.current,
     char.hitPoints.max,
     char.hitPoints.temporary,
-    delta
+    delta,
   );
 
   return withUpdate(char, {
@@ -43,7 +43,7 @@ export function applyTypedDamage(
   char: Character,
   damage: number,
   damageType: DamageType,
-  defenses: DamageDefenses
+  defenses: DamageDefenses,
 ): { char: Character; result: DamageResult } {
   const { currentHP, temporaryHP, result } = applyTypedDamageToHP(
     char.hitPoints.current,
@@ -51,7 +51,7 @@ export function applyTypedDamage(
     char.hitPoints.temporary,
     damage,
     damageType,
-    defenses
+    defenses,
   );
 
   const updatedChar = withUpdate(char, {

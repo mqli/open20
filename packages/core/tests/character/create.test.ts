@@ -224,7 +224,7 @@ describe('createCharacter', () => {
       const char = createCharacter(params, data);
       const fighterResources = char.resources['Fighter'];
       expect(fighterResources).toBeDefined();
-      const secondWind = fighterResources!.resources.find(r => r.id === 'Second Wind');
+      const secondWind = fighterResources!.resources.find((r) => r.id === 'Second Wind');
       expect(secondWind).toBeDefined();
       // 2024 PHB: Second Wind scales with Proficiency Bonus (PB at level 1 = 2)
       expect(secondWind!.max).toBe(2);
@@ -534,7 +534,7 @@ describe('createCharacter', () => {
       const char = createCharacter(params, data);
       const barbarianResources = char.resources['Barbarian'];
       expect(barbarianResources).toBeDefined();
-      const rage = barbarianResources!.resources.find(r => r.id === 'Rage');
+      const rage = barbarianResources!.resources.find((r) => r.id === 'Rage');
       expect(rage).toBeDefined();
       expect(rage!.max).toBe(2);
       expect(rage!.used).toBe(0);
@@ -566,7 +566,7 @@ describe('createCharacter', () => {
       };
 
       expect(() => createCharacter(params, data)).toThrow(
-        'Invalid speciesId: "Dragonborn" not found in data'
+        'Invalid speciesId: "Dragonborn" not found in data',
       );
     });
 
@@ -580,7 +580,7 @@ describe('createCharacter', () => {
       };
 
       expect(() => createCharacter(params, data)).toThrow(
-        'Invalid classId: "Artificer" not found in data'
+        'Invalid classId: "Artificer" not found in data',
       );
     });
 
@@ -594,7 +594,7 @@ describe('createCharacter', () => {
       };
 
       expect(() => createCharacter(params, data)).toThrow(
-        'Invalid backgroundId: "Pirate" not found in data'
+        'Invalid backgroundId: "Pirate" not found in data',
       );
     });
   });
@@ -687,13 +687,13 @@ describe('getFeaturesAtLevel', () => {
   it('returns features at level 1', () => {
     const features = getFeaturesAtLevel(FIGHTER_CLASS, 1);
     expect(features).toHaveLength(3);
-    expect(features.map(f => f.name)).toContain('Second Wind');
+    expect(features.map((f) => f.name)).toContain('Second Wind');
   });
 
   it('returns features at level 2', () => {
     const features = getFeaturesAtLevel(FIGHTER_CLASS, 2);
     expect(features).toHaveLength(2);
-    expect(features.map(f => f.name)).toContain('Action Surge');
+    expect(features.map((f) => f.name)).toContain('Action Surge');
   });
 
   it('returns empty array for level with no features', () => {
@@ -766,12 +766,26 @@ describe('extractAllClassResources', () => {
   it('extracts Second Wind from Fighter level 1', () => {
     const result = extractAllClassResources(
       [{ classId: 'Fighter', level: 1, subclassId: null }],
-      { base: { Strength: 15, Dexterity: 13, Constitution: 14, Intelligence: 10, Wisdom: 12, Charisma: 8 }, racialBonuses: {}, backgroundBonuses: {}, featBonuses: {}, featGrants: {}, temporaryBonuses: {} } as any,
+      {
+        base: {
+          Strength: 15,
+          Dexterity: 13,
+          Constitution: 14,
+          Intelligence: 10,
+          Wisdom: 12,
+          Charisma: 8,
+        },
+        racialBonuses: {},
+        backgroundBonuses: {},
+        featBonuses: {},
+        featGrants: {},
+        temporaryBonuses: {},
+      } as any,
       createMockDataLoaderForResources(),
     );
     const fighter = result['Fighter'];
     expect(fighter).toBeDefined();
-    const secondWind = fighter!.resources.find(r => r.id === 'Second Wind');
+    const secondWind = fighter!.resources.find((r) => r.id === 'Second Wind');
     expect(secondWind).toBeDefined();
     // 2024 PHB: Second Wind scales with Proficiency Bonus (PB at level 1 = 2)
     expect(secondWind!.max).toBe(2);
@@ -781,12 +795,26 @@ describe('extractAllClassResources', () => {
   it('extracts Rage from Barbarian level 1', () => {
     const result = extractAllClassResources(
       [{ classId: 'Barbarian', level: 1, subclassId: null }],
-      { base: { Strength: 15, Dexterity: 13, Constitution: 14, Intelligence: 10, Wisdom: 12, Charisma: 8 }, racialBonuses: {}, backgroundBonuses: {}, featBonuses: {}, featGrants: {}, temporaryBonuses: {} } as any,
+      {
+        base: {
+          Strength: 15,
+          Dexterity: 13,
+          Constitution: 14,
+          Intelligence: 10,
+          Wisdom: 12,
+          Charisma: 8,
+        },
+        racialBonuses: {},
+        backgroundBonuses: {},
+        featBonuses: {},
+        featGrants: {},
+        temporaryBonuses: {},
+      } as any,
       createMockDataLoaderForResources(),
     );
     const barbarian = result['Barbarian'];
     expect(barbarian).toBeDefined();
-    const rage = barbarian!.resources.find(r => r.id === 'Rage');
+    const rage = barbarian!.resources.find((r) => r.id === 'Rage');
     expect(rage).toBeDefined();
     expect(rage!.max).toBe(2);
   });

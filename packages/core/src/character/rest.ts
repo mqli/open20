@@ -20,11 +20,11 @@ import { getDieMax } from './level-up';
  */
 function resetClassResources(
   classResources: Record<string, CharacterClassResources>,
-  shouldReset: (r: Resource) => boolean
+  shouldReset: (r: Resource) => boolean,
 ): Record<string, CharacterClassResources> {
   const result: Record<string, CharacterClassResources> = {};
   for (const [classId, ccr] of Object.entries(classResources)) {
-    const newResources = ccr.resources.map(r => {
+    const newResources = ccr.resources.map((r) => {
       if (shouldReset(r)) return { ...r, used: 0 };
       return r;
     });
@@ -52,7 +52,7 @@ export function shortRest(
   char: Character,
   hitDiceToSpend: number,
   data: DataLoader,
-  rng?: RandomProvider
+  rng?: RandomProvider,
 ): Character {
   let result = char;
   let remainingToSpend = hitDiceToSpend;
@@ -84,7 +84,7 @@ export function shortRest(
     }
 
     // Update hit dice used for this class
-    const newClasses = result.classes.map(c => {
+    const newClasses = result.classes.map((c) => {
       if (c.classId === charClass.classId) {
         return { ...c, hitDice: { ...c.hitDice, used: c.hitDice.used + toSpend } };
       }
@@ -105,7 +105,7 @@ export function shortRest(
   // 2. Reset short rest resources (per-class model)
   const resetShortRest = resetClassResources(
     result.resources,
-    (r: Resource) => r.resetOn === ResetType.ShortRest
+    (r: Resource) => r.resetOn === ResetType.ShortRest,
   );
   result = withUpdate(result, { resources: resetShortRest });
 
@@ -166,7 +166,7 @@ export function longRest(char: Character, _data: DataLoader): Character {
   // 5. Reset Long Rest and Short Rest resources (per-class model)
   const resetLongRest = resetClassResources(
     result.resources,
-    (r: Resource) => r.resetOn === ResetType.LongRest || r.resetOn === ResetType.ShortRest
+    (r: Resource) => r.resetOn === ResetType.LongRest || r.resetOn === ResetType.ShortRest,
   );
   result = withUpdate(result, { resources: resetLongRest });
 

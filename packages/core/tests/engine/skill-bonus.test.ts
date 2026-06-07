@@ -210,15 +210,15 @@ describe('getAllSkillBonuses', () => {
     });
     const skills: Record<string, SkillEntry> = {
       Athletics: makeSkill(true, false), // Proficient
-      Acrobatics: makeSkill(true, true),   // Expertise
-      Arcana: makeSkill(false, false),     // Not proficient
+      Acrobatics: makeSkill(true, true), // Expertise
+      Arcana: makeSkill(false, false), // Not proficient
     };
 
     const result = getAllSkillBonuses(scores, skills, SKILL_ABILITY_MAP, 3);
 
     expect(result['Athletics']).toBe(5); // Str 15 → +2, prof → 2+3=5
     expect(result['Acrobatics']).toBe(8); // Dex 14 → +2, exp → 2+6=8
-    expect(result['Arcana']).toBe(1);     // Int 12 → +1, not prof → 1
+    expect(result['Arcana']).toBe(1); // Int 12 → +1, not prof → 1
   });
 
   it('uses total ability score (base + racial) for all skills', () => {

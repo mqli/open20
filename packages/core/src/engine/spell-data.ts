@@ -26,7 +26,7 @@ export function getMaxSpellLevel(slots: Record<number, SpellSlotEntry>): number 
  */
 export function getAlwaysPreparedSpellsFromSubclass(
   subclass: Subclass,
-  classLevel: number
+  classLevel: number,
 ): string[] {
   if (!subclass.alwaysPreparedSpells) return [];
   const spells: string[] = [];
@@ -74,7 +74,7 @@ export function buildClassSpellData(opts: BuildClassSpellDataOpts): ClassSpellDa
   const classSlots = calculateSpellSlots(classId, classLevel, data);
   const classMaxSpellLevel = getMaxSpellLevel(classSlots);
 
-  const levelEntry = classData.featuresByLevel.find(f => f.level === classLevel);
+  const levelEntry = classData.featuresByLevel.find((f) => f.level === classLevel);
   const maxCantripsKnown = levelEntry?.cantripsKnown ?? existing?.maxCantripsKnown ?? 0;
   const maxPrepared = levelEntry?.preparedSpells ?? 0;
 
@@ -83,8 +83,8 @@ export function buildClassSpellData(opts: BuildClassSpellDataOpts): ClassSpellDa
   if (classData.spellcasting.knownSource === 'class_list') {
     knownSpells = data
       .getAllSpells()
-      .filter(s => s.classes?.includes(classId) && s.level >= 1 && s.level <= classMaxSpellLevel)
-      .map(s => s.id);
+      .filter((s) => s.classes?.includes(classId) && s.level >= 1 && s.level <= classMaxSpellLevel)
+      .map((s) => s.id);
     knownCantrips = existing?.knownCantrips ?? [];
   } else {
     // Spellbook caster (Wizard): preserve player's chosen spells.

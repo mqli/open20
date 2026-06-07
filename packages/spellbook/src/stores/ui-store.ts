@@ -6,7 +6,7 @@ interface UIState {
   theme: Theme;
   isSidebarOpen: boolean;
   isMobile: boolean;
-  
+
   setTheme: (theme: Theme) => void;
   toggleSidebar: () => void;
   setMobile: (isMobile: boolean) => void;

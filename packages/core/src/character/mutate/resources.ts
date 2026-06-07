@@ -13,7 +13,7 @@ export function consumeResource(char: Character, classId: string, resourceId: st
   const ccr = char.resources[classId];
   if (!ccr) return char;
 
-  const idx = ccr.resources.findIndex(r => r.id === resourceId);
+  const idx = ccr.resources.findIndex((r) => r.id === resourceId);
   if (idx === -1) return char;
 
   const resource = ccr.resources[idx]!;
@@ -38,7 +38,7 @@ export function recoverResource(char: Character, classId: string, resourceId: st
   const ccr = char.resources[classId];
   if (!ccr) return char;
 
-  const idx = ccr.resources.findIndex(r => r.id === resourceId);
+  const idx = ccr.resources.findIndex((r) => r.id === resourceId);
   if (idx === -1) return char;
 
   const resource = ccr.resources[idx]!;
@@ -61,7 +61,7 @@ export function recoverResource(char: Character, classId: string, resourceId: st
  */
 export function consumeResourceAny(char: Character, resourceId: string): Character {
   for (const [classId, ccr] of Object.entries(char.resources)) {
-    const idx = ccr.resources.findIndex(r => r.id === resourceId);
+    const idx = ccr.resources.findIndex((r) => r.id === resourceId);
     if (idx !== -1) {
       return consumeResource(char, classId, resourceId);
     }
@@ -74,7 +74,7 @@ export function consumeResourceAny(char: Character, resourceId: string): Charact
  */
 export function recoverResourceAny(char: Character, resourceId: string): Character {
   for (const [classId, ccr] of Object.entries(char.resources)) {
-    const idx = ccr.resources.findIndex(r => r.id === resourceId);
+    const idx = ccr.resources.findIndex((r) => r.id === resourceId);
     if (idx !== -1) {
       return recoverResource(char, classId, resourceId);
     }

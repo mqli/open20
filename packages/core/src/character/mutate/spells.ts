@@ -68,7 +68,7 @@ export function recoverSpellSlot(char: Character, level: number | 'pact'): Chara
 export function addAlwaysPreparedSpell(
   char: Character,
   classId: string,
-  spellId: string
+  spellId: string,
 ): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
@@ -94,7 +94,7 @@ export function addAlwaysPreparedSpell(
 export function removeAlwaysPreparedSpell(
   char: Character,
   classId: string,
-  spellId: string
+  spellId: string,
 ): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
@@ -106,7 +106,7 @@ export function removeAlwaysPreparedSpell(
 
   classSpellcasting[classId] = {
     ...classData,
-    alwaysPreparedSpells: current.filter(id => id !== spellId),
+    alwaysPreparedSpells: current.filter((id) => id !== spellId),
   };
 
   return withUpdate(char, {
@@ -148,8 +148,8 @@ export function removeKnownSpell(char: Character, classId: string, spellId: stri
 
   classSpellcasting[classId] = {
     ...classData,
-    knownSpells: classData.knownSpells.filter(id => id !== spellId),
-    preparedSpells: classData.preparedSpells.filter(id => id !== spellId),
+    knownSpells: classData.knownSpells.filter((id) => id !== spellId),
+    preparedSpells: classData.preparedSpells.filter((id) => id !== spellId),
   };
 
   return withUpdate(char, {
@@ -166,7 +166,7 @@ export function prepareSpellForClass(
   char: Character,
   classId: string,
   spellId: string,
-  data?: DataLoader
+  data?: DataLoader,
 ): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
@@ -200,7 +200,7 @@ export function prepareSpellForClass(
 export function unprepareSpellForClass(
   char: Character,
   classId: string,
-  spellId: string
+  spellId: string,
 ): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
@@ -211,7 +211,7 @@ export function unprepareSpellForClass(
 
   classSpellcasting[classId] = {
     ...classData,
-    preparedSpells: classData.preparedSpells.filter(id => id !== spellId),
+    preparedSpells: classData.preparedSpells.filter((id) => id !== spellId),
   };
 
   return withUpdate(char, {
@@ -228,7 +228,7 @@ export function learnCantripForClass(
   char: Character,
   classId: string,
   spellId: string,
-  data: DataLoader
+  data: DataLoader,
 ): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
@@ -259,7 +259,7 @@ export function replaceCantripForClass(
   classId: string,
   oldSpellId: string,
   newSpellId: string,
-  data: DataLoader
+  data: DataLoader,
 ): Character {
   const classSpellcasting = { ...char.spells.classSpellcasting };
   const classData = classSpellcasting[classId];
@@ -274,7 +274,7 @@ export function replaceCantripForClass(
 
   classSpellcasting[classId] = {
     ...classData,
-    knownCantrips: classData.knownCantrips.map(id => (id === oldSpellId ? newSpellId : id)),
+    knownCantrips: classData.knownCantrips.map((id) => (id === oldSpellId ? newSpellId : id)),
   };
 
   return withUpdate(char, {
@@ -320,7 +320,7 @@ export function replaceCantrip(
   char: Character,
   oldSpellId: string,
   newSpellId: string,
-  data: DataLoader
+  data: DataLoader,
 ): Character {
   const classId = getFirstSpellcastingClassId(char);
   if (!classId) return char;

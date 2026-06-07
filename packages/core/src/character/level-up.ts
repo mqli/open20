@@ -42,7 +42,7 @@ export function levelUp(
   char: Character,
   options: LevelUpOptions,
   data: DataLoader,
-  rng?: RandomProvider
+  rng?: RandomProvider,
 ): Character {
   // Check if adding a new class (multiclassing)
   if (options.isNewClass) {
@@ -50,7 +50,7 @@ export function levelUp(
   }
 
   // Validate class exists on character
-  const classIdx = char.classes.findIndex(c => c.classId === options.classId);
+  const classIdx = char.classes.findIndex((c) => c.classId === options.classId);
   if (classIdx === -1) {
     throw new Error(`Class ${options.classId} not found on character`);
   }
@@ -188,7 +188,7 @@ function addNewClass(
   char: Character,
   options: LevelUpOptions,
   data: DataLoader,
-  rng?: RandomProvider
+  rng?: RandomProvider,
 ): Character {
   // Validate new class exists in data
   const classData = data.getClass(options.classId);
@@ -317,7 +317,7 @@ function calcHPIncrease(
   die: DieType,
   conMod: number,
   options: LevelUpOptions,
-  rng?: RandomProvider
+  rng?: RandomProvider,
 ): number {
   let increase: number;
   if (options.hpChoice === 'roll' && rng) {

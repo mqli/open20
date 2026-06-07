@@ -56,7 +56,7 @@ export function modifyMonsterHP(
   monster: Monster,
   delta: number,
   damageType?: DamageType,
-  _data?: DataLoader
+  _data?: DataLoader,
 ): Monster {
   // Get defenses from monster or empty
   const defenses: DamageDefenses = monster.damageDefenses || emptyDefenses();
@@ -75,7 +75,7 @@ export function modifyMonsterHP(
     currentHP,
     monster.hitPoints.value,
     temporaryHP,
-    effectiveDelta
+    effectiveDelta,
   );
 
   return {
@@ -102,7 +102,7 @@ export function modifyMonsterHP(
 export function applyMonsterTypedDamage(
   monster: Monster,
   damage: number,
-  damageType: DamageType
+  damageType: DamageType,
 ): { monster: Monster; result: DamageResult } {
   const defenses: DamageDefenses = monster.damageDefenses || emptyDefenses();
 
@@ -119,7 +119,7 @@ export function applyMonsterTypedDamage(
     temporaryHP,
     damage,
     damageType,
-    defenses
+    defenses,
   );
 
   const updatedMonster = {
@@ -167,7 +167,7 @@ export function isMonsterDefeated(monster: Monster): boolean {
  */
 export function getMonsterAC(monster: Monster): number {
   if (monster.armorClass.length === 0) return 10;
-  return Math.max(...monster.armorClass.map(entry => entry.value));
+  return Math.max(...monster.armorClass.map((entry) => entry.value));
 }
 
 // ── Damage Defenses Helpers ──────────────────────────────────

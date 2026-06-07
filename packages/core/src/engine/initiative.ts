@@ -31,7 +31,7 @@ export function calculateInitiative(
   scores: AbilityScores,
   featIds: readonly string[],
   _features: readonly Feature[],
-  proficiencyBonus: number = 0
+  proficiencyBonus: number = 0,
 ): number {
   const dexMod = getModifier(getTotalScore(scores, 'Dexterity'));
   let initiative = dexMod;

@@ -108,7 +108,7 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
   toggleClassFilter: (className) => {
     const { selectedClasses } = get();
     if (selectedClasses.includes(className)) {
-      set({ selectedClasses: selectedClasses.filter(c => c !== className) });
+      set({ selectedClasses: selectedClasses.filter((c) => c !== className) });
     } else {
       set({ selectedClasses: [...selectedClasses, className] });
     }
@@ -118,7 +118,7 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
   toggleSchoolFilter: (school) => {
     const { selectedSchools } = get();
     if (selectedSchools.includes(school)) {
-      set({ selectedSchools: selectedSchools.filter(s => s !== school) });
+      set({ selectedSchools: selectedSchools.filter((s) => s !== school) });
     } else {
       set({ selectedSchools: [...selectedSchools, school] });
     }
@@ -160,37 +160,44 @@ export const useSpellStore = create<SpellLibraryState>((set, get) => ({
   },
 
   applyFilters: () => {
-    const { spells, searchQuery, selectedLevel, selectedClasses, selectedSchools, showRitualOnly, showConcentrationOnly, showPreparedOnly } = get();
+    const {
+      spells,
+      searchQuery,
+      selectedLevel,
+      selectedClasses,
+      selectedSchools,
+      showRitualOnly,
+      showConcentrationOnly,
+      showPreparedOnly,
+    } = get();
 
     let filtered = [...spells];
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(s =>
-        s.name.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter((s) => s.name.toLowerCase().includes(query));
     }
 
     if (selectedLevel !== null) {
-      filtered = filtered.filter(s => s.level === selectedLevel);
+      filtered = filtered.filter((s) => s.level === selectedLevel);
     }
 
     if (selectedClasses.length > 0) {
-      filtered = filtered.filter(s =>
-        s.classes?.some((c: string) => selectedClasses.includes(c))
+      filtered = filtered.filter((s) =>
+        s.classes?.some((c: string) => selectedClasses.includes(c)),
       );
     }
 
     if (selectedSchools.length > 0) {
-      filtered = filtered.filter(s => selectedSchools.includes(s.school));
+      filtered = filtered.filter((s) => selectedSchools.includes(s.school));
     }
 
     if (showRitualOnly) {
-      filtered = filtered.filter(s => s.ritual);
+      filtered = filtered.filter((s) => s.ritual);
     }
 
     if (showConcentrationOnly) {
-      filtered = filtered.filter(s => s.concentration);
+      filtered = filtered.filter((s) => s.concentration);
     }
 
     if (showPreparedOnly) {

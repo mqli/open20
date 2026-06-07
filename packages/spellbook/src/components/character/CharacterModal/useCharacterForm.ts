@@ -17,7 +17,7 @@ interface UseCharacterFormReturn {
 
 function computeFormData(
   editingCharacter: AppCharacter | undefined,
-  open: boolean
+  open: boolean,
 ): CharacterFormData {
   if (!open) {
     // Return default values when closed (won't be used, but keeps types happy)
@@ -29,7 +29,7 @@ function computeFormData(
       background: 'sage',
       abilities: { ...DEFAULT_ABILITIES },
       subclassId: '',
-      additionalClasses: []
+      additionalClasses: [],
     };
   }
 
@@ -47,14 +47,14 @@ function computeFormData(
         Constitution: editingCharacter.abilityScores.base.Constitution || 10,
         Intelligence: editingCharacter.abilityScores.base.Intelligence || 10,
         Wisdom: editingCharacter.abilityScores.base.Wisdom || 10,
-        Charisma: editingCharacter.abilityScores.base.Charisma || 10
+        Charisma: editingCharacter.abilityScores.base.Charisma || 10,
       },
-      additionalClasses: editingCharacter.classes.slice(1).map(c => ({
+      additionalClasses: editingCharacter.classes.slice(1).map((c) => ({
         id: generateAdditionalClassId(),
         classId: c.classId,
         level: c.level,
-        subclassId: c.subclassId ?? undefined
-      }))
+        subclassId: c.subclassId ?? undefined,
+      })),
     };
   }
 
@@ -67,13 +67,13 @@ function computeFormData(
     background: 'sage',
     abilities: { ...DEFAULT_ABILITIES },
     subclassId: '',
-    additionalClasses: []
+    additionalClasses: [],
   };
 }
 
 export function useCharacterForm({
   editingCharacter,
-  open
+  open,
 }: UseCharacterFormProps): UseCharacterFormReturn {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,7 +81,7 @@ export function useCharacterForm({
   // Stable reference - only changes when editingCharacter or open changes
   const formData = useMemo<CharacterFormData>(
     () => computeFormData(editingCharacter, open),
-    [editingCharacter, open]
+    [editingCharacter, open],
   );
 
   // Allow manual updates to form data (for user input)
@@ -90,10 +90,10 @@ export function useCharacterForm({
   // Reset manual overrides when editingCharacter or open changes
   // Use a key that changes when dependencies change
   const dependencyKey = `${editingCharacter?.id || 'new'}-${open}`;
-  
+
   // Use useState initializer to avoid unnecessary resets
   const [resetKey, setResetKey] = useState(dependencyKey);
-  
+
   // Check if dependencies changed and reset if needed
   if (resetKey !== dependencyKey) {
     setManualFormData(null);
@@ -105,7 +105,7 @@ export function useCharacterForm({
 
   // Custom setFormData that stores manual overrides
   const setFormData: React.Dispatch<React.SetStateAction<CharacterFormData>> = (update) => {
-    setManualFormData(prev => {
+    setManualFormData((prev) => {
       const base = prev || formData;
       const updated = typeof update === 'function' ? update(base) : update;
       return updated;
@@ -116,6 +116,6 @@ export function useCharacterForm({
     formData: finalFormData,
     setFormData,
     isSubmitting,
-    setIsSubmitting
+    setIsSubmitting,
   };
 }

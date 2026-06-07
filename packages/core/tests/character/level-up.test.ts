@@ -371,7 +371,7 @@ describe('levelUp', () => {
           asi: { Strength: 2 },
         },
       },
-      data
+      data,
     );
 
     expect(result.classes[0]!.level).toBe(4);
@@ -398,11 +398,11 @@ describe('levelUp', () => {
           featId: 'Tough',
         },
       },
-      data
+      data,
     );
 
     expect(result.classes[0]!.level).toBe(8);
-    expect(result.feats.some(f => f.featId === 'Tough')).toBe(true);
+    expect(result.feats.some((f) => f.featId === 'Tough')).toBe(true);
   });
 
   it('5. level up to subclass level: Fighter 2 → 3', () => {
@@ -417,7 +417,7 @@ describe('levelUp', () => {
         hpChoice: 'fixed',
         subclassId: 'Champion',
       },
-      data
+      data,
     );
 
     expect(result.classes[0]!.level).toBe(3);
@@ -434,7 +434,7 @@ describe('levelUp', () => {
         hpChoice: 'fixed',
         newSpells: ['Shield', 'Misty Step'],
       },
-      data
+      data,
     );
 
     expect(result.classes[0]!.level).toBe(2);
@@ -448,15 +448,15 @@ describe('levelUp', () => {
   it('7. new resources: Fighter 1 → 2 (Action Surge)', () => {
     const char = makeLevel1Fighter();
     // Has Second Wind at level 1
-    expect(char.resources['Fighter']!.resources.some(r => r.id === 'Second Wind')).toBe(true);
-    expect(char.resources['Fighter']!.resources.some(r => r.id === 'Action Surge')).toBe(false);
+    expect(char.resources['Fighter']!.resources.some((r) => r.id === 'Second Wind')).toBe(true);
+    expect(char.resources['Fighter']!.resources.some((r) => r.id === 'Action Surge')).toBe(false);
 
     const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
 
     // Should still have Second Wind
-    expect(result.resources['Fighter']!.resources.some(r => r.id === 'Second Wind')).toBe(true);
+    expect(result.resources['Fighter']!.resources.some((r) => r.id === 'Second Wind')).toBe(true);
     // Should now have Action Surge
-    expect(result.resources['Fighter']!.resources.some(r => r.id === 'Action Surge')).toBe(true);
+    expect(result.resources['Fighter']!.resources.some((r) => r.id === 'Action Surge')).toBe(true);
   });
 
   it('8. HP minimum: level up never gives less than 1 HP', () => {
@@ -509,7 +509,7 @@ describe('levelUp', () => {
   it('10. error case: invalid classId throws error', () => {
     const char = makeLevel1Fighter();
     expect(() => levelUp(char, { classId: 'Barbarian', hpChoice: 'fixed' }, data)).toThrow(
-      'Class Barbarian not found on character'
+      'Class Barbarian not found on character',
     );
   });
 
@@ -544,15 +544,15 @@ describe('levelUp', () => {
   it('does not duplicate existing resources', () => {
     let char = makeLevel1Fighter();
     // Level 1 has Second Wind
-    expect(char.resources['Fighter']!.resources.filter(r => r.id === 'Second Wind')).toHaveLength(
-      1
+    expect(char.resources['Fighter']!.resources.filter((r) => r.id === 'Second Wind')).toHaveLength(
+      1,
     );
 
     // Level up to 2 and back down conceptually — let's just verify
     // that if the same resource appeared again it wouldn't duplicate
     char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
-    expect(char.resources['Fighter']!.resources.filter(r => r.id === 'Second Wind')).toHaveLength(
-      1
+    expect(char.resources['Fighter']!.resources.filter((r) => r.id === 'Second Wind')).toHaveLength(
+      1,
     );
   });
 });

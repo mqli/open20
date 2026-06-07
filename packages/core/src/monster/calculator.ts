@@ -61,7 +61,7 @@ export function getMonsterProficiencyBonus(cr: ChallengeRating): number {
 export function calculateMonsterAttackBonus(
   monster: Monster,
   attack: import('../types/monster').MonsterAttack,
-  data: DataLoader
+  data: DataLoader,
 ): number {
   // If attack has explicit attackBonus, use it
   if (attack.attackBonus !== undefined) {
@@ -96,7 +96,7 @@ export function calculateMonsterAttackBonus(
 export function calculateMonsterSaveDC(
   monster: Monster,
   ability: AbilityName,
-  data: DataLoader
+  data: DataLoader,
 ): number {
   const abilityMod = getModifier(getTotalScore(monster.abilityScores, ability));
   const profBonus = getMonsterProficiencyBonus(monster.challengeRating.rating);
@@ -120,14 +120,14 @@ export function calculateMonsterAC(monster: Monster, condition?: string): number
 
   // If condition specified, try to find matching AC entry
   if (condition) {
-    const conditionalEntry = monster.armorClass.find(entry =>
-      entry.condition?.toLowerCase().includes(condition.toLowerCase())
+    const conditionalEntry = monster.armorClass.find((entry) =>
+      entry.condition?.toLowerCase().includes(condition.toLowerCase()),
     );
     if (conditionalEntry) return conditionalEntry.value;
   }
 
   // Return highest AC
-  return Math.max(...monster.armorClass.map(entry => entry.value));
+  return Math.max(...monster.armorClass.map((entry) => entry.value));
 }
 
 /**

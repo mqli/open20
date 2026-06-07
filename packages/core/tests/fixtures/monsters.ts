@@ -31,7 +31,14 @@ export function createMockMonster(overrides: Partial<Monster> = {}): Monster {
     hitPoints: { value: 10, formula: '2d8+2' },
     speed: { walk: 30 },
     abilityScores: {
-      base: { Strength: 10, Dexterity: 10, Constitution: 10, Intelligence: 10, Wisdom: 10, Charisma: 10 },
+      base: {
+        Strength: 10,
+        Dexterity: 10,
+        Constitution: 10,
+        Intelligence: 10,
+        Wisdom: 10,
+        Charisma: 10,
+      },
       racialBonuses: {},
       featBonuses: {},
       temporaryBonuses: {},
@@ -61,7 +68,14 @@ export const MOCK_GOBLIN: Monster = createMockMonster({
   hitPoints: { value: 7, formula: '2d6+2' },
   speed: { walk: 30 },
   abilityScores: {
-    base: { Strength: 8, Dexterity: 14, Constitution: 10, Intelligence: 10, Wisdom: 8, Charisma: 8 },
+    base: {
+      Strength: 8,
+      Dexterity: 14,
+      Constitution: 10,
+      Intelligence: 10,
+      Wisdom: 8,
+      Charisma: 8,
+    },
     racialBonuses: {},
     featBonuses: {},
     temporaryBonuses: {},
@@ -69,7 +83,10 @@ export const MOCK_GOBLIN: Monster = createMockMonster({
   challengeRating: { rating: '1/4', xp: 50 },
   environments: ['forest', 'hill'],
   traits: [
-    { name: 'Nimble Escape', description: 'The goblin can take the Disengage or Hide action as a bonus action.' },
+    {
+      name: 'Nimble Escape',
+      description: 'The goblin can take the Disengage or Hide action as a bonus action.',
+    },
   ],
 });
 
@@ -84,7 +101,14 @@ export const MOCK_ORC: Monster = createMockMonster({
   hitPoints: { value: 15, formula: '3d8+3' },
   speed: { walk: 30 },
   abilityScores: {
-    base: { Strength: 16, Dexterity: 12, Constitution: 16, Intelligence: 7, Wisdom: 11, Charisma: 10 },
+    base: {
+      Strength: 16,
+      Dexterity: 12,
+      Constitution: 16,
+      Intelligence: 7,
+      Wisdom: 11,
+      Charisma: 10,
+    },
     racialBonuses: {},
     featBonuses: {},
     temporaryBonuses: {},
@@ -104,7 +128,14 @@ export const MOCK_WOLF: Monster = createMockMonster({
   hitPoints: { value: 11, formula: '2d8+2' },
   speed: { walk: 40 },
   abilityScores: {
-    base: { Strength: 12, Dexterity: 15, Constitution: 12, Intelligence: 3, Wisdom: 12, Charisma: 6 },
+    base: {
+      Strength: 12,
+      Dexterity: 15,
+      Constitution: 12,
+      Intelligence: 3,
+      Wisdom: 12,
+      Charisma: 6,
+    },
     racialBonuses: {},
     featBonuses: {},
     temporaryBonuses: {},
@@ -152,7 +183,14 @@ export const YOUNG_RED_DRAGON: Monster = {
   speed: { walk: 40, climb: 40, fly: 80 },
   initiative: { modifier: 0, score: 10 },
   abilityScores: {
-    base: { Strength: 23, Dexterity: 10, Constitution: 21, Intelligence: 14, Wisdom: 11, Charisma: 19 },
+    base: {
+      Strength: 23,
+      Dexterity: 10,
+      Constitution: 21,
+      Intelligence: 14,
+      Wisdom: 11,
+      Charisma: 19,
+    },
     racialBonuses: {},
     featBonuses: {},
     temporaryBonuses: {},
@@ -186,7 +224,14 @@ export const ADULT_RED_DRAGON: Monster = {
   hitPoints: { value: 256, formula: '24d12+120' },
   speed: { walk: 40, fly: 80 },
   abilityScores: {
-    base: { Strength: 27, Dexterity: 10, Constitution: 25, Intelligence: 16, Wisdom: 13, Charisma: 21 },
+    base: {
+      Strength: 27,
+      Dexterity: 10,
+      Constitution: 25,
+      Intelligence: 16,
+      Wisdom: 13,
+      Charisma: 21,
+    },
     racialBonuses: {},
     featBonuses: {},
     temporaryBonuses: {},

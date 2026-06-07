@@ -17,7 +17,9 @@ import type { AbilityName, AbilityScores } from '../../src/types/ability';
  * const scores = createAbilityScores({ Strength: 15, Dexterity: 14 });
  * // → Str 15, Dex 14, others 10
  */
-export function createAbilityScores(overrides: Partial<Record<AbilityName, number>> = {}): AbilityScores {
+export function createAbilityScores(
+  overrides: Partial<Record<AbilityName, number>> = {},
+): AbilityScores {
   const base = {
     Strength: 10,
     Dexterity: 10,

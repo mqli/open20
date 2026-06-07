@@ -17,8 +17,4 @@ export interface CharacterCreationParams {
   }>;
 }
 
-export type {
-  Character,
-  Spell,
-  AbilityScores,
-};
+export type { Character, Spell, AbilityScores };

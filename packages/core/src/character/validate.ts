@@ -277,7 +277,7 @@ export function validateCharacter(char: Character, data: DataLoader): Validation
     }
   }
 
-  const valid = errors.filter(e => e.severity === 'error').length === 0;
+  const valid = errors.filter((e) => e.severity === 'error').length === 0;
 
   return { valid, errors };
 }

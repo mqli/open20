@@ -245,7 +245,7 @@ describe('addMonsterDamageResistance', () => {
   it('should not add duplicate resistance', () => {
     const result = addMonsterDamageResistance(mockMonster, 'Lightning');
     const result2 = addMonsterDamageResistance(result, 'Lightning');
-    expect(result2.damageDefenses?.resistances.filter(r => r === 'Lightning').length).toBe(1);
+    expect(result2.damageDefenses?.resistances.filter((r) => r === 'Lightning').length).toBe(1);
   });
 });
 

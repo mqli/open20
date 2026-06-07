@@ -17,7 +17,7 @@ import {
   getMonstersWithTrait,
   getLegendaryMonsters,
   getMonsterAllAttacks,
-  searchActionsByName
+  searchActionsByName,
 } from '../../src/monster/query';
 
 // ── Mock DataLoader ───────────────────────────────────────────
@@ -34,15 +34,25 @@ const mockMonsters: Monster[] = [
     hitPoints: { value: 7, formula: '2d6+2' },
     speed: { walk: 30 },
     abilityScores: {
-      base: { Strength: 8, Dexterity: 14, Constitution: 10, Intelligence: 10, Wisdom: 8, Charisma: 8 },
+      base: {
+        Strength: 8,
+        Dexterity: 14,
+        Constitution: 10,
+        Intelligence: 10,
+        Wisdom: 8,
+        Charisma: 8,
+      },
       racialBonuses: {},
       featBonuses: {},
-      temporaryBonuses: {}
+      temporaryBonuses: {},
     },
     challengeRating: { rating: '1/4', xp: 50 },
     environments: ['forest', 'hill'],
     traits: [
-      { name: 'Nimble Escape', description: 'The goblin can take the Disengage or Hide action as a bonus action.' }
+      {
+        name: 'Nimble Escape',
+        description: 'The goblin can take the Disengage or Hide action as a bonus action.',
+      },
     ],
     actions: [
       {
@@ -53,9 +63,9 @@ const mockMonsters: Monster[] = [
             attackBonus: 4,
             damage: '1d6+2',
             damageType: 'Slashing',
-            damageEntries: [{ dice: '1d6', type: 'Slashing' as const, bonus: 2 }]
-          }
-        ]
+            damageEntries: [{ dice: '1d6', type: 'Slashing' as const, bonus: 2 }],
+          },
+        ],
       },
       {
         name: 'Shortbow',
@@ -65,11 +75,11 @@ const mockMonsters: Monster[] = [
             attackBonus: 4,
             damage: '1d6+2',
             damageType: 'Piercing',
-            damageEntries: [{ dice: '1d6', type: 'Piercing' as const, bonus: 2 }]
-          }
-        ]
-      }
-    ]
+            damageEntries: [{ dice: '1d6', type: 'Piercing' as const, bonus: 2 }],
+          },
+        ],
+      },
+    ],
   },
   {
     id: 'orc',
@@ -82,13 +92,20 @@ const mockMonsters: Monster[] = [
     hitPoints: { value: 15, formula: '3d8+3' },
     speed: { walk: 30 },
     abilityScores: {
-      base: { Strength: 16, Dexterity: 12, Constitution: 16, Intelligence: 7, Wisdom: 11, Charisma: 10 },
+      base: {
+        Strength: 16,
+        Dexterity: 12,
+        Constitution: 16,
+        Intelligence: 7,
+        Wisdom: 11,
+        Charisma: 10,
+      },
       racialBonuses: {},
       featBonuses: {},
-      temporaryBonuses: {}
+      temporaryBonuses: {},
     },
     challengeRating: { rating: '1/2', xp: 100 },
-    environments: ['forest', 'grassland']
+    environments: ['forest', 'grassland'],
   },
   {
     id: 'wolf',
@@ -101,13 +118,20 @@ const mockMonsters: Monster[] = [
     hitPoints: { value: 11, formula: '3d8' },
     speed: { walk: 40 },
     abilityScores: {
-      base: { Strength: 12, Dexterity: 15, Constitution: 12, Intelligence: 3, Wisdom: 12, Charisma: 6 },
+      base: {
+        Strength: 12,
+        Dexterity: 15,
+        Constitution: 12,
+        Intelligence: 3,
+        Wisdom: 12,
+        Charisma: 6,
+      },
       racialBonuses: {},
       featBonuses: {},
-      temporaryBonuses: {}
+      temporaryBonuses: {},
     },
     challengeRating: { rating: '1/4', xp: 50 },
-    environments: ['forest', 'grassland', 'tundra']
+    environments: ['forest', 'grassland', 'tundra'],
   },
   {
     id: 'test-dragon',
@@ -120,15 +144,20 @@ const mockMonsters: Monster[] = [
     hitPoints: { value: 178, formula: '17d10+85' },
     speed: { walk: 40, fly: 80 },
     abilityScores: {
-      base: { Strength: 23, Dexterity: 10, Constitution: 21, Intelligence: 14, Wisdom: 11, Charisma: 19 },
+      base: {
+        Strength: 23,
+        Dexterity: 10,
+        Constitution: 21,
+        Intelligence: 14,
+        Wisdom: 11,
+        Charisma: 19,
+      },
       racialBonuses: {},
       featBonuses: {},
-      temporaryBonuses: {}
+      temporaryBonuses: {},
     },
     challengeRating: { rating: 10, xp: 5900 },
-    traits: [
-      { name: 'Fire Aura', description: 'Deals fire damage to adjacent creatures.' }
-    ],
+    traits: [{ name: 'Fire Aura', description: 'Deals fire damage to adjacent creatures.' }],
     actions: [
       {
         name: 'Bite',
@@ -138,43 +167,41 @@ const mockMonsters: Monster[] = [
             attackBonus: 11,
             damage: '2d10+6',
             damageType: 'Piercing',
-            damageEntries: [{ dice: '2d10', type: 'Piercing' as const, bonus: 6 }]
-          }
-        ]
+            damageEntries: [{ dice: '2d10', type: 'Piercing' as const, bonus: 6 }],
+          },
+        ],
       },
       {
         name: 'Fire Breath',
-        description: 'Exhales fire in a cone.'
-      }
+        description: 'Exhales fire in a cone.',
+      },
     ],
-    reactions: [
-      { name: 'Tail Strike', description: 'Makes a tail attack as reaction.' }
-    ],
+    reactions: [{ name: 'Tail Strike', description: 'Makes a tail attack as reaction.' }],
     legendaryActions: [
       { name: 'Detect', description: 'Makes a Perception check.', cost: 1 },
       { name: 'Tail Attack', description: 'Makes a tail attack.', cost: 1 },
-      { name: 'Wing Attack', description: 'Beats wings to knock creatures prone.', cost: 2 }
+      { name: 'Wing Attack', description: 'Beats wings to knock creatures prone.', cost: 2 },
     ],
-    environments: ['mountain']
-  }
+    environments: ['mountain'],
+  },
 ];
 
 const mockDataLoader: DataLoader = {
   // Monster methods
-  getMonster: (id: string) => mockMonsters.find(m => m.id === id),
-  getMonstersBySource: (source: string) => mockMonsters.filter(m => m.source === source),
+  getMonster: (id: string) => mockMonsters.find((m) => m.id === id),
+  getMonstersBySource: (source: string) => mockMonsters.filter((m) => m.source === source),
   getAllMonsters: () => mockMonsters,
-  
+
   // Stub other methods
   getSpecies: () => undefined,
   getSpeciesBySource: () => [],
   getSpeciesSubtype: () => undefined,
   getAllSpecies: () => [],
-  
+
   getBackground: () => undefined,
   getBackgroundsBySource: () => [],
   getAllBackgrounds: () => [],
-  
+
   getClass: () => undefined,
   getClassesBySource: () => [],
   getAllClasses: () => [],
@@ -182,12 +209,12 @@ const mockDataLoader: DataLoader = {
   getSubclassesBySource: () => [],
   getSubclassesForClass: () => [],
   getAllSubclasses: () => [],
-  
+
   getFeat: () => undefined,
   getFeatsBySource: () => [],
   getFeatsByCategory: () => [],
   getAllFeats: () => [],
-  
+
   getWeapon: () => undefined,
   getWeaponsBySource: () => [],
   getAllWeapons: () => [],
@@ -197,16 +224,16 @@ const mockDataLoader: DataLoader = {
   getGearItem: () => undefined,
   getGearBySource: () => [],
   getAllGear: () => [],
-  
+
   getSpell: () => undefined,
   getSpellsBySource: () => [],
   getSpellsByLevel: () => [],
   getAllSpells: () => [],
-  
+
   registerContentPack: () => {},
   unregisterContentPack: () => {},
   getContentPacks: () => [],
-  
+
   getProficiencyBonus: () => 2,
   getHitDieFixedValue: () => 0,
   getSpellSlots: () => ({}),
@@ -309,7 +336,7 @@ describe('getMonsterActions', () => {
 
   it('should return actions with attacks', () => {
     const result = getMonsterActions('goblin', mockDataLoader);
-    const scimitar = result.find(a => a.name === 'Scimitar');
+    const scimitar = result.find((a) => a.name === 'Scimitar');
     expect(scimitar?.attacks).toBeDefined();
     expect(scimitar?.attacks?.length).toBeGreaterThan(0);
   });
@@ -392,9 +419,9 @@ describe('getMonsterAllAttacks', () => {
   it('should skip actions without attacks', () => {
     const result = getMonsterAllAttacks('test-dragon', mockDataLoader);
     // Bite has attacks, Fire Breath doesn't
-    const biteAction = result.find(a => a.name === 'Bite');
+    const biteAction = result.find((a) => a.name === 'Bite');
     expect(biteAction).toBeDefined();
-    const fireBreath = result.find(a => a.name === 'Fire Breath');
+    const fireBreath = result.find((a) => a.name === 'Fire Breath');
     expect(fireBreath).toBeUndefined();
   });
 });

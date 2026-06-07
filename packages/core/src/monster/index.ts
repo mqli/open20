@@ -11,7 +11,7 @@ export type {
   MonsterFeature,
   MonsterAction,
   MonsterReaction,
-  MonsterLegendaryAction
+  MonsterLegendaryAction,
 } from './types';
 
 // Types from shared types/monster.ts
@@ -48,7 +48,7 @@ export {
   calculateMonsterAttackBonus,
   calculateMonsterSaveDC,
   calculateMonsterAC,
-  calculateMonsterHP
+  calculateMonsterHP,
 } from './calculator';
 
 // Combat functions (L3: Entity State Management)
@@ -62,12 +62,8 @@ export {
   getMonsterAC,
   addMonsterDamageResistance,
   addMonsterDamageImmunity,
-  addMonsterDamageVulnerability
+  addMonsterDamageVulnerability,
 } from './combat';
 
 // HP Accessor Helpers (for API consistency with character module)
-export {
-  getMonsterCurrentHP,
-  getMonsterMaxHP,
-  getMonsterTemporaryHP,
-} from '../engine/combat';
+export { getMonsterCurrentHP, getMonsterMaxHP, getMonsterTemporaryHP } from '../engine/combat';

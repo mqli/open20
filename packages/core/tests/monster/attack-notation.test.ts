@@ -15,7 +15,8 @@ describe('R28.8 - Attack Notation', () => {
     });
 
     it('should parse "Miss:" notation', () => {
-      const description = 'Melee Attack Roll: +5. Hit: 7 (1d6+4) piercing damage. Miss: The attacker takes 1d4 psychic damage.';
+      const description =
+        'Melee Attack Roll: +5. Hit: 7 (1d6+4) piercing damage. Miss: The attacker takes 1d4 psychic damage.';
       const result = parseAttackNotation(description);
       expect(result).toBeDefined();
       expect(result!.hit).toBe('7 (1d6+4) piercing damage.');
@@ -23,7 +24,8 @@ describe('R28.8 - Attack Notation', () => {
     });
 
     it('should parse "Hit or Miss:" notation', () => {
-      const description = 'Ranged Attack Roll: +4. Hit: 5 (1d6+2) fire damage. Hit or Miss: The target bursts into flames.';
+      const description =
+        'Ranged Attack Roll: +4. Hit: 5 (1d6+2) fire damage. Hit or Miss: The target bursts into flames.';
       const result = parseAttackNotation(description);
       expect(result).toBeDefined();
       expect(result!.hit).toBe('5 (1d6+2) fire damage.');
@@ -37,7 +39,8 @@ describe('R28.8 - Attack Notation', () => {
     });
 
     it('should handle description with only "Hit:"', () => {
-      const description = 'Melee Attack Roll: +14, reach 10 ft. Hit: 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.';
+      const description =
+        'Melee Attack Roll: +14, reach 10 ft. Hit: 13 (1d10 + 8) Slashing damage plus 5 (2d4) Fire damage.';
       const result = parseAttackNotation(description);
       expect(result).toBeDefined();
       expect(result!.hit).toContain('13 (1d10 + 8) Slashing damage');
@@ -58,10 +61,17 @@ describe('R28.8 - Attack Notation', () => {
         hitPoints: { value: 30, formula: '4d8+4' },
         speed: { walk: 30 },
         abilityScores: {
-          base: { Strength: 15, Dexterity: 14, Constitution: 12, Intelligence: 10, Wisdom: 11, Charisma: 10 },
+          base: {
+            Strength: 15,
+            Dexterity: 14,
+            Constitution: 12,
+            Intelligence: 10,
+            Wisdom: 11,
+            Charisma: 10,
+          },
           racialBonuses: {},
           featBonuses: {},
-          temporaryBonuses: {}
+          temporaryBonuses: {},
         },
         challengeRating: { rating: 2, xp: 450 },
         traits: [],
@@ -73,36 +83,37 @@ describe('R28.8 - Attack Notation', () => {
               {
                 name: 'Shortsword',
                 attackBonus: 5,
-                damageEntries: [{ dice: '1d6', type: 'Piercing', bonus: 4 }]
-              }
-            ]
+                damageEntries: [{ dice: '1d6', type: 'Piercing', bonus: 4 }],
+              },
+            ],
           },
           {
             name: 'Fire Bolt',
-            description: 'Ranged Attack Roll: +4. Hit: 11 (2d6+4) fire damage. Miss: The attacker takes 1d4 fire damage.',
+            description:
+              'Ranged Attack Roll: +4. Hit: 11 (2d6+4) fire damage. Miss: The attacker takes 1d4 fire damage.',
             attacks: [
               {
                 name: 'Fire Bolt',
                 attackBonus: 4,
-                damageEntries: [{ dice: '2d6', type: 'Fire', bonus: 4 }]
-              }
+                damageEntries: [{ dice: '2d6', type: 'Fire', bonus: 4 }],
+              },
             ],
             attackNotation: {
               hit: '11 (2d6+4) fire damage.',
-              miss: 'The attacker takes 1d4 fire damage.'
-            }
-          }
+              miss: 'The attacker takes 1d4 fire damage.',
+            },
+          },
         ],
         reactions: [],
         legendaryActions: [],
         environments: ['forest'],
         currentHP: 30,
-        temporaryHP: 0
-      }
+        temporaryHP: 0,
+      },
     ];
 
     const mockDataLoader = {
-      getMonster: (id: string) => mockMonsters.find(m => m.id === id),
+      getMonster: (id: string) => mockMonsters.find((m) => m.id === id),
       getSpell: () => undefined,
       getAllSpells: () => [],
       getClass: () => undefined,
