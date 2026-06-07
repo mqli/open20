@@ -12,7 +12,6 @@ const toggleVariants = cva(
   cn(
     'inline-flex cursor-pointer select-none items-center justify-center border font-medium',
     interactiveBase,
-    'duration-200',
   ),
   {
     variants: {
