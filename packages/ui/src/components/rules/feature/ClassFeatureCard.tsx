@@ -22,7 +22,7 @@ import type {
 /* -------------------------------------------------------------------------- */
 
 const featureTypeVariantMap: Record<FeatureType, BadgeProps['variant']> = {
-  generic: 'slate',
+  generic: 'secondary',
   acFormula: 'info',
 };
 
