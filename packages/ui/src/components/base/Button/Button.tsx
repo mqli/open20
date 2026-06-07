@@ -4,10 +4,15 @@ import { cn } from '@/lib/cn';
 import {
   buttonSizeVariants as sizeVariantClasses,
   buttonVariants as buttonVariantClasses,
+  interactiveBase,
 } from '@/styles/design-tokens';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-bg-primary disabled:cursor-not-allowed disabled:opacity-50',
+  cn(
+    'inline-flex items-center justify-center rounded-md font-medium',
+    interactiveBase,
+    'focus:ring-offset-2 focus:ring-offset-bg-primary', // Button-specific offset
+  ),
   {
     variants: {
       variant: buttonVariantClasses,
