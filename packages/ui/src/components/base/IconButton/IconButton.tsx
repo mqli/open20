@@ -5,10 +5,11 @@ import {
   iconButtonActiveVariants as activeVariantClasses,
   iconButtonSizeVariants as sizeVariantClasses,
   iconButtonVariants as variantClasses,
+  interactiveBase,
 } from '@/styles/design-tokens';
 
 const iconButtonVariants = cva(
-  'inline-flex items-center justify-center rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
+  cn('inline-flex items-center justify-center rounded-lg border', interactiveBase),
   {
     variants: {
       variant: variantClasses,
