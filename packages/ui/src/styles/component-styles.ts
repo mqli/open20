@@ -26,4 +26,6 @@ export const iconSizes = {
 } as const;
 
 // ── CardSurface clickable hover ──
-export const cardSurfaceClickableHover = 'cursor-pointer hover:shadow-md hover:border-primary-300';
+export const cardSurfaceClickableHover = cn(
+  'cursor-pointer hover:shadow-md hover:border-primary-300',
+);
