@@ -12,7 +12,7 @@ const badgeVariants = cva('inline-flex items-center font-medium transition-color
     size: sizeVariantClasses,
   },
   defaultVariants: {
-    variant: 'slate',
+    variant: 'secondary',
     size: 'md',
   },
 });

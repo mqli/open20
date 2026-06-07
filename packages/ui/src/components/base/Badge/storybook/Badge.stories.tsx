@@ -6,7 +6,7 @@ const meta = {
   component: Badge,
   args: {
     children: 'Cantrip',
-    variant: 'slate',
+    variant: 'secondary',
     size: 'md',
   },
 } satisfies Meta<typeof Badge>;
@@ -19,8 +19,8 @@ export const Playground: Story = {};
 export const Variants: Story = {
   render: (args) => (
     <div className="flex flex-wrap gap-2">
-      <Badge {...args} variant="slate">
-        Slate
+      <Badge {...args} variant="secondary">
+        Secondary
       </Badge>
       <Badge {...args} variant="primary">
         Primary

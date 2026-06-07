@@ -16,9 +16,9 @@ import type { Feat, FeatCategory, AbilityName } from 'open20-core';
 
 const categoryVariantMap: Record<FeatCategory, BadgeProps['variant']> = {
   Origin: 'success',
-  General: 'slate',
+  General: 'secondary',
   'Fighting Style': 'warning',
-  'Epic Boon': 'purple',
+  'Epic Boon': 'primary',
 };
 
 /* -------------------------------------------------------------------------- */

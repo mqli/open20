@@ -42,8 +42,6 @@ export const badgeVariants = {
   danger: 'bg-danger/15 text-danger border border-danger/20',
   warning: 'bg-warning/15 text-warning border border-warning/20',
   info: 'bg-info/15 text-info border border-info/20',
-  slate: 'bg-bg-tertiary text-text-secondary border border-border/50',
-  purple: 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
 } as const;
 
 export const toggleVariants = {
@@ -76,16 +74,6 @@ export const toggleVariants = {
     'bg-info/15 text-info border border-info/20',
     'hover:bg-info/25',
     'data-[state=on]:bg-info/30 data-[state=on]:border-info/50',
-  ),
-  slate: cn(
-    'bg-bg-tertiary text-text-secondary border border-border/50',
-    'hover:bg-border hover:text-text-primary',
-    'data-[state=on]:bg-border data-[state=on]:text-text-primary',
-  ),
-  purple: cn(
-    'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
-    'hover:bg-primary-500/25 shadow-sm shadow-primary-500/10',
-    'data-[state=on]:bg-primary-500/30 data-[state=on]:border-primary-500/50',
   ),
 } as const;
 
