@@ -26,7 +26,7 @@ import {
   type DataLoader,
 } from 'open20-core';
 import type { AppCharacter } from './types';
-import { SpellService } from './spell-service';
+import { SpellService, spellService } from './spell-service';
 
 import { dataLoader } from './data-loader';
 import type { SpellLevel } from 'open20-core/data';
@@ -353,5 +353,4 @@ export class CharacterService {
 }
 
 // Create default instance (will be replaced in tests)
-const spellService = new SpellService();
 export const characterService = new CharacterService(spellService);
