@@ -429,7 +429,7 @@ describe('parseMarkdown', () => {
 
 #### **Acid Splash**
 
-*Evocation Cantrip (Sorcerer, Wizard)*
+_Evocation Cantrip (Sorcerer, Wizard)_
 
 **Casting Time:** Action
 **Range:** 60 feet
@@ -442,7 +442,7 @@ You hurl a bubble of acid. *One creature* or object within range takes 1d6 acid 
 
 #### **Aid**
 
-*Level 2 Abjuration (Cleric, Paladin)*
+_Level 2 Abjuration (Cleric, Paladin)_
 
 **Casting Time:** Action
 **Range:** 30 feet
@@ -457,7 +457,7 @@ Choose up to three creatures within range. Each target's Hit Point maximum and c
 
 #### **Bane**
 
-*Level 1 Enchantment (Bard, Cleric)*
+_Level 1 Enchantment (Bard, Cleric)_
 
 **Casting Time:** Action
 **Range:** 30 feet
@@ -550,7 +550,7 @@ You curse up to three creatures.
 
 #### **True Strike**
 
-*Divination Cantrip (Bard, Sorcerer, Warlock, Wizard)*
+_Divination Cantrip (Bard, Sorcerer, Warlock, Wizard)_
 
 **Casting Time:** Action
 **Range:** 30 feet
@@ -811,7 +811,7 @@ describe('parseMarkdown + transformSpell integration', () => {
 
 #### **Acid Splash**
 
-*Evocation Cantrip (Sorcerer, Wizard)*
+_Evocation Cantrip (Sorcerer, Wizard)_
 
 **Casting Time:** Action
 **Range:** 60 feet
@@ -824,7 +824,7 @@ You hurl a bubble of acid. One creature or object within range takes 1d6 acid da
 
 #### **Fire Ball**
 
-*Level 3 Evocation (Sorcerer, Wizard)*
+_Level 3 Evocation (Sorcerer, Wizard)_
 
 **Casting Time:** Action
 **Range:** 150 feet
