@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
-import { chipBase, sectionDivider } from '@/styles/design-tokens';
+import { chipBase, sectionDivider } from '@/styles/component-styles';
 import { Text } from '@/components/base/Text';
 import { Badge, type BadgeProps } from '@/components/base/Badge';
 import { CardSurface } from '@/components/base/CardSurface';

@@ -15,13 +15,8 @@ import {
   DamageIcon,
 } from '@/components/base/icons';
 import { Button } from '@/components/base/Button';
-import {
-  chipBase,
-  collapseToggle,
-  iconSizes,
-  spellSchoolVariants,
-  sectionDivider,
-} from '@/styles/design-tokens';
+import { chipBase, collapseToggle, iconSizes, sectionDivider } from '@/styles/component-styles';
+import { spellSchoolVariants } from '@/styles/design-tokens';
 import { Text } from '@/components/base/Text';
 import { CardSurface } from '@/components/base/CardSurface';
 import type { CardSurfaceDensity } from '@/components/base/CardSurface';

@@ -247,24 +247,3 @@ export const spellSchoolVariants = {
     'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
   Transmutation: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20',
 } as const;
-
-// ── Generic chip/badge base (rounded-md, small) ──
-export const chipBase = 'inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold';
-
-// ── Generic inline metadata item (icon + text) ──
-export const inlineMeta =
-  'inline-flex items-center gap-1 whitespace-nowrap text-[10px] text-text-tertiary';
-
-// ── Generic section divider (thin border-top + padding) ──
-export const sectionDivider = 'pt-2 border-t border-border/50';
-
-// ── Generic collapse/show-more toggle ──
-export const collapseToggle =
-  'flex items-center gap-1 self-start text-[10px] font-medium text-text-tertiary hover:text-text-secondary transition-colors';
-
-// ── Shared icon size tokens ──
-export const iconSizes = {
-  xs: 'h-3 w-3',
-  sm: 'h-3.5 w-3.5',
-  md: 'h-4 w-4',
-} as const;

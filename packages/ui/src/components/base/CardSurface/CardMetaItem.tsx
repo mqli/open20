@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
-import { inlineMeta } from '@/styles/design-tokens';
+import { inlineMeta } from '@/styles/component-styles';
 
 export interface CardMetaItemProps {
   /** Icon element (typically a lucide-react icon) */
