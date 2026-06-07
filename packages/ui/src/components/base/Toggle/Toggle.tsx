@@ -5,10 +5,15 @@ import { cn } from '@/lib/cn';
 import {
   badgeToggleSizeVariants as sizeVariantClasses,
   toggleVariants as toggleVariantClasses,
+  interactiveBase,
 } from '@/styles/design-tokens';
 
 const toggleVariants = cva(
-  'inline-flex cursor-pointer select-none items-center justify-center border font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
+  cn(
+    'inline-flex cursor-pointer select-none items-center justify-center border font-medium',
+    interactiveBase,
+    'duration-200',
+  ),
   {
     variants: {
       variant: toggleVariantClasses,
