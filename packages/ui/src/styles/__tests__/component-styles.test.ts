@@ -5,6 +5,7 @@ import {
   sectionDivider,
   collapseToggle,
   iconSizes,
+  cardSurfaceClickableHover,
 } from '../component-styles';
 
 describe('component-styles', () => {
@@ -29,5 +30,11 @@ describe('component-styles', () => {
 
   it('exports inlineMeta with gap-1', () => {
     expect(inlineMeta).toContain('gap-1');
+  });
+
+  it('exports cardSurfaceClickableHover with hover classes', () => {
+    expect(cardSurfaceClickableHover).toContain('cursor-pointer');
+    expect(cardSurfaceClickableHover).toContain('hover:shadow-md');
+    expect(cardSurfaceClickableHover).toContain('hover:border-primary-300');
   });
 });

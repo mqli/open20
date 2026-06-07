@@ -3,6 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 import { Surface, type SurfaceProps } from '@/components/base/Surface';
 import { Text } from '@/components/base/Text';
+import { cardSurfaceClickableHover } from '@/styles/component-styles';
 
 /* ------------------------------------------------------------------ */
 /*  Variants                                                            */
@@ -81,9 +82,7 @@ export function CardSurface({
       className={cn(
         surfaceVariants({ density }),
         (glow || renderGlow) && 'relative overflow-hidden',
-        isClickable &&
-          isDefaultVariant &&
-          'cursor-pointer hover:shadow-md hover:border-primary-300',
+        isClickable && isDefaultVariant && cardSurfaceClickableHover,
         className,
       )}
       onClick={onClick}

@@ -24,3 +24,6 @@ export const iconSizes = {
   sm: 'h-3.5 w-3.5',
   md: 'h-4 w-4',
 } as const;
+
+// ── CardSurface clickable hover ──
+export const cardSurfaceClickableHover = 'cursor-pointer hover:shadow-md hover:border-primary-300';
