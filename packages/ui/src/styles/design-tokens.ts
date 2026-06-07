@@ -28,6 +28,13 @@ export const colors = {
   },
 } as const;
 
+// ── Shared interactive base (focus, disabled, transition) ──
+export const interactiveBase = cn(
+  'transition-all duration-200',
+  'focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-1',
+  'disabled:cursor-not-allowed disabled:opacity-50',
+);
+
 export const badgeVariants = {
   secondary: 'bg-bg-tertiary text-text-secondary border border-border/50',
   primary: 'bg-primary-500/15 text-primary-600 dark:text-primary-400 border border-primary-500/20',
