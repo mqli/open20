@@ -140,12 +140,12 @@ export const slotPipStateVariants = {
 export const surfaceVariants = {
   default: 'bg-bg-secondary border-border',
   primary: 'bg-bg-primary border-primary-400/30',
-  elevated: 'bg-bg-primary border-border shadow-md',
+  elevated: 'bg-bg-primary border-border', // shadow via shadow prop
   ghost: 'bg-transparent border-border/50',
   tint: 'bg-primary-500/5 border-primary-500/10',
-  selected: 'border-primary-400 shadow-md ring-1 ring-primary-400/60',
-  warning: 'border-warning ring-2 ring-warning/50 bg-warning/5',
-  info: 'border-info/50 shadow-sm',
+  selected: 'border-primary-400 ring-1 ring-primary-400/60', // no shadow baked in
+  warning: 'border-warning ring-2 ring-warning/50 bg-warning/5', // no shadow baked in
+  info: 'border-info/50', // no shadow baked in
 } as const;
 
 export const surfacePaddingVariants = {
