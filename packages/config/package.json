@@ -26,6 +26,10 @@
       "types": "./types/vitest/utils.d.ts",
       "default": "./vitest/utils.ts"
     },
+    "./playwright": {
+      "types": "./types/playwright/index.d.ts",
+      "default": "./playwright/index.js"
+    },
     "./storybook": {
       "types": "./types/storybook/index.d.ts",
       "default": "./storybook/index.js"

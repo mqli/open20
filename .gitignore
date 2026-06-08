@@ -21,3 +21,6 @@ packages/ui/storybook-static/
 *.tmp
 *.temp
 .codebuddy/
+playwright-report/
+test-results/
+playwright/*.html
