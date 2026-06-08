@@ -11,7 +11,10 @@ function withClassName<P extends HTMLAttributes<HTMLElement>>(fn: (props: P) => 
 const markdownComponents = {
   table: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLTableElement>) => (
     <div className="overflow-x-auto my-2">
-      <table className={cn('w-full text-sm border-collapse', className)} {...props}>
+      <table
+        className={cn('w-full text-xs text-text-secondary border-collapse', className)}
+        {...props}
+      >
         {children}
       </table>
     </div>
@@ -25,19 +28,28 @@ const markdownComponents = {
   ),
   th: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLTableCellElement>) => (
     <th
-      className={cn('border border-border px-2 py-1 text-left font-medium', className)}
+      className={cn(
+        'border border-border px-2 py-1 text-left text-xs font-medium text-text-primary',
+        className,
+      )}
       {...props}
     >
       {children}
     </th>
   )),
   td: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLTableCellElement>) => (
-    <td className={cn('border border-border px-2 py-1', className)} {...props}>
+    <td
+      className={cn('border border-border px-2 py-1 text-xs text-text-secondary', className)}
+      {...props}
+    >
       {children}
     </td>
   )),
   p: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLParagraphElement>) => (
-    <p className={cn('mb-2 last:mb-0 leading-relaxed', className)} {...props}>
+    <p
+      className={cn('mb-2 last:mb-0 text-xs text-text-secondary leading-relaxed', className)}
+      {...props}
+    >
       {children}
     </p>
   )),
@@ -52,17 +64,25 @@ const markdownComponents = {
     </em>
   )),
   ul: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLUListElement>) => (
-    <ul className={cn('list-disc pl-4 mb-2 space-y-0.5', className)} {...props}>
+    <ul
+      className={cn('list-disc pl-4 mb-2 space-y-0.5 text-xs text-text-secondary', className)}
+      {...props}
+    >
       {children}
     </ul>
   )),
   ol: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLOListElement>) => (
-    <ol className={cn('list-decimal pl-4 mb-2 space-y-0.5', className)} {...props}>
+    <ol
+      className={cn('list-decimal pl-4 mb-2 space-y-0.5 text-xs text-text-secondary', className)}
+      {...props}
+    >
       {children}
     </ol>
   )),
-  li: withClassName(({ children, ...props }: HTMLAttributes<HTMLLIElement>) => (
-    <li {...props}>{children}</li>
+  li: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLLIElement>) => (
+    <li className={cn('text-xs text-text-secondary', className)} {...props}>
+      {children}
+    </li>
   )),
   blockquote: withClassName(({ children, className, ...props }: HTMLAttributes<HTMLElement>) => (
     <blockquote

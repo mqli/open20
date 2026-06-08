@@ -165,7 +165,7 @@ export function SpellCard({
       {/* ── Header Row ─────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
-          <Text as="h3" variant="heading" size="lg" className="truncate">
+          <Text as="h3" variant="heading" size={isCompact ? 'md' : 'lg'} className="truncate">
             {spell.name}
           </Text>
 
@@ -207,7 +207,9 @@ export function SpellCard({
       {/* ── Description ────────────────────────────────────────── */}
       {effectiveShowDesc && (
         <div className="space-y-1.5">
-          <SpellDescription description={spell.description} />
+          <div className="text-xs text-text-secondary">
+            <SpellDescription description={spell.description} />
+          </div>
 
           {/* Damage / Heal / Save / Attack */}
           {(spell.damage || spell.heal || spell.save || spell.attack) && (
