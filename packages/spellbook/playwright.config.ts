@@ -16,7 +16,8 @@ export default defineConfig(
     testDir: './e2e',
 
     // Command to start the web server (serves dist/)
-    webServerCommand: 'pnpm run preview --port 4173',
+    // Note: -- is required to pass args to the underlying script (vite preview)
+    webServerCommand: 'pnpm run preview -- --port 4173',
     webServerPort: 4173,
     webServerTimeout: 120000,
 
