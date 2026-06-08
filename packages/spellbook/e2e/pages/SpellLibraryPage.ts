@@ -5,7 +5,7 @@ import { Page, Locator, expect } from '@playwright/test';
  * Encapsulates interactions with the spell library UI
  *
  * Actual UI structure:
- * - Search input (searchbox role)
+ * - Search input (textbox with placeholder "Search spells...")
  * - "Known" and "Prepared" toggle buttons
  * - Level tabs (buttons for each level)
  * - Filter chips (shown when filters are active)
@@ -22,9 +22,13 @@ export class SpellLibraryPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.searchInput = page.getByRole('searchbox', { name: /search/i });
-    this.spellCards = page.getByRole('article').or(page.locator('.spell-card'));
+    // Search input has placeholder "Search spells..." (translated)
+    this.searchInput = page.getByPlaceholder(/search/i);
+    // Spell cards are rendered as articles
+    this.spellCards = page.getByRole('article');
+    // "Prepared" toggle button
     this.preparedToggle = page.getByRole('button', { name: /prepared/i });
+    // "Known" toggle button
     this.knownToggle = page.getByRole('button', { name: /known/i });
   }
 
@@ -34,6 +38,8 @@ export class SpellLibraryPage {
   async goto() {
     await this.page.goto('/spells');
     await this.page.waitForLoadState('networkidle');
+    // Wait for search input to be visible
+    await this.searchInput.waitFor({ state: 'visible' });
   }
 
   /**

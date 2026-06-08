@@ -5,8 +5,8 @@ import { Page, Locator, expect } from '@playwright/test';
  * Encapsulates interactions with the character sheet UI
  *
  * Actual UI structure:
- * - Character name in <h2>
- * - Classes shown as Badge elements
+ * - Character bar button with title "Open character sheet" (translated)
+ * - Character sheet opens as Dialog or Sheet
  * - Tabs for each spellcasting class
  * - Per-class: stats, preparation progress, cantrips, spells by level with SlotPips
  */
@@ -21,8 +21,9 @@ export class CharacterPage {
    * Navigate to the character page (open character sheet)
    */
   async goto() {
-    // Click on character bar to open sheet
-    await this.page.getByRole('button', { name: /character/i }).click();
+    // Click on character bar button to open sheet
+    // The button has title "Open character sheet" (translated)
+    await this.page.getByTitle(/open character sheet/i).click();
     await this.page.waitForLoadState('networkidle');
   }
 
