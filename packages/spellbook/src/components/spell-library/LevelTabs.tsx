@@ -27,6 +27,7 @@ export function LevelTabs() {
         return (
           <Button
             key={value}
+            data-testid={value === null ? 'level-tab-all' : `level-tab-${value}`}
             variant={isActive ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => setSelectedLevel(value)}

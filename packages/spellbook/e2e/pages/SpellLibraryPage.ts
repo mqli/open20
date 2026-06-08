@@ -4,12 +4,7 @@ import { Page, Locator, expect } from '@playwright/test';
  * Page object for Spell Library page
  * Encapsulates interactions with the spell library UI
  *
- * Actual UI structure:
- * - Search input (textbox with placeholder "Search spells...")
- * - "Known" and "Prepared" toggle buttons
- * - Level tabs (buttons for each level)
- * - Filter chips (shown when filters are active)
- * - Spell cards in a grid
+ * Uses data-testid attributes for reliable element selection
  */
 export class SpellLibraryPage {
   readonly page: Page;
@@ -22,14 +17,14 @@ export class SpellLibraryPage {
 
   constructor(page: Page) {
     this.page = page;
-    // Search input has placeholder "Search spells..." (translated)
-    this.searchInput = page.getByPlaceholder(/search/i);
-    // Spell cards are rendered as articles
-    this.spellCards = page.getByRole('article');
-    // "Prepared" toggle button
-    this.preparedToggle = page.getByRole('button', { name: /prepared/i });
-    // "Known" toggle button
-    this.knownToggle = page.getByRole('button', { name: /known/i });
+    // Search input has data-testid="search-input"
+    this.searchInput = page.getByTestId('search-input');
+    // Spell cards have data-testid="spell-card"
+    this.spellCards = page.getByTestId('spell-card');
+    // "Prepared" toggle button has data-testid="prepared-toggle"
+    this.preparedToggle = page.getByTestId('prepared-toggle');
+    // "Known" toggle button has data-testid="known-toggle"
+    this.knownToggle = page.getByTestId('known-toggle');
   }
 
   /**
@@ -75,8 +70,9 @@ export class SpellLibraryPage {
   /**
    * Click on a level tab
    */
-  async filterByLevel(level: number) {
-    await this.page.getByRole('button', { name: new RegExp(`level ${level}`, 'i') }).click();
+  async filterByLevel(level: number | null) {
+    const testId = level === null ? 'level-tab-all' : `level-tab-${level}`;
+    await this.page.getByTestId(testId).click();
   }
 
   /**
@@ -90,7 +86,7 @@ export class SpellLibraryPage {
    * Close the spell detail flyout
    */
   async closeFlyout() {
-    const closeButton = this.page.getByRole('button', { name: /close/i });
+    const closeButton = this.page.getByRole('button', { name: /close spell details/i });
     if (await closeButton.isVisible()) {
       await closeButton.click();
     }
@@ -115,5 +111,12 @@ export class SpellLibraryPage {
    */
   async expectSpellNotVisible(spellName: string) {
     await expect(this.page.getByText(spellName)).not.toBeVisible();
+  }
+
+  /**
+   * Assert that empty state is visible
+   */
+  async expectEmptyStateVisible() {
+    await expect(this.page.getByTestId('empty-state')).toBeVisible();
   }
 }

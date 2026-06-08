@@ -105,6 +105,7 @@ export function SpellbookControls({
                   ? t('unprepareSpell')
                   : t('prepareSpell')
             }
+            data-testid="prepare-spell-button"
           >
             {prepareIcon}
           </IconButton>

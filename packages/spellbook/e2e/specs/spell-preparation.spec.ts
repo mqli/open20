@@ -22,10 +22,13 @@ test.describe('Spell Preparation', () => {
     await spellLibrary.viewSpell('Magic Missile');
 
     // Click prepare button in the detail flyout
-    await page.getByRole('button', { name: /prepare spell/i }).click();
+    await page.getByTestId('prepare-spell-button').click();
 
-    // Verify the button now shows "Unprepare Spell" (spell is prepared)
-    await expect(page.getByRole('button', { name: /unprepare spell/i })).toBeVisible();
+    // Verify the button title now shows "Unprepare Spell" (spell is prepared)
+    await expect(page.getByTestId('prepare-spell-button')).toHaveAttribute(
+      'title',
+      /unprepare spell/i,
+    );
   });
 
   test('should unprepare a spell from spell detail', async ({ page }) => {
@@ -39,12 +42,16 @@ test.describe('Spell Preparation', () => {
     await spellLibrary.viewSpell('Magic Missile');
 
     // If the spell is prepared, unprepare it
-    const unprepareButton = page.getByRole('button', { name: /unprepare spell/i });
-    if (await unprepareButton.isVisible()) {
-      await unprepareButton.click();
+    const prepareButton = page.getByTestId('prepare-spell-button');
+    const title = await prepareButton.getAttribute('title');
+    if (title && /unprepare/i.test(title)) {
+      await prepareButton.click();
 
-      // Verify the button now shows "Prepare Spell"
-      await expect(page.getByRole('button', { name: /prepare spell/i })).toBeVisible();
+      // Verify the button title now shows "Prepare Spell"
+      await expect(page.getByTestId('prepare-spell-button')).toHaveAttribute(
+        'title',
+        /prepare spell/i,
+      );
     }
   });
 
@@ -55,13 +62,14 @@ test.describe('Spell Preparation', () => {
     await spellLibrary.viewSpell('Shield');
 
     // Prepare the spell if not already prepared
-    const prepareButton = page.getByRole('button', { name: /prepare spell/i });
-    if (await prepareButton.isVisible()) {
+    const prepareButton = page.getByTestId('prepare-spell-button');
+    const title = await prepareButton.getAttribute('title');
+    if (title && /prepare spell/i.test(title)) {
       await prepareButton.click();
     }
 
-    // Close the flyout
-    await page.getByRole('button', { name: /close/i }).click();
+    // Close the flyout by clicking the close button (aria-label "Close spell details")
+    await page.getByRole('button', { name: /close spell details/i }).click();
 
     // Go to character page
     await characterPage.goto();

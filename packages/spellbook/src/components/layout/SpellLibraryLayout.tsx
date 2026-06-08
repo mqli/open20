@@ -84,6 +84,7 @@ export function SpellLibraryLayout() {
           <div className="flex items-center gap-1 shrink-0">
             {casterType.canLearn && (
               <Toggle
+                data-testid="known-toggle"
                 variant="secondary"
                 size="sm"
                 pressed={showKnownOnly}
@@ -94,6 +95,7 @@ export function SpellLibraryLayout() {
             )}
             {casterType.canPrepare && (
               <Toggle
+                data-testid="prepared-toggle"
                 variant="primary"
                 size="sm"
                 pressed={showPreparedOnly}

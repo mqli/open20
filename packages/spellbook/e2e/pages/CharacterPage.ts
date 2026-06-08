@@ -22,8 +22,7 @@ export class CharacterPage {
    */
   async goto() {
     // Click on character bar button to open sheet
-    // The button has title "Open character sheet" (translated)
-    await this.page.getByTitle(/open character sheet/i).click();
+    await this.page.getByTestId('character-button').click();
     await this.page.waitForLoadState('networkidle');
   }
 

@@ -28,14 +28,16 @@ export function SlotPips({ total, used, size, onPipClick, className }: SlotPipsP
   const available = total - used;
 
   return (
-    <div className={cn('flex gap-1.5', className)}>
+    <div data-testid="slot-pips" className={cn('flex gap-1.5', className)}>
       {Array.from({ length: total }, (_, index) => (
         <button
           key={index}
           type="button"
+          data-testid={`slot-pip-${index}`}
           className={cn(pipVariants({ state: index < available ? 'available' : 'used', size }))}
           onClick={() => onPipClick?.(index, index >= available)}
           aria-label={index < available ? 'Available slot' : 'Used slot'}
+          aria-checked={index >= available}
         />
       ))}
     </div>

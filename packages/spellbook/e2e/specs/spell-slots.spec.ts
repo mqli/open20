@@ -21,12 +21,14 @@ test.describe('Spell Slots', () => {
     // Switch to first class tab
     await tabs.first().click();
 
-    // Check that slot pips are visible for levels that have slots
+    // Check that slot pips are visible
     // (UI only shows levels with total > 0)
-    const slotPips = page.getByRole('button', { name: /slot/i });
-    const pipCount = await slotPips.count();
+    const slotPips = page.getByTestId('slot-pips');
+    await expect(slotPips).toBeVisible();
 
     // At least some slots should be visible
+    const pips = page.getByTestId(/^slot-pip-\d+$/);
+    const pipCount = await pips.count();
     expect(pipCount).toBeGreaterThan(0);
   });
 
@@ -35,14 +37,8 @@ test.describe('Spell Slots', () => {
     const tabs = page.getByRole('tab');
     await tabs.first().click();
 
-    // Find level 1 slot pips
-    const levelText = page.getByText(/level 1/i, { exact: false });
-    await expect(levelText).toBeVisible();
-
-    // Get the slot pips for level 1
-    // Click the first unused pip to consume a slot
-    const pips = page.getByRole('button', { name: /slot/i });
-    const firstPip = pips.first();
+    // Get the first slot pip
+    const firstPip = page.getByTestId('slot-pip-0');
 
     // Get initial state (check if pip is used or not)
     const initialAriaChecked = await firstPip.getAttribute('aria-checked');
@@ -61,8 +57,7 @@ test.describe('Spell Slots', () => {
     await tabs.first().click();
 
     // Click a pip to use a slot (if not already used)
-    const pips = page.getByRole('button', { name: /slot/i });
-    const firstPip = pips.first();
+    const firstPip = page.getByTestId('slot-pip-0');
 
     // Make sure it's used
     const isChecked = await firstPip.getAttribute('aria-checked');

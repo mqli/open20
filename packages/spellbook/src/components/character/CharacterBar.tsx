@@ -99,6 +99,7 @@ export function CharacterBar() {
             variant="ghost"
             className="flex items-center gap-1.5 shrink-0 hover:bg-bg-tertiary rounded-md px-1.5 py-0.5 transition-colors cursor-pointer"
             title={t('openCharacterSheet')}
+            data-testid="character-button"
           >
             <User className="w-3 h-3 text-primary-500" />
             <Text weight="bold" size="sm" color="primary" className="whitespace-nowrap">

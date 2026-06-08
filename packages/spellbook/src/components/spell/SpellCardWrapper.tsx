@@ -356,6 +356,7 @@ export function SpellCardWrapper({
 
   return (
     <SpellCardUI
+      data-testid="spell-card"
       spell={spell}
       className={className}
       density={density}

@@ -29,6 +29,7 @@ export function SearchBar() {
       <Search className="absolute left-3 w-4 h-4 text-text-tertiary" />
       <Input
         type="text"
+        data-testid="search-input"
         placeholder={t('searchSpells')}
         className="pl-9 pr-9"
         value={localQuery}

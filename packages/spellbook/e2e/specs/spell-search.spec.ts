@@ -14,10 +14,7 @@ test.describe('Spell Search', () => {
     await expect(spellLibrary.searchInput).toBeVisible();
 
     // Verify that spells are displayed (check for spell cards)
-    const spellCards = spellLibrary.page
-      .getByRole('article')
-      .or(spellLibrary.page.locator('.spell-card'));
-    const count = await spellCards.count();
+    const count = await spellLibrary.getSpellCount();
     expect(count).toBeGreaterThan(0);
   });
 
@@ -45,7 +42,7 @@ test.describe('Spell Search', () => {
     expect(count).toBe(0);
 
     // Verify empty state message is shown
-    await expect(spellLibrary.page.getByText(/no spells/i)).toBeVisible();
+    await spellLibrary.expectEmptyStateVisible();
   });
 
   test('should filter spells by level', async () => {
