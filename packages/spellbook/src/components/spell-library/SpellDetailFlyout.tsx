@@ -13,7 +13,7 @@ function SpellDetailContent({
     <div className="mb-6">
       <SpellCardWrapper
         spell={spell}
-        className="border-0 rounded-none bg-transparent p-0"
+        className="border-0 rounded-none bg-transparent p-0 ring-0"
         stickyActions
         showDescription
         showSpellbookActions
@@ -58,7 +58,7 @@ export function SpellDetailFlyout() {
     <Dialog.Root open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
       <Dialog.Content
         size="xl"
-        className="flex h-[min(92vh,1000px)] flex-col w-[min(96vw,1200px)] p-0 overflow-hidden"
+        className="flex flex-col w-[min(96vw,1200px)] p-0 max-h-[min(92vh,1000px)] overflow-hidden"
       >
         <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-4 sm:px-8">
           <h2 className="text-lg font-semibold text-text-primary truncate">{selectedSpell.name}</h2>

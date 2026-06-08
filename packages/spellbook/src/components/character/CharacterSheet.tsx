@@ -173,7 +173,7 @@ export function CharacterSheet({
   if (!isLarge) {
     return (
       <Sheet open={open} onOpenChange={handleOpenChange}>
-        <Sheet.Content side="right" className="max-w-sm flex flex-col">
+        <Sheet.Content side="right" className="max-w-sm p-6">
           <CharacterSheetContent onEdit={onEdit} onClose={() => onOpenChange(false)} />
         </Sheet.Content>
       </Sheet>

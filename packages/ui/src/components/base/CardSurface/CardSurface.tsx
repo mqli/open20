@@ -120,7 +120,7 @@ export function CardSurface({
             'flex items-center pt-1',
             renderActions ? 'justify-between' : 'justify-start',
             shouldStickActions &&
-              'sticky bottom-0 z-10 mt-2 border-t border-border bg-bg-secondary/95 pt-3 pb-1 backdrop-blur supports-[backdrop-filter]:bg-bg-secondary/80',
+              'sticky bottom-0 z-10 border-t border-border bg-bg-secondary/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-bg-secondary/80',
           )}
         >
           {source && (
