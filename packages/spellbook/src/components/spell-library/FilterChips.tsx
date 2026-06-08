@@ -2,11 +2,8 @@ import { useSpellStore } from '@/stores/spell-store';
 import { Button, FilterChip, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { dataLoader } from '@/core/data-loader';
+import { useMemo } from 'react';
 
-const CLASSES = dataLoader
-  .getAllClasses()
-  .filter((c) => !!c.spellcasting)
-  .map((c) => c.id);
 const SCHOOLS = [
   'Abjuration',
   'Conjuration',
@@ -19,6 +16,14 @@ const SCHOOLS = [
 ];
 
 export function FilterChips() {
+  const classes = useMemo(
+    () =>
+      dataLoader
+        .getAllClasses()
+        .filter((c) => !!c.spellcasting)
+        .map((c) => c.id),
+    [],
+  );
   const t = useTranslation();
   const {
     selectedClasses,
@@ -84,7 +89,7 @@ export function FilterChips() {
         </Text>
         <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
           <div className="flex flex-wrap gap-1.5">
-            {CLASSES.map((cls) => (
+            {classes.map((cls) => (
               <FilterChip
                 key={cls}
                 variant={selectedClasses.includes(cls) ? 'primary' : 'secondary'}
