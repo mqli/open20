@@ -48,6 +48,8 @@ export interface CardSurfaceProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   renderSourceSuffix?: () => ReactNode;
   /** Action buttons rendered in the bottom-right of the card. Click events are stopPropagation'd automatically. */
   renderActions?: () => ReactNode;
+  /** Keep source/actions row pinned to the bottom edge while parent container scrolls. */
+  stickyActions?: boolean;
   /** Additional className for the Surface */
   className?: string;
 }
@@ -68,12 +70,14 @@ export function CardSurface({
   renderGlow,
   source,
   renderActions,
+  stickyActions = false,
   className,
   ...props
 }: CardSurfaceProps) {
   const isClickable = clickable || !!onClick;
   const isDefaultVariant = !surfaceVariant || surfaceVariant === 'default';
   const showSourceRow = source || renderActions;
+  const shouldStickActions = stickyActions && !!renderActions;
 
   return (
     <Surface
@@ -115,6 +119,8 @@ export function CardSurface({
           className={cn(
             'flex items-center pt-1',
             renderActions ? 'justify-between' : 'justify-start',
+            shouldStickActions &&
+              'sticky bottom-0 z-10 mt-2 border-t border-border bg-bg-secondary/95 pt-3 pb-1 backdrop-blur supports-[backdrop-filter]:bg-bg-secondary/80',
           )}
         >
           {source && (

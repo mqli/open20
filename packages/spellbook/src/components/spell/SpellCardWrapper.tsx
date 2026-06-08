@@ -27,6 +27,8 @@ type SpellActionStyle = 'button' | 'icon';
 interface SpellCardWrapperProps {
   spell: Spell;
   density?: SpellCardDensity;
+  className?: string;
+  stickyActions?: boolean;
   showDescription?: boolean;
   surfaceVariant?: ComponentProps<typeof SpellCardUI>['surfaceVariant'];
   glow?: boolean;
@@ -45,6 +47,8 @@ interface SpellCardWrapperProps {
 export function SpellCardWrapper({
   spell,
   density,
+  className,
+  stickyActions,
   showDescription,
   surfaceVariant,
   glow,
@@ -353,7 +357,9 @@ export function SpellCardWrapper({
   return (
     <SpellCardUI
       spell={spell}
+      className={className}
       density={density}
+      stickyActions={stickyActions}
       showDescription={showDescription}
       surfaceVariant={
         surfaceVariant ?? (shouldUseSpellbookStateStyling ? spellbookSurfaceVariant : undefined)

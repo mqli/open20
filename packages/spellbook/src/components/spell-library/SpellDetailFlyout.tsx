@@ -13,6 +13,8 @@ function SpellDetailContent({
     <div className="mb-6">
       <SpellCardWrapper
         spell={spell}
+        className="border-0 rounded-none bg-transparent p-0"
+        stickyActions
         showDescription
         showSpellbookActions
         showSpellbookBadges
@@ -54,16 +56,19 @@ export function SpellDetailFlyout() {
   // Desktop: Use Dialog (centered modal)
   return (
     <Dialog.Root open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
-      <Dialog.Overlay />
-      <Dialog.Content size="lg">
-        <div className="flex justify-end mb-4">
-          <Dialog.Close asChild>
-            <IconButton size="sm">
-              <X />
-            </IconButton>
-          </Dialog.Close>
+      <Dialog.Content
+        size="xl"
+        className="flex h-[min(92vh,1000px)] flex-col w-[min(96vw,1200px)] p-0 overflow-hidden"
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-4 sm:px-8">
+          <h2 className="text-lg font-semibold text-text-primary truncate">{selectedSpell.name}</h2>
+          <IconButton size="sm" aria-label="Close spell details" onClick={closeDetail}>
+            <X />
+          </IconButton>
         </div>
-        <SpellDetailContent spell={selectedSpell} />
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
+          <SpellDetailContent spell={selectedSpell} />
+        </div>
       </Dialog.Content>
     </Dialog.Root>
   );

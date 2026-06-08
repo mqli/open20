@@ -74,6 +74,8 @@ export interface SpellCardProps
   density?: CardSurfaceDensity;
   /** Slot for action buttons rendered in the bottom row (click events are stopPropagation'd) */
   renderActions?: () => ReactNode;
+  /** Keep source/actions row visible while parent container scrolls */
+  stickyActions?: boolean;
   /** Slot for badge chips rendered next to the school badge (e.g. "Known", "Prepared") */
   renderBadges?: () => ReactNode;
   /** Show decorative sparkle glow in the background (e.g. when spell is prepared) */
@@ -92,6 +94,7 @@ export function SpellCard({
   onClick,
   surfaceVariant,
   renderActions,
+  stickyActions,
   renderBadges,
   glow,
   className,
@@ -130,6 +133,7 @@ export function SpellCard({
           : undefined
       }
       source={spell.source}
+      stickyActions={stickyActions}
       renderSourceSuffix={
         isCompact
           ? () => (
