@@ -30,10 +30,10 @@ type RawSpell = Record<string, unknown>;
 function normaliseSpells(raw: unknown): Spell[] {
   if (!Array.isArray(raw)) return [];
   return (raw as RawSpell[]).map((s, i): Spell => {
+    // ── Fields that need normalisation ───────────────────
     const id = (s.id as string) || `spell-${i}`;
     const level = Math.max(0, Math.min(9, parseInt(String(s.level ?? 0)) || 0)) as Spell['level'];
 
-    // components: string | string[] | Record → string[]
     let components: string[] = [];
     if (Array.isArray(s.components)) {
       components = (s.components as unknown[]).filter((c): c is string => typeof c === 'string');
@@ -48,7 +48,6 @@ function normaliseSpells(raw: unknown): Spell[] {
       );
     }
 
-    // classes: string | string[] → string[] (lowercase for normalised lookup)
     let classes: string[] = [];
     if (Array.isArray(s.classes)) {
       classes = (s.classes as unknown[]).filter((c): c is string => typeof c === 'string');
@@ -59,7 +58,6 @@ function normaliseSpells(raw: unknown): Spell[] {
         .filter(Boolean);
     }
 
-    // description: string | string[] → string[]
     let description: string[] = [];
     if (typeof s.description === 'string') {
       description = s.description ? [s.description] : [];
@@ -67,7 +65,13 @@ function normaliseSpells(raw: unknown): Spell[] {
       description = (s.description as unknown[]).filter((d): d is string => typeof d === 'string');
     }
 
+    // ── Build result ──────────────────────────────────────
+    // Strip the fields we normalise manually, then spread the rest
+    // so nothing from the JSON is accidentally dropped.
+    const { id: _i, level: _l, components: _c, classes: _cl, description: _d, ...rest } = s;
+
     return {
+      ...rest, // raw fields first (usingAHigherLevelSpellSlot, heal, attack, etc.)
       id,
       name: (s.name as string) || `Unknown Spell ${i}`,
       level,
@@ -80,10 +84,7 @@ function normaliseSpells(raw: unknown): Spell[] {
       ritual: !!s.ritual,
       description: Object.freeze(description) as readonly string[],
       source: (s.source as string) || 'SRD',
-      ...(s.cantripUpgrade ? { cantripUpgrade: s.cantripUpgrade as readonly unknown[] } : {}),
-      ...(s.damage ? { damage: s.damage as Record<string, unknown> } : {}),
-      ...(s.save ? { save: s.save as Spell['save'] } : {}),
-      ...(s.classes ? { classes: Object.freeze(classes) as readonly string[] } : {}),
+      ...(classes.length > 0 ? { classes: Object.freeze(classes) as readonly string[] } : {}),
     } as Spell;
   });
 }
