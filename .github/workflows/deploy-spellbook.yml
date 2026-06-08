@@ -41,11 +41,6 @@ jobs:
       - name: Test spellbook
         run: pnpm turbo run test --filter=@open20/spellbook
 
-      - name: Build spellbook
-        run: pnpm turbo run build --filter=@open20/spellbook
-        env:
-          DEPLOY_TARGET: github-pages
-
       - name: Install Playwright browsers
         run: pnpm --filter @open20/spellbook exec playwright install --with-deps chromium
 
@@ -61,6 +56,11 @@ jobs:
           name: playwright-report
           path: packages/spellbook/playwright-report/
           retention-days: 30
+
+      - name: Build spellbook
+        run: pnpm turbo run build --filter=@open20/spellbook
+        env:
+          DEPLOY_TARGET: github-pages
 
       - name: Prepare Pages artifact under spellbook path
         run: |
