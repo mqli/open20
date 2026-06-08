@@ -4188,7 +4188,7 @@
     "source": "SRD 5.2",
     "classes": ["Sorcerer", "Wizard"],
     "usingAHigherLevelSpellSlot": [
-      "\\_ The damage increases by 1d6 for each spell slot level above 3."
+      "The damage increases by 1d6 for each spell slot level above 3."
     ],
     "damage": {
       "entries": [
