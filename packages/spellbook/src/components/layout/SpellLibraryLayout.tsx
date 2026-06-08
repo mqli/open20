@@ -27,19 +27,16 @@ export function SpellLibraryLayout() {
   const { activeCharacter, loadCharacters } = useCharacterStore();
 
   useEffect(() => {
-    loadCharacters();
-  }, [loadCharacters]);
-
-  useEffect(() => {
     async function loadSpells() {
       setIsLoading(true);
       await spellService.ensureInitialized();
+      loadCharacters();
       const spells = spellService.searchSpells({});
       setSpells(spells);
       setIsLoading(false);
     }
     loadSpells();
-  }, [setSpells]);
+  }, [loadCharacters, setSpells]);
 
   // Cross-store filtering: apply known/prepared filters here where we have both stores
   let spellsToDisplay = filteredSpells;
@@ -72,7 +69,7 @@ export function SpellLibraryLayout() {
 
   return (
     <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
-      <CharacterBar />
+      {!isLoading && <CharacterBar />}
 
       {/* Compact Header */}
       <Surface variant="default" className="rounded-none border-b px-3 md:px-4 py-2">

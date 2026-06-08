@@ -22,9 +22,7 @@ const SPELL_LEVEL_LABELS = [
 function CharacterSheetContent({ onEdit, onClose }: { onEdit: () => void; onClose: () => void }) {
   const t = useTranslation();
   const { activeCharacter, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
-
   if (!activeCharacter) return null;
-
   const { spells, classes, concentration } = activeCharacter;
   const classSpellcasting = spells.classSpellcasting ?? {};
 

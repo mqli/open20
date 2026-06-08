@@ -11,7 +11,7 @@ import {
 import { useTranslation } from '@/i18n';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
-import { CLASSES } from './constants';
+import { dataLoader } from '@/core/data-loader';
 
 interface AdditionalClassEntryProps {
   entry: AdditionalClassEntry;
@@ -25,6 +25,11 @@ export function AdditionalClassEntryComponent({
   onRemove,
 }: AdditionalClassEntryProps) {
   const t = useTranslation();
+  const CLASSES = dataLoader.getAllClasses().map((c) => ({
+    id: c.id,
+    name: c.name || c.id,
+  }));
+
   return (
     <Surface variant="ghost" padding="sm" className="space-y-2 bg-bg-primary/30">
       <div className="grid grid-cols-12 gap-2 items-end">

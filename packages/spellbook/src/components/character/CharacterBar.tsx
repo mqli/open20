@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useMemo } from 'react';
 import { useCharacterStore } from '@/stores/character-store';
 import { useUIStore } from '@/stores/ui-store';
 import type { AppCharacter } from '@/core/types';
@@ -23,15 +23,12 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Plus, User, Moon, Sun, FileText, Users, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
-const CLASS_NAME_MAP = Object.fromEntries(
-  dataLoader.getAllClasses().map((c) => [c.id, c.name || c.id]),
-);
-
 function formatClassInfo(
   classes: readonly { classId: string; level: number }[] | undefined,
+  classNameMap: { [k: string]: string },
 ): string {
   if (!classes || classes.length === 0) return 'Lvl 1';
-  return classes.map((c) => `${CLASS_NAME_MAP[c.classId] ?? c.classId} ${c.level}`).join(' / ');
+  return classes.map((c) => `${classNameMap[c.classId] ?? c.classId} ${c.level}`).join(' / ');
 }
 
 export function CharacterBar() {
@@ -52,7 +49,10 @@ export function CharacterBar() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
   const [isSwitchOpen, setIsSwitchOpen] = useState(false);
-
+  const classNameMap = useMemo(
+    () => Object.fromEntries(dataLoader.getAllClasses().map((c) => [c.id, c.name || c.id])),
+    [],
+  );
   const handleToggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
@@ -75,7 +75,7 @@ export function CharacterBar() {
     setIsSwitchOpen(false);
   };
 
-  const classInfo = formatClassInfo(activeCharacter?.classes);
+  const classInfo = formatClassInfo(activeCharacter?.classes, classNameMap);
 
   // Get per-class spellcasting stats
   const classSpellcasting = activeCharacter?.spells?.classSpellcasting ?? {};
@@ -122,7 +122,7 @@ export function CharacterBar() {
                     <div className="flex items-center gap-1.5 text-center">
                       {isMulticlassSpellcaster && (
                         <Text variant="label" className="text-text-tertiary">
-                          {(CLASS_NAME_MAP[classId] ?? classId).slice(0, 3)}
+                          {(classNameMap[classId] ?? classId).slice(0, 3)}
                         </Text>
                       )}
                       <div>
@@ -198,7 +198,7 @@ export function CharacterBar() {
                   >
                     <User className="w-3 h-3 shrink-0" />
                     <span className="flex-1 truncate">{char.name}</span>
-                    <Text variant="label">{formatClassInfo(char.classes)}</Text>
+                    <Text variant="label">{formatClassInfo(char.classes, classNameMap)}</Text>
                     <IconButton
                       variant="secondary"
                       size="sm"

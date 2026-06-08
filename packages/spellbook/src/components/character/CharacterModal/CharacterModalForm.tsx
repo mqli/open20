@@ -16,9 +16,9 @@ import { useTranslation } from '@/i18n';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
-import { CLASSES, SPECIES, BACKGROUNDS } from './constants';
 import type { AdditionalClassEntry, CharacterFormData } from './types';
 import type { AppCharacter } from '@/core/types';
+import { dataLoader } from '@/core/data-loader';
 
 interface CharacterModalFormProps {
   open: boolean;
@@ -41,6 +41,22 @@ export function CharacterModalForm({
   onSubmit,
   onCancel,
 }: CharacterModalFormProps) {
+  // Get dynamic data from open20-core
+  const CLASSES = dataLoader.getAllClasses().map((c) => ({
+    id: c.id,
+    name: c.name || c.id,
+  }));
+
+  const SPECIES = dataLoader.getAllSpecies().map((s) => ({
+    id: s.id,
+    name: s.id, // Species doesn't have 'name' property, use id
+  }));
+
+  const BACKGROUNDS = dataLoader.getAllBackgrounds().map((b) => ({
+    id: b.id,
+    name: b.name,
+  }));
+
   const t = useTranslation();
   const handleAbilityChange = (abilityName: string, value: string) => {
     setFormData((prev) => ({
