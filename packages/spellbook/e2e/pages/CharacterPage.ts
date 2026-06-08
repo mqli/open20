@@ -3,102 +3,121 @@ import { Page, Locator, expect } from '@playwright/test';
 /**
  * Page object for Character page
  * Encapsulates interactions with the character sheet UI
+ *
+ * Actual UI structure:
+ * - Character name in <h2>
+ * - Classes shown as Badge elements
+ * - Tabs for each spellcasting class
+ * - Per-class: stats, preparation progress, cantrips, spells by level with SlotPips
  */
 export class CharacterPage {
   readonly page: Page;
 
-  // Locators
-  readonly characterName: Locator;
-  readonly level: Locator;
-  readonly spellSlots: Locator;
-  readonly preparedSpells: Locator;
-  readonly availableSpells: Locator;
-
   constructor(page: Page) {
     this.page = page;
-    this.characterName = page.getByRole('heading', { name: /character/i });
-    this.level = page.getByText(/level/i);
-    this.spellSlots = page.getByRole('region', { name: /spell slots/i });
-    this.preparedSpells = page.getByRole('list', { name: /prepared spells/i });
-    this.availableSpells = page.getByRole('list', { name: /available spells/i });
   }
 
   /**
-   * Navigate to the character page
+   * Navigate to the character page (open character sheet)
    */
   async goto() {
-    await this.page.goto('/character');
+    // Click on character bar to open sheet
+    await this.page.getByRole('button', { name: /character/i }).click();
     await this.page.waitForLoadState('networkidle');
   }
 
   /**
-   * Get the number of available spell slots for a level
+   * Get the character name heading
    */
-  async getSpellSlots(level: number): Promise<number> {
-    const slotText = await this.spellSlots
-      .getByText(new RegExp(`level ${level}`, 'i'))
-      .textContent();
-    // Parse the slot count from text (e.g., "3 / 4")
-    const match = slotText?.match(/(\d+)\s*\/\s*(\d+)/);
-    return match ? parseInt(match[2]) : 0;
+  get characterName(): Locator {
+    return this.page.locator('h2');
   }
 
   /**
-   * Use a spell slot of a specific level
+   * Get a class tab by class ID
    */
-  async useSpellSlot(level: number) {
-    await this.spellSlots
-      .getByRole('button', { name: new RegExp(`use level ${level} slot`, 'i') })
-      .click();
+  getClassTab(classId: string): Locator {
+    return this.page.getByRole('tab', { name: new RegExp(classId, 'i') });
   }
 
   /**
-   * Recover a spell slot of a specific level
+   * Switch to a specific class tab
+   */
+  async switchToClass(classId: string) {
+    await this.getClassTab(classId).click();
+  }
+
+  /**
+   * Get spell slots pips for a specific level in the current class tab
+   */
+  getSpellSlotsPips(level: number): Locator {
+    // Find the section with the level label, then get the SlotPips
+    return this.page
+      .getByText(new RegExp(`level ${level}`, 'i'), { exact: false })
+      .locator('..')
+      .getByRole('button', { name: /slot/i });
+  }
+
+  /**
+   * Click a spell slot pip to consume it
+   */
+  async consumeSpellSlot(level: number) {
+    // Find the first unused pip and click it
+    const pips = this.getSpellSlotsPips(level);
+    const count = await pips.count();
+    for (let i = 0; i < count; i++) {
+      const pip = pips.nth(i);
+      const isUsed = await pip.getAttribute('data-used');
+      if (isUsed !== 'true') {
+        await pip.click();
+        break;
+      }
+    }
+  }
+
+  /**
+   * Click a spell slot pip to recover it
    */
   async recoverSpellSlot(level: number) {
-    await this.spellSlots
-      .getByRole('button', { name: new RegExp(`recover level ${level} slot`, 'i') })
-      .click();
+    // Find the first used pip and click it
+    const pips = this.getSpellSlotsPips(level);
+    const count = await pips.count();
+    for (let i = 0; i < count; i++) {
+      const pip = pips.nth(i);
+      const isUsed = await pip.getAttribute('data-used');
+      if (isUsed === 'true') {
+        await pip.click();
+        break;
+      }
+    }
   }
 
   /**
-   * Prepare a spell (add to prepared spells)
+   * Check if a spell is visible in the character sheet
    */
-  async prepareSpell(spellName: string) {
-    await this.availableSpells
-      .getByText(spellName)
-      .getByRole('button', { name: /prepare/i })
-      .click();
+  async expectSpellVisible(spellName: string) {
+    await expect(this.page.getByText(spellName)).toBeVisible();
   }
 
   /**
-   * Unprepare a spell (remove from prepared spells)
+   * Check if a spell is not visible in the character sheet
    */
-  async unprepareSpell(spellName: string) {
-    await this.preparedSpells
-      .getByText(spellName)
-      .getByRole('button', { name: /unprepare/i })
-      .click();
+  async expectSpellNotVisible(spellName: string) {
+    await expect(this.page.getByText(spellName)).not.toBeVisible();
   }
 
   /**
-   * Get the number of prepared spells
+   * Get the preparation progress text (e.g., "3/7")
    */
-  async getPreparedSpellCount(): Promise<number> {
-    return await this.preparedSpells.getByRole('listitem').count();
+  async getPreparationProgress(): Promise<string> {
+    const progress = this.page.getByText(/\d+\s*\/\s*\d+/);
+    return (await progress.textContent()) ?? '';
   }
 
   /**
-   * Assert that a spell is prepared
+   * Check if preparation progress shows expected count
    */
-  async expectSpellPrepared(spellName: string) {
-    await expect(this.preparedSpells.getByText(spellName)).toBeVisible();
-  }
-
-  /**
-   * Assert that a spell is not prepared
-   */
-  async expectSpellNotPrepared(spellName: string) {
-    await expect(this.preparedSpells.getByText(spellName)).not.toBeVisible();
+  async expectPreparationCount(prepared: number, max: number) {
+    await expect(this.page.getByText(`${prepared}/${max}`)).toBeVisible();
   }
 }

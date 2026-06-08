@@ -10,8 +10,14 @@ test.describe('Spell Search', () => {
   });
 
   test('should display spell list on page load', async () => {
-    // Verify that spells are displayed
-    const count = await spellLibrary.getSpellCount();
+    // Wait for spells to load
+    await expect(spellLibrary.searchInput).toBeVisible();
+
+    // Verify that spells are displayed (check for spell cards)
+    const spellCards = spellLibrary.page
+      .getByRole('article')
+      .or(spellLibrary.page.locator('.spell-card'));
+    const count = await spellCards.count();
     expect(count).toBeGreaterThan(0);
   });
 
@@ -37,18 +43,39 @@ test.describe('Spell Search', () => {
     // Verify no results message or empty state
     const count = await spellLibrary.getSpellCount();
     expect(count).toBe(0);
+
+    // Verify empty state message is shown
+    await expect(spellLibrary.page.getByText(/no spells/i)).toBeVisible();
   });
 
   test('should filter spells by level', async () => {
     // Get initial count
     const initialCount = await spellLibrary.getSpellCount();
 
-    // Filter by level 1
-    await spellLibrary.filterByLevel('1');
+    // Filter by level 1 (click on level 1 tab)
+    await spellLibrary.filterByLevel(1);
 
     // Verify filtered results
     const filteredCount = await spellLibrary.getSpellCount();
     expect(filteredCount).toBeLessThanOrEqual(initialCount);
     expect(filteredCount).toBeGreaterThan(0);
+  });
+
+  test('should toggle prepared filter', async () => {
+    // Toggle "Prepared" filter
+    await spellLibrary.togglePreparedFilter();
+
+    // Wait for UI to update
+    await spellLibrary.page.waitForTimeout(500);
+
+    // Toggle back
+    await spellLibrary.togglePreparedFilter();
+
+    // Wait for UI to update
+    await spellLibrary.page.waitForTimeout(500);
+
+    // Verify spells are shown again
+    const count = await spellLibrary.getSpellCount();
+    expect(count).toBeGreaterThan(0);
   });
 });

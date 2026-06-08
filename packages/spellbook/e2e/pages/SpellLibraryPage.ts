@@ -3,28 +3,29 @@ import { Page, Locator, expect } from '@playwright/test';
 /**
  * Page object for Spell Library page
  * Encapsulates interactions with the spell library UI
+ *
+ * Actual UI structure:
+ * - Search input (searchbox role)
+ * - "Known" and "Prepared" toggle buttons
+ * - Level tabs (buttons for each level)
+ * - Filter chips (shown when filters are active)
+ * - Spell cards in a grid
  */
 export class SpellLibraryPage {
   readonly page: Page;
 
   // Locators
   readonly searchInput: Locator;
-  readonly spellList: Locator;
   readonly spellCards: Locator;
-  readonly filterButton: Locator;
-  readonly levelFilter: Locator;
-  readonly schoolFilter: Locator;
-  readonly preparationToggle: Locator;
+  readonly preparedToggle: Locator;
+  readonly knownToggle: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.searchInput = page.getByRole('searchbox', { name: /search/i });
-    this.spellList = page.getByRole('list', { name: /spell/i });
-    this.spellCards = page.getByRole('listitem');
-    this.filterButton = page.getByRole('button', { name: /filter/i });
-    this.levelFilter = page.getByRole('combobox', { name: /level/i });
-    this.schoolFilter = page.getByRole('combobox', { name: /school/i });
-    this.preparationToggle = page.getByRole('switch', { name: /preparation/i });
+    this.spellCards = page.getByRole('article').or(page.locator('.spell-card'));
+    this.preparedToggle = page.getByRole('button', { name: /prepared/i });
+    this.knownToggle = page.getByRole('button', { name: /known/i });
   }
 
   /**
@@ -52,33 +53,24 @@ export class SpellLibraryPage {
   }
 
   /**
-   * Filter spells by level
+   * Toggle the "Prepared" filter
    */
-  async filterByLevel(level: string) {
-    await this.filterButton.click();
-    await this.levelFilter.selectOption(level);
+  async togglePreparedFilter() {
+    await this.preparedToggle.click();
   }
 
   /**
-   * Filter spells by school
+   * Toggle the "Known" filter
    */
-  async filterBySchool(school: string) {
-    await this.filterButton.click();
-    await this.schoolFilter.selectOption(school);
+  async toggleKnownFilter() {
+    await this.knownToggle.click();
   }
 
   /**
-   * Toggle preparation mode
+   * Click on a level tab
    */
-  async togglePreparationMode() {
-    await this.preparationToggle.click();
-  }
-
-  /**
-   * Get the number of spells displayed
-   */
-  async getSpellCount(): Promise<number> {
-    return await this.spellCards.count();
+  async filterByLevel(level: number) {
+    await this.page.getByRole('button', { name: new RegExp(`level ${level}`, 'i') }).click();
   }
 
   /**
@@ -86,6 +78,23 @@ export class SpellLibraryPage {
    */
   async viewSpell(spellName: string) {
     await this.page.getByText(spellName).first().click();
+  }
+
+  /**
+   * Close the spell detail flyout
+   */
+  async closeFlyout() {
+    const closeButton = this.page.getByRole('button', { name: /close/i });
+    if (await closeButton.isVisible()) {
+      await closeButton.click();
+    }
+  }
+
+  /**
+   * Get the number of spells displayed
+   */
+  async getSpellCount(): Promise<number> {
+    return await this.spellCards.count();
   }
 
   /**

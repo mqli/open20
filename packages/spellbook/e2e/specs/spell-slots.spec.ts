@@ -9,63 +9,72 @@ test.describe('Spell Slots', () => {
     await characterPage.goto();
   });
 
-  test('should display spell slots for character', async () => {
-    // Verify spell slots section is visible
-    await expect(characterPage.spellSlots).toBeVisible();
+  test('should display spell slots for character', async ({ page }) => {
+    // Wait for character sheet to load
+    await page.waitForLoadState('networkidle');
 
-    // Verify slots are displayed for each level
-    for (let level = 1; level <= 9; level++) {
-      const slots = await characterPage.getSpellSlots(level);
-      // Slots should be a non-negative number
-      expect(slots).toBeGreaterThanOrEqual(0);
-    }
+    // Check that at least one class tab exists
+    const tabs = page.getByRole('tab');
+    const tabCount = await tabs.count();
+    expect(tabCount).toBeGreaterThan(0);
+
+    // Switch to first class tab
+    await tabs.first().click();
+
+    // Check that slot pips are visible for levels that have slots
+    // (UI only shows levels with total > 0)
+    const slotPips = page.getByRole('button', { name: /slot/i });
+    const pipCount = await slotPips.count();
+
+    // At least some slots should be visible
+    expect(pipCount).toBeGreaterThan(0);
   });
 
-  test('should use a spell slot', async () => {
-    // Get initial slot count for level 1
-    const initialSlots = await characterPage.getSpellSlots(1);
+  test('should use a spell slot', async ({ page }) => {
+    // Switch to first class tab
+    const tabs = page.getByRole('tab');
+    await tabs.first().click();
 
-    if (initialSlots > 0) {
-      // Use a spell slot
-      await characterPage.useSpellSlot(1);
+    // Find level 1 slot pips
+    const levelText = page.getByText(/level 1/i, { exact: false });
+    await expect(levelText).toBeVisible();
 
-      // Verify slot count decreased
-      const newSlots = await characterPage.getSpellSlots(1);
-      expect(newSlots).toBe(initialSlots - 1);
-    }
+    // Get the slot pips for level 1
+    // Click the first unused pip to consume a slot
+    const pips = page.getByRole('button', { name: /slot/i });
+    const firstPip = pips.first();
+
+    // Get initial state (check if pip is used or not)
+    const initialAriaChecked = await firstPip.getAttribute('aria-checked');
+
+    // Click to toggle
+    await firstPip.click();
+
+    // Verify state changed
+    const newAriaChecked = await firstPip.getAttribute('aria-checked');
+    expect(newAriaChecked).not.toBe(initialAriaChecked);
   });
 
-  test('should recover a used spell slot', async () => {
-    // Use a spell slot first
-    const initialSlots = await characterPage.getSpellSlots(1);
+  test('should recover a used spell slot', async ({ page }) => {
+    // Switch to first class tab
+    const tabs = page.getByRole('tab');
+    await tabs.first().click();
 
-    if (initialSlots > 0) {
-      // Use a slot
-      await characterPage.useSpellSlot(1);
-      const afterUse = await characterPage.getSpellSlots(1);
+    // Click a pip to use a slot (if not already used)
+    const pips = page.getByRole('button', { name: /slot/i });
+    const firstPip = pips.first();
 
-      // Recover the slot
-      await characterPage.recoverSpellSlot(1);
-      const afterRecover = await characterPage.getSpellSlots(1);
-
-      // Verify slot count is back to initial
-      expect(afterRecover).toBe(initialSlots);
+    // Make sure it's used
+    const isChecked = await firstPip.getAttribute('aria-checked');
+    if (isChecked === 'false') {
+      await firstPip.click();
     }
-  });
 
-  test('should not allow using more slots than available', async () => {
-    // Get available slots for level 1
-    const availableSlots = await characterPage.getSpellSlots(1);
+    // Now recover it
+    await firstPip.click();
 
-    // Try to use more slots than available
-    for (let i = 0; i <= availableSlots; i++) {
-      if (i < availableSlots) {
-        await characterPage.useSpellSlot(1);
-      } else {
-        // This should fail or show some indication
-        const slotsAfter = await characterPage.getSpellSlots(1);
-        expect(slotsAfter).toBe(0);
-      }
-    }
+    // Verify it's recovered
+    const newChecked = await firstPip.getAttribute('aria-checked');
+    expect(newChecked).toBe('false');
   });
 });

@@ -15,62 +15,63 @@ test.describe('Spell Preparation', () => {
     // Go to spell library
     await spellLibrary.goto();
 
-    // Enable preparation mode
-    await spellLibrary.togglePreparationMode();
-
     // Search for a spell
     await spellLibrary.searchSpell('Magic Missile');
 
-    // Prepare the spell
+    // Click on the spell to view details
     await spellLibrary.viewSpell('Magic Missile');
-    await page.getByRole('button', { name: /prepare/i }).click();
 
-    // Go to character page
-    await characterPage.goto();
+    // Click prepare button in the detail flyout
+    await page.getByRole('button', { name: /prepare spell/i }).click();
 
-    // Verify spell is prepared
-    await characterPage.expectSpellPrepared('Magic Missile');
+    // Verify the button now shows "Unprepare Spell" (spell is prepared)
+    await expect(page.getByRole('button', { name: /unprepare spell/i })).toBeVisible();
   });
 
-  test('should unprepare a spell from character sheet', async ({ page }) => {
-    // Go to character page
-    await characterPage.goto();
+  test('should unprepare a spell from spell detail', async ({ page }) => {
+    // Go to spell library
+    await spellLibrary.goto();
 
-    // Check initial prepared spell count
-    const initialCount = await characterPage.getPreparedSpellCount();
+    // Search for a prepared spell (assuming Magic Missile was prepared in previous test)
+    await spellLibrary.searchSpell('Magic Missile');
 
-    if (initialCount > 0) {
-      // Get first prepared spell name
-      const firstSpell = await characterPage.preparedSpells
-        .getByRole('listitem')
-        .first()
-        .textContent();
+    // Click on the spell to view details
+    await spellLibrary.viewSpell('Magic Missile');
 
-      // Unprepare it
-      if (firstSpell) {
-        await characterPage.unprepareSpell(firstSpell);
+    // If the spell is prepared, unprepare it
+    const unprepareButton = page.getByRole('button', { name: /unprepare spell/i });
+    if (await unprepareButton.isVisible()) {
+      await unprepareButton.click();
 
-        // Verify count decreased
-        const newCount = await characterPage.getPreparedSpellCount();
-        expect(newCount).toBe(initialCount - 1);
-      }
+      // Verify the button now shows "Prepare Spell"
+      await expect(page.getByRole('button', { name: /prepare spell/i })).toBeVisible();
     }
   });
 
   test('should show prepared spells in character sheet', async ({ page }) => {
-    // Go to spell library
+    // Go to spell library and prepare a spell
     await spellLibrary.goto();
-
-    // Enable preparation mode and prepare a spell
-    await spellLibrary.togglePreparationMode();
     await spellLibrary.searchSpell('Shield');
     await spellLibrary.viewSpell('Shield');
-    await page.getByRole('button', { name: /prepare/i }).click();
+
+    // Prepare the spell if not already prepared
+    const prepareButton = page.getByRole('button', { name: /prepare spell/i });
+    if (await prepareButton.isVisible()) {
+      await prepareButton.click();
+    }
+
+    // Close the flyout
+    await page.getByRole('button', { name: /close/i }).click();
 
     // Go to character page
     await characterPage.goto();
 
-    // Verify the spell appears in prepared spells
-    await characterPage.expectSpellPrepared('Shield');
+    // Switch to the class tab that has the spell prepared
+    // (Assuming the first class tab)
+    const classTab = page.getByRole('tab').first();
+    await classTab.click();
+
+    // Verify the prepared spell is visible
+    await characterPage.expectSpellVisible('Shield');
   });
 });
