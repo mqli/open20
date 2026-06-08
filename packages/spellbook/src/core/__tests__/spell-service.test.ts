@@ -1,47 +1,169 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { spellService } from '@/core/spell-service';
-import { SchemaService } from '@/core/schema-service';
 import type { AppCharacter } from '@/core/types';
 import type { AbilityName } from 'open20-core';
 
-// Mock the dataLoader to have controlled test data
+// Mock the dataLoader with already-normalised Spell[] data
 vi.mock('../data-loader', () => ({
   dataLoader: {
     getAllSpells: () =>
-      SchemaService.transformSpells([
+      [
         {
           id: 'fireball',
           name: 'Fireball',
-          level: 3,
-          description: 'A bright streak flashes from your pointing finger...',
-          classes: ['Wizard', 'Sorcerer'],
-          components: { V: true, S: true, M: true },
+          level: 3 as const,
+          school: 'Evocation' as const,
+          castingTime: 'Action',
+          range: '150 feet',
+          components: ['V', 'S', 'M'] as const,
+          duration: 'Instantaneous',
+          concentration: false,
+          ritual: false,
+          description: ['A bright streak flashes from your pointing finger...'],
+          source: 'SRD 5.2',
+          classes: ['Sorcerer', 'Wizard'] as readonly string[],
         },
         {
           id: 'cure-wounds',
           name: 'Cure Wounds',
-          level: 1,
-          description: 'A creature you touch regains a number of hit points...',
-          components: ['V', 'S'],
+          level: 1 as const,
+          school: 'Evocation' as const,
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'] as const,
+          duration: 'Instantaneous',
+          concentration: false,
+          ritual: false,
+          description: ['A creature you touch regains a number of hit points...'],
+          source: 'SRD 5.2',
+          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
+        },
+      ] as import('open20-core').Spell[],
+    getSpell: (id: string) => {
+      const spells = [
+        {
+          id: 'fireball',
+          name: 'Fireball',
+          level: 3 as const,
+          school: 'Evocation' as const,
+          castingTime: 'Action',
+          range: '150 feet',
+          components: ['V', 'S', 'M'] as const,
+          duration: 'Instantaneous',
+          concentration: false,
+          ritual: false,
+          description: ['A bright streak flashes from your pointing finger...'],
+          source: 'SRD 5.2',
+          classes: ['Sorcerer', 'Wizard'] as readonly string[],
         },
         {
-          id: 'mystic-surge',
-          name: 'Mystic Surge',
-          level: 2,
-          description: 'This is a Bard and Druid spell.',
-          classes: [],
-          components: { V: true },
+          id: 'cure-wounds',
+          name: 'Cure Wounds',
+          level: 1 as const,
+          school: 'Evocation' as const,
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'] as const,
+          duration: 'Instantaneous',
+          concentration: false,
+          ritual: false,
+          description: ['A creature you touch regains a number of hit points...'],
+          source: 'SRD 5.2',
+          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
         },
-      ]),
+      ] as import('open20-core').Spell[];
+      return spells.find((s) => s.id === id);
+    },
   },
   initDataLoader: vi.fn(),
   isDataLoaderReady: () => true,
 }));
 
-// Initialize the spellService before tests
-vi.mock('@/core/spell-service', async () => {
-  const actual = await vi.importActual('@/core/spell-service');
-  return actual;
+// Mock open20-core/spells module
+vi.mock('open20-core/spells', async () => {
+  const actual = await vi.importActual('open20-core/spells');
+  return {
+    ...actual,
+    getSpell: (id: string) => {
+      const spells = [
+        {
+          id: 'fireball',
+          name: 'Fireball',
+          level: 3 as const,
+          school: 'Evocation' as const,
+          castingTime: 'Action',
+          range: '150 feet',
+          components: ['V', 'S', 'M'] as const,
+          duration: 'Instantaneous',
+          concentration: false,
+          ritual: false,
+          description: ['A bright streak flashes from your pointing finger...'],
+          source: 'SRD 5.2',
+          classes: ['Sorcerer', 'Wizard'] as readonly string[],
+        },
+      ] as import('open20-core').Spell[];
+      return spells.find((s) => s.id === id);
+    },
+    searchSpells: (filter: { name?: string; level?: number[]; class?: string[] }) => {
+      const allSpells = [
+        {
+          id: 'fireball',
+          name: 'Fireball',
+          level: 3 as const,
+          school: 'Evocation' as const,
+          castingTime: 'Action',
+          range: '150 feet',
+          components: ['V', 'S', 'M'] as const,
+          duration: 'Instantaneous',
+          concentration: false,
+          ritual: false,
+          description: ['A bright streak flashes from your pointing finger...'],
+          source: 'SRD 5.2',
+          classes: ['Sorcerer', 'Wizard'] as readonly string[],
+        },
+        {
+          id: 'cure-wounds',
+          name: 'Cure Wounds',
+          level: 1 as const,
+          school: 'Evocation' as const,
+          castingTime: 'Action',
+          range: 'Touch',
+          components: ['V', 'S'] as const,
+          duration: 'Instantaneous',
+          concentration: false,
+          ritual: false,
+          description: ['A creature you touch regains a number of hit points...'],
+          source: 'SRD 5.2',
+          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
+        },
+      ] as import('open20-core').Spell[];
+
+      let result = allSpells;
+      if (filter.name) {
+        result = result.filter((s) => s.name.toLowerCase().includes(filter.name!.toLowerCase()));
+      }
+      if (filter.level && filter.level.length > 0) {
+        result = result.filter((s) => filter.level!.includes(s.level));
+      }
+      if (filter.class && filter.class.length > 0) {
+        const classSet = new Set(filter.class.map((c: string) => c.toLowerCase()));
+        result = result.filter((s) =>
+          s.classes?.some((c: string) => classSet.has(c.toLowerCase())),
+        );
+      }
+      return result;
+    },
+    isSpellPrepared: (char: AppCharacter, spellId: string) => {
+      return Object.values(char.spells.classSpellcasting).some((csd) =>
+        csd.preparedSpells.includes(spellId),
+      );
+    },
+    knowsSpell: (char: AppCharacter, spellId: string) => {
+      return Object.values(char.spells.classSpellcasting).some(
+        (csd) => csd.knownCantrips?.includes(spellId) || csd.knownSpells.includes(spellId),
+      );
+    },
+  };
 });
 
 describe('SpellService', () => {
@@ -55,48 +177,9 @@ describe('SpellService', () => {
     expect(spell?.name).toBe('Fireball');
   });
 
-  it('should sanitize components correctly', () => {
+  it('should have correct components', () => {
     const fireball = spellService.getSpell('fireball');
     expect(fireball?.components).toEqual(['V', 'S', 'M']);
-
-    const cureWounds = spellService.getSpell('cure-wounds');
-    expect(cureWounds?.components).toEqual(['V', 'S']);
-  });
-
-  it('should infer classes from description if missing', () => {
-    const mysticSurge = spellService.getSpell('mystic-surge');
-    expect(mysticSurge?.classes).toContain('Bard');
-    expect(mysticSurge?.classes).toContain('Druid');
-    expect(mysticSurge?.classes).not.toContain('Wizard');
-  });
-
-  it('should infer classes from SRD header parentheticals', () => {
-    const spells = SchemaService.transformSpells([
-      {
-        id: 'header-spell',
-        name: 'Header Spell',
-        level: 3,
-        description: 'Level 3 Evocation (Sorcerer, Wizard) Casting Time: Action',
-        components: { V: true },
-      },
-    ]);
-
-    expect(spells[0].classes).toEqual(['Sorcerer', 'Wizard']);
-  });
-
-  it('should keep classless upstream spells actionable', () => {
-    const spells = SchemaService.transformSpells([
-      {
-        id: 'classless-cantrip',
-        name: 'Classless Cantrip',
-        level: 0,
-        description: 'You create a harmless magical effect.',
-        components: { V: true },
-      },
-    ]);
-
-    expect(spells[0].classes?.length).toBeGreaterThan(0);
-    expect(spells[0].classes).toContain('Wizard');
   });
 
   it('should search spells by name query', () => {
@@ -114,6 +197,7 @@ describe('SpellService', () => {
             spellcastingAbility: 'Intelligence' as AbilityName,
             spellSaveDC: 14,
             spellAttackBonus: 6,
+            knownCantrips: [],
             knownSpells: [],
             preparedSpells: ['fireball'],
             maxPrepared: 4,

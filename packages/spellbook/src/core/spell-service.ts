@@ -2,8 +2,18 @@ import type { Spell } from 'open20-core';
 import type { AppCharacter } from './types';
 import { dataLoader, initDataLoader, isDataLoaderReady } from './data-loader';
 
-import { SchemaService } from './schema-service';
-import { isSpellPrepared, knowsSpell } from 'open20-core';
+import {
+  getSpell as getSpellData,
+  searchSpells,
+  getSpellsByClass,
+  getSpellsForCharacter,
+  getPreparedSpells,
+  isSpellPrepared,
+  knowsSpell,
+  canCastSpell,
+} from 'open20-core/spells';
+
+import type { SpellFilter } from 'open20-core/spells';
 
 interface SpellSearchFilter {
   query?: string;
@@ -13,85 +23,68 @@ interface SpellSearchFilter {
 
 /**
  * Service for querying and managing spells.
- * Ensures all spells are sanitized and normalized for use in the UI.
+ * Wraps open20-core query functions with async initialisation.
+ *
+ * Data normalisation now happens at the source (`@open20/content-srd`),
+ * so `dataLoader.getAllSpells()` is guaranteed to return properly-typed
+ * `Spell[]` — no `SchemaService` transform step is needed.
  */
 export class SpellService {
-  private cachedSpells: Spell[] | null = null;
   private initialized = false;
 
   async ensureInitialized(): Promise<void> {
     if (this.initialized) return;
     await initDataLoader();
     this.initialized = true;
-    // Clear cache after initialization to pick up registered content
-    this.cachedSpells = null;
   }
 
   isReady(): boolean {
     return isDataLoaderReady();
   }
 
+  /** All spells — already normalised by content-srd */
   getAllSpells(): Spell[] {
-    if (!this.initialized) {
-      // Return empty array if not initialized - caller should use async methods
-      return [];
-    }
-    if (!this.cachedSpells) {
-      const rawSpells =
-        dataLoader.getAllSpells() as unknown as import('./schema-service').RawSpell[];
-      this.cachedSpells = SchemaService.transformSpells(rawSpells);
-    }
-    return this.cachedSpells;
+    if (!this.initialized) return [];
+    return dataLoader.getAllSpells();
   }
 
   getSpell(id: string): Spell | undefined {
-    return this.getAllSpells().find((s) => s.id === id);
+    return getSpellData(id, dataLoader);
   }
 
   searchSpells(filter: SpellSearchFilter): Spell[] {
-    let results = this.getAllSpells();
+    if (!this.initialized) return [];
 
-    if (filter?.query) {
-      const q = filter.query.toLowerCase();
-      results = results.filter((s) => s.name.toLowerCase().includes(q));
-    }
+    const coreFilter: SpellFilter = {};
+    if (filter.query) coreFilter.name = filter.query;
+    if (filter.level !== undefined) coreFilter.level = [filter.level as Spell['level']];
+    if (filter.classes && filter.classes.length > 0) coreFilter.class = filter.classes;
 
-    if (filter?.level !== undefined) {
-      results = results.filter((s) => s.level === filter.level);
-    }
-
-    if (filter?.classes && filter.classes.length > 0) {
-      results = results.filter((s) => s.classes?.some((c) => filter.classes?.includes(c)));
-    }
-
-    return results;
+    return searchSpells(coreFilter, dataLoader);
   }
 
   getSpellsForCharacter(character: AppCharacter): Spell[] {
-    void character;
-    return this.getAllSpells();
+    return getSpellsForCharacter(character, dataLoader);
+  }
+
+  getPreparedSpellsForCharacter(character: AppCharacter): Spell[] {
+    return getPreparedSpells(character, dataLoader);
   }
 
   isSpellPrepared(character: AppCharacter, spellId: string): boolean {
-    const isManual = isSpellPrepared(character, spellId) ?? false;
-    const isAlways =
-      Object.values(character.spells.classSpellcasting).some((s) =>
-        s.alwaysPreparedSpells?.includes(spellId),
-      ) ?? false;
-    return isManual || isAlways;
+    return isSpellPrepared(character, spellId);
   }
 
   isSpellKnown(character: AppCharacter, spellId: string): boolean {
-    const spell = this.getSpell(spellId);
-    if (!spell) return false;
-    if (!this.isSpellForCharacter(character, spell)) return false;
+    return knowsSpell(character, spellId);
+  }
 
-    const isKnown = knowsSpell(character, spellId) ?? false;
-    const isAlwaysPrepared =
-      Object.values(character.spells.classSpellcasting).some((s) =>
-        s.alwaysPreparedSpells?.includes(spellId),
-      ) ?? false;
-    return isKnown || isAlwaysPrepared;
+  canCastSpell(character: AppCharacter, spell: Spell): boolean {
+    return canCastSpell(character, spell);
+  }
+
+  getSpellsByClass(classId: string): Spell[] {
+    return getSpellsByClass(classId, dataLoader);
   }
 
   isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
@@ -100,5 +93,4 @@ export class SpellService {
   }
 }
 
-// Export a default instance for easy use
 export const spellService = new SpellService();
