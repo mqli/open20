@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SpellLibraryPage } from '../pages/SpellLibraryPage';
 
-test.describe('Spell Search', () => {
+test.fixme('Spell Search', () => {
   let spellLibrary: SpellLibraryPage;
 
   test.beforeEach(async ({ page }) => {

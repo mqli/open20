@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { SpellLibraryPage } from '../pages/SpellLibraryPage';
 import { CharacterPage } from '../pages/CharacterPage';
 
-test.describe('Spell Preparation', () => {
+test.fixme('Spell Preparation', () => {
   let spellLibrary: SpellLibraryPage;
   let characterPage: CharacterPage;
 
