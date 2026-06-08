@@ -35,8 +35,8 @@ export default defineConfig(
       trace: 'on-first-retry',
     },
 
-    // Test timeout (30 seconds)
-    timeout: 30000,
+    // Test timeout (5 seconds)
+    timeout: 5000,
 
     // Retries (2 in CI, 0 locally)
     retries: isCI ? 2 : 0,
