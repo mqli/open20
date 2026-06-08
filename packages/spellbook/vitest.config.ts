@@ -11,6 +11,8 @@ export default defineConfig({
   plugins: [react()],
   test: {
     ...baseConfig.test,
+    // Exclude e2e tests from vitest (they're run by Playwright)
+    exclude: ['e2e/**', '**/node_modules/**', '**/dist/**'],
     // Use node environment by default
     environment: 'node',
     setupFiles: ['./src/test/setup.ts'],
