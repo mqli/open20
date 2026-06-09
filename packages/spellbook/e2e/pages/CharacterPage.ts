@@ -13,19 +13,19 @@ import { Page, Locator, expect } from '@playwright/test';
 export class CharacterPage {
   readonly page: Page;
 
+  readonly sheet: Locator;
+
   constructor(page: Page) {
     this.page = page;
+    this.sheet = page.locator('[role="dialog"]');
   }
 
-  /**
-   * Navigate to the character page (open character sheet)
-   */
   async goto() {
     await this.page.goto('/');
     await this.page.waitForLoadState('domcontentloaded');
-    // Click on character bar button to open sheet
-    await this.page.getByTestId('character-button').click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.locator('.character-button').waitFor({ state: 'visible' });
+    await this.page.locator('.character-button').click();
+    await this.sheet.waitFor({ state: 'visible' });
   }
 
   /**
