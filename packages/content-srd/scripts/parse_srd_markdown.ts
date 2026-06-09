@@ -53,7 +53,7 @@ export function extractSave(description: string): string | undefined {
     'Wisdom',
     'Charisma',
   ]) {
-    if (new RegExp(`\\b${save}\\b`, 'i').test(description)) return save;
+    if (new RegExp(`\\b${save}\\b saving throw`, 'i').test(description)) return save;
   }
   return undefined;
 }

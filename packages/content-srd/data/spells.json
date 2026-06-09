@@ -396,8 +396,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
-    "save": "Intelligence"
+    "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"]
   },
   {
     "id": "poison-spray",
@@ -725,8 +724,7 @@
           }
         ]
       }
-    ],
-    "save": "Strength"
+    ]
   },
   {
     "id": "shocking-grasp",
@@ -940,8 +938,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Cleric"],
-    "save": "Charisma"
+    "classes": ["Cleric"]
   },
   {
     "id": "true-strike",
@@ -989,8 +986,7 @@
           }
         ]
       }
-    ],
-    "save": "Strength"
+    ]
   },
   {
     "id": "vicious-mockery",
@@ -1421,8 +1417,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Sorcerer", "Wizard"],
-    "save": "Intelligence"
+    "classes": ["Bard", "Sorcerer", "Wizard"]
   },
   {
     "id": "dissonant-whispers",
@@ -1565,8 +1560,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Druid", "Ranger"],
-    "save": "Strength"
+    "classes": ["Druid", "Ranger"]
   },
   {
     "id": "expeditious-retreat",
@@ -1958,8 +1952,7 @@
           "type": "Force"
         }
       ]
-    },
-    "save": "Wisdom"
+    }
   },
   {
     "id": "ice-knife",
@@ -2134,8 +2127,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Sorcerer", "Wizard"],
-    "save": "Dexterity"
+    "classes": ["Sorcerer", "Wizard"]
   },
   {
     "id": "magic-missile",
@@ -2353,8 +2345,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Sorcerer", "Wizard"],
-    "save": "Intelligence"
+    "classes": ["Bard", "Sorcerer", "Wizard"]
   },
   {
     "id": "sleep",
@@ -2455,8 +2446,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Warlock", "Wizard"],
-    "save": "Strength"
+    "classes": ["Bard", "Warlock", "Wizard"]
   },
   {
     "id": "acid-arrow",
@@ -2541,8 +2531,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Sorcerer", "Wizard"],
-    "save": "Strength"
+    "classes": ["Sorcerer", "Wizard"]
   },
   {
     "id": "animal-messenger",
@@ -2802,7 +2791,7 @@
     ],
     "source": "SRD 5.2",
     "classes": ["Bard", "Sorcerer", "Wizard"],
-    "save": "Intelligence"
+    "save": "Wisdom"
   },
   {
     "id": "dragons-breath",
@@ -2845,8 +2834,7 @@
     "classes": ["Bard", "Cleric", "Druid", "Ranger", "Sorcerer", "Wizard"],
     "usingAHigherLevelSpellSlot": [
       "You can target one additional creature for each spell slot level above 2. You can choose a different ability for each target."
-    ],
-    "save": "Strength"
+    ]
   },
   {
     "id": "enlargereduce",
@@ -3455,8 +3443,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Druid", "Ranger"],
-    "save": "Dexterity"
+    "classes": ["Druid", "Ranger"]
   },
   {
     "id": "phantasmal-force",
@@ -3553,7 +3540,7 @@
     ],
     "source": "SRD 5.2",
     "classes": ["Warlock", "Wizard"],
-    "save": "Strength",
+    "save": "Constitution",
     "attack": true
   },
   {
@@ -3754,8 +3741,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Druid", "Ranger"],
-    "save": "Wisdom"
+    "classes": ["Druid", "Ranger"]
   },
   {
     "id": "spiritual-weapon",
@@ -3853,7 +3839,7 @@
         }
       ]
     },
-    "save": "Strength"
+    "save": "Dexterity"
   },
   {
     "id": "zone-of-truth",
@@ -4251,7 +4237,7 @@
     "usingAHigherLevelSpellSlot": [
       "You can target one additional creature for each spell slot level above 3."
     ],
-    "save": "Strength"
+    "save": "Constitution"
   },
   {
     "id": "glyph-of-warding",
@@ -4434,8 +4420,7 @@
     "classes": ["Bard", "Sorcerer", "Warlock", "Wizard"],
     "usingAHigherLevelSpellSlot": [
       "The spell lasts until dispelled, without requiring Concentration, if cast with a level 4+ spell slot."
-    ],
-    "save": "Intelligence"
+    ]
   },
   {
     "id": "mass-healing-word",
@@ -4491,8 +4476,7 @@
           "type": "Force"
         }
       ]
-    },
-    "save": "Wisdom"
+    }
   },
   {
     "id": "nondetection",
@@ -5557,8 +5541,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Druid", "Warlock", "Wizard"],
-    "save": "Intelligence"
+    "classes": ["Bard", "Druid", "Warlock", "Wizard"]
   },
   {
     "id": "ice-storm",
@@ -6033,8 +6016,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Druid"],
-    "save": "Intelligence"
+    "classes": ["Bard", "Druid"]
   },
   {
     "id": "cloudkill",
@@ -6811,7 +6793,7 @@
     ],
     "source": "SRD 5.2",
     "classes": ["Bard", "Sorcerer", "Wizard"],
-    "save": "Intelligence"
+    "save": "Charisma"
   },
   {
     "id": "summon-dragon",
@@ -7532,7 +7514,7 @@
     ],
     "source": "SRD 5.2",
     "classes": ["Wizard"],
-    "save": "Strength"
+    "save": "Charisma"
   },
   {
     "id": "mass-suggestion",
@@ -7630,8 +7612,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Wizard"],
-    "save": "Intelligence"
+    "classes": ["Bard", "Wizard"]
   },
   {
     "id": "sunbeam",
@@ -8194,8 +8175,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Wizard"],
-    "save": "Intelligence"
+    "classes": ["Bard", "Wizard"]
   },
   {
     "id": "regenerate",
@@ -8434,8 +8414,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Druid"],
-    "save": "Intelligence"
+    "classes": ["Druid"]
   },
   {
     "id": "antimagic-field",
@@ -8672,7 +8651,7 @@
     "heal": {
       "dice": "2d6"
     },
-    "save": "Strength"
+    "save": "Dexterity"
   },
   {
     "id": "glibness",
@@ -8690,8 +8669,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Bard", "Warlock"],
-    "save": "Charisma"
+    "classes": ["Bard", "Warlock"]
   },
   {
     "id": "holy-aura",
@@ -8763,8 +8741,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Wizard"],
-    "save": "Intelligence"
+    "classes": ["Wizard"]
   },
   {
     "id": "mind-blank",
@@ -9140,8 +9117,7 @@
       ""
     ],
     "source": "SRD 5.2",
-    "classes": ["Druid", "Wizard"],
-    "save": "Intelligence"
+    "classes": ["Druid", "Wizard"]
   },
   {
     "id": "storm-of-vengeance",
@@ -9345,7 +9321,6 @@
     },
     "heal": {
       "dice": "2d4"
-    },
-    "save": "Strength"
+    }
   }
 ]
