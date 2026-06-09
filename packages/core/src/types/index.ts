@@ -6,6 +6,7 @@ export type { Character, CharacterClass } from './character';
 export type { HitPoints, DeathSaves } from './character';
 export type { CombatStats, CharacterAttack, ActiveCondition } from './character';
 export type { ConditionName, Currency, ConcentrationState, ActiveEffect } from './character';
+export { CONDITION_NAMES } from './conditions';
 
 // 攻击类型
 export type { BaseAttack } from './attack';
@@ -70,3 +71,15 @@ export type { SpellLevel, SpellSchool, CastingTime, SpellComponent } from './spe
 // 资源
 export type { Resource } from './resource';
 export { ResetType } from './resource';
+
+// 规则术语表
+export type {
+  GlossaryEntryTag,
+  GlossaryReference,
+  GlossarySubsection,
+  GlossaryTable,
+  GlossaryAbbreviation,
+  GlossaryEntry,
+  RulesGlossary,
+} from './glossary';
+export { GLOSSARY_ENTRY_TAGS } from './glossary';

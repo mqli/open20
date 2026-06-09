@@ -46,6 +46,7 @@ export type {
   ActiveEffect,
 } from './types';
 export type { BaseAttack } from './types';
+export type { GlossaryEntry, GlossaryEntryTag, GlossaryReference, RulesGlossary } from './types';
 
 // ── Data Loaders ────────────────────────────────────────
 export type { DataLoader } from './data';

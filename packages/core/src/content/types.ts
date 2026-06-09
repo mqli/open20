@@ -8,6 +8,7 @@ import type { Feat } from '@/types/feat';
 import type { Weapon, Armor, GearItem } from '@/types/equipment';
 import type { Spell } from '@/types/spell';
 import type { Monster } from '@/monster/types';
+import type { RulesGlossary } from '@/types/glossary';
 
 /**
  * Content pack metadata.
@@ -41,4 +42,5 @@ export interface ContentPack {
   armor?: Armor[];
   gear?: GearItem[];
   monsters?: Monster[];
+  glossary?: RulesGlossary;
 }
