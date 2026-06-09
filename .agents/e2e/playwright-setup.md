@@ -172,3 +172,42 @@ Add E2E tests to your CI workflow:
 
 - Run `pnpm install` to link workspace dependencies
 - Verify `packages/config/playwright/index.js` exists
+
+### getByTestId() finds nothing / element not found
+
+`data-testid` attributes are **stripped by Vite in production builds**. Playwright tests run against `vite preview`, not the dev server. Replace `getByTestId('x')` with a CSS class selector: add a stable class like `className="my-element"` to the component and use `page.locator('.my-element')` in tests.
+
+### waitForLoadState('networkidle') hangs forever
+
+This SPA makes background fetch requests after the DOM loads, so `networkidle` is never reached. Replace it with `domcontentloaded` followed by waiting for a specific element:
+
+```typescript
+await page.waitForLoadState('domcontentloaded');
+await page.locator('.my-element').waitFor({ state: 'visible' });
+```
+
+### Locators intercepted by dialog backdrop
+
+The app renders a `z-40` backdrop when a dialog is open. Elements outside the dialog will have pointer events blocked. Scope all locators to the dialog root:
+
+```typescript
+const sheet = page.locator('[role="dialog"]');
+await sheet.locator('.slot-pip').first().click(); // not blocked
+```
+
+### Strict mode violation: getByText resolves to 2 elements
+
+Use `{ exact: true }` to match only the full text string, not substrings:
+
+```typescript
+await page.getByText('Fireball', { exact: true }).first().click();
+```
+
+### localStorage fixture not working / character not loading
+
+Common causes:
+
+- `addInitScript()` must be called **before** `page.goto()`, not after
+- `classId` must be capitalized: `'Wizard'` not `'wizard'`
+- Ability score keys must be full names: `'Intelligence'` not `'int'`
+- A spell can only appear in `preparedSpells` if it is also in `knownSpells` (for spellbook casters like Wizard)

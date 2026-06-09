@@ -49,46 +49,112 @@ test('search test');
 test('prepare spell');
 ```
 
+## Selectors — Critical: CSS Classes, Not data-testid
+
+### 4. Do NOT Use data-testid
+
+**`data-testid` attributes are stripped in Vite production builds.** Playwright runs against `vite preview` (the production build), so any `getByTestId()` call will silently fail to find the element.
+
+```typescript
+// ❌ BROKEN — data-testid does not exist in the built output
+await page.getByTestId('prepare-spell-button').click();
+```
+
+### 5. Use Stable CSS Classes Instead
+
+Add a stable, semantically-named CSS class directly to the component's `className`. Then locate it with `page.locator()`.
+
+```typescript
+// In component (e.g. SpellbookControls.tsx)
+<IconButton className="prepare-spell-button" ... />
+
+// In test
+await page.locator('.prepare-spell-button').click();
+```
+
+Semantic locators (`getByRole`, `getByLabel`, `getByText`) are fine for truly semantic elements — buttons by aria-name, tabs, headings — but they don't replace stable class selectors when ARIA attributes are not present.
+
+### 6. Use exact: true with getByText
+
+`getByText('Fireball')` matches ANY element containing the substring "Fireball" — including "Delayed Blast Fireball". In strict mode (the default), this throws if more than one element matches.
+
+```typescript
+// ❌ Strict mode violation — matches "Fireball" and "Delayed Blast Fireball"
+await page.getByText('Fireball').click();
+
+// ✅ Matches only the exact text
+await page.getByText('Fireball', { exact: true }).first().click();
+```
+
 ## Reliability
 
-### 4. Handle Asynchronous Operations Properly
+### 7. Never Use waitForLoadState('networkidle') on This SPA
+
+This app is a SPA that makes background fetch requests after the DOM loads. `networkidle` waits for all network activity to stop — it will hang indefinitely.
 
 ```typescript
-// ✅ Good - explicit waiting
-await expect(page.getByText('Success')).toBeVisible();
-await expect(page.getByRole('button')).toBeEnabled();
+// ❌ Hangs because background data fetches never fully stop
+await page.waitForLoadState('networkidle');
 
-// ❌ Bad - arbitrary timeouts
-await page.waitForTimeout(5000);
+// ✅ Wait for DOM, then wait for a specific element to appear
+await page.waitForLoadState('domcontentloaded');
+await page.locator('.spell-card').first().waitFor({ state: 'visible' });
 ```
 
-### 5. Use `expect.poll()` for Async State
+### 8. The App Only Has One Route
+
+This is a SPA with a single route. All tests navigate to `/`, not `/spells` or any sub-path.
 
 ```typescript
-// ✅ Good - poll for async state
-await expect.poll(() => page.getByText('Loading').isVisible()).toBe(false);
+// ❌ Wrong — this route does not exist
+await page.goto('/spells');
 
-// Or use waitFor
-await page.getByText('Result').waitFor({ state: 'visible' });
+// ✅ Correct
+await page.goto('/');
 ```
 
-### 6. Isolate Test Data
+### 9. Isolate Test Data via addInitScript
 
-Each test should use fresh data:
+Each test should set up its own fresh state. For character-dependent tests, seed localStorage before the page loads using `page.addInitScript()` — it runs before any page scripts execute.
 
 ```typescript
-test.describe('Spell Preparation', () => {
-  test.beforeEach(async ({ page }) => {
-    // Reset to known state
-    await resetTestData();
-    await page.goto('/spells');
-  });
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(
+    ({ storageKey, activeKey, character }) => {
+      localStorage.setItem(storageKey, JSON.stringify([character]));
+      localStorage.setItem(activeKey, character.id);
+    },
+    { storageKey: STORAGE_KEY, activeKey: ACTIVE_CHARACTER_KEY, character: TEST_WIZARD },
+  );
+  // Navigate AFTER addInitScript is registered
+  await page.goto('/');
 });
+```
+
+See `e2e/fixtures/test-character.ts` for the canonical test character definition.
+
+### 10. Scope Locators to Dialogs
+
+Radix UI Dialog and Sheet both render with `role="dialog"`. The app has a backdrop (`z-40`) that can intercept pointer events for elements rendered outside the dialog. Always scope dialog-related locators:
+
+```typescript
+const sheet = page.locator('[role="dialog"]');
+
+// ✅ Scoped to dialog — not intercepted by backdrop
+await sheet.locator('.slot-pip').first().click();
+await sheet.getByRole('tab').first().click();
+```
+
+When multiple dialogs could be open (spell flyout + character sheet), be explicit:
+
+```typescript
+// Two dialogs could match — scope to the specific one you want
+const prepareButton = page.locator('[role="dialog"] .prepare-spell-button');
 ```
 
 ## Maintenance
 
-### 7. Use Page Objects
+### 11. Use Page Objects
 
 Encapsulate page interactions in page objects (see `writing-tests.md`):
 
@@ -102,21 +168,7 @@ export class SpellLibraryPage {
 }
 ```
 
-### 8. Create Reusable Fixtures
-
-For complex setup, use fixtures:
-
-```typescript
-// fixtures/spellbook.fixture.ts
-export const test = base.extend({
-  authenticatedUser: async ({ page }, use) => {
-    await login(page, 'testuser', 'password');
-    await use(page);
-  },
-});
-```
-
-### 9. Avoid Test Coupling
+### 12. Avoid Test Coupling
 
 Tests should not depend on each other:
 
@@ -138,24 +190,31 @@ test('test2', async () => {
 });
 ```
 
+### 13. Check State Before Acting
+
+When a test conditionally prepares/unprepares something, always check the current state first. Do not assume a fixture's initial state matches what you expect after `recompute()` runs.
+
+```typescript
+// ✅ Good - check before acting
+const prepareButton = page.locator('[role="dialog"] .prepare-spell-button');
+if (!/unprepare/i.test((await prepareButton.getAttribute('title')) ?? '')) {
+  await prepareButton.click(); // prepare it first
+}
+await prepareButton.click(); // now unprepare
+await expect(prepareButton).toHaveAttribute('title', /prepare spell/i);
+```
+
 ## Performance
 
-### 10. Run Tests in Parallel
+### 14. Run Tests in Parallel
 
 Playwright runs test files in parallel by default. To enable parallelism within a file:
 
 ```typescript
 test.describe.configure({ mode: 'parallel' });
-
-test('test 1', async () => {
-  /* ... */
-});
-test('test 2', async () => {
-  /* ... */
-});
 ```
 
-### 11. Use `test.describe.serial` Sparingly
+### 15. Use test.describe.serial Sparingly
 
 Only use serial mode when tests must run in order:
 
@@ -170,43 +229,23 @@ test.describe.serial('Critical Flow', () => {
 });
 ```
 
-### 12. Mock External Dependencies
-
-Use `page.route()` to mock API calls:
-
-```typescript
-await page.route('**/api/spells', async (route) => {
-  await route.fulfill({
-    status: 200,
-    body: JSON.stringify([{ name: 'Fireball' }]),
-  });
-});
-```
-
 ## Debugging
 
-### 13. Use UI Mode for Development
+### 16. Use UI Mode for Development
 
 ```bash
 pnpm run test:e2e:ui
 ```
 
-UI mode provides:
-
-- Visual test runner
-- Time travel debugging
-- Element picker
-
-### 14. Use `page.pause()` for Debugging
+### 17. Use page.pause() for Debugging
 
 ```typescript
 test('debug example', async ({ page }) => {
   await page.pause(); // Opens Playwright Inspector
-  // ... rest of test
 });
 ```
 
-### 15. Capture Screenshots and Videos
+### 18. Capture Screenshots and Videos
 
 Configure in `playwright.config.ts`:
 
@@ -218,45 +257,9 @@ use: {
 }
 ```
 
-## Code Quality
-
-### 16. Use TypeScript Strictly
-
-```typescript
-// ✅ Good - type-safe
-const spellName: string = (await page.getByRole('heading').textContent()) ?? '';
-
-// ❌ Bad - using any
-const data: any = await response.json();
-```
-
-### 17. Avoid Hardcoded Waits
-
-```typescript
-// ✅ Good - wait for specific condition
-await expect(page.getByText('Loaded')).toBeVisible();
-
-// ❌ Bad - arbitrary wait
-await page.waitForTimeout(3000);
-```
-
-### 18. Use Data Attributes for Unstable Selectors
-
-Add `data-testid` to elements:
-
-```html
-<button data-testid="submit-btn">Submit</button>
-```
-
-```typescript
-await page.getByTestId('submit-btn').click();
-```
-
 ## CI/CD
 
 ### 19. Run E2E Tests in CI
-
-Add E2E tests to your CI pipeline (see `playwright-setup.md`):
 
 ```yaml
 - name: Run E2E tests
