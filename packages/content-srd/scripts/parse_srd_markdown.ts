@@ -76,7 +76,7 @@ export function extractDamage(description: string): SpellDamage | undefined {
 }
 
 export function extractHeal(description: string): SpellHeal | undefined {
-  const healingKeywords = /(regain|heal|hit point).*(\d+d\d+)/i;
+  const healingKeywords = /(regain|heal).*(\d+d\d+)/i;
   const match = healingKeywords.exec(description);
   if (!match) return undefined;
 
