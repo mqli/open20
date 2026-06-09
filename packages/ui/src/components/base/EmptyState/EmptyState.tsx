@@ -20,8 +20,8 @@ export function EmptyState({ icon, title, description, action, className }: Empt
 
   return (
     <div
-      data-testid="empty-state"
       className={cn(
+        'empty-state',
         'flex flex-col items-center justify-center space-y-3 py-12 text-center',
         className,
       )}

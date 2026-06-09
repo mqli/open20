@@ -31,7 +31,7 @@ export function SearchBar() {
         type="text"
         data-testid="search-input"
         placeholder={t('searchSpells')}
-        className="pl-9 pr-9"
+        className="pl-9 pr-9 spell-search-input"
         value={localQuery}
         onChange={(e) => setLocalQuery(e.target.value)}
       />

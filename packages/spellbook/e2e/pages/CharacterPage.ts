@@ -21,6 +21,8 @@ export class CharacterPage {
    * Navigate to the character page (open character sheet)
    */
   async goto() {
+    await this.page.goto('/');
+    await this.page.waitForLoadState('domcontentloaded');
     // Click on character bar button to open sheet
     await this.page.getByTestId('character-button').click();
     await this.page.waitForLoadState('networkidle');

@@ -27,11 +27,10 @@ export function LevelTabs() {
         return (
           <Button
             key={value}
-            data-testid={value === null ? 'level-tab-all' : `level-tab-${value}`}
             variant={isActive ? 'primary' : 'secondary'}
             size="sm"
             onClick={() => setSelectedLevel(value)}
-            className={`shrink-0 rounded-full whitespace-nowrap ${
+            className={`level-tab-${value === null ? 'all' : value} shrink-0 rounded-full whitespace-nowrap ${
               isActive ? 'shadow-sm' : 'border border-border'
             }`}
           >

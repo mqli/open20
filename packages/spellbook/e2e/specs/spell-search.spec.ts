@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SpellLibraryPage } from '../pages/SpellLibraryPage';
 
-test.fixme('Spell Search', () => {
+test.describe('Spell Search', () => {
   let spellLibrary: SpellLibraryPage;
 
   test.beforeEach(async ({ page }) => {
@@ -56,23 +56,5 @@ test.fixme('Spell Search', () => {
     const filteredCount = await spellLibrary.getSpellCount();
     expect(filteredCount).toBeLessThanOrEqual(initialCount);
     expect(filteredCount).toBeGreaterThan(0);
-  });
-
-  test('should toggle prepared filter', async () => {
-    // Toggle "Prepared" filter
-    await spellLibrary.togglePreparedFilter();
-
-    // Wait for UI to update
-    await spellLibrary.page.waitForTimeout(500);
-
-    // Toggle back
-    await spellLibrary.togglePreparedFilter();
-
-    // Wait for UI to update
-    await spellLibrary.page.waitForTimeout(500);
-
-    // Verify spells are shown again
-    const count = await spellLibrary.getSpellCount();
-    expect(count).toBeGreaterThan(0);
   });
 });

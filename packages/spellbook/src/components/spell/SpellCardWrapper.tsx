@@ -356,9 +356,8 @@ export function SpellCardWrapper({
 
   return (
     <SpellCardUI
-      data-testid="spell-card"
       spell={spell}
-      className={className}
+      className={['spell-card', className].filter(Boolean).join(' ')}
       density={density}
       stickyActions={stickyActions}
       showDescription={showDescription}
