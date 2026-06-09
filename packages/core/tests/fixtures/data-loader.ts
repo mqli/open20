@@ -4,7 +4,6 @@
 
 import type { DataLoader } from '../../src/data/loader';
 import type { ContentPack } from '../../src/content/types';
-import { MULTICLASS_SLOTS, FULL_CASTER_SLOTS } from './spell-slots';
 
 /**
  * Creates a mock DataLoader with sensible defaults.
@@ -73,15 +72,6 @@ export function createMockDataLoader(overrides: Partial<DataLoader> = {}): DataL
     getMonster: () => undefined,
     getMonstersBySource: () => [],
     getAllMonsters: () => [],
-
-    // Lookup tables
-    getProficiencyBonus: (level: number) => Math.floor((level - 1) / 4) + 2,
-    getHitDieFixedValue: () => 6,
-    getSpellSlots: (_classId: string, level: number) => FULL_CASTER_SLOTS[level] ?? {},
-    getMulticlassSpellSlots: (totalLevel: number) => MULTICLASS_SLOTS[totalLevel] ?? {},
-    getPactMagicSlots: (_level: number) => ({ slots: 0, slotLevel: 0 }),
-    getWeaponMasteryProperties: () => [],
-    getConditionNames: () => [],
   };
 
   return { ...defaults, ...overrides } as DataLoader;

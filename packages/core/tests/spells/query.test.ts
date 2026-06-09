@@ -540,15 +540,6 @@ describe('getKnownSpellsForClass', () => {
       }
       return record;
     };
-
-    const sorcererSlots: Record<number, Record<number, number>> = {
-      1: createSlotRecord({ 1: 2 }),
-      2: createSlotRecord({ 1: 3 }),
-      3: createSlotRecord({ 1: 4, 2: 2 }),
-      5: createSlotRecord({ 1: 4, 2: 3, 3: 2 }),
-      9: createSlotRecord({ 1: 4, 2: 3, 3: 3, 4: 3, 5: 1 }),
-    };
-
     return createMockDataLoader({
       getSpell: (id: string) => spells.find((s) => s.id === id),
       getAllSpells: () => spells,
@@ -558,12 +549,6 @@ describe('getKnownSpellsForClass', () => {
         if (id === 'Wizard') return MOCK_WIZARD_CLASS;
         if (id === 'Cleric') return MOCK_CLERIC_CLASS;
         return undefined;
-      },
-      getSpellSlots: (classId: string, classLevel: number) => {
-        if (classId === 'Sorcerer') {
-          return sorcererSlots[classLevel] || createSlotRecord({});
-        }
-        return createSlotRecord({});
       },
     });
   }

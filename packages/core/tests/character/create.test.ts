@@ -35,18 +35,6 @@ import {
 // ── Mock DataLoader ────────────────────────────────────────────
 
 function createMockDataLoaderExtended(): DataLoader {
-  // Full caster spell slot table
-  const fullCasterSlots: Record<number, Record<number, number>> = {
-    1: { 1: 2, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-    2: { 1: 3, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-  };
-
-  // Pact magic table
-  const pactMagicSlots: Record<number, { slots: number; slotLevel: number }> = {
-    1: { slots: 1, slotLevel: 1 },
-    2: { slots: 2, slotLevel: 1 },
-  };
-
   return createMockDataLoader({
     getSpecies: (id: string) => {
       if (id === 'Human') return HUMAN_SPECIES;
@@ -75,25 +63,6 @@ function createMockDataLoaderExtended(): DataLoader {
       return undefined;
     },
     getAllClasses: () => [FIGHTER_CLASS, BARBARIAN_CLASS, WIZARD_CLASS, ROGUE_CLASS, CLERIC_CLASS],
-    getProficiencyBonus: (level: number) => {
-      if (level <= 4) return 2;
-      if (level <= 8) return 3;
-      if (level <= 12) return 4;
-      if (level <= 16) return 5;
-      return 6;
-    },
-    getSpellSlots: (classId: string, classLevel: number) => {
-      const nonCasters = ['Fighter', 'Rogue', 'Barbarian', 'Monk'];
-      if (nonCasters.includes(classId)) {
-        return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
-      }
-      return (
-        fullCasterSlots[classLevel] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 }
-      );
-    },
-    getPactMagicSlots: (warlockLevel: number) => {
-      return pactMagicSlots[warlockLevel] || { slots: 0, slotLevel: 0 };
-    },
   });
 }
 

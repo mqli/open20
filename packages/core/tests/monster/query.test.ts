@@ -233,14 +233,6 @@ const mockDataLoader: DataLoader = {
   registerContentPack: () => {},
   unregisterContentPack: () => {},
   getContentPacks: () => [],
-
-  getProficiencyBonus: () => 2,
-  getHitDieFixedValue: () => 0,
-  getSpellSlots: () => ({}),
-  getMulticlassSpellSlots: () => ({}),
-  getPactMagicSlots: () => ({ slots: 0, slotLevel: 0 }),
-  getWeaponMasteryProperties: () => [],
-  getConditionNames: () => [],
 };
 
 // ── Tests ─────────────────────────────────────────────────────

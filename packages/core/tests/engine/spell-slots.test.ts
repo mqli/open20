@@ -10,13 +10,7 @@ import {
   type SpellSlotEntry,
 } from '../../src/engine/spell-slots';
 import { createMockDataLoader } from '../fixtures/data-loader';
-import {
-  FULL_CASTER_SLOTS,
-  MULTICLASS_SLOTS,
-  PACT_MAGIC_SLOTS,
-  NON_CASTER_CLASSES,
-  zeroSlots,
-} from '../fixtures/spell-slots';
+import { FULL_CASTER_SLOTS, PACT_MAGIC_SLOTS } from '../fixtures/spell-slots';
 import type { Class } from '../../src/types/class';
 import type { CharacterClass } from '../../src/types/character';
 
@@ -209,14 +203,7 @@ const SPELLCASTING_CLASSES: Record<string, Class> = {
 // ── Mock Data Loader ──────────────────────────────────────
 
 const data = createMockDataLoader({
-  getSpellSlots: (classId: string, classLevel: number) => {
-    if (NON_CASTER_CLASSES.includes(classId)) return zeroSlots();
-    return FULL_CASTER_SLOTS[classLevel] ?? zeroSlots();
-  },
-  getMulticlassSpellSlots: (level: number) => MULTICLASS_SLOTS[level] ?? zeroSlots(),
-  getPactMagicSlots: (warlockLevel: number) =>
-    PACT_MAGIC_SLOTS[warlockLevel] ?? { slots: 0, slotLevel: 0 },
-  getClass: (id: string) => SPELLCASTING_CLASSES[id] ?? undefined,
+  getClass: (id: string) => SPELLCASTING_CLASSES[id],
 });
 
 // ── Helper Functions ──────────────────────────────────────
@@ -297,7 +284,7 @@ describe('calculateSpellSlots', () => {
 });
 
 describe('calculatePactMagic', () => {
-  const warlockClass = SPELLCASTING_CLASSES['Warlock'];
+  const warlockClass = SPELLCASTING_CLASSES['Warlock'] as Class;
 
   it('should return { slotLevel: 1, slots: 1 } for Warlock level 1', () => {
     const result = calculatePactMagic(1, warlockClass);
@@ -414,14 +401,14 @@ describe('getMulticlassSpellcasterLevel', () => {
 
 describe('calculateMulticlassSpellSlots', () => {
   it('should return {1:4, 2:2, ...} for total level 3', () => {
-    const result = calculateMulticlassSpellSlots(3, data);
+    const result = calculateMulticlassSpellSlots(3);
     expect(getSlotTotal(result, 1)).toBe(4);
     expect(getSlotTotal(result, 2)).toBe(2);
     expect(getSlotTotal(result, 3)).toBe(0);
   });
 
   it('should return {1:4, 2:3, 3:2, ...} for total level 5', () => {
-    const result = calculateMulticlassSpellSlots(5, data);
+    const result = calculateMulticlassSpellSlots(5);
     expect(getSlotTotal(result, 1)).toBe(4);
     expect(getSlotTotal(result, 2)).toBe(3);
     expect(getSlotTotal(result, 3)).toBe(2);
@@ -429,28 +416,28 @@ describe('calculateMulticlassSpellSlots', () => {
   });
 
   it('should return all zeros for total level 0', () => {
-    const result = calculateMulticlassSpellSlots(0, data);
+    const result = calculateMulticlassSpellSlots(0);
     for (let level = 1; level <= 9; level++) {
       expect(getSlotTotal(result, level)).toBe(0);
     }
   });
 
   it('should return all zeros for negative total level', () => {
-    const result = calculateMulticlassSpellSlots(-1, data);
+    const result = calculateMulticlassSpellSlots(-1);
     for (let level = 1; level <= 9; level++) {
       expect(getSlotTotal(result, level)).toBe(0);
     }
   });
 
   it('should always set used to 0 after calculation', () => {
-    const result = calculateMulticlassSpellSlots(5, data);
+    const result = calculateMulticlassSpellSlots(5);
     for (let level = 1; level <= 9; level++) {
       expect(result[level]!.used).toBe(0);
     }
   });
 
   it('should return correct slots for high level (level 9)', () => {
-    const result = calculateMulticlassSpellSlots(9, data);
+    const result = calculateMulticlassSpellSlots(9);
     expect(getSlotTotal(result, 1)).toBe(4);
     expect(getSlotTotal(result, 2)).toBe(3);
     expect(getSlotTotal(result, 3)).toBe(3);
@@ -459,7 +446,7 @@ describe('calculateMulticlassSpellSlots', () => {
   });
 
   it('should return all 9 levels in result', () => {
-    const result = calculateMulticlassSpellSlots(3, data);
+    const result = calculateMulticlassSpellSlots(3);
     for (let level = 1; level <= 9; level++) {
       expect(result[level]!).toBeDefined();
       expect(result[level]!).toHaveProperty('total');
@@ -474,7 +461,7 @@ describe('integration: multiclass spell slots flow', () => {
     const totalLevel = getMulticlassSpellcasterLevel(classes, data);
     expect(totalLevel).toBe(3);
 
-    const slots = calculateMulticlassSpellSlots(totalLevel, data);
+    const slots = calculateMulticlassSpellSlots(totalLevel);
     expect(getSlotTotal(slots, 1)).toBe(4);
     expect(getSlotTotal(slots, 2)).toBe(2);
   });
@@ -484,7 +471,7 @@ describe('integration: multiclass spell slots flow', () => {
     const totalLevel = getMulticlassSpellcasterLevel(classes, data);
     expect(totalLevel).toBe(5);
 
-    const slots = calculateMulticlassSpellSlots(totalLevel, data);
+    const slots = calculateMulticlassSpellSlots(totalLevel);
     expect(getSlotTotal(slots, 1)).toBe(4);
     expect(getSlotTotal(slots, 2)).toBe(3);
     expect(getSlotTotal(slots, 3)).toBe(2);
@@ -495,7 +482,7 @@ describe('integration: multiclass spell slots flow', () => {
     const totalLevel = getMulticlassSpellcasterLevel(classes, data);
     expect(totalLevel).toBe(0);
 
-    const slots = calculateMulticlassSpellSlots(totalLevel, data);
+    const slots = calculateMulticlassSpellSlots(totalLevel);
     for (let level = 1; level <= 9; level++) {
       expect(getSlotTotal(slots, level)).toBe(0);
     }
