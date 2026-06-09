@@ -6,6 +6,7 @@ import type { Feat } from '../../src/types/feat';
 import type { Spell } from '../../src/types/spell';
 import type { Weapon, Armor, GearItem } from '../../src/types/equipment';
 import type { Monster } from '../../src/monster/types';
+import type { RulesGlossary } from '../../src/types/glossary';
 
 /**
  * Minimal mock species for testing
@@ -346,6 +347,49 @@ const mockMonsters: Monster[] = [
   },
 ];
 
+const mockGlossary: RulesGlossary = {
+  source: 'Mock',
+  abbreviations: [
+    { abbr: 'AC', expansion: 'Armor Class' },
+    { abbr: 'DC', expansion: 'Difficulty Class' },
+  ],
+  entries: [
+    {
+      id: 'advantage',
+      source: 'Mock',
+      name: 'Advantage',
+      content: ['If you have Advantage on a D20 Test, roll two d20s, and use the higher roll.'],
+    },
+    {
+      id: 'armor-class',
+      source: 'Mock',
+      name: 'Armor Class',
+      aliases: ['AC'],
+      content: ['An Armor Class (AC) is the target number for an attack roll.'],
+    },
+    {
+      id: 'blinded',
+      source: 'Mock',
+      name: 'Blinded',
+      tag: 'Condition',
+      condition: 'Blinded',
+      content: ['While you have the Blinded condition, you experience the following effects.'],
+      subsections: [
+        {
+          title: "Can't See.",
+          content: ["You can't see and automatically fail any ability check that requires sight."],
+        },
+      ],
+    },
+    {
+      id: 'concentration',
+      source: 'Mock',
+      name: 'Concentration',
+      content: ['Some spells and other effects require Concentration to remain active.'],
+    },
+  ],
+};
+
 /**
  * Mock content pack for testing.
  * Contains minimal data needed for core package tests.
@@ -368,4 +412,5 @@ export const mockContentPack: ContentPack = {
   armor: mockArmor,
   gear: mockGear,
   monsters: mockMonsters,
+  glossary: mockGlossary,
 };

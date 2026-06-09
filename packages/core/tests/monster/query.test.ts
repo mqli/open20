@@ -233,6 +233,15 @@ const mockDataLoader: DataLoader = {
   registerContentPack: () => {},
   unregisterContentPack: () => {},
   getContentPacks: () => [],
+
+  getGlossaryEntry: () => undefined,
+  getGlossaryEntryByName: () => undefined,
+  resolveGlossaryTerm: () => undefined,
+  getGlossaryEntriesBySource: () => [],
+  getGlossaryEntriesByTag: () => [],
+  getAllGlossaryEntries: () => [],
+  getGlossaryAbbreviations: () => [],
+  getRulesGlossary: () => ({ source: 'Unknown', abbreviations: [], entries: [] }),
 };
 
 // ── Tests ─────────────────────────────────────────────────────

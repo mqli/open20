@@ -72,6 +72,16 @@ export function createMockDataLoader(overrides: Partial<DataLoader> = {}): DataL
     getMonster: () => undefined,
     getMonstersBySource: () => [],
     getAllMonsters: () => [],
+
+    // Rules Glossary
+    getGlossaryEntry: () => undefined,
+    getGlossaryEntryByName: () => undefined,
+    resolveGlossaryTerm: () => undefined,
+    getGlossaryEntriesBySource: () => [],
+    getGlossaryEntriesByTag: () => [],
+    getAllGlossaryEntries: () => [],
+    getGlossaryAbbreviations: () => [],
+    getRulesGlossary: () => ({ source: 'Unknown', abbreviations: [], entries: [] }),
   };
 
   return { ...defaults, ...overrides } as DataLoader;

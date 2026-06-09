@@ -169,6 +169,20 @@ export {
   getFeatSpecialAbilities,
 } from './character/feat-mutate';
 
+// ── Rules Glossary ─────────────────────────────────────
+export type { GlossaryFilter } from './glossary';
+export {
+  getGlossaryEntry,
+  resolveGlossaryTerm,
+  getGlossaryEntryByName,
+  searchGlossaryEntries,
+  getGlossaryEntriesByTag,
+  getAllGlossaryEntries,
+  getRulesGlossary,
+  getGlossaryAbbreviation,
+  getGlossaryAbbreviations,
+} from './glossary';
+
 // ── Spells (query + preparation rules) ─────────────────
 export type { SpellFilter } from './spells';
 export {

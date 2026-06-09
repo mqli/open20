@@ -11,6 +11,8 @@ import type { Feat, FeatCategory } from '@/types/feat';
 import type { Weapon, Armor, GearItem } from '@/types/equipment';
 import type { Spell } from '@/types/spell';
 import type { Monster } from '@/monster/types';
+import type { GlossaryAbbreviation, GlossaryEntry, GlossaryEntryTag } from '@/types/glossary';
+import { slugify } from '@/glossary/slugify';
 
 // ── 可变的数据存储（支持内容包注册）─────────────────────
 // 初始化为空，由消费者通过 registerContentPack() 注册内容
@@ -25,6 +27,8 @@ let armorData: Armor[] = [];
 let gearData: GearItem[] = [];
 let spellsData: Spell[] = [];
 let monstersData: Monster[] = [];
+let glossaryEntriesData: GlossaryEntry[] = [];
+let glossaryAbbreviationsData: GlossaryAbbreviation[] = [];
 
 // 已注册的内容包元数据
 const registeredPacks: Map<string, ContentPackMeta> = new Map();
@@ -46,6 +50,10 @@ function registerData(pack: ContentPack): void {
   if (pack.gear) gearData = [...gearData, ...pack.gear];
   if (pack.spells) spellsData = [...spellsData, ...pack.spells];
   if (pack.monsters) monstersData = [...monstersData, ...pack.monsters];
+  if (pack.glossary) {
+    glossaryEntriesData = [...glossaryEntriesData, ...pack.glossary.entries];
+    glossaryAbbreviationsData = [...glossaryAbbreviationsData, ...pack.glossary.abbreviations];
+  }
 }
 
 function unregisterData(source: string): void {
@@ -62,6 +70,15 @@ function unregisterData(source: string): void {
   gearData = gearData.filter((g) => g.source !== source);
   spellsData = spellsData.filter((s) => s.source !== source);
   monstersData = monstersData.filter((m) => m.source !== source);
+  const removedEntryNames = new Set(
+    glossaryEntriesData
+      .filter((entry) => entry.source === source)
+      .map((entry) => entry.name.toLowerCase()),
+  );
+  glossaryEntriesData = glossaryEntriesData.filter((entry) => entry.source !== source);
+  glossaryAbbreviationsData = glossaryAbbreviationsData.filter(
+    (abbr) => !removedEntryNames.has(abbr.expansion.toLowerCase()),
+  );
 }
 
 // ── createDataLoader 工厂函数 ───────────────────────────────
@@ -78,6 +95,8 @@ export function createDataLoader(): DataLoader {
   gearData = [];
   spellsData = [];
   monstersData = [];
+  glossaryEntriesData = [];
+  glossaryAbbreviationsData = [];
   registeredPacks.clear();
 
   return {
@@ -224,6 +243,59 @@ export function createDataLoader(): DataLoader {
 
     getAllMonsters(): Monster[] {
       return monstersData;
+    },
+
+    // ── 规则术语表（Rules Glossary）───
+    getGlossaryEntry(id: string): GlossaryEntry | undefined {
+      return glossaryEntriesData.find((entry) => entry.id === id);
+    },
+
+    getGlossaryEntryByName(name: string): GlossaryEntry | undefined {
+      const normalized = name.toLowerCase();
+      return glossaryEntriesData.find((entry) => entry.name.toLowerCase() === normalized);
+    },
+
+    resolveGlossaryTerm(term: string): GlossaryEntry | undefined {
+      const trimmed = term.trim();
+      if (!trimmed) return undefined;
+
+      const byId = glossaryEntriesData.find((entry) => entry.id === trimmed);
+      if (byId) return byId;
+
+      const slug = slugify(trimmed);
+      const bySlug = glossaryEntriesData.find((entry) => entry.id === slug);
+      if (bySlug) return bySlug;
+
+      const byName = glossaryEntriesData.find(
+        (entry) => entry.name.toLowerCase() === trimmed.toLowerCase(),
+      );
+      if (byName) return byName;
+
+      return glossaryEntriesData.find((entry) => entry.aliases?.includes(trimmed));
+    },
+
+    getGlossaryEntriesBySource(source: string): GlossaryEntry[] {
+      return glossaryEntriesData.filter((entry) => entry.source === source);
+    },
+
+    getGlossaryEntriesByTag(tag: GlossaryEntryTag): GlossaryEntry[] {
+      return glossaryEntriesData.filter((entry) => entry.tag === tag);
+    },
+
+    getAllGlossaryEntries(): GlossaryEntry[] {
+      return glossaryEntriesData;
+    },
+
+    getGlossaryAbbreviations(): readonly GlossaryAbbreviation[] {
+      return glossaryAbbreviationsData;
+    },
+
+    getRulesGlossary() {
+      return {
+        source: glossaryEntriesData[0]?.source ?? 'Unknown',
+        abbreviations: glossaryAbbreviationsData,
+        entries: glossaryEntriesData,
+      };
     },
 
     // ── 内容包管理（R26）─────────────────────

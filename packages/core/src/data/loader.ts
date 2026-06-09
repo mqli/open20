@@ -11,6 +11,12 @@ import type { Weapon, Armor, GearItem } from '@/types/equipment';
 import type { Spell } from '@/types/spell';
 import type { ContentPack, ContentPackMeta } from '@/content/types';
 import type { Monster } from '@/monster/types';
+import type {
+  GlossaryAbbreviation,
+  GlossaryEntry,
+  GlossaryEntryTag,
+  RulesGlossary,
+} from '@/types/glossary';
 
 // ── DataLoader 接口 ───────────────────────────────────────
 // 所有读取规则数据的函数集中在此接口
@@ -75,6 +81,16 @@ export interface DataLoader {
   getMonster(id: string): Monster | undefined;
   getMonstersBySource(source: string): Monster[];
   getAllMonsters(): Monster[];
+
+  // ── 规则术语表（Rules Glossary）───
+  getGlossaryEntry(id: string): GlossaryEntry | undefined;
+  getGlossaryEntryByName(name: string): GlossaryEntry | undefined;
+  resolveGlossaryTerm(term: string): GlossaryEntry | undefined;
+  getGlossaryEntriesBySource(source: string): GlossaryEntry[];
+  getGlossaryEntriesByTag(tag: GlossaryEntryTag): GlossaryEntry[];
+  getAllGlossaryEntries(): GlossaryEntry[];
+  getGlossaryAbbreviations(): readonly GlossaryAbbreviation[];
+  getRulesGlossary(): RulesGlossary;
 }
 
 export type SpellLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
