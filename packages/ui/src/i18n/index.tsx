@@ -90,7 +90,8 @@ export type BaseTranslationKeys =
   // Rules - Glossary
   | 'glossary.aliases'
   | 'glossary.relatedEntries'
-  | 'glossary.seeAlso';
+  | 'glossary.seeAlso'
+  | 'glossary.close';
 
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
@@ -194,6 +195,7 @@ export const defaultTranslations: Translations = {
   'glossary.aliases': 'Also known as: {aliases}',
   'glossary.relatedEntries': 'Related entries',
   'glossary.seeAlso': 'See also',
+  'glossary.close': 'Close glossary entry',
 };
 
 // Chinese (Simplified) translations (flat dot-notation keys)
@@ -290,6 +292,7 @@ export const zhCNTranslations: Translations = {
   'glossary.aliases': '亦称：{aliases}',
   'glossary.relatedEntries': '相关条目',
   'glossary.seeAlso': '另见',
+  'glossary.close': '关闭术语条目',
 };
 
 // Context type

@@ -2,8 +2,12 @@ import type { ReactNode } from 'react';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
-import { overlayClasses, sheetSideClasses } from '@/styles/design-tokens';
-import { Text } from '@/components/base/Text';
+import {
+  overlayClasses,
+  sheetSideClasses,
+  textSizeVariants,
+  textWeightVariants,
+} from '@/styles/design-tokens';
 
 const sheetVariants = cva('fixed z-50 flex flex-col bg-bg-secondary shadow-xl outline-none', {
   variants: {
@@ -55,10 +59,15 @@ Sheet.Header = ({ children, className }: { children: ReactNode; className?: stri
 );
 
 Sheet.Title = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <RadixDialog.Title asChild>
-    <Text as="h2" size="xl" weight="semibold" className={className}>
-      {children}
-    </Text>
+  <RadixDialog.Title
+    className={cn(
+      textSizeVariants.xl,
+      textWeightVariants.semibold,
+      'text-text-secondary',
+      className,
+    )}
+  >
+    {children}
   </RadixDialog.Title>
 );
 

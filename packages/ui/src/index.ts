@@ -32,10 +32,22 @@ export { SpellCard } from './components/spell/index';
 export type { SpellCardProps } from './components/spell/index';
 export { FeatCard } from './components/rules/feat/index';
 export type { FeatCardProps } from './components/rules/feat/index';
-export { GlossaryEntryCard, GlossaryEntryContent } from './components/rules/glossary/index';
+export {
+  GlossaryEntryCard,
+  GlossaryEntryContent,
+  GlossaryEntryHeader,
+  GlossaryEntryTooltip,
+  GlossaryEntryFlyout,
+  GlossaryTerm,
+} from './components/rules/glossary/index';
 export type {
   GlossaryEntryCardProps,
   GlossaryEntryContentProps,
+  GlossaryEntryHeaderProps,
+  GlossaryEntryTooltipProps,
+  GlossaryEntryFlyoutProps,
+  GlossaryTermProps,
+  GlossaryTermDisplay,
 } from './components/rules/glossary/index';
 export { Surface } from './components/base/Surface/index';
 export type { SurfaceProps } from './components/base/Surface/index';
