@@ -9,6 +9,7 @@
 ## 1. Test Scope
 
 ### 1.1 Test Objectives
+
 - Validate all D&D 5e 2024 rule calculations
 - Ensure immutable state management correctness
 - Validate data integrity (JSON format and content)
@@ -16,6 +17,7 @@
 - Achieve 100% coverage for engine and character modules
 
 ### 1.2 Test Levels
+
 1. **Unit Tests** — 415+ tests (✅ Complete)
 2. **Integration Tests** — Character creation + calculation flows
 3. **Data Integrity Tests** — JSON validation against Zod schemas
@@ -28,33 +30,33 @@
 
 ### 2.1 Completed Tests (S1-S20)
 
-| Module | File | Count | Coverage | Status |
-|--------|------|-------|----------|--------|
-| **Engine** | | **201** | | |
-| Ability modifier | `tests/engine/ability-modifier.test.ts` | 14 | 100% | ✅ |
-| Proficiency bonus | `tests/engine/proficiency-bonus.test.ts` | 9 | 100% | ✅ |
-| Skill bonus | `tests/engine/skill-bonus.test.ts` | 37 | 100% | ✅ |
-| Saving throw | `tests/engine/saving-throw.test.ts` | 27 | 100% | ✅ |
-| AC calculation | `tests/engine/ac-calculator.test.ts` | 10 | 100% | ✅ |
-| HP calculation | `tests/engine/hp-calculator.test.ts` | 17 | 100% | ✅ |
-| Spell slots | `tests/engine/spell-slots.test.ts` | 34 | 100% | ✅ |
-| Initiative | `tests/engine/initiative.test.ts` | 24 | 100% | ✅ |
-| Passive perception | `tests/engine/passive-perception.test.ts` | 20 | 100% | ✅ |
-| Attack calculation | `tests/engine/attack-calculator.test.ts` | 19 | 100% | ✅ |
-| **Character** | | **144** | | |
-| Create | `tests/character/create.test.ts` | 46 | 100% | ✅ |
-| Mutate | `tests/character/mutate.test.ts` | 38 | 100% | ✅ |
-| Rest | `tests/character/rest.test.ts` | 20 | 100% | ✅ |
-| Level up | `tests/character/level-up.test.ts` | 13 | 100% | ✅ |
-| Validate | `tests/character/validate.test.ts` | 15 | 100% | ✅ |
-| Recompute | `tests/character/recompute.test.ts` | 12 | 100% | ✅ |
-| **Storage** | | **20** | | |
-| Serializer | `tests/storage/serializer.test.ts` | 20 | 100% | ✅ |
-| **Spells** | | **20** | | |
-| Query | `tests/spells/query.test.ts` | 20 | 100% | ✅ |
-| **Integration** | | **10** | | |
-| Create + Calculate | `tests/integration/*.test.ts` | 10 | 100% | ✅ |
-| **TOTAL** | **17 test files** | **415+** | **~95%** | ✅ |
+| Module             | File                                      | Count    | Coverage | Status |
+| ------------------ | ----------------------------------------- | -------- | -------- | ------ |
+| **Engine**         |                                           | **201**  |          |        |
+| Ability modifier   | `tests/engine/ability-modifier.test.ts`   | 14       | 100%     | ✅     |
+| Proficiency bonus  | `tests/engine/proficiency-bonus.test.ts`  | 9        | 100%     | ✅     |
+| Skill bonus        | `tests/engine/skill-bonus.test.ts`        | 37       | 100%     | ✅     |
+| Saving throw       | `tests/engine/saving-throw.test.ts`       | 27       | 100%     | ✅     |
+| AC calculation     | `tests/engine/ac-calculator.test.ts`      | 10       | 100%     | ✅     |
+| HP calculation     | `tests/engine/hp-calculator.test.ts`      | 17       | 100%     | ✅     |
+| Spell slots        | `tests/engine/spell-slots.test.ts`        | 34       | 100%     | ✅     |
+| Initiative         | `tests/engine/initiative.test.ts`         | 24       | 100%     | ✅     |
+| Passive perception | `tests/engine/passive-perception.test.ts` | 20       | 100%     | ✅     |
+| Attack calculation | `tests/engine/attack-calculator.test.ts`  | 19       | 100%     | ✅     |
+| **Character**      |                                           | **144**  |          |        |
+| Create             | `tests/character/create.test.ts`          | 46       | 100%     | ✅     |
+| Mutate             | `tests/character/mutate.test.ts`          | 38       | 100%     | ✅     |
+| Rest               | `tests/character/rest.test.ts`            | 20       | 100%     | ✅     |
+| Level up           | `tests/character/level-up.test.ts`        | 13       | 100%     | ✅     |
+| Validate           | `tests/character/validate.test.ts`        | 15       | 100%     | ✅     |
+| Recompute          | `tests/character/recompute.test.ts`       | 12       | 100%     | ✅     |
+| **Storage**        |                                           | **20**   |          |        |
+| Serializer         | `tests/storage/serializer.test.ts`        | 20       | 100%     | ✅     |
+| **Spells**         |                                           | **20**   |          |        |
+| Query              | `tests/spells/query.test.ts`              | 20       | 100%     | ✅     |
+| **Integration**    |                                           | **10**   |          |        |
+| Create + Calculate | `tests/integration/*.test.ts`             | 10       | 100%     | ✅     |
+| **TOTAL**          | **17 test files**                         | **415+** | **~95%** | ✅     |
 
 ### 2.2 Coverage Gaps
 
@@ -87,16 +89,18 @@
 
 **Goal**: Validate all `static/*.json` files for correct format and completeness.
 
-#### 3.1.1 `lookup-tables.json` Validation
-- [x] `proficiencyBonus` contains levels 1-20
-- [x] `hitDieFixedValue` contains all die types (d4-d12)
-- [x] `spellSlots` contains all casting classes
-- [x] `multiclassSpellSlots` contains levels 1-20
-- [x] `pactMagicSlots` contains levels 1-20
-- [x] `weaponMasteryProperties` contains 8 properties
-- [x] `conditionNames` contains 16 conditions
+#### 3.1.1 `proficiency-bonus.ts` Validation
 
-#### 3.1.2 `species.json` Validation
+- [x] `getProficiencyBonus(level)` returns correct values for levels 1-20
+- [x] Pure function, no data lookup needed
+
+#### 3.1.2 `hit-die.ts` Validation
+
+- [x] `getHitDieFixedValue(die)` returns correct values for all die types
+- [x] Pure function, no data lookup needed
+
+#### 3.1.3 `species.json` Validation
+
 - [x] Contains 12 species (Dwarf, Elf, Halfling, Human, Dragonborn, Gnome, Tiefling, Orc, Goliath, Aasimar, Half-Elf, Half-Orc)
 - [x] Each species has correct `abilityBonuses` (use full names)
 - [x] Each species has `baseTraits` array
@@ -104,17 +108,20 @@
 - [x] `darkvision` field exists and is reasonable
 
 #### 3.1.3 `backgrounds.json` Validation
+
 - [x] Contains 16 backgrounds
 - [x] Each background has `skillProficiencies` (1-2 skills)
 - [x] Each background has `originFeatId` matching a feat in `feats.json`
 
 #### 3.1.4 `classes.json` Validation
+
 - [x] Contains 12 classes
 - [x] Each class has correct `hitDie`
 - [x] Each class has `featuresByLevel` for levels 1-20
 - [x] Spellcasting classes have `spellcasting` object
 
 #### 3.1.5 `spells.json` Validation
+
 - [ ] Contains 560+ spells (SRD + 2024 PHB)
 - [ ] Each spell has required fields (id, name, level, school, description)
 - [ ] Spell IDs are kebab-case
@@ -136,13 +143,14 @@ describe('getModifier property-based tests', () => {
         expect(mod).toBeGreaterThanOrEqual(-5);
         expect(mod).toBeLessThanOrEqual(10);
         expect(Number.isInteger(mod)).toBe(true);
-      })
+      }),
     );
   });
 });
 ```
 
 **Targets**:
+
 - [ ] `getModifier()` — All scores 1-30 produce valid modifiers
 - [ ] `getProficiencyBonus()` — Monotonic, correct values
 - [ ] `calculateMaxHP()` — HP always positive, increases with level
@@ -152,13 +160,13 @@ describe('getModifier property-based tests', () => {
 
 **Goal**: Test complete flows.
 
-| Flow | Description | Status |
-|------|-------------|--------|
-| Create → Calculate | Create character, calculate all derived stats | ✅ |
-| Create → Level Up → Validate | Level up, validate resulting character | ✅ |
-| Rest → Recover | Short/long rest, verify resource recovery | ✅ |
-| Combat Simulation | Take damage, death saves, healing | 📋 |
-| Multiclass Flow | Create multiclass, calculate spell slots | 📋 |
+| Flow                         | Description                                   | Status |
+| ---------------------------- | --------------------------------------------- | ------ |
+| Create → Calculate           | Create character, calculate all derived stats | ✅     |
+| Create → Level Up → Validate | Level up, validate resulting character        | ✅     |
+| Rest → Recover               | Short/long rest, verify resource recovery     | ✅     |
+| Combat Simulation            | Take damage, death saves, healing             | 📋     |
+| Multiclass Flow              | Create multiclass, calculate spell slots      | 📋     |
 
 ---
 
@@ -182,13 +190,13 @@ npx vitest
 
 ### 4.2 Coverage Targets
 
-| Module | Target | Current |
-|--------|--------|---------|
-| `src/engine/*` | 100% | ~100% |
-| `src/character/*` | 100% | ~100% |
-| `src/spells/*` | 100% | ~80% |
-| `src/schemas/*` | 100% | 0% (new) |
-| `src/storage/*` | 100% | ~100% |
+| Module            | Target | Current  |
+| ----------------- | ------ | -------- |
+| `src/engine/*`    | 100%   | ~100%    |
+| `src/character/*` | 100%   | ~100%    |
+| `src/spells/*`    | 100%   | ~80%     |
+| `src/schemas/*`   | 100%   | 0% (new) |
+| `src/storage/*`   | 100%   | ~100%    |
 
 ### 4.3 CI/CD Integration
 
@@ -202,6 +210,7 @@ npx vitest
 ```
 
 **Gate**: PR cannot merge if:
+
 - Any test fails
 - Coverage drops below 95%
 - TypeScript errors exist
@@ -261,14 +270,14 @@ const result = createCharacter(params, mockLoader);
 
 ## 6. Future Enhancements
 
-| Enhancement | Priority | Description |
-|---|---|---|
-| Property-based testing | P0 | Use fast-check for all engine functions |
-| Snapshot testing | P1 | Snapshot character JSON for regression detection |
-| Performance testing | P2 | Benchmark spell queries, large character lists |
-| Fuzz testing | P2 | Random character configurations, validate no crashes |
+| Enhancement            | Priority | Description                                          |
+| ---------------------- | -------- | ---------------------------------------------------- |
+| Property-based testing | P0       | Use fast-check for all engine functions              |
+| Snapshot testing       | P1       | Snapshot character JSON for regression detection     |
+| Performance testing    | P2       | Benchmark spell queries, large character lists       |
+| Fuzz testing           | P2       | Random character configurations, validate no crashes |
 
 ---
 
-*Last updated: 2026-05-09*
-*Version: 2.0 (Headless Engine)*
+_Last updated: 2026-05-09_
+_Version: 2.0 (Headless Engine)_

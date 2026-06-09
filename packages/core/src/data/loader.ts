@@ -9,11 +9,10 @@ import type { Class, Subclass } from '@/types/class';
 import type { Feat, FeatCategory } from '@/types/feat';
 import type { Weapon, Armor, GearItem } from '@/types/equipment';
 import type { Spell } from '@/types/spell';
-import type { DieType } from '@/types/dice';
 import type { ContentPack, ContentPackMeta } from '@/content/types';
 import type { Monster } from '@/monster/types';
 
-// ── DataLoader 接口 ───────────────────────────────────────────────
+// ── DataLoader 接口 ───────────────────────────────────────
 // 所有读取规则数据的函数集中在此接口
 // 原因是：engine 层只需依赖此接口，不依赖具体数据源
 // 测试时传入 mock，运行时传入 JsonLoader 或 ApiLoader
@@ -59,7 +58,7 @@ export interface DataLoader {
   // ── 法术（Spell）───
   getSpell(id: string): Spell | undefined;
   getSpellsBySource(source: string): Spell[];
-  getSpellsByLevel(level: SpellLevel): Spell[];
+  getSpellsByLevel(level: number): Spell[];
   getAllSpells(): Spell[];
 
   // ── 内容包管理（R26）─────────────────────
@@ -72,47 +71,13 @@ export interface DataLoader {
   /** 获取所有已注册的内容包元数据 */
   getContentPacks(): ContentPackMeta[];
 
-  // ── 查表数据（Lookup Tables）────────────────────
-  // 熟练加值表：level → proficiency bonus
-  getProficiencyBonus(level: number): number;
-
-  // 生命骰固定值：dieType → fixed value (d6→4, d8→5, d10→6, d12→7)
-  getHitDieFixedValue(die: DieType): number;
-
-  // 法术位表：classId + classLevel → slots[level] (1-9)
-  getSpellSlots(classId: string, classLevel: number): Record<number, number>;
-
-  // 多维职业法术位表：totalSpellcastingLevel → slots[level] (1-9)
-  getMulticlassSpellSlots(totalSpellcastingLevel: number): Record<number, number>;
-
-  // Warlock Pact Magic 表：warlockLevel → { slots, slotLevel }
-  getPactMagicSlots(warlockLevel: number): { slots: number; slotLevel: number };
-
-  // 武器精通属性列表（8个）
-  getWeaponMasteryProperties(): readonly string[];
-
-  // 标准状态列表（14个）
-  getConditionNames(): readonly string[];
-
   // ── 怪物（Monster）───
   getMonster(id: string): Monster | undefined;
   getMonstersBySource(source: string): Monster[];
   getAllMonsters(): Monster[];
 }
 
-// ── 查表数据辅助类型 ──────────────────────────────────────────
-
 export type SpellLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-
-export interface LookupTables {
-  proficiencyBonus: Record<number, number>; // level → bonus
-  hitDieFixedValue: Record<DieType, number>; // d6→4, etc.
-  multiclassSpellSlots: Record<number, Record<number, number>>;
-  // totalSpellcastingLevel → { "1": count, "2": count, ... }
-  pactMagicSlots: Record<number, { slots: number; slotLevel: number }>;
-  weaponMasteryProperties: readonly string[];
-  conditionNames: readonly string[];
-}
 
 // ── createDataLoader — 默认工厂函数 ───────────────────────
 // 接收静态 JSON 数据，返回 DataLoader 实例

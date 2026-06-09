@@ -1,7 +1,7 @@
 // tests/engine/hp-calculator.test.ts
 import { describe, it, expect } from 'vitest';
+import { getHitDieFixedValue } from '../../src/engine/hit-die';
 import {
-  getHitDieFixedValue,
   calculateHPAtLevel1,
   calculateHPIncrement,
   calculateMaxHP,

@@ -4,6 +4,8 @@
 
 import type { CharacterClass } from '@/types/character';
 import type { DataLoader } from '@/data/loader';
+import type { Class } from '@/types/class';
+import { getMulticlassSpellSlots } from './multiclass-spell-slots';
 
 /**
  * 法术位条目
@@ -26,7 +28,7 @@ export interface PactMagicResult {
  *
  * @param classId - 职业ID
  * @param classLevel - 职业等级
- * @param data - DataLoader
+ * @param data - DataLoader（用于获取职业数据）
  * @returns 法术位 Map（level → { total, used }），从1级到9级
  *
  * @example
@@ -39,11 +41,13 @@ export function calculateSpellSlots(
   classLevel: number,
   data: DataLoader,
 ): Record<number, SpellSlotEntry> {
-  const slotsByLevel = data.getSpellSlots(classId, classLevel);
+  const classData = data.getClass(classId);
+  const slotsArray = classData?.spellSlotsByLevel?.[classLevel] ?? [];
   const result: Record<number, SpellSlotEntry> = {};
 
+  // slotsArray format: [1环数量, 2环数量, ... 9环数量]
   for (let level = 1; level <= 9; level++) {
-    const total = slotsByLevel[level] ?? 0;
+    const total = slotsArray[level - 1] ?? 0; // index 0 = 1环
     result[level] = { total, used: 0 };
   }
 
@@ -54,7 +58,7 @@ export function calculateSpellSlots(
  * 计算法术位（支持单职业或多维职业）
  *
  * @param classes - 职业列表（单个或多个）
- * @param data - DataLoader
+ * @param data - DataLoader（用于获取职业数据）
  * @returns 法术位 Map
  *
  * @example
@@ -69,7 +73,7 @@ export function calculateSpellSlotsFromClasses(
   data: DataLoader,
 ): Record<number, SpellSlotEntry> {
   const totalLevel = getMulticlassSpellcasterLevel(classes, data);
-  return calculateMulticlassSpellSlots(totalLevel, data);
+  return calculateMulticlassSpellSlots(totalLevel);
 }
 
 /**
@@ -78,18 +82,22 @@ export function calculateSpellSlotsFromClasses(
  * Warlock的法术位特殊：短休恢复，且等级随Warlock等级提升
  *
  * @param warlockLevel - Warlock等级
- * @param data - DataLoader
+ * @param warlockClass - Warlock职业对象（包含pactMagicSlots）
  * @returns Pact Magic信息，或 null（如果不是Warlock）
  *
  * @example
- * calculatePactMagic(1, data)  // { slotLevel: 1, slots: 1 }
- * calculatePactMagic(5, data)  // { slotLevel: 2, slots: 2 }
- * calculatePactMagic(11, data) // { slotLevel: 5, slots: 3 } -- 简化
+ * calculatePactMagic(1, warlockClass)  // { slotLevel: 1, slots: 1 }
+ * calculatePactMagic(5, warlockClass)  // { slotLevel: 2, slots: 2 }
+ * calculatePactMagic(11, warlockClass) // { slotLevel: 5, slots: 3 }
  */
-export function calculatePactMagic(warlockLevel: number, data: DataLoader): PactMagicResult | null {
+export function calculatePactMagic(
+  warlockLevel: number,
+  warlockClass: Class,
+): PactMagicResult | null {
   if (warlockLevel < 1) return null;
+  if (!warlockClass?.spellcasting?.pactMagic) return null;
 
-  const pactData = data.getPactMagicSlots(warlockLevel);
+  const pactData = warlockClass.spellcasting.pactMagicSlots?.[warlockLevel];
   if (!pactData) return null;
 
   return {
@@ -156,13 +164,12 @@ export function getMulticlassSpellcasterLevel(
  */
 export function calculateMulticlassSpellSlots(
   totalSpellcasterLevel: number,
-  data: DataLoader,
 ): Record<number, SpellSlotEntry> {
   if (totalSpellcasterLevel < 1) {
     return emptySpellSlots();
   }
 
-  const slotsByLevel = data.getMulticlassSpellSlots(totalSpellcasterLevel);
+  const slotsByLevel = getMulticlassSpellSlots(totalSpellcasterLevel);
   const result: Record<number, SpellSlotEntry> = {};
 
   for (let level = 1; level <= 9; level++) {

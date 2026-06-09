@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import _lookupTables from 'open20-core/static/lookup-tables.json';
 import _species from '../data/species.json';
 import _backgrounds from '../data/backgrounds.json';
 import _classes from '../data/classes.json';
@@ -10,7 +9,6 @@ import _armors from '../data/armor.json';
 import _spells from '../data/spells.json';
 
 // Cast JSON imports to any to allow dynamic property access in integrity tests
-const lookupTables: any = _lookupTables;
 const species: any = _species;
 const backgrounds: any = _backgrounds;
 const classes: any = _classes;
@@ -60,30 +58,6 @@ const VALID_SKILLS = [
   'Stealth',
   'Survival',
 ];
-
-// ─── Lookup Tables ────────────────────────────────────────────────────────────
-
-describe('Lookup Tables', () => {
-  it('has valid proficiency bonus table', () => {
-    const table = lookupTables.proficiencyBonus;
-    expect(table).toBeDefined();
-    expect(typeof table).toBe('object');
-    for (let i = 1; i <= 20; i++) {
-      expect(table[i]).toBeDefined();
-      expect(typeof table[i]).toBe('number');
-    }
-  });
-
-  it('has valid hit die fixed values', () => {
-    const table = lookupTables.hitDieFixedValue;
-    expect(table).toBeDefined();
-    expect(typeof table).toBe('object');
-    for (const die of ['d4', 'd6', 'd8', 'd10', 'd12', 'd20']) {
-      expect(table[die]).toBeDefined();
-      expect(typeof table[die]).toBe('number');
-    }
-  });
-});
 
 // ─── Species ─────────────────────────────────────────────────────────────────
 

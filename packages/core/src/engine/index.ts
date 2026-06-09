@@ -6,12 +6,9 @@ export { getProficiencyBonus } from './proficiency-bonus';
 export { getSkillBonus, getAllSkillBonuses } from './skill-bonus';
 export { getSavingThrowBonus } from './saving-throw';
 export { calculateAC } from './ac-calculator';
-export {
-  getHitDieFixedValue,
-  calculateHPAtLevel1,
-  calculateHPIncrement,
-  calculateMaxHP,
-} from './hp-calculator';
+export { getHitDieFixedValue } from './hit-die';
+
+export { calculateHPAtLevel1, calculateHPIncrement, calculateMaxHP } from './hp-calculator';
 export {
   calculateSpellSlots,
   calculateSpellSlotsFromClasses,

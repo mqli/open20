@@ -96,10 +96,10 @@ Spell slot totals calculated per PRD §10 Appendix C rules, depends on:
 ## Calculation Rules
 
 ### Single-Class Caster
-Look up `lookup-tables.json.spellSlots[className][classLevel]`
+Read from class data: `class.spellSlotsByLevel[classLevel]`
 
 ### Warlock Pact Magic
-Look up `lookup-tables.json.pactMagicSlots[warlockLevel]`
+Read from class data: `class.spellcasting.pactMagicSlots[warlockLevel]`
 
 | Warlock Level | Pact Magic Slots | Slot Level |
 |---|---|---|

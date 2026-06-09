@@ -102,8 +102,7 @@ packages/core/                  # path inside monorepo
 │       ├── spells.json         # 391+ spells (SRD 5.2)
 │       ├── weapons.json        # ~30 weapons (SRD 5.2)
 │       ├── armor.json          # ~15 armors (SRD 5.2)
-│       ├── gear.json           # ~20 gear items (SRD 5.2)
-│       └── lookup-tables.json  # Proficiency, HP, spell slots, etc.
+│       └── gear.json           # ~20 gear items (SRD 5.2)
 ├── src/
 │   ├── index.ts                # Node.js barrel export (includes storage)
 │   ├── browser-index.ts        # Browser barrel export (excludes Node.js storage)
@@ -347,16 +346,6 @@ import { calculateModifier } from '@/src/engine/ability-modifier';
 import { calculateModifier } from '../../src/engine/ability-modifier';
 ```
 
-### 5.4 `LookupTables` Type Mismatch
-
-**Problem**: `spellSlots` in JSON is stored as arrays, but TypeScript type expects nested objects.
-**Fix**: Type definition in `loader.ts`:
-
-```typescript
-spellSlots: Record<string, Record<number, readonly number[]>>;
-// Inner value is `readonly number[]`, not `Record<number, number>`
-```
-
 ### 5.5 Per-Class Spell Tracking (New in v0.x)
 
 **Context**: Spell data is now tracked PER CLASS, not on the character directly.
@@ -488,8 +477,7 @@ pnpm run typecheck && pnpm run lint && pnpm test
 2. Add data to `static/srd/*.json` (NOT `static/*.json`)
 3. Ensure `source: 'SRD 5.2'` tag on all content
 4. Update `default-loader.ts` if new `DataLoader` methods needed
-5. Update `LookupTables` interface in `src/data/loader.ts`
-6. Write data integrity tests in `tests/data/` (S20)
+5. Write data integrity tests in `tests/data/` (S20)
 
 ### 7.4 Creating Content Packs (Homebrew/Official)
 
@@ -755,13 +743,13 @@ describe('functionUnderTest', () => {
 ```typescript
 import { createDataLoader, type DataLoader } from '../../src/data/loader';
 
-// Create mock data
-const mockTables = {
-  proficiencyBonus: { 1: 2, 2: 2, ... },
-  // ... other tables
-};
-
-const mockLoader: DataLoader = createDataLoader(mockTables);
+// Create mock loader with test data
+const mockLoader: DataLoader = createDataLoader({
+  // Mock methods as needed for tests
+  getClass: (id: string) => mockClasses[id] ?? undefined,
+  getAllClasses: () => Object.values(mockClasses),
+  // ... other methods
+});
 
 // Use in tests
 const result = createCharacter(params, mockLoader);

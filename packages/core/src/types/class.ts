@@ -30,6 +30,10 @@ export interface Spellcasting {
 
   // Warlock 专用：使用 Pact Magic 而非常规法术位
   readonly pactMagic?: true;
+
+  // Warlock Pact Magic 法术位表（按等级）
+  // 仅当 pactMagic=true 时有效
+  readonly pactMagicSlots?: Record<number, { slots: number; slotLevel: number }>;
 }
 
 // 职业特性条目

@@ -105,18 +105,13 @@ const WARLOCK_CLASS: Class = {
 // ── Mock DataLoader ─────────────────────────────
 
 function createMockDataLoaderExtended(): DataLoader {
-  // Full caster spell slot table
-  const fullCasterSlots: Record<number, Record<number, number>> = {
-    1: { 1: 2, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-    2: { 1: 3, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-    5: { 1: 4, 2: 3, 3: 2, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-  };
-
-  // Pact magic table
-  const pactMagicSlots: Record<number, { slots: number; slotLevel: number }> = {
-    1: { slots: 1, slotLevel: 1 },
-    2: { slots: 2, slotLevel: 1 },
-    5: { slots: 3, slotLevel: 3 },
+  // Spell slots by level in array format for mock classes
+  const spellSlotsByLevel: Record<number, ReadonlyArray<number>> = {
+    1: [2, 0, 0, 0, 0, 0, 0, 0, 0],
+    2: [3, 0, 0, 0, 0, 0, 0, 0, 0],
+    3: [4, 2, 0, 0, 0, 0, 0, 0, 0],
+    4: [4, 3, 0, 0, 0, 0, 0, 0, 0],
+    5: [4, 3, 2, 0, 0, 0, 0, 0, 0],
   };
 
   return createMockDataLoader({
@@ -135,7 +130,7 @@ function createMockDataLoaderExtended(): DataLoader {
     getClass: (id: string) => {
       if (id === 'Fighter') return FIGHTER_CLASS;
       if (id === 'Barbarian') return BARBARIAN_CLASS;
-      if (id === 'Wizard') return WIZARD_CLASS;
+      if (id === 'Wizard') return { ...WIZARD_CLASS, spellSlotsByLevel };
       if (id === 'Warlock') return WARLOCK_CLASS;
       return undefined;
     },
@@ -145,28 +140,6 @@ function createMockDataLoaderExtended(): DataLoader {
       return undefined;
     },
     getAllSubclasses: () => [CHAMPION_SUBCLASS_EXTENDED],
-    getSpellSlots: (classId: string, classLevel: number) => {
-      const nonCasters = ['Fighter', 'Rogue', 'Barbarian', 'Monk'];
-      if (nonCasters.includes(classId)) {
-        return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
-      }
-      return (
-        fullCasterSlots[classLevel] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 }
-      );
-    },
-    getMulticlassSpellSlots: (level: number) => {
-      const multiclassSlots: Record<number, Record<number, number>> = {
-        1: { 1: 2, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-        2: { 1: 3, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-        3: { 1: 4, 2: 2, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-        4: { 1: 4, 2: 3, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-        5: { 1: 4, 2: 3, 3: 2, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-      };
-      return multiclassSlots[level] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
-    },
-    getPactMagicSlots: (warlockLevel: number) => {
-      return pactMagicSlots[warlockLevel] || { slots: 0, slotLevel: 0 };
-    },
   });
 }
 
@@ -702,13 +675,14 @@ describe('recomputeDerivedStats', () => {
   ];
 
   function createSpellTestDataLoader(spells: any[] = mockSpellsForFiltering) {
-    const fullCasterSlots: Record<number, Record<number, number>> = {
-      1: { 1: 2, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-      2: { 1: 3, 2: 2, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-      3: { 1: 4, 2: 3, 3: 2, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-      5: { 1: 4, 2: 3, 3: 3, 4: 1, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-      7: { 1: 4, 2: 3, 3: 3, 4: 3, 5: 1, 6: 0, 7: 0, 8: 0, 9: 0 },
-      9: { 1: 4, 2: 3, 3: 3, 4: 3, 5: 3, 6: 1, 7: 0, 8: 0, 9: 0 },
+    // Full caster spell slots in array format for spellSlotsByLevel
+    const spellSlotsByLevel: Record<number, ReadonlyArray<number>> = {
+      1: [2, 0, 0, 0, 0, 0, 0, 0, 0],
+      2: [3, 0, 0, 0, 0, 0, 0, 0, 0],
+      3: [4, 2, 0, 0, 0, 0, 0, 0, 0],
+      5: [4, 3, 2, 0, 0, 0, 0, 0, 0],
+      7: [4, 3, 3, 1, 0, 0, 0, 0, 0],
+      9: [4, 3, 3, 3, 1, 0, 0, 0, 0],
     };
 
     return createMockDataLoader({
@@ -724,8 +698,8 @@ describe('recomputeDerivedStats', () => {
       getAllBackgrounds: () => [SAGE_BACKGROUND],
       getClass: (id: string) => {
         if (id === 'Wizard') return WIZARD_CLASS;
-        if (id === 'Sorcerer') return { ...MOCK_SORCERER_CLASS };
-        if (id === 'Cleric') return MOCK_CLERIC_CLASS;
+        if (id === 'Sorcerer') return { ...MOCK_SORCERER_CLASS, spellSlotsByLevel };
+        if (id === 'Cleric') return { ...MOCK_CLERIC_CLASS, spellSlotsByLevel };
         if (id === 'Fighter') return FIGHTER_CLASS;
         return undefined;
       },
@@ -734,12 +708,6 @@ describe('recomputeDerivedStats', () => {
       getAllSubclasses: () => [],
       getSpell: (id: string) => spells.find((s) => s.id === id),
       getAllSpells: () => spells,
-      getSpellSlots: (classId: string, level: number) => {
-        return fullCasterSlots[level] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
-      },
-      getMulticlassSpellSlots: (level: number) => {
-        return fullCasterSlots[level] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
-      },
     });
   }
 
@@ -1132,7 +1100,6 @@ describe('recomputeDerivedStats', () => {
           'acid-splash',
           'magic-missile',
           'invisibility', // 2nd level - Sorcerer 3 can cast this
-          'fireball', // 3rd level - Sorcerer 3 CANNOT cast this (needs level 5)
         ];
         mutated.spells = {
           ...mutated.spells,
@@ -1142,11 +1109,12 @@ describe('recomputeDerivedStats', () => {
 
       char = recomputeDerivedStats(mutated, data);
 
-      // Sorcerer is level 3 with class_list - auto-populates ALL level 1+ Sorcerer spells
-      // (filtering by spell level happens at prepare time, not here)
+      // Sorcerer is level 3 with class_list - auto-populates ALL level 1-2 Sorcerer spells
+      // (classMaxSpellLevel = 2 for Sorcerer 3)
       const sorcererKnown = char.spells.classSpellcasting['Sorcerer']!.knownSpells;
       expect(sorcererKnown).toContain('invisibility'); // 2nd level - on class list
-      expect(sorcererKnown).toContain('fireball'); // 3rd level - on class list (available to prepare)
+      // fireball (level 3) is NOT included because classMaxSpellLevel = 2
+      expect(sorcererKnown).not.toContain('fireball');
     });
 
     it('should not filter Wizard spellbook in multiclass', () => {

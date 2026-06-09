@@ -9,7 +9,7 @@ import type { DataLoader } from '@/data/loader';
 import type { DieType } from '@/types/dice';
 
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
-import { getHitDieFixedValue } from '@/engine/hp-calculator';
+import { getHitDieFixedValue } from '@/engine/hit-die';
 import { getProficiencyBonus } from '@/engine/proficiency-bonus';
 import { recomputeResources } from './resource-builder';
 import { recomputeDerivedStats } from './recompute';
@@ -231,7 +231,7 @@ function addNewClass(
     const totalSpellcastingLevel = getMulticlassSpellcasterLevel(newClasses, data);
 
     if (totalSpellcastingLevel > 0) {
-      const spellSlots = calculateMulticlassSpellSlots(totalSpellcastingLevel, data);
+      const spellSlots = calculateMulticlassSpellSlots(totalSpellcastingLevel);
       const ability = classData.spellcasting?.ability ?? 'Intelligence';
       const abilityMod = getModifier(getTotalScore(char.abilityScores, ability));
 

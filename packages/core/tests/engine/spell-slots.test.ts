@@ -20,6 +20,22 @@ import {
 import type { Class } from '../../src/types/class';
 import type { CharacterClass } from '../../src/types/character';
 
+// ── Helper: Convert FULL_CASTER_SLOTS to spellSlotsByLevel format ──
+function convertToSpellSlotsByLevel(
+  slots: Record<number, Record<number, number>>,
+): Record<number, ReadonlyArray<number>> {
+  const result: Record<number, ReadonlyArray<number>> = {};
+  for (const [levelStr, slotsByLevel] of Object.entries(slots)) {
+    const level = parseInt(levelStr);
+    // Convert { 1: 2, 2: 0, ... } to [2, 0, ...]
+    const array = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((l) => slotsByLevel[l] ?? 0);
+    result[level] = array;
+  }
+  return result;
+}
+
+const SPELL_SLOTS_BY_LEVEL = convertToSpellSlotsByLevel(FULL_CASTER_SLOTS);
+
 // ── Mock Class Data ──────────────────────────────────────
 
 const SPELLCASTING_CLASSES: Record<string, Class> = {
@@ -38,6 +54,7 @@ const SPELLCASTING_CLASSES: Record<string, Class> = {
       preparationTiming: 'long_rest',
       changesPerPreparation: 'all',
     },
+    spellSlotsByLevel: SPELL_SLOTS_BY_LEVEL,
   },
   Cleric: {
     id: 'Cleric',
@@ -54,6 +71,7 @@ const SPELLCASTING_CLASSES: Record<string, Class> = {
       preparationTiming: 'long_rest',
       changesPerPreparation: 'all',
     },
+    spellSlotsByLevel: SPELL_SLOTS_BY_LEVEL,
   },
   Bard: {
     id: 'Bard',
@@ -139,6 +157,7 @@ const SPELLCASTING_CLASSES: Record<string, Class> = {
       preparationTiming: 'level_up',
       changesPerPreparation: 1,
       pactMagic: true,
+      pactMagicSlots: PACT_MAGIC_SLOTS,
     },
   },
   Fighter: {
@@ -278,50 +297,52 @@ describe('calculateSpellSlots', () => {
 });
 
 describe('calculatePactMagic', () => {
+  const warlockClass = SPELLCASTING_CLASSES['Warlock'];
+
   it('should return { slotLevel: 1, slots: 1 } for Warlock level 1', () => {
-    const result = calculatePactMagic(1, data);
+    const result = calculatePactMagic(1, warlockClass);
     expect(result).not.toBeNull();
     expect(result!.slotLevel).toBe(1);
     expect(result!.slots).toBe(1);
   });
 
   it('should return { slotLevel: 2, slots: 2 } for Warlock level 3', () => {
-    const result = calculatePactMagic(3, data);
+    const result = calculatePactMagic(3, warlockClass);
     expect(result).not.toBeNull();
     expect(result!.slotLevel).toBe(2);
     expect(result!.slots).toBe(2);
   });
 
   it('should return { slotLevel: 3, slots: 2 } for Warlock level 5', () => {
-    const result = calculatePactMagic(5, data);
+    const result = calculatePactMagic(5, warlockClass);
     expect(result).not.toBeNull();
     expect(result!.slotLevel).toBe(3);
     expect(result!.slots).toBe(2);
   });
 
   it('should return { slotLevel: 5, slots: 3 } for Warlock level 11', () => {
-    const result = calculatePactMagic(11, data);
+    const result = calculatePactMagic(11, warlockClass);
     expect(result).not.toBeNull();
     expect(result!.slotLevel).toBe(5);
     expect(result!.slots).toBe(3);
   });
 
   it('should return null for warlockLevel < 1', () => {
-    const result = calculatePactMagic(0, data);
+    const result = calculatePactMagic(0, warlockClass);
     expect(result).toBeNull();
   });
 
-  it('should return null for unknown warlock level (if data returns falsy)', () => {
-    // Create a mock that returns zeros
-    const nullData = {
-      ...data,
-      getPactMagicSlots: () => ({ slots: 0, slotLevel: 0 }),
+  it('should return null for unknown warlock level (if pactMagicSlots returns falsy)', () => {
+    // Create a Warlock class without pactMagicSlots for the level
+    const warlockWithoutSlots = {
+      ...warlockClass,
+      spellcasting: {
+        ...warlockClass.spellcasting!,
+        pactMagicSlots: {}, // Empty slots
+      },
     };
-    // Note: In actual implementation, if pactData is { slots: 0, slotLevel: 0 }, it won't be null/falsy
-    // So this test verifies edge case
-    const result = calculatePactMagic(1, nullData);
-    expect(result).not.toBeNull();
-    expect(result!.slots).toBe(0);
+    const result = calculatePactMagic(1, warlockWithoutSlots);
+    expect(result).toBeNull();
   });
 });
 

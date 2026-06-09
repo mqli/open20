@@ -6,34 +6,7 @@
 import type { DieType } from '@/types/dice';
 import type { CharacterClass } from '@/types/character';
 import type { DataLoader } from '@/data/loader';
-
-/**
- * 生命骰固定值对照表
- * d6 → 4, d8 → 5, d10 → 6, d12 → 7
- * 公式: floor(maxFace / 2) + 1（D&D 平均值向上取整）
- */
-const HIT_DIE_FIXED: Record<DieType, number> = {
-  d4: 3,
-  d6: 4,
-  d8: 5,
-  d10: 6,
-  d12: 7,
-  d20: 11,
-};
-
-/**
- * 获取生命骰固定值（升级时HP增量的骰面部分）
- *
- * @param die - 骰子类型
- * @returns 固定值
- *
- * @example
- * getHitDieFixedValue('d10') // 6
- * getHitDieFixedValue('d6')  // 4
- */
-export function getHitDieFixedValue(die: DieType): number {
-  return HIT_DIE_FIXED[die] ?? 0;
-}
+import { getHitDieFixedValue } from './hit-die';
 
 /**
  * 生命骰最大值对照表
@@ -85,7 +58,7 @@ export function calculateHPIncrement(die: DieType, conModifier: number): number 
  *
  * @param classes - 角色职业列表（支持多维职业）
  * @param conModifier - Constitution调整值
- * @param data - DataLoader
+ * @param data - DataLoader（用于获取职业生命骰类型）
  * @returns 最大HP
  *
  * @example

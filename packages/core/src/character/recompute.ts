@@ -257,8 +257,11 @@ function computePactMagic(
     return { ...char.spells, pactMagicSlots: null };
   }
 
-  const warlockLevel = char.classes.find((c) => c.classId === 'Warlock')!.level;
-  const pactResult = calculatePactMagic(warlockLevel, data);
+  const warlockClassEntry = char.classes.find((c) => c.classId === 'Warlock');
+  if (!warlockClassEntry) return { ...char.spells, pactMagicSlots: null };
+  const warlockClass = data.getClass('Warlock');
+  if (!warlockClass) return { ...char.spells, pactMagicSlots: null };
+  const pactResult = calculatePactMagic(warlockClassEntry.level, warlockClass);
   if (!pactResult) return char.spells;
 
   return {

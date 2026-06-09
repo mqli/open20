@@ -48,7 +48,7 @@ export type {
 export type { BaseAttack } from './types';
 
 // ── Data Loaders ────────────────────────────────────────
-export type { DataLoader, LookupTables } from './data';
+export type { DataLoader } from './data';
 export { createDataLoader } from './data';
 
 // ── Content (R26: Content Pack Management) ─────────

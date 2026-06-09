@@ -9,7 +9,7 @@ import type { DataLoader } from '@/data/loader';
 import type { SpellLevel, FeatSpellsEntry } from '@/types/spell';
 
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
-import { getHitDieFixedValue } from '@/engine/hp-calculator';
+import { getHitDieFixedValue } from '@/engine/hit-die';
 
 import { withUpdate } from './mutate';
 import { getDieMax } from './level-up';

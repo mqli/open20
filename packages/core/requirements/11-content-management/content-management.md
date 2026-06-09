@@ -54,8 +54,7 @@ Define how game content (species, classes, spells, feats, equipment) is organize
   ├── spells.json
   ├── weapons.json
   ├── armor.json
-  ├── gear.json
-  └── lookup-tables.json
+  └── gear.json
   ```
 - Automatically loaded when using default `createDataLoader()`
 - All SRD content has `source: 'SRD 5.2'` tag
@@ -79,8 +78,7 @@ static/
     ├── spells.json
     ├── weapons.json
     ├── armor.json
-    ├── gear.json
-    └── lookup-tables.json
+    └── gear.json
 ```
 
 **Import/Export Functions**:

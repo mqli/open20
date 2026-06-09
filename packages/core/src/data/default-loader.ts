@@ -2,7 +2,7 @@
 // Unified DataLoader implementation — works in both Node.js and Browser
 // Auto-registers SRD content pack when @open20/content-srd is available (dev/test environment)
 
-import type { DataLoader, LookupTables, SpellLevel } from './loader';
+import type { DataLoader } from './loader';
 import type { ContentPack, ContentPackMeta } from '@/content/types';
 import type { Species, SpeciesSubtype } from '@/types/species';
 import type { Background } from '@/types/background';
@@ -10,13 +10,7 @@ import type { Class, Subclass } from '@/types/class';
 import type { Feat, FeatCategory } from '@/types/feat';
 import type { Weapon, Armor, GearItem } from '@/types/equipment';
 import type { Spell } from '@/types/spell';
-import type { DieType } from '@/types/dice';
 import type { Monster } from '@/monster/types';
-
-// ── Lookup Tables（规则数据，非内容）─────────────────────
-import lookupTablesJson from '../../static/lookup-tables.json' with { type: 'json' };
-
-const lookupTablesTyped: LookupTables = lookupTablesJson as unknown as LookupTables;
 
 // ── 可变的数据存储（支持内容包注册）─────────────────────
 // 初始化为空，由消费者通过 registerContentPack() 注册内容
@@ -211,7 +205,7 @@ export function createDataLoader(): DataLoader {
       return spellsData.filter((s) => s.source === source);
     },
 
-    getSpellsByLevel(level: SpellLevel): Spell[] {
+    getSpellsByLevel(level: number): Spell[] {
       return spellsData.filter((s) => s.level === level);
     },
 
@@ -248,64 +242,6 @@ export function createDataLoader(): DataLoader {
 
     getContentPacks(): ContentPackMeta[] {
       return Array.from(registeredPacks.values());
-    },
-
-    // ── 查表数据（Lookup Tables）────────────────────
-    getProficiencyBonus(level: number): number {
-      const keys = Object.keys(lookupTablesTyped.proficiencyBonus)
-        .map(Number)
-        .sort((a, b) => a - b);
-
-      let result = lookupTablesTyped.proficiencyBonus[keys[0] ?? 1] ?? 2;
-      for (const key of keys) {
-        if (level >= key) {
-          result = lookupTablesTyped.proficiencyBonus[key] ?? 2;
-        } else {
-          break;
-        }
-      }
-      return result;
-    },
-
-    getHitDieFixedValue(die: DieType): number {
-      return lookupTablesTyped.hitDieFixedValue[die] ?? 0;
-    },
-
-    getSpellSlots(classId: string, classLevel: number): Record<number, number> {
-      const cls = classesData.find((c) => c.id === classId);
-      const slotsArray = cls?.spellSlotsByLevel?.[classLevel];
-      if (!slotsArray) return emptySlotRecord();
-
-      const result: Record<number, number> = {};
-      for (let i = 0; i < slotsArray.length; i++) {
-        result[i + 1] = slotsArray[i] ?? 0;
-      }
-      return result;
-    },
-
-    getMulticlassSpellSlots(totalSpellcastingLevel: number): Record<number, number> {
-      const slotsObj = lookupTablesTyped.multiclassSpellSlots[totalSpellcastingLevel];
-      if (!slotsObj) return emptySlotRecord();
-
-      const result: Record<number, number> = {};
-      const slotsRecord = slotsObj as Record<string, number>;
-      for (const key of Object.keys(slotsRecord)) {
-        const level = parseInt(key, 10);
-        result[level] = slotsRecord[key] ?? 0;
-      }
-      return result;
-    },
-
-    getPactMagicSlots(warlockLevel: number): { slots: number; slotLevel: number } {
-      return lookupTablesTyped.pactMagicSlots[warlockLevel] ?? { slots: 0, slotLevel: 0 };
-    },
-
-    getWeaponMasteryProperties(): readonly string[] {
-      return lookupTablesTyped.weaponMasteryProperties;
-    },
-
-    getConditionNames(): readonly string[] {
-      return lookupTablesTyped.conditionNames;
     },
   };
 }

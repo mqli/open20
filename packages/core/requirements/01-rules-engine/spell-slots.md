@@ -47,35 +47,11 @@ Multiclass (P1) requires consulting the multiclass spell slot table.
 
 See `../../spec/data-model.md` → `Spells`
 
-**Spell Slots by Level table** (static data):
-```jsonc
-// static/lookup-tables.json
-{
-  "spellSlots": {
-    "Wizard": {
-      "1": [2, 0, 0, 0, 0, 0, 0, 0, 0],
-      "2": [3, 0, 0, 0, 0, 0, 0, 0, 0],
-      ...
-    },
-    "Cleric": { ... },
-    "Druid": { ... },
-    "Sorcerer": { ... },
-    "Bard": { ... }
-  },
-  "pactMagicSlots": {
-    "1": { "slots": 1, "level": 1 },
-    "2": { "slots": 2, "level": 1 },
-    "5": { "slots": 2, "level": 2 },
-    "7": { "slots": 2, "level": 3 },
-    "11": { "slots": 3, "level": 5 }
-  },
-  "multiclassSpellSlots": {
-    "1": [2, 0, 0, 0, 0, 0, 0, 0, 0],
-    "2": [3, 0, 0, 0, 0, 0, 0, 0, 0],
-    // ... total spellcasting levels 1-20
-  }
-}
-```
+**Spell Slots by Level table** (now baked into class data):
+
+- Single-class slots: `class.spellSlotsByLevel[classLevel]` → `[1环数量, 2环数量, ...]`
+- Pact Magic slots: `class.spellcasting.pactMagicSlots[warlockLevel]` → `{ slots, slotLevel }`
+- Multiclass slots: pure function `getMulticlassSpellSlots(totalLevel)` in `engine/multiclass-spell-slots.ts`
 
 **Character JSON storage**:
 ```jsonc
@@ -106,7 +82,7 @@ See `../../spec/data-model.md` → `Spells`
 ## Spell Slot Calculation Rules
 
 ### Single-Class Spellcaster
-Look up: `lookup-tables.json.spellSlots[className][classLevel]`
+Read from class data: `class.spellSlotsByLevel[classLevel]` → `[1环数量, 2环数量, ...]`
 
 Example: 5th level Wizard
 ```
@@ -117,7 +93,7 @@ Level 3 slots: 0
 ```
 
 ### Warlock Pact Magic
-Look up: `lookup-tables.json.pactMagicSlots[warlockLevel]`
+Read from class data: `class.spellcasting.pactMagicSlots[warlockLevel]` → `{ slots, slotLevel }`
 
 | Warlock Level | Pact Magic Slots | Slot Level |
 |---|---|---|
