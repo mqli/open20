@@ -86,7 +86,11 @@ export type BaseTranslationKeys =
   | 'feature.noArmor'
   | 'feature.noShield'
   | 'feature.noHeavyArmor'
-  | 'feature.requires';
+  | 'feature.requires'
+  // Rules - Glossary
+  | 'glossary.aliases'
+  | 'glossary.relatedEntries'
+  | 'glossary.seeAlso';
 
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
@@ -185,6 +189,11 @@ export const defaultTranslations: Translations = {
   'feature.noShield': 'no shield',
   'feature.noHeavyArmor': 'no heavy armor',
   'feature.requires': '(requires {reqs})',
+
+  // Rules - Glossary
+  'glossary.aliases': 'Also known as: {aliases}',
+  'glossary.relatedEntries': 'Related entries',
+  'glossary.seeAlso': 'See also',
 };
 
 // Chinese (Simplified) translations (flat dot-notation keys)
@@ -276,6 +285,11 @@ export const zhCNTranslations: Translations = {
   'feature.noShield': '无盾牌',
   'feature.noHeavyArmor': '无重甲',
   'feature.requires': '（需要 {reqs}）',
+
+  // Rules - Glossary
+  'glossary.aliases': '亦称：{aliases}',
+  'glossary.relatedEntries': '相关条目',
+  'glossary.seeAlso': '另见',
 };
 
 // Context type
