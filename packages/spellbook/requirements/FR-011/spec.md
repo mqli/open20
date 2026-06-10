@@ -35,7 +35,8 @@ Support concentration status marking for spells that require concentration. When
 
 - `ConcentrationToggle.tsx` - Toggle concentration on/off
 - `ConcentrationBanner.tsx` - Shows current concentration status in character sheet
-- `SpellCardWrapper.tsx` - Displays concentration indicator
+- `SpellCard.tsx` - Composable spell card with concentration indicator
+- `SpellCardBadges.tsx` - Displays concentration badge
 - `character-store.ts` - Manages concentration state
 
 ### 2.4 open20-core API Usage

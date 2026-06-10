@@ -34,8 +34,8 @@ Support rolling spell damage dice. When clicking the damage button, the app roll
 
 ### 2.3 UI Components Affected
 
-- `SpellActionRow.tsx` - Damage button and display
-- `SpellCardWrapper.tsx` - Handles damage roll logic
+- `SpellCard.tsx` - Composable spell card wrapper
+- `SpellCardActions.tsx` - Damage button and roll logic
 - `CastLevelSelect.tsx` - Select slot level for upcasting
 - `DiceRollOverlay.tsx` - Displays roll result
 - `roll-store.ts` - Stores roll results
@@ -67,8 +67,8 @@ const result = rollSpellDamage(character, spell, classId, castAtLevel?);
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/components/spell/SpellActionRow.tsx` | Modify | Add damage button |
-| `src/components/spell/SpellCardWrapper.tsx` | Modify | Handle damage roll |
+| `src/components/spell/SpellCard.tsx` | Use | Composable card wrapper |
+| `src/components/spell/SpellCardActions.tsx` | Modify | Add damage button and roll logic |
 | `src/components/spell/CastLevelSelect.tsx` | Create | Select slot level for upcasting |
 | `src/stores/roll-store.ts` | Modify | Store roll results |
 | `src/components/dice/DiceRollOverlay.tsx` | Modify | Display result with type |

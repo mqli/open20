@@ -15,21 +15,60 @@ vi.mock('@/hooks/use-breakpoint', () => ({
   useIsLargeScreen: () => false,
 }));
 
-// Mock the SpellCardWrapper component
-vi.mock('@/components/spell/SpellCardWrapper', () => ({
-  SpellCardWrapper: ({ spell, showDescription }: any) => (
-    <div data-testid="spell-card-wrapper">
-      <h2>{spell.name}</h2>
-      <p>Level: {spell.level}</p>
-      <p>School: {spell.school}</p>
-      {showDescription && <div data-testid="spell-description">Description</div>}
-      {spell.components && (
-        <div data-testid="spell-components">
-          {spell.components.includes('V') && <span>V</span>}
-          {spell.components.includes('S') && <span>S</span>}
-          {spell.components.includes('M') && <span>M</span>}
+// Mock the SpellCard component (from @open20/ui)
+vi.mock('@open20/ui', async () => {
+  const actual = await vi.importActual('@open20/ui');
+
+  // Create Sheet mock with nested components
+  const SheetMock = vi.fn(({ children, open }: any) => (
+    <div data-testid="sheet-root" data-open={open}>
+      {open ? children : null}
+    </div>
+  )) as any;
+  SheetMock.Content = ({ children }: any) => <div data-testid="sheet-content">{children}</div>;
+  SheetMock.Header = ({ children }: any) => <div data-testid="sheet-header">{children}</div>;
+  SheetMock.Body = ({ children }: any) => <div data-testid="sheet-body">{children}</div>;
+  SheetMock.Close = ({ children, asChild }: any) => (
+    <div data-testid="sheet-close">{asChild ? children : null}</div>
+  );
+
+  return {
+    ...(actual as object),
+    Sheet: SheetMock,
+    // Mock Dialog component (used for desktop)
+    Dialog: {
+      Root: ({ children, open }: any) => (
+        <div data-testid="dialog-root" data-open={open}>
+          {children}
         </div>
-      )}
+      ),
+      Overlay: () => <div data-testid="dialog-overlay" />,
+      Content: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+      Close: ({ children, asChild }: any) => (
+        <div data-testid="dialog-close">{asChild ? children : null}</div>
+      ),
+    },
+    IconButton: ({ children }: any) => <button data-testid="icon-button">{children}</button>,
+  };
+});
+
+// Mock SpellCardBadges
+vi.mock('@/components/spell/SpellCardBadges', () => ({
+  SpellCardBadges: ({ spell, showSpellbookBadges }: any) => (
+    <div data-testid="spell-card-badges">
+      <span>{spell.name} badges</span>
+      {showSpellbookBadges && <span>spellbook</span>}
+    </div>
+  ),
+}));
+
+// Mock SpellCardActions
+vi.mock('@/components/spell/SpellCardActions', () => ({
+  SpellCardActions: ({ spell, showCast, showAttack }: any) => (
+    <div data-testid="spell-card-actions">
+      <span>{spell.name} actions</span>
+      {showCast && <button>Cast</button>}
+      {showAttack && <button>Attack</button>}
     </div>
   ),
 }));
@@ -51,8 +90,31 @@ vi.mock('@open20/ui', async () => {
     <div data-testid="sheet-close">{asChild ? children : null}</div>
   );
 
+  // Mock SpellCard (from @open20/ui) - renders children via renderBadges and renderActions
+  const SpellCardMock = vi.fn(
+    ({ spell, showDescription, renderBadges, renderActions, children }: any) => (
+      <div data-testid="spell-card">
+        <h2>{spell.name}</h2>
+        <p>Level: {spell.level}</p>
+        <p>School: {spell.school}</p>
+        {showDescription && <div data-testid="spell-description">Description</div>}
+        {spell.components && (
+          <div data-testid="spell-components">
+            {spell.components.includes('V') && <span>V</span>}
+            {spell.components.includes('S') && <span>S</span>}
+            {spell.components.includes('M') && <span>M</span>}
+          </div>
+        )}
+        {renderBadges && renderBadges()}
+        {renderActions && renderActions()}
+        {children}
+      </div>
+    ),
+  );
+
   return {
     ...(actual as object),
+    SpellCard: SpellCardMock,
     Sheet: SheetMock,
     // Mock Dialog component (used for desktop)
     Dialog: {
@@ -118,7 +180,7 @@ describe('SpellDetailFlyout', () => {
 
     expect(screen.getByTestId('sheet-root')).toBeInTheDocument();
     expect(screen.getByTestId('sheet-content')).toBeInTheDocument();
-    expect(screen.getByTestId('spell-card-wrapper')).toBeInTheDocument();
+    expect(screen.getByTestId('spell-card')).toBeInTheDocument();
   });
 
   it('should display spell name in the detail view', () => {

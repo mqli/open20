@@ -1,7 +1,9 @@
 import { X } from 'lucide-react';
 import { useSpellStore } from '@/stores/spell-store';
 import { IconButton, Sheet, Dialog } from '@open20/ui';
-import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
+import { SpellCard } from '@/components/spell/SpellCard';
+import { SpellCardBadges } from '@/components/spell/SpellCardBadges';
+import { SpellCardActions } from '@/components/spell/SpellCardActions';
 import { useIsLargeScreen } from '@/hooks/use-breakpoint';
 
 function SpellDetailContent({
@@ -11,17 +13,22 @@ function SpellDetailContent({
 }) {
   return (
     <div className="mb-6">
-      <SpellCardWrapper
+      <SpellCard
         spell={spell}
         className="border-0 rounded-none bg-transparent p-0 ring-0"
         stickyActions
         showDescription
-        showSpellbookActions
-        showSpellbookBadges
-        showCastAction
-        showAttackAction
-        showDamageActions
-        showConcentrationAction
+        renderBadges={() => <SpellCardBadges spell={spell} showSpellbookBadges />}
+        renderActions={() => (
+          <SpellCardActions
+            spell={spell}
+            showSpellbook
+            showCast
+            showAttack
+            showDamage
+            showConcentration
+          />
+        )}
       />
     </div>
   );

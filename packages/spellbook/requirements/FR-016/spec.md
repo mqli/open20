@@ -33,8 +33,8 @@ Support rolling spell attack dice (d20 + spell attack bonus). When clicking the 
 
 ### 2.3 UI Components Affected
 
-- `SpellActionRow.tsx` - Attack button and display
-- `SpellCardWrapper.tsx` - Handles attack roll logic
+- `SpellCard.tsx` - Composable spell card wrapper
+- `SpellCardActions.tsx` - Attack button and roll logic
 - `DiceRollOverlay.tsx` - Displays roll result
 - `roll-store.ts` - Stores roll results
 
@@ -64,8 +64,8 @@ const result = rollSpellAttack(character, classId, castAtLevel?);
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/components/spell/SpellActionRow.tsx` | Modify | Add attack button |
-| `src/components/spell/SpellCardWrapper.tsx` | Modify | Handle attack roll |
+| `src/components/spell/SpellCard.tsx` | Use | Composable card wrapper |
+| `src/components/spell/SpellCardActions.tsx` | Modify | Add attack button and roll logic |
 | `src/stores/roll-store.ts` | Modify | Store roll results |
 | `src/components/dice/DiceRollOverlay.tsx` | Modify | Display result |
 

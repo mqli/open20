@@ -4,7 +4,9 @@ import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
 import { LevelTabs } from '@/components/spell-library/LevelTabs';
 import { FilterChips } from '@/components/spell-library/FilterChips';
-import { SpellCardWrapper } from '@/components/spell/SpellCardWrapper';
+import { SpellCard } from '@/components/spell/SpellCard';
+import { SpellCardBadges } from '@/components/spell/SpellCardBadges';
+import { SpellCardActions } from '@/components/spell/SpellCardActions';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
 import { EmptyState, Surface, Toggle, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
@@ -126,13 +128,13 @@ export function SpellLibraryLayout() {
             <FilterChips />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
               {spellsToDisplay.map((spell) => (
-                <SpellCardWrapper
+                <SpellCard
                   key={spell.id}
                   spell={spell}
                   showDescription={false}
-                  showSpellbookActions
-                  showSpellbookBadges
                   onClick={() => selectSpell(spell)}
+                  renderBadges={() => <SpellCardBadges spell={spell} showSpellbookBadges />}
+                  renderActions={() => <SpellCardActions spell={spell} showSpellbook />}
                 />
               ))}
             </div>
