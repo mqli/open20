@@ -144,3 +144,18 @@ export type SpellSchool =
   | 'Illusion'
   | 'Necromancy'
   | 'Transmutation';
+
+// 运行时常量 - 法术学派列表
+export const SPELL_SCHOOLS: readonly SpellSchool[] = [
+  'Abjuration',
+  'Conjuration',
+  'Divination',
+  'Enchantment',
+  'Evocation',
+  'Illusion',
+  'Necromancy',
+  'Transmutation',
+] as const;
+
+// 运行时常量 - 法术等级列表
+export const SPELL_LEVELS: readonly SpellLevel[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;

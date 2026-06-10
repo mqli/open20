@@ -36,6 +36,7 @@ export type {
   PactMagicSlots,
   FeatSpellsEntry,
 } from './types/spell';
+export { SPELL_SCHOOLS, SPELL_LEVELS } from './types/spell';
 export type { Resource } from './types';
 export { ResetType } from './types';
 export type {

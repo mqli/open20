@@ -93,8 +93,6 @@ export interface DataLoader {
   getRulesGlossary(): RulesGlossary;
 }
 
-export type SpellLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-
 // ── createDataLoader — 默认工厂函数 ───────────────────────
 // 接收静态 JSON 数据，返回 DataLoader 实例
 // 统一实现，同时支持 Node.js 和 Browser

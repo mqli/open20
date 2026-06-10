@@ -67,6 +67,7 @@ export type { WeaponMasteryProperty } from './equipment';
 export type { Spell, SpellSlotEntry, PactMagicSlots, CharacterSpells } from './spell';
 export type { AlwaysPreparedSpells, ClassSpellData } from './spell';
 export type { SpellLevel, SpellSchool, CastingTime, SpellComponent } from './spell';
+export { SPELL_SCHOOLS, SPELL_LEVELS } from './spell';
 
 // 资源
 export type { Resource } from './resource';

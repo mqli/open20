@@ -1,23 +1,18 @@
 import { useSpellStore } from '@/stores/spell-store';
 import { Button } from '@open20/ui';
 import { useTranslation } from '@/i18n';
+import { SPELL_LEVELS } from 'open20-core';
 
 export function LevelTabs() {
   const t = useTranslation();
   const { selectedLevel, setSelectedLevel } = useSpellStore();
 
   const LEVELS = [
-    { value: null, label: t('allLevels') },
-    { value: 0, label: t('cantrip') },
-    { value: 1, label: `${t('levelLabel')}` },
-    { value: 2, label: `${t('levelLabel')}` },
-    { value: 3, label: `${t('levelLabel')}` },
-    { value: 4, label: `${t('levelLabel')}` },
-    { value: 5, label: `${t('levelLabel')}` },
-    { value: 6, label: `${t('levelLabel')}` },
-    { value: 7, label: `${t('levelLabel')}` },
-    { value: 8, label: `${t('levelLabel')}` },
-    { value: 9, label: `${t('levelLabel')}` },
+    { value: null as number | null, label: t('allLevels') },
+    ...SPELL_LEVELS.map((level) => ({
+      value: level,
+      label: level === 0 ? t('cantrip') : `${t('levelLabel')}`,
+    })),
   ];
 
   return (

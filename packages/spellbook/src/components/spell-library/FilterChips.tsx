@@ -3,17 +3,7 @@ import { Button, FilterChip, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { dataLoader } from '@/core/data-loader';
 import { useMemo } from 'react';
-
-const SCHOOLS = [
-  'Abjuration',
-  'Conjuration',
-  'Divination',
-  'Enchantment',
-  'Evocation',
-  'Illusion',
-  'Necromancy',
-  'Transmutation',
-];
+import { SPELL_SCHOOLS } from 'open20-core';
 
 export function FilterChips() {
   const classes = useMemo(
@@ -116,7 +106,7 @@ export function FilterChips() {
         </Text>
         <div className="max-h-28 overflow-y-auto pr-1 scrollbar-custom">
           <div className="flex flex-wrap gap-1.5">
-            {SCHOOLS.map((school) => (
+            {SPELL_SCHOOLS.map((school) => (
               <FilterChip
                 key={school}
                 variant={selectedSchools.includes(school) ? 'primary' : 'secondary'}
