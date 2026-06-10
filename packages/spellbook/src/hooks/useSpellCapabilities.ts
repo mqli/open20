@@ -1,8 +1,18 @@
 import { useMemo } from 'react';
-import type { Spell } from 'open20-core';
-import { getCasterType } from '@/core/character-service';
-import { spellService } from '@/core/spell-service';
+import type { Spell, SpellLevel } from 'open20-core';
+import {
+  getCasterType,
+  getMatchingClassIds,
+  getSpellClassStates,
+  getAvailableSlots,
+  canCastSpellWithSlots,
+  getBestSpellAttackBonus,
+  pickBestClassId,
+  knowsSpell,
+  isSpellPrepared,
+} from 'open20-core/spells';
 import { useCharacterStore } from '@/stores/character-store';
+import { dataLoader } from '@/core/data-loader';
 
 export interface SpellCapabilities {
   // Basic status
@@ -68,110 +78,59 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
   return useMemo(() => {
     if (!activeCharacter || !spell) return EMPTY_CAPABILITIES;
 
-    const character = activeCharacter;
-
-    // ── matching class IDs ──
-    const matchingClassIds = (character.classes?.map((c) => c.classId) ?? []).filter(
-      (id) => spell.classes?.includes(id) ?? false,
-    );
-
-    // ── prepared / always prepared / cantripKnown ──
-    const alwaysPreparedClassIds = matchingClassIds.filter((classId) => {
-      const classData = character.spells.classSpellcasting[classId];
-      return classData?.alwaysPreparedSpells?.includes(spell.id) ?? false;
-    });
-
-    const preparedClassIds = matchingClassIds.filter((classId) => {
-      const classData = character.spells.classSpellcasting[classId];
-      const isPrepared = classData?.preparedSpells?.includes(spell.id) ?? false;
-      const isAlwaysPrepared = classData?.alwaysPreparedSpells?.includes(spell.id) ?? false;
-      return isPrepared || isAlwaysPrepared;
-    });
-
-    const cantripKnownClassIds =
-      spell.level === 0
-        ? matchingClassIds.filter((classId) => {
-            const classData = character.spells.classSpellcasting[classId];
-            return classData?.knownCantrips?.includes(spell.id) ?? false;
-          })
-        : [];
-
-    const isKnown = spellService.isSpellKnown(character, spell.id);
-    const isPrepared = spellService.isSpellPrepared(character, spell.id);
-    const isCantripKnown = cantripKnownClassIds.length > 0;
-    const isClassSpell = spellService.isSpellForCharacter(character, spell);
-    const isConcentratingOnThis = character.concentration?.spellId === spell.id;
+    const char = activeCharacter;
+    const data = dataLoader;
 
     // ── caster type ──
-    const casterType = getCasterType(character);
+    const casterType = getCasterType(char, data);
 
-    const classSpellcasting = character.spells.classSpellcasting;
-    const primaryClassId = Object.keys(classSpellcasting)[0] ?? null;
+    // ── matching class IDs ──
+    const matchingClassIds = getMatchingClassIds(char, spell);
 
-    // ── statsClassId: pick best class for display purposes ──
-    // For single-class or single-match: use that class.
-    // For multiclass matching multiple classes: pick the one with highest spellAttackBonus
-    // (reasonable heuristic; true D&D 5e multiclass would let the player choose).
-    const statsClassId = (() => {
-      if (matchingClassIds.length === 0) return primaryClassId;
-      if (matchingClassIds.length === 1) return matchingClassIds[0];
-      // Multiple matches: pick highest spellAttackBonus
-      return matchingClassIds.reduce((best, id) => {
-        const bestBonus = classSpellcasting[best]?.spellAttackBonus ?? -Infinity;
-        const currentBonus = classSpellcasting[id]?.spellAttackBonus ?? -Infinity;
-        return currentBonus > bestBonus ? id : best;
-      }, matchingClassIds[0]);
-    })();
+    // ── spell class states (replaces 3 separate filters) ──
+    const classStates = getSpellClassStates(char, spell.id);
+    const preparedClassIds = classStates
+      .filter((s) => s.isPrepared || s.isAlwaysPrepared)
+      .map((s) => s.classId);
+    const alwaysPreparedClassIds = classStates
+      .filter((s) => s.isAlwaysPrepared)
+      .map((s) => s.classId);
+    const cantripKnownClassIds = classStates.filter((s) => s.isCantripKnown).map((s) => s.classId);
 
-    // ── spell attack bonus ──
-    const spellAttackBonus = statsClassId
-      ? (classSpellcasting[statsClassId]?.spellAttackBonus ?? 0)
-      : 0;
-
-    // ── slots ──
-    const isWarlock = character.classes?.some((c) => c.classId === 'Warlock') ?? false;
-    const pactMagic = character.spells.pactMagicSlots;
-    const spellSlots = character.spells.spellSlots;
-
-    // Cantrips never consume slots — hasRegularSlot is only meaningful for leveled spells.
-    // For UI indicators, treat cantrips as always having a "slot".
-    const hasRegularSlot =
-      spell.level === 0 ||
-      (spellSlots[spell.level]?.total ?? 0) > (spellSlots[spell.level]?.used ?? 0);
-    const hasPactSlot = !!(
-      isWarlock &&
-      pactMagic &&
-      pactMagic.used < pactMagic.total &&
-      spell.level <= pactMagic.level
-    );
+    // ── basic status ──
+    const isKnown = knowsSpell(char, spell.id);
+    const isPrepared = isSpellPrepared(char, spell.id);
+    const isCantripKnown = cantripKnownClassIds.length > 0;
+    const isClassSpell = matchingClassIds.length > 0;
+    const isConcentratingOnThis = char.concentration?.spellId === spell.id;
 
     // ── knows (spellbook-caster-aware) ──
     // For spellbook casters (Wizard), must have learned the spell.
     // For other casters (Cleric, Druid, etc.), all class spells are "known".
     const knows = casterType.isSpellbookCaster ? isKnown : true;
 
+    // ── slots ──
+    const slotInfo = getAvailableSlots(char, spell.level as SpellLevel);
+    const hasRegularSlot = slotInfo.hasRegularSlot;
+    const hasPactSlot = slotInfo.hasPactSlot;
+    const isWarlock = (char.classes ?? []).some((c) => c.classId === 'Warlock');
+
+    // ── canCast (enhanced: checks slots) ──
+    const canCast = canCastSpellWithSlots(char, spell);
+
+    // ── spell attack bonus ──
+    const statsClassId = pickBestClassId(char, matchingClassIds);
+    const spellAttackBonus = statsClassId
+      ? (char.spells.classSpellcasting[statsClassId]?.spellAttackBonus ?? 0)
+      : getBestSpellAttackBonus(char);
+
+    // ── button visibility ──
     // Character must be high enough level to access this spell level (slots exist at all)
     const canAccessSpellLevel =
       spell.level === 0 ||
-      (spellSlots[spell.level]?.total ?? 0) > 0 ||
-      !!(pactMagic && spell.level <= pactMagic.level);
+      (char.spells.spellSlots[spell.level]?.total ?? 0) > 0 ||
+      !!(char.spells.pactMagicSlots && spell.level <= char.spells.pactMagicSlots.level);
 
-    // ── canCast ──
-    // Cantrips: can cast if isClassSpell (no preparation or slot consumption).
-    // Leveled spells: must be prepared (or always prepared) AND have a slot.
-    const canCast = (() => {
-      if (!isClassSpell) return false;
-
-      if (spell.level === 0) {
-        // Cantrips: castable if known (for cantrip-known casters) or automatically for others
-        return knows;
-      }
-
-      // Leveled spells: must be prepared and have a slot
-      return (knows || isPrepared) && (hasRegularSlot || hasPactSlot);
-    })();
-
-    // ── button visibility ──
     // Prepare button: show for prepared casters (canPrepare) when the spell is known/accessible.
     // For spellbook casters, must also have learned the spell first.
     const showPrepareButton =

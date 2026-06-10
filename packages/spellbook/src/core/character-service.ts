@@ -16,57 +16,29 @@ import {
   startConcentration as open20StartConcentration,
   endConcentration as open20EndConcentration,
   castSpell as open20CastSpell,
-  isSpellbookCaster,
-  canChangeSpellsOnLongRest,
-  canChangeSpellsOnLevelUp,
   getModifier,
   getTotalScore,
   type AttackRollResult,
   type DamageRollResult,
   type DataLoader,
 } from 'open20-core';
+import {
+  getCasterType as coreGetCasterType,
+  getCasterTypeForClass as coreGetCasterTypeForClass,
+} from 'open20-core/spells';
 import type { AppCharacter } from './types';
 import { SpellService, spellService } from './spell-service';
 
 import { dataLoader } from './data-loader';
 import type { SpellLevel } from 'open20-core/data';
 
-export function getCasterType(character: AppCharacter): {
-  canLearn: boolean;
-  canPrepare: boolean;
-  isSpellbookCaster: boolean;
-} {
-  const classIds = character.classes?.map((c) => c.classId) ?? [];
-  const classes = classIds
-    .map((id) => dataLoader.getClass(id))
-    .filter((c): c is NonNullable<typeof c> => c != null);
-
-  const canPrepare = classes.some(
-    (c) => canChangeSpellsOnLongRest(c) || canChangeSpellsOnLevelUp(c),
-  );
-  // D&D 2024: only spellbook casters (Wizard) "learn" spells; others prepare from full class list
-  const canLearn = classes.some(isSpellbookCaster);
-  const spellbookCaster = canLearn;
-
-  return { canLearn, canPrepare, isSpellbookCaster: spellbookCaster };
+// Wrappers around core functions (core functions require DataLoader parameter)
+export function getCasterType(character: AppCharacter) {
+  return coreGetCasterType(character as unknown as import('open20-core').Character, dataLoader);
 }
 
-export function getCasterTypeForClass(classId: string): {
-  canLearn: boolean;
-  canPrepare: boolean;
-  isSpellbookCaster: boolean;
-} {
-  const classDef = dataLoader.getClass(classId);
-  if (!classDef) {
-    return { canLearn: false, canPrepare: false, isSpellbookCaster: false };
-  }
-
-  return {
-    // D&D 2024: only spellbook casters (Wizard) "learn" spells
-    canLearn: isSpellbookCaster(classDef),
-    canPrepare: canChangeSpellsOnLongRest(classDef) || canChangeSpellsOnLevelUp(classDef),
-    isSpellbookCaster: isSpellbookCaster(classDef),
-  };
+export function getCasterTypeForClass(classId: string) {
+  return coreGetCasterTypeForClass(classId, dataLoader);
 }
 
 export class CharacterService {

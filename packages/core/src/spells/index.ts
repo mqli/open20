@@ -21,3 +21,16 @@ export {
   canChangeSpellsOnLevelUp,
   canCastSpell,
 } from './query';
+
+export type { CasterType, SpellClassState, SlotAvailability } from './capabilities';
+export {
+  getCasterType,
+  getCasterTypeForClass,
+  getMatchingClassIds,
+  getSpellClassStates,
+  getAvailableSlots,
+  canCastSpellWithSlots,
+  getSpellAttackBonusForClass,
+  getBestSpellAttackBonus,
+  pickBestClassId,
+} from './capabilities';

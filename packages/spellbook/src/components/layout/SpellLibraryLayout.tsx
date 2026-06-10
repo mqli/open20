@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSpellStore } from '@/stores/spell-store';
 import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
@@ -9,7 +9,8 @@ import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout'
 import { EmptyState, Surface, Toggle, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/character-store';
-import { getCasterType } from '@/core/character-service';
+import { getCasterType } from 'open20-core/spells';
+import { dataLoader } from '@/core/data-loader';
 import { CharacterBar } from '@/components/character/CharacterBar';
 
 export function SpellLibraryLayout() {
@@ -55,9 +56,12 @@ export function SpellLibraryLayout() {
     );
   }
 
-  const casterType = activeCharacter
-    ? getCasterType(activeCharacter)
-    : { canLearn: false, canPrepare: false };
+  const casterType = useMemo(() => {
+    if (!activeCharacter) {
+      return { canLearn: false, canPrepare: false, isSpellbookCaster: false };
+    }
+    return getCasterType(activeCharacter, dataLoader);
+  }, [activeCharacter]);
   const activeFilter = showPreparedOnly ? 'prepared' : showKnownOnly ? 'known' : null;
 
   const emptyMessage =

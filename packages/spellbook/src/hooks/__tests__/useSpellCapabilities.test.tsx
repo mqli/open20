@@ -5,7 +5,17 @@ import type { Spell } from 'open20-core';
 import { useSpellCapabilities } from '../useSpellCapabilities';
 import { useCharacterStore } from '@/stores/character-store';
 import { spellService } from '@/core/spell-service';
-import { getCasterType } from '@/core/character-service';
+import {
+  getCasterType,
+  getMatchingClassIds,
+  getSpellClassStates,
+  getAvailableSlots,
+  canCastSpellWithSlots,
+  getBestSpellAttackBonus,
+  pickBestClassId,
+  knowsSpell,
+  isSpellPrepared,
+} from 'open20-core/spells';
 
 // Mock the stores and services
 vi.mock('@/stores/character-store', () => ({
@@ -20,13 +30,34 @@ vi.mock('@/core/spell-service', () => ({
   },
 }));
 
-vi.mock('@/core/character-service', () => ({
+vi.mock('open20-core/spells', () => ({
   getCasterType: vi.fn(),
+  getMatchingClassIds: vi.fn(() => []),
+  getSpellClassStates: vi.fn(() => []),
+  getAvailableSlots: vi.fn(() => ({ hasRegularSlot: false, hasPactSlot: false })),
+  canCastSpellWithSlots: vi.fn(() => false),
+  getBestSpellAttackBonus: vi.fn(() => 0),
+  pickBestClassId: vi.fn(() => null),
+  knowsSpell: vi.fn(() => false),
+  isSpellPrepared: vi.fn(() => false),
 }));
 
-const mockUseCharacterStore = useCharacterStore as unknown as ReturnType<typeof vi.fn>;
-const mockSpellService = spellService as unknown as Record<string, unknown>;
-const mockGetCasterType = getCasterType as unknown as ReturnType<typeof vi.fn>;
+vi.mock('@/core/data-loader', () => ({
+  dataLoader: {},
+}));
+
+// Get mocked function references
+const mockUseCharacterStore = vi.mocked(useCharacterStore);
+const mockSpellService = vi.mocked(spellService);
+const mockGetCasterType = vi.mocked(getCasterType);
+const mockGetMatchingClassIds = vi.mocked(getMatchingClassIds);
+const mockGetSpellClassStates = vi.mocked(getSpellClassStates);
+const mockGetAvailableSlots = vi.mocked(getAvailableSlots);
+const mockCanCastSpellWithSlots = vi.mocked(canCastSpellWithSlots);
+const mockGetBestSpellAttackBonus = vi.mocked(getBestSpellAttackBonus);
+const mockPickBestClassId = vi.mocked(pickBestClassId);
+const mockKnowsSpell = vi.mocked(knowsSpell);
+const mockIsSpellPrepared = vi.mocked(isSpellPrepared);
 
 describe('useSpellCapabilities', () => {
   beforeEach(() => {
@@ -37,21 +68,18 @@ describe('useSpellCapabilities', () => {
       canPrepare: false,
       isSpellbookCaster: false,
     });
-    (mockSpellService.isSpellKnown as ReturnType<typeof vi.fn>).mockReturnValue(false);
-    (mockSpellService.isSpellPrepared as ReturnType<typeof vi.fn>).mockReturnValue(false);
-    (mockSpellService.isSpellForCharacter as ReturnType<typeof vi.fn>).mockReturnValue(false);
+    mockGetMatchingClassIds.mockReturnValue([]);
+    mockGetSpellClassStates.mockReturnValue([]);
+    mockGetAvailableSlots.mockReturnValue({ hasRegularSlot: false, hasPactSlot: false });
+    mockCanCastSpellWithSlots.mockReturnValue(false);
+    mockGetBestSpellAttackBonus.mockReturnValue(0);
+    mockPickBestClassId.mockReturnValue(null);
+    mockKnowsSpell.mockReturnValue(false);
+    mockIsSpellPrepared.mockReturnValue(false);
+    mockSpellService.isSpellKnown.mockReturnValue(false);
+    mockSpellService.isSpellPrepared.mockReturnValue(false);
+    mockSpellService.isSpellForCharacter.mockReturnValue(false);
   });
-
-  const baseSpell: Readonly<
-    Pick<Spell, 'concentration' | 'ritual' | 'source' | 'components' | 'description' | 'classes'>
-  > = {
-    concentration: false,
-    ritual: false,
-    source: 'SRD',
-    components: ['V', 'S'] as const,
-    description: [] as readonly string[],
-    classes: ['Wizard'] as readonly string[],
-  };
 
   const createMockCharacter = (overrides = {}) => ({
     id: 'char1',
@@ -93,7 +121,12 @@ describe('useSpellCapabilities', () => {
       range: '60 ft.',
       duration: 'Instantaneous',
       attack: false,
-      ...baseSpell,
+      concentration: false,
+      ritual: false,
+      source: 'SRD' as const,
+      components: ['V', 'S'] as const,
+      description: [] as readonly string[],
+      classes: ['Wizard'] as readonly string[],
       ...overrides,
     }) as unknown as Spell;
 
@@ -121,7 +154,7 @@ describe('useSpellCapabilities', () => {
   it('should detect class spell correctly', () => {
     const mockCharacter = createMockCharacter();
     mockUseCharacterStore.mockReturnValue({ activeCharacter: mockCharacter });
-    (mockSpellService.isSpellForCharacter as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    mockGetMatchingClassIds.mockReturnValue(['Wizard']);
 
     const spell = createMockSpell();
     const { result } = renderHook(() => useSpellCapabilities(spell));
@@ -148,7 +181,23 @@ describe('useSpellCapabilities', () => {
       },
     });
     mockUseCharacterStore.mockReturnValue({ activeCharacter: mockCharacter });
-    (mockSpellService.isSpellForCharacter as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    mockGetMatchingClassIds.mockReturnValue(['Wizard']);
+    mockGetSpellClassStates.mockReturnValue([
+      {
+        classId: 'Wizard',
+        isKnown: true,
+        isPrepared: false,
+        isAlwaysPrepared: false,
+        isCantripKnown: true,
+      },
+    ]);
+    mockGetCasterType.mockReturnValue({
+      canLearn: true,
+      canPrepare: true,
+      isSpellbookCaster: true,
+    });
+    mockKnowsSpell.mockReturnValue(true);
+    mockCanCastSpellWithSlots.mockReturnValue(true);
 
     const spell = createMockSpell({
       id: 'test-cantrip',
@@ -158,6 +207,6 @@ describe('useSpellCapabilities', () => {
     const { result } = renderHook(() => useSpellCapabilities(spell));
 
     expect(result.current.isClassSpell).toBe(true);
-    expect(result.current.canCast).toBe(true); // Cantrips are castable if class spell
+    expect(result.current.canCast).toBe(true);
   });
 });

@@ -6,6 +6,7 @@ import {
   getTotalScore,
   type Spell,
   rollSpellDamage,
+  isCantrip,
 } from 'open20-core';
 import type { SpellLevel, AbilityName } from 'open20-core/types';
 import type { ComponentProps, ReactNode } from 'react';
@@ -406,7 +407,7 @@ export function SpellCardWrapper({
                   spell={spell}
                   isPrepared={isPrepared}
                   isIconStyle={isIconStyle}
-                  showCastAction={!!activeCharacter && !!showCastAction}
+                  showCastAction={!!activeCharacter && !!showCastAction && !isCantrip(spell)}
                   showAttackAction={showAttackAction}
                   showDamageActions={showDamageActions}
                   hasDamageEntries={hasDamageEntries}

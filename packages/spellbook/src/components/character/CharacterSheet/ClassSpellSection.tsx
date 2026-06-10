@@ -14,12 +14,13 @@ import {
 } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
-import { getCasterTypeForClass } from '@/core/character-service';
+import { getCasterTypeForClass } from 'open20-core/spells';
+import { dataLoader } from '@/core/data-loader';
 import { useCharacterStore } from '@/stores/character-store';
 import { useSpellStore } from '@/stores/spell-store';
 import type { SpellLevel, Spell, SpellSlotEntry } from 'open20-core/types';
 import { SpellEntry } from './SpellEntry';
-import { useState, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 
 function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
@@ -63,12 +64,21 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
   const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
   const [cantripToReplace, setCantripToReplace] = useState<string | null>(null);
 
-  if (!activeCharacter) return null;
+  // All hooks must be called before any early returns
+  const classData = activeCharacter?.spells.classSpellcasting[classId];
 
-  const classData = activeCharacter.spells.classSpellcasting[classId];
+  const availableCantrips = useMemo(() => {
+    if (!classData) return [];
+    return spellService
+      .searchSpells({ classes: [classId], level: 0 })
+      .filter((s) => !classData.knownCantrips.includes(s.id));
+  }, [classId, classData?.knownCantrips]);
+
+  // Early returns after all hooks
+  if (!activeCharacter) return null;
   if (!classData) return null;
 
-  const casterType = getCasterTypeForClass(classId);
+  const casterType = getCasterTypeForClass(classId, dataLoader);
   const ability = classData.spellcastingAbility;
   const stats = RulesService.getProjectedStats(activeCharacter);
   const abilityMod = stats.abilityModifiers[ability] ?? 0;
@@ -97,12 +107,6 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
     },
     {} as Record<number, Spell[]>,
   );
-
-  const getAvailableCantrips = () => {
-    return spellService
-      .searchSpells({ classes: [classId], level: 0 })
-      .filter((s) => !classData.knownCantrips.includes(s.id));
-  };
 
   const handleLearnCantrip = () => {
     setCantripToReplace(null);
@@ -162,7 +166,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
           onClose={() => setIsCantripModalOpen(false)}
           onSelect={handleCantripSelect}
           cantripToReplace={cantripToReplace}
-          availableCantrips={getAvailableCantrips()}
+          availableCantrips={availableCantrips}
         />
 
         {/* Spell List with Inline Spell Slots */}

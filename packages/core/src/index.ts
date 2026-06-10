@@ -28,6 +28,7 @@ export type {
 export type { Weapon, Armor, GearItem, EquipmentItem } from './types';
 export type {
   Spell,
+  SpellLevel,
   CharacterSpells,
   ClassSpellData,
   AlwaysPreparedSpells,
@@ -193,6 +194,7 @@ export {
 
 // ── Spells (query + preparation rules) ─────────────────
 export type { SpellFilter } from './spells';
+export type { CasterType, SpellClassState, SlotAvailability } from './spells';
 export {
   getSpell as getSpellData,
   searchSpells,
@@ -210,6 +212,15 @@ export {
   canChangeSpellsOnLongRest,
   canChangeSpellsOnLevelUp,
   canCastSpell,
+  getCasterType,
+  getCasterTypeForClass,
+  getMatchingClassIds,
+  getSpellClassStates,
+  getAvailableSlots,
+  canCastSpellWithSlots,
+  getSpellAttackBonusForClass,
+  getBestSpellAttackBonus,
+  pickBestClassId,
 } from './spells';
 
 // ── Monsters (query + combat) ─────────────────────────
