@@ -59,6 +59,7 @@ export {
   canCastCantrip,
   canUpcast,
   getUpcastDescription,
+  getAvailableCastLevels,
   castSpell,
 } from './spell-casting';
 

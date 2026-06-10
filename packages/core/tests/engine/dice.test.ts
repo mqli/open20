@@ -16,7 +16,7 @@ import {
   rollCharacterSavingThrow,
 } from '../../src/rolls/character';
 import { rollCharacterWeaponDamage } from '../../src/rolls/character';
-import { rollSpellDamage } from '../../src/rolls/character';
+import { rollSpellDamage, rollSpellHeal } from '../../src/rolls/character';
 import type { Weapon } from '../../src/types/equipment';
 import type { Spell } from '../../src/types/spell';
 import { createMockCharacter } from '../fixtures/characters';
@@ -535,6 +535,86 @@ describe('rollSpellDamage', () => {
     // typedDamage should have both types
     expect(result.typedDamage['Piercing']).toBeDefined();
     expect(result.typedDamage['Poison']).toBeDefined();
+  });
+});
+
+describe('rollSpellHeal', () => {
+  it('returns empty result when spell has no heal dice', () => {
+    const rng = createMockRNG([4, 3]);
+    const spell: Spell = {
+      id: 'fire-bolt',
+      name: 'Fire Bolt',
+      level: 0,
+      school: 'Evocation',
+      castingTime: 'Action',
+      range: '120 feet',
+      components: ['V', 'S'],
+      duration: 'Instantaneous',
+      concentration: false,
+      ritual: false,
+      description: ['You hurl a mote of fire...'],
+      source: '2024 PHB',
+    };
+
+    expect(rollSpellHeal({ rng, spell, slotLevel: 0 })).toEqual({
+      dice: '',
+      expression: '',
+      total: 0,
+    });
+  });
+
+  it('rolls scaled heal dice at higher slot level', () => {
+    const rng = createMockRNG([5, 6, 4, 3]);
+    const spell: Spell = {
+      id: 'cure-wounds',
+      name: 'Cure Wounds',
+      level: 1,
+      school: 'Evocation',
+      castingTime: 'Action',
+      range: 'Touch',
+      components: ['V', 'S'],
+      duration: 'Instantaneous',
+      concentration: false,
+      ritual: false,
+      description: ['A creature you touch regains hit points.'],
+      heal: { dice: '2d8', perSlot: '1d8' },
+      source: '2024 PHB',
+    };
+
+    const result = rollSpellHeal({ rng, spell, slotLevel: 3 });
+
+    expect(result.dice).toBe('4d8');
+    expect(result.total).toBe(18);
+    expect(result.expression).toBe('4d8');
+  });
+
+  it('adds spellcasting modifier when included', () => {
+    const rng = createMockRNG([4, 3]);
+    const spell: Spell = {
+      id: 'healing-word',
+      name: 'Healing Word',
+      level: 1,
+      school: 'Evocation',
+      castingTime: 'Bonus Action',
+      range: '60 feet',
+      components: ['V'],
+      duration: 'Instantaneous',
+      concentration: false,
+      ritual: false,
+      description: ['A creature regains hit points.'],
+      heal: { dice: '2d4', includeSpellcastingModifier: true },
+      source: '2024 PHB',
+    };
+
+    const result = rollSpellHeal({
+      rng,
+      spell,
+      slotLevel: 1,
+      spellcastingModifier: 3,
+    });
+
+    expect(result.total).toBe(10);
+    expect(result.expression).toBe('2d4 + 3');
   });
 });
 

@@ -126,6 +126,7 @@ export {
   canCastCantrip,
   canUpcast,
   getUpcastDescription,
+  getAvailableCastLevels,
   castSpell,
 } from './character';
 
@@ -221,6 +222,9 @@ export {
   getSpellAttackBonusForClass,
   getBestSpellAttackBonus,
   pickBestClassId,
+  scaleDiceForUpcast,
+  getScaledDamageEntries,
+  getScaledHealDice,
 } from './spells';
 
 // ── Monsters (query + combat) ─────────────────────────
@@ -313,6 +317,8 @@ export type {
   CharacterWeaponDamageParams,
   SpellAttackParams,
   SpellDamageParams,
+  SpellHealParams,
+  SpellHealRollResult,
   MonsterAttackParams,
   MonsterDamageParams,
   MonsterFullAttackParams,
@@ -326,6 +332,7 @@ export {
   rollCharacterWeaponDamage,
   rollSpellAttack,
   rollSpellDamage,
+  rollSpellHeal,
   rollCharacterInitiative,
   rollMonsterAttack,
   rollMonsterDamage,

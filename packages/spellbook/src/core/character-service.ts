@@ -9,6 +9,7 @@ import {
   recomputeDerivedStats as open20Recompute,
   rollSpellAttack,
   rollSpellDamage,
+  rollSpellHeal,
   defaultRandom,
   addKnownSpell,
   removeKnownSpell,
@@ -20,6 +21,7 @@ import {
   getTotalScore,
   type AttackRollResult,
   type DamageRollResult,
+  type SpellHealRollResult,
   type DataLoader,
 } from 'open20-core';
 import {
@@ -318,6 +320,33 @@ export class CharacterService {
       slotLevel: slotLevel ?? spell.level,
       rng: defaultRandom,
       spellcastingModifier: spell.damage?.includeSpellcastingModifier
+        ? spellcastingModifier
+        : undefined,
+    });
+  }
+
+  rollSpellHeal(
+    character: AppCharacter,
+    spellId: string,
+    slotLevel?: SpellLevel,
+  ): SpellHealRollResult {
+    const spell = this.spellService.getSpell(spellId);
+    if (!spell) throw new Error(`Spell not found: ${spellId}`);
+
+    const classSpellcasting = character.spells.classSpellcasting;
+    const primaryClassId = Object.keys(classSpellcasting)[0];
+    const spellcastingAbility = primaryClassId
+      ? classSpellcasting[primaryClassId].spellcastingAbility
+      : ('Intelligence' as const);
+    const spellcastingModifier = getModifier(
+      getTotalScore(character.abilityScores, spellcastingAbility),
+    );
+
+    return rollSpellHeal({
+      spell,
+      slotLevel: slotLevel ?? spell.level,
+      rng: defaultRandom,
+      spellcastingModifier: spell.heal?.includeSpellcastingModifier
         ? spellcastingModifier
         : undefined,
     });

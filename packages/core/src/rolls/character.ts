@@ -16,7 +16,9 @@ import {
   rollDamage,
   rollInitiative,
 } from '@/dice/mechanics';
+import { rollDiceExpression } from '@/dice/core';
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
+import { getScaledDamageEntries, getScaledHealDice } from '@/spells/upcast';
 import { getSkillBonus } from '@/engine/skill-bonus';
 import { SKILL_ABILITY_MAP } from '@/types/skill';
 import { getActiveDamageDefenses, calculateTypedDamage } from '@/engine/damage-calculator';
@@ -250,38 +252,13 @@ export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
     };
   }
 
-  const entries = spell.damage.entries;
-  const damageEntries: import('../dice/mechanics').DamageRollEntry[] = [];
-
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i]!;
-    let diceStr = entry.dice;
-
-    // Handle upcasting: add perSlot damage for each slot level above base
-    if (
-      i === 0 &&
-      slotLevel > spell.level &&
-      spell.damage.perSlot &&
-      spell.damage.perSlot.length > 0
-    ) {
-      const perSlotDice = spell.damage.perSlot[0]!.dice; // e.g., "1d6"
-      const numLevels = slotLevel - spell.level;
-      const baseMatch = diceStr.match(/(\d+)d(\d+)/);
-      const slotMatch = perSlotDice.match(/(\d+)d(\d+)/);
-      // Only combine if same dice sides
-      if (baseMatch && slotMatch && baseMatch[2] === slotMatch[2]) {
-        const baseCount = parseInt(baseMatch[1]!);
-        const slotCount = parseInt(slotMatch[1]!);
-        const totalCount = baseCount + slotCount * numLevels;
-        diceStr = `${totalCount}d${baseMatch[2]}`;
-      }
-    }
-
-    damageEntries.push({
-      dice: diceStr,
-      type: entry.type,
-    });
-  }
+  const scaledEntries = getScaledDamageEntries(spell, slotLevel);
+  const damageEntries: import('../dice/mechanics').DamageRollEntry[] = scaledEntries.map(
+    (entry) => ({
+      dice: entry.dice,
+      type: entry.type ?? '',
+    }),
+  );
 
   // Add additional damage (e.g., Melf's Acid Arrow)
   if (spell.damage.additional) {
@@ -309,6 +286,44 @@ export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
     isCritical: false, // Spells don't normally crit (unless specific feature)
     rng,
   });
+}
+
+// ── Spell Heal Roll ─────────────────────────────────────────────
+
+export interface SpellHealParams {
+  spell: Spell;
+  slotLevel: SpellLevel;
+  rng: RandomProvider;
+  spellcastingModifier?: number;
+}
+
+export interface SpellHealRollResult {
+  dice: string;
+  expression: string;
+  total: number;
+}
+
+/**
+ * Roll spell healing dice, with optional upcast scaling and spellcasting modifier.
+ */
+export function rollSpellHeal(params: SpellHealParams): SpellHealRollResult {
+  const { spell, slotLevel, rng, spellcastingModifier } = params;
+  const healDice = getScaledHealDice(spell, slotLevel);
+
+  if (!healDice) {
+    return { dice: '', expression: '', total: 0 };
+  }
+
+  const result = rollDiceExpression(rng, healDice);
+  let total = result.total;
+  let expression = healDice;
+
+  if (spell.heal?.includeSpellcastingModifier && spellcastingModifier !== undefined) {
+    total += spellcastingModifier;
+    expression += ` + ${spellcastingModifier}`;
+  }
+
+  return { dice: healDice, expression, total };
 }
 
 // ── Initiative Roll (Character) ─────────────────────────────────

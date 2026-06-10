@@ -9,6 +9,8 @@ export {
   type CharacterWeaponDamageParams,
   type SpellAttackParams,
   type SpellDamageParams,
+  type SpellHealParams,
+  type SpellHealRollResult,
   type CharacterInitiativeParams,
   rollCharacterSkillCheck,
   rollCharacterSavingThrow,
@@ -16,6 +18,7 @@ export {
   rollCharacterWeaponDamage,
   rollSpellAttack,
   rollSpellDamage,
+  rollSpellHeal,
   rollCharacterInitiative,
 } from './character';
 

@@ -8,6 +8,7 @@ import type { Spell, SpellLevel, ClassSpellData, CastingTime } from '@/types';
 import type { FeatSpellsEntry } from '@/types/spell';
 import type { Character } from '@/types';
 import type { DataLoader } from '@/data/loader';
+import { getAvailableSlots } from '@/spells/capabilities';
 
 // ── Helper Functions ──────────────────────────────────────
 
@@ -147,6 +148,38 @@ export function getUpcastDescription(spell: Spell, slotLevel: SpellLevel): strin
   // with a single catch-all upcast description.
   const idx = slotLevel - spell.level - 1;
   return spell.usingAHigherLevelSpellSlot![idx] ?? spell.usingAHigherLevelSpellSlot![0];
+}
+
+/**
+ * Slot levels at which a spell can be cast.
+ * Without a character, returns all theoretical upcast levels for browsing.
+ */
+export function getAvailableCastLevels(
+  char: Character | null | undefined,
+  spell: Spell,
+): SpellLevel[] {
+  if (spell.level === 0) return [0 as SpellLevel];
+
+  if (!char) {
+    const maxLevel = canUpcast(spell) ? 9 : spell.level;
+    return Array.from(
+      { length: maxLevel - spell.level + 1 },
+      (_, i) => (spell.level + i) as SpellLevel,
+    );
+  }
+
+  const levels: SpellLevel[] = [];
+  const maxLevel = canUpcast(spell) ? 9 : spell.level;
+
+  for (let lvl = spell.level; lvl <= maxLevel; lvl++) {
+    const slotLevel = lvl as SpellLevel;
+    const slots = getAvailableSlots(char, slotLevel);
+    if (slots.hasRegularSlot || slots.hasPactSlot) {
+      levels.push(slotLevel);
+    }
+  }
+
+  return levels;
 }
 
 /** Find all class spell data entries that can cast a spell. */

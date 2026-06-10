@@ -1,19 +1,16 @@
 import {
-  canUpcast,
   defaultRandom,
   rollDiceExpression,
-  getModifier,
-  getTotalScore,
   type Spell,
   rollSpellDamage,
+  rollSpellHeal,
   isCantrip,
 } from 'open20-core';
-import type { SpellLevel, AbilityName } from 'open20-core/types';
 import type { ComponentProps, ReactNode } from 'react';
-import { useState, useMemo } from 'react';
 import { SpellCard as SpellCardUI } from '@open20/ui';
 import { characterService } from '@/core/character-service';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
+import { useSpellCastLevel } from '@/hooks/useSpellCastLevel';
 import { useCharacterStore } from '@/stores/character-store';
 import { useRollStore } from '@/stores/roll-store';
 import { ConcentrationToggle } from './ConcentrationToggle';
@@ -95,6 +92,15 @@ export function SpellCardWrapper({
     cantripKnownClassIds,
   } = useSpellCapabilities(spell);
 
+  const {
+    availableCastLevels,
+    selectedCastLevel,
+    setSelectedCastLevel,
+    effectiveCastLevel,
+    effectiveDamageEntries,
+    effectiveHealDice,
+  } = useSpellCastLevel(spell, activeCharacter);
+
   const damageEntries = spell.damage?.entries ?? [];
   const isIconStyle = actionStyle === 'icon';
   const hasDamageEntries = damageEntries.length > 0;
@@ -102,6 +108,7 @@ export function SpellCardWrapper({
   const canShowConcentrationAction =
     showConcentrationAction && spell.concentration && !!activeCharacter;
   const shouldUseSpellbookStateStyling = showSpellbookActions || showSpellbookBadges;
+  const spellSlots = activeCharacter?.spells.spellSlots;
 
   const spellbookSurfaceVariant = isConcentratingOnThis
     ? 'warning'
@@ -118,109 +125,6 @@ export function SpellCardWrapper({
     (showDamageActions && (hasDamageEntries || hasHealEntry)) ||
     canShowConcentrationAction;
   const shouldRenderActions = hasSharedActions || !!renderActions;
-
-  // ── Cast-at-higher-level state ──
-
-  const spellSlots = activeCharacter?.spells.spellSlots;
-
-  const availableCastLevels = useMemo<SpellLevel[]>(() => {
-    if (spell.level === 0) return [0 as SpellLevel];
-    if (!activeCharacter) {
-      // No active character - allow all possible upcast levels without slot check
-      const maxLevel = canUpcast(spell) ? 9 : spell.level;
-      return Array.from(
-        { length: maxLevel - spell.level + 1 },
-        (_, i) => (spell.level + i) as SpellLevel,
-      );
-    }
-
-    const levels: SpellLevel[] = [];
-    const slots = activeCharacter.spells.spellSlots;
-    const pactSlots = activeCharacter.spells.pactMagicSlots;
-    const maxLevel = canUpcast(spell) ? 9 : spell.level;
-
-    for (let lvl = spell.level; lvl <= maxLevel; lvl++) {
-      const slotLevel = lvl as SpellLevel;
-      const regularSlot = slots[slotLevel];
-      if (regularSlot && regularSlot.used < regularSlot.total) {
-        levels.push(slotLevel);
-        continue;
-      }
-      if (pactSlots && pactSlots.used < pactSlots.total && lvl <= pactSlots.level) {
-        levels.push(slotLevel);
-      }
-    }
-
-    return levels;
-  }, [activeCharacter, spell]);
-
-  const [selectedCastLevel, setSelectedCastLevel] = useState<SpellLevel>(
-    () => Math.max(spell.level, Math.min(...availableCastLevels)) as SpellLevel,
-  );
-
-  const effectiveCastLevel = useMemo<SpellLevel>(() => {
-    if (spell.level === 0) return 0 as SpellLevel;
-    if (availableCastLevels.includes(selectedCastLevel)) return selectedCastLevel;
-    return availableCastLevels[0] ?? (spell.level as SpellLevel);
-  }, [selectedCastLevel, availableCastLevels, spell.level]);
-
-  // Adjust selectedCastLevel when availableCastLevels changes and current
-  // selection is no longer valid. Done during render, not in an effect.
-  const [prevAvailable, setPrevAvailable] = useState(availableCastLevels);
-  if (prevAvailable !== availableCastLevels) {
-    setPrevAvailable(availableCastLevels);
-    if (
-      availableCastLevels.length > 0 &&
-      spell.level > 0 &&
-      !availableCastLevels.includes(selectedCastLevel)
-    ) {
-      setSelectedCastLevel(availableCastLevels[0]!);
-    }
-  }
-
-  const effectiveDamageEntries = useMemo(() => {
-    const entries = spell.damage?.entries ?? [];
-    const perSlot = spell.damage?.perSlot;
-    if (!perSlot || perSlot.length === 0 || effectiveCastLevel <= spell.level) return entries;
-
-    const numLevels = effectiveCastLevel - spell.level;
-    return entries.map((entry, i) => {
-      if (i !== 0) return entry;
-      const perSlotDice = perSlot[0]!.dice;
-      const baseMatch = entry.dice.match(/(\d+)d(\d+)/);
-      const slotMatch = perSlotDice.match(/(\d+)d(\d+)/);
-      if (baseMatch && slotMatch && baseMatch[2] === slotMatch[2]) {
-        const baseCount = parseInt(baseMatch[1]!);
-        const slotCount = parseInt(slotMatch[1]!);
-        return {
-          ...entry,
-          dice: `${baseCount + slotCount * numLevels}d${baseMatch[2]}`,
-        };
-      }
-      return entry;
-    });
-  }, [spell, effectiveCastLevel]);
-
-  const effectiveHealDice = useMemo(() => {
-    const baseDice = spell.heal?.dice;
-    const perSlot = spell.heal?.perSlot;
-    if (!baseDice) return undefined;
-    if (!perSlot || effectiveCastLevel <= spell.level) return baseDice;
-
-    const numLevels = effectiveCastLevel - spell.level;
-    const baseMatch = baseDice.match(/(\d+)d(\d+)/);
-    const slotMatch = perSlot.match(/(\d+)d(\d+)/);
-
-    if (baseMatch && slotMatch && baseMatch[2] === slotMatch[2]) {
-      const baseCount = parseInt(baseMatch[1]!);
-      const slotCount = parseInt(slotMatch[1]!);
-      return `${baseCount + slotCount * numLevels}d${baseMatch[2]}`;
-    }
-
-    return baseDice;
-  }, [spell.heal?.dice, spell.heal?.perSlot, effectiveCastLevel, spell.level]);
-
-  // ── Handlers ──
 
   const handleCast = () => {
     castSpell(spell.id, effectiveCastLevel);
@@ -268,28 +172,18 @@ export function SpellCardWrapper({
   const handleHealRoll = () => {
     if (!effectiveHealDice) return;
 
-    const result = rollDiceExpression(defaultRandom, effectiveHealDice);
-    let total = result.total;
-    let expression = effectiveHealDice;
-
-    // Add spellcasting ability modifier if the spell includes it
-    if (spell.heal?.includeSpellcastingModifier && activeCharacter) {
-      const classSpellcasting = activeCharacter.spells.classSpellcasting;
-      const primaryClassId = Object.keys(classSpellcasting)[0];
-      const spellcastingAbility = primaryClassId
-        ? classSpellcasting[primaryClassId].spellcastingAbility
-        : ('Intelligence' as AbilityName);
-      const modifier = getModifier(
-        getTotalScore(activeCharacter.abilityScores, spellcastingAbility),
-      );
-      total += modifier;
-      expression += ` + ${modifier}`;
-    }
+    const result = activeCharacter
+      ? characterService.rollSpellHeal(activeCharacter, spell.id, effectiveCastLevel)
+      : rollSpellHeal({
+          spell,
+          slotLevel: effectiveCastLevel,
+          rng: defaultRandom,
+        });
 
     addRoll({
       label: t('healingRoll'),
-      expression,
-      total,
+      expression: result.expression,
+      total: result.total,
     });
   };
 
@@ -353,8 +247,6 @@ export function SpellCardWrapper({
     }
   };
 
-  // ── Render ──
-
   return (
     <SpellCardUI
       spell={spell}
@@ -366,7 +258,7 @@ export function SpellCardWrapper({
         surfaceVariant ?? (shouldUseSpellbookStateStyling ? spellbookSurfaceVariant : undefined)
       }
       glow={glow ?? (shouldUseSpellbookStateStyling ? isPrepared : undefined)}
-      onClick={onClick ? () => onClick() : undefined}
+      onClick={onClick}
       renderBadges={
         showSpellbookBadges
           ? () => (

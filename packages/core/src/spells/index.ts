@@ -34,3 +34,5 @@ export {
   getBestSpellAttackBonus,
   pickBestClassId,
 } from './capabilities';
+
+export { scaleDiceForUpcast, getScaledDamageEntries, getScaledHealDice } from './upcast';

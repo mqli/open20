@@ -9,6 +9,7 @@ import {
   isCantrip,
   canUpcast,
   getUpcastDescription,
+  getAvailableCastLevels,
   castSpell,
 } from '../../src/character/spell-casting';
 import type { Spell, Character } from '../../src/types';
@@ -281,6 +282,39 @@ describe('spell-casting', () => {
     it('should return undefined for same level', () => {
       const desc = getUpcastDescription(mockUpcastSpell, 3);
       expect(desc).toBeUndefined();
+    });
+  });
+
+  describe('getAvailableCastLevels', () => {
+    it('should return only cantrip level for cantrips', () => {
+      expect(getAvailableCastLevels(mockWizardChar as Character, mockCantrip)).toEqual([0]);
+    });
+
+    it('should return theoretical upcast levels without a character', () => {
+      expect(getAvailableCastLevels(null, mockUpcastSpell)).toEqual([3, 4, 5, 6, 7, 8, 9]);
+    });
+
+    it('should return only base level for non-upcast spells without a character', () => {
+      expect(getAvailableCastLevels(undefined, mockSpell)).toEqual([1]);
+    });
+
+    it('should return levels with available slots for a character', () => {
+      expect(getAvailableCastLevels(mockWizardChar as Character, mockSpell)).toEqual([1]);
+    });
+
+    it('should include higher upcast levels when slots are available', () => {
+      const charWithSlots = {
+        ...mockWizardChar,
+        spells: {
+          ...mockWizardChar.spells,
+          spellSlots: {
+            ...mockWizardChar.spells.spellSlots,
+            3: { total: 2, used: 0 },
+            4: { total: 1, used: 0 },
+          },
+        },
+      };
+      expect(getAvailableCastLevels(charWithSlots as Character, mockUpcastSpell)).toEqual([3, 4]);
     });
   });
 
