@@ -2,10 +2,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { DiceRollOverlay } from '../DiceRollOverlay';
-import { useRollStore } from '@/stores/roll-store';
+import { useRollStore } from '@/stores/rollStore';
 
 // Mock the roll store
-vi.mock('@/stores/roll-store', () => ({
+vi.mock('@/stores/rollStore', () => ({
   useRollStore: vi.fn(),
 }));
 

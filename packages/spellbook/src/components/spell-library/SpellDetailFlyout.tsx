@@ -1,10 +1,10 @@
 import { X } from 'lucide-react';
-import { useSpellStore } from '@/stores/spell-store';
+import { useSpellStore } from '@/stores/spellStore';
 import { IconButton, Sheet, Dialog } from '@open20/ui';
 import { SpellCard } from '@/components/spell/SpellCard';
 import { SpellCardBadges } from '@/components/spell/SpellCardBadges';
 import { SpellCardActions } from '@/components/spell/SpellCardActions';
-import { useIsLargeScreen } from '@/hooks/use-breakpoint';
+import { useIsLargeScreen } from '@/hooks/useBreakpoint';
 
 function SpellDetailContent({
   spell,

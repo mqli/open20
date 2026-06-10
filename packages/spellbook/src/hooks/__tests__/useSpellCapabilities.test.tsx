@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import type { Spell } from 'open20-core';
 import { useSpellCapabilities } from '../useSpellCapabilities';
-import { useCharacterStore } from '@/stores/character-store';
+import { useCharacterStore } from '@/stores/characterStore';
 import { spellService } from '@/core/spell-service';
 import {
   getCasterType,
@@ -18,7 +18,7 @@ import {
 } from 'open20-core/spells';
 
 // Mock the stores and services
-vi.mock('@/stores/character-store', () => ({
+vi.mock('@/stores/characterStore', () => ({
   useCharacterStore: vi.fn(),
 }));
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useUIStore } from './stores/ui-store';
+import { useUIStore } from './stores/uiStore';
 import { SpellLibraryLayout } from './components/layout/SpellLibraryLayout';
 import { DiceRollOverlay } from './components/dice/DiceRollOverlay';
 import { I18nProvider } from '@open20/ui';

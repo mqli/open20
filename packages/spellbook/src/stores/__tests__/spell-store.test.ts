@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useSpellStore } from '@/stores/spell-store';
+import { useSpellStore } from '@/stores/spellStore';
 import type { Spell } from 'open20-core';
 
 describe('SpellStore', () => {

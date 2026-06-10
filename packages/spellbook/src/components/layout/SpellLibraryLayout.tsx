@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useSpellStore } from '@/stores/spell-store';
+import { useSpellStore } from '@/stores/spellStore';
 import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
 import { LevelTabs } from '@/components/spell-library/LevelTabs';
@@ -10,7 +10,7 @@ import { SpellCardActions } from '@/components/spell/SpellCardActions';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
 import { EmptyState, Surface, Toggle, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
-import { useCharacterStore } from '@/stores/character-store';
+import { useCharacterStore } from '@/stores/characterStore';
 import { getCasterType } from 'open20-core/spells';
 import { dataLoader } from '@/core/data-loader';
 import { CharacterBar } from '@/components/character/CharacterBar';

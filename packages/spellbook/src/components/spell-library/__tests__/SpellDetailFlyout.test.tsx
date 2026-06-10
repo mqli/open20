@@ -2,16 +2,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { SpellDetailFlyout } from '../SpellDetailFlyout';
-import { useSpellStore } from '@/stores/spell-store';
+import { useSpellStore } from '@/stores/spellStore';
 import type { Spell } from 'open20-core';
 
 // Mock the stores
-vi.mock('@/stores/spell-store', () => ({
+vi.mock('@/stores/spellStore', () => ({
   useSpellStore: vi.fn(),
 }));
 
 // Mock useIsLargeScreen to return false (tests expect Sheet behavior)
-vi.mock('@/hooks/use-breakpoint', () => ({
+vi.mock('@/hooks/useBreakpoint', () => ({
   useIsLargeScreen: () => false,
 }));
 

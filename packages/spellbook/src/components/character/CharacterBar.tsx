@@ -1,6 +1,6 @@
 import { useState, Fragment, useMemo } from 'react';
-import { useCharacterStore } from '@/stores/character-store';
-import { useUIStore } from '@/stores/ui-store';
+import { useCharacterStore } from '@/stores/characterStore';
+import { useUIStore } from '@/stores/uiStore';
 import type { AppCharacter } from '@/core/types';
 import { dataLoader } from '@/core/data-loader';
 import {

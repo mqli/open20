@@ -11,7 +11,7 @@ import {
   knowsSpell,
   isSpellPrepared,
 } from 'open20-core/spells';
-import { useCharacterStore } from '@/stores/character-store';
+import { useCharacterStore } from '@/stores/characterStore';
 import { dataLoader } from '@/core/data-loader';
 
 export interface SpellCapabilities {

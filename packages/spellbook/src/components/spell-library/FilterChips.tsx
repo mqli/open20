@@ -1,4 +1,4 @@
-import { useSpellStore } from '@/stores/spell-store';
+import { useSpellStore } from '@/stores/spellStore';
 import { Button, FilterChip, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { dataLoader } from '@/core/data-loader';

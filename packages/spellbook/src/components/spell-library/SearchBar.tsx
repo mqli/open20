@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
-import { useSpellStore } from '@/stores/spell-store';
+import { useSpellStore } from '@/stores/spellStore';
 import { Input, Button } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 

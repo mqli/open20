@@ -1,4 +1,4 @@
-import { useRollStore } from '@/stores/roll-store';
+import { useRollStore } from '@/stores/rollStore';
 import { Dices, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { IconButton, Surface, Text } from '@open20/ui';

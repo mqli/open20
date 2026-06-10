@@ -1,10 +1,10 @@
 import { X, Pencil } from 'lucide-react';
 import { Badge, Button, Dialog, SectionHeader, Sheet, SlotPips, Tabs, Text } from '@open20/ui';
-import { useCharacterStore } from '@/stores/character-store';
-import { ConcentrationBanner } from './CharacterSheet/ConcentrationBanner';
-import { ClassSpellSection } from './CharacterSheet/ClassSpellSection';
+import { useCharacterStore } from '@/stores/characterStore';
+import { ConcentrationBanner } from './ConcentrationBanner';
+import { ClassSpellSection } from './ClassSpellSection';
 import { useTranslation } from '@/i18n';
-import { useIsLargeScreen } from '@/hooks/use-breakpoint';
+import { useIsLargeScreen } from '@/hooks/useBreakpoint';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',

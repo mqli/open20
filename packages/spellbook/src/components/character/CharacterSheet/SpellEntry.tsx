@@ -1,5 +1,5 @@
 import { Badge, Button, RitualIcon, DefenseIcon } from '@open20/ui';
-import { useSpellStore } from '@/stores/spell-store';
+import { useSpellStore } from '@/stores/spellStore';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { SpellCard } from '@/components/spell/SpellCard';
 import { SpellCardBadges } from '@/components/spell/SpellCardBadges';

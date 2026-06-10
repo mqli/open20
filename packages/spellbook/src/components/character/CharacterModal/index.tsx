@@ -1,4 +1,4 @@
-import { useCharacterStore } from '@/stores/character-store';
+import { useCharacterStore } from '@/stores/characterStore';
 import { characterService } from '@/core/character-service';
 import type { CharacterCreationParams } from '@/core/types';
 import { CharacterModalForm } from './CharacterModalForm';
