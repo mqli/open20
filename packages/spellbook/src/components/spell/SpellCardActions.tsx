@@ -1,10 +1,4 @@
-import {
-  defaultRandom,
-  rollDiceExpression,
-  rollSpellDamage,
-  rollSpellHeal,
-  isCantrip,
-} from 'open20-core';
+import { defaultRandom, rollDiceExpression, rollSpellDamage, rollSpellHeal } from 'open20-core';
 import type { Spell } from 'open20-core';
 import { useCallback } from 'react';
 import { SpellActionRow } from './SpellActionRow';
@@ -39,7 +33,20 @@ export function SpellCardActions({
   renderActions,
 }: SpellCardActionsProps) {
   const t = useTranslation();
-  const { activeCharacter, castSpell, startConcentration, endConcentration } = useCharacterStore();
+  const {
+    activeCharacter,
+    castSpell,
+    startConcentration,
+    endConcentration,
+    learnSpell,
+    unlearnSpell,
+    learnCantrip,
+    unlearnCantrip,
+    prepareSpell,
+    unprepareSpell,
+    prepareSpellForClass,
+    unprepareSpellForClass,
+  } = useCharacterStore();
   const { addRoll } = useRollStore();
   const capabilities = useSpellCapabilities(spell);
   const castLevelState = useSpellCastLevel(spell, activeCharacter);
@@ -60,13 +67,13 @@ export function SpellCardActions({
       return;
     }
 
-    const result = characterService.rollSpellAttack(activeCharacter, spell.name);
+    const result = characterService.rollSpellAttack(activeCharacter, spell.id);
     addRoll({
       label: t('spellAttack'),
       expression: `d20 (${result.rawRoll}) + ${result.bonus}`,
       total: result.total,
     });
-  }, [activeCharacter, spell.name, addRoll, t]);
+  }, [activeCharacter, spell.id, addRoll, t]);
 
   const handleDamageRoll = useCallback(() => {
     if (!hasDamageEntries) return;
@@ -129,7 +136,87 @@ export function SpellCardActions({
     }
   }, [capabilities.isConcentratingOnThis, startConcentration, endConcentration, spell.id]);
 
-  const showCastAction = !!activeCharacter && !!showCast && !isCantrip(spell);
+  const handleLearnToggle = useCallback(() => {
+    if (capabilities.isKnown) {
+      unlearnSpell(spell.id);
+    } else {
+      learnSpell(spell.id);
+    }
+  }, [capabilities.isKnown, learnSpell, unlearnSpell, spell.id]);
+
+  const handleCantripMultiToggle = useCallback(
+    (classId: string) => {
+      if (capabilities.cantripKnownClassIds.includes(classId)) {
+        unlearnCantrip(classId, spell.id);
+      } else {
+        learnCantrip(classId, spell.id);
+      }
+    },
+    [capabilities.cantripKnownClassIds, learnCantrip, unlearnCantrip, spell.id],
+  );
+
+  const handleCantripSingleClick = useCallback(() => {
+    const classId = capabilities.matchingClassIds[0];
+    if (!classId) return;
+    if (capabilities.isCantripKnown) {
+      unlearnCantrip(classId, spell.id);
+    } else {
+      learnCantrip(classId, spell.id);
+    }
+  }, [
+    capabilities.matchingClassIds,
+    capabilities.isCantripKnown,
+    learnCantrip,
+    unlearnCantrip,
+    spell.id,
+  ]);
+
+  const handlePrepareMultiToggle = useCallback(
+    (classId: string) => {
+      if (capabilities.alwaysPreparedClassIds.includes(classId)) return;
+      if (capabilities.preparedClassIds.includes(classId)) {
+        unprepareSpellForClass(classId, spell.id);
+      } else {
+        prepareSpellForClass(classId, spell.id);
+      }
+    },
+    [
+      capabilities.alwaysPreparedClassIds,
+      capabilities.preparedClassIds,
+      prepareSpellForClass,
+      unprepareSpellForClass,
+      spell.id,
+    ],
+  );
+
+  const handlePrepareSingleClick = useCallback(() => {
+    const classId = capabilities.matchingClassIds[0];
+    if (capabilities.isPrepared) {
+      if (classId && capabilities.alwaysPreparedClassIds.includes(classId)) return;
+      const preparedClassId = capabilities.preparedClassIds[0] ?? classId;
+      if (preparedClassId) {
+        unprepareSpellForClass(preparedClassId, spell.id);
+      } else {
+        unprepareSpell(spell.id);
+      }
+    } else if (classId) {
+      prepareSpellForClass(classId, spell.id);
+    } else {
+      prepareSpell(spell.id);
+    }
+  }, [
+    capabilities.matchingClassIds,
+    capabilities.isPrepared,
+    capabilities.alwaysPreparedClassIds,
+    capabilities.preparedClassIds,
+    prepareSpell,
+    unprepareSpell,
+    prepareSpellForClass,
+    unprepareSpellForClass,
+    spell.id,
+  ]);
+
+  const showCastAction = !!activeCharacter && !!showCast;
   const showAttackAction = showAttack && !!spell.attack;
   const showDamageActions = showDamage && (hasDamageEntries || hasHealEntry);
 
@@ -157,53 +244,11 @@ export function SpellCardActions({
           cantripKnownClassIds={capabilities.cantripKnownClassIds}
           preparedClassIds={capabilities.preparedClassIds}
           alwaysPreparedClassIds={capabilities.alwaysPreparedClassIds}
-          onLearnToggle={() => {
-            if (capabilities.isKnown) {
-              useCharacterStore.getState().unlearnSpell(spell.id);
-            } else {
-              useCharacterStore.getState().learnSpell(spell.id);
-            }
-          }}
-          onCantripMultiToggle={(classId: string) => {
-            if (capabilities.cantripKnownClassIds.includes(classId)) {
-              useCharacterStore.getState().unlearnCantrip(classId, spell.id);
-            } else {
-              useCharacterStore.getState().learnCantrip(classId, spell.id);
-            }
-          }}
-          onCantripSingleClick={() => {
-            const classId = capabilities.matchingClassIds[0];
-            if (!classId) return;
-            if (capabilities.isCantripKnown) {
-              useCharacterStore.getState().unlearnCantrip(classId, spell.id);
-            } else {
-              useCharacterStore.getState().learnCantrip(classId, spell.id);
-            }
-          }}
-          onPrepareMultiToggle={(classId: string) => {
-            if (capabilities.alwaysPreparedClassIds.includes(classId)) return;
-            if (capabilities.preparedClassIds.includes(classId)) {
-              useCharacterStore.getState().unprepareSpellForClass(classId, spell.id);
-            } else {
-              useCharacterStore.getState().prepareSpellForClass(classId, spell.id);
-            }
-          }}
-          onPrepareSingleClick={() => {
-            const classId = capabilities.matchingClassIds[0];
-            if (capabilities.isPrepared) {
-              if (classId && capabilities.alwaysPreparedClassIds.includes(classId)) return;
-              const preparedClassId = capabilities.preparedClassIds[0] ?? classId;
-              if (preparedClassId) {
-                useCharacterStore.getState().unprepareSpellForClass(preparedClassId, spell.id);
-              } else {
-                useCharacterStore.getState().unprepareSpell(spell.id);
-              }
-            } else if (classId) {
-              useCharacterStore.getState().prepareSpellForClass(classId, spell.id);
-            } else {
-              useCharacterStore.getState().prepareSpell(spell.id);
-            }
-          }}
+          onLearnToggle={handleLearnToggle}
+          onCantripMultiToggle={handleCantripMultiToggle}
+          onCantripSingleClick={handleCantripSingleClick}
+          onPrepareMultiToggle={handlePrepareMultiToggle}
+          onPrepareSingleClick={handlePrepareSingleClick}
         />
       )}
       <SpellActionRow
