@@ -37,6 +37,7 @@ export type {
   FeatSpellsEntry,
 } from './types/spell';
 export { SPELL_SCHOOLS, SPELL_LEVELS } from './types/spell';
+export { ALL_DAMAGE_TYPES } from './types/damage';
 export type { Resource } from './types';
 export { ResetType } from './types';
 export type {

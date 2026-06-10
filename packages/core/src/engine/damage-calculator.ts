@@ -6,6 +6,7 @@ import type { Character } from '@/types/character';
 import type { DamageType, DamageDefenses, DamageDefenseSource, DamageResult } from '@/types/damage';
 export type { DamageDefenses, DamageDefenseSource, DamageResult } from '../types/damage';
 import type { DataLoader } from '@/data/loader';
+export { ALL_DAMAGE_TYPES } from '@/types/damage';
 
 /**
  * Check if character has a specific defense against a damage type
@@ -118,25 +119,6 @@ export function parseDamageType(value: string): DamageType | null {
 export function isValidDamageType(value: string): boolean {
   return parseDamageType(value) !== null;
 }
-
-/**
- * Get list of all standard damage types
- */
-export const ALL_DAMAGE_TYPES: readonly DamageType[] = [
-  'Bludgeoning',
-  'Piercing',
-  'Slashing',
-  'Fire',
-  'Cold',
-  'Lightning',
-  'Thunder',
-  'Acid',
-  'Poison',
-  'Psychic',
-  'Force',
-  'Necrotic',
-  'Radiant',
-];
 
 /**
  * Get damage types by category

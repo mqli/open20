@@ -7,6 +7,8 @@ import type {
   AbilityName,
 } from 'open20-core/types';
 export { ABILITY_NAMES } from 'open20-core/types';
+import { ALL_DAMAGE_TYPES } from 'open20-core';
+export { SPELL_SCHOOLS, SPELL_LEVELS } from 'open20-core';
 
 // ── 表单数据类型 ─────────────────────────────────────────
 // 与 Spell 类型对应，但使用可变类型（mutable）以便表单编辑
@@ -77,17 +79,6 @@ export interface SpellEditorProps {
 
 // ── 字段选项常量 ─────────────────────────────────────────
 
-export const SPELL_SCHOOLS: SpellSchool[] = [
-  'Abjuration',
-  'Conjuration',
-  'Divination',
-  'Enchantment',
-  'Evocation',
-  'Illusion',
-  'Necromancy',
-  'Transmutation',
-];
-
 export const CASTING_TIMES: CastingTime[] = [
   'Action',
   'Bonus Action',
@@ -98,8 +89,6 @@ export const CASTING_TIMES: CastingTime[] = [
 ];
 
 export const SPELL_COMPONENTS: SpellComponent[] = ['V', 'S', 'M'];
-
-export const SPELL_LEVELS: SpellLevel[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const DND_CLASSES: string[] = [
   'Artificer',
@@ -117,21 +106,8 @@ export const DND_CLASSES: string[] = [
   'Wizard',
 ];
 
-export const DAMAGE_TYPES: string[] = [
-  'Acid',
-  'Bludgeoning',
-  'Cold',
-  'Fire',
-  'Force',
-  'Lightning',
-  'Necrotic',
-  'Piercing',
-  'Poison',
-  'Psychic',
-  'Radiant',
-  'Slashing',
-  'Thunder',
-];
+// Use ALL_DAMAGE_TYPES from core (single source of truth)
+export const DAMAGE_TYPES = ALL_DAMAGE_TYPES as unknown as string[];
 
 // ── 默认值 ─────────────────────────────────────────
 

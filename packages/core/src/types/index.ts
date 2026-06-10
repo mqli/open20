@@ -28,6 +28,7 @@ export type {
   DamageResult,
   DamageEntry,
 } from './damage';
+export { ALL_DAMAGE_TYPES } from './damage';
 
 // 属性
 export type { AbilityName, AbilityScores } from './ability';

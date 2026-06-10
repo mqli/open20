@@ -17,6 +17,23 @@ export type DamageType =
   | 'Necrotic'
   | 'Radiant'; // Magical/Elemental
 
+// 运行时常量 - 伤害类型列表
+export const ALL_DAMAGE_TYPES: readonly DamageType[] = [
+  'Bludgeoning',
+  'Piercing',
+  'Slashing',
+  'Fire',
+  'Cold',
+  'Lightning',
+  'Thunder',
+  'Acid',
+  'Poison',
+  'Psychic',
+  'Force',
+  'Necrotic',
+  'Radiant',
+] as const;
+
 /**
  * Damage defense modifiers
  */
