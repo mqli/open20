@@ -80,6 +80,21 @@ packages/ui/
 
 ---
 
+## Naming Conventions
+
+> **Updated**: 2026-06-10 - Unified naming across all packages.
+
+**→ Full reference**: [`.agents/naming-conventions.md`](../../.agents/naming-conventions.md)
+
+Key patterns for `@open20/ui` package:
+
+- **Components**: PascalCase (`Button.tsx`, `Dialog/`)
+- **Feature dirs**: lowercase (`spell/`, `rules/`)
+- **4-file pattern**: `Component.tsx`, `index.ts`, `storybook/`, `__tests__/`
+- **Design tokens**: camelCase (`buttonVariants`, `badgeVariants`)
+
+---
+
 ## Component Patterns (MUST FOLLOW)
 
 Full code examples: [`../../.agents/ui/component-patterns.md`](../../.agents/ui/component-patterns.md)

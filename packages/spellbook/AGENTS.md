@@ -85,65 +85,26 @@ Closes FR-XXX
 
 > **Updated**: 2026-06-10 - Unified naming across all packages.
 
-### File/Directory Naming Patterns
+**→ Full reference**: [`.agents/naming-conventions.md`](../../.agents/naming-conventions.md)
 
-| Type                    | Convention     | Example                | Rationale                         |
-| ----------------------- | -------------- | ---------------------- | --------------------------------- |
-| React Components (.tsx) | PascalCase     | `SpellCard.tsx`        | React ecosystem standard          |
-| Component Directories   | PascalCase     | `SpellCard/`           | Matches `@open20/ui` package      |
-| Feature Directories     | kebab-case     | `spell-library/`       | Readability for multi-word names  |
-| Hooks (.ts)             | camelCase      | `useBreakpoint.ts`     | React hooks must start with `use` |
-| Stores (.ts)            | camelCase      | `characterStore.ts`    | Zustand convention                |
-| Services/Utils (.ts)    | kebab-case     | `character-service.ts` | Consistent with core package      |
-| Test Files              | `*.test.ts(x)` | `SpellCard.test.tsx`   | Vitest convention                 |
-| Test Directories        | `__tests__/`   | `__tests__/`           | Colocate tests with code          |
-| Index Files             | `index.ts(x)`  | `index.ts`             | Barrel export standard            |
+Key patterns:
 
-### Examples
-
-```
-components/
-├── spell/                    # Feature directory (lowercase, single word)
-├── spell-library/             # Feature directory (kebab-case, multi-word)
-├── character/
-│   ├── CharacterModal/       # Component directory (PascalCase)
-│   │   ├── CharacterModal.tsx
-│   │   ├── index.ts
-│   │   ├── storybook/
-│   │   └── __tests__/
-│   └── CharacterSheet/       # Component directory (PascalCase)
-│       ├── CharacterSheet.tsx
-│       ├── index.ts
-│       └── __tests__/
-└── ui/                       # Feature directory (lowercase)
-
-hooks/
-├── useBreakpoint.ts           # camelCase
-├── useSpellCapabilities.ts
-└── useSpellCastLevel.ts
-
-stores/
-├── characterStore.ts          # camelCase (not character-store.ts)
-├── spellStore.ts
-├── rollStore.ts
-└── uiStore.ts
-
-core/
-├── character-service.ts      # kebab-case
-├── spell-service.ts
-└── storage-service.ts
-```
+- **Components**: PascalCase (`SpellCard.tsx`, `CharacterModal/`)
+- **Hooks**: camelCase (`useBreakpoint.ts`)
+- **Stores**: camelCase (`characterStore.ts`)
+- **Services**: kebab-case (`character-service.ts`)
+- **Feature dirs**: kebab-case (`spell-library/`)
 
 ### Migration Notes (2026-06-10)
 
 Renamed for consistency:
 
-- `hooks/use-breakpoint.ts` → `hooks/useBreakpoint.ts` (camelCase)
-- `stores/character-store.ts` → `stores/characterStore.ts` (camelCase)
-- `stores/spell-store.ts` → `stores/spellStore.ts` (camelCase)
-- `stores/roll-store.ts` → `stores/rollStore.ts` (camelCase)
-- `stores/ui-store.ts` → `stores/uiStore.ts` (camelCase)
-- `components/character/CharacterSheet.tsx` → `components/character/CharacterSheet/index.tsx` (moved into directory)
+- `hooks/use-breakpoint.ts` → `hooks/useBreakpoint.ts`
+- `stores/character-store.ts` → `stores/characterStore.ts`
+- `stores/spell-store.ts` → `stores/spellStore.ts`
+- `stores/roll-store.ts` → `stores/rollStore.ts`
+- `stores/ui-store.ts` → `stores/uiStore.ts`
+- `components/character/CharacterSheet.tsx` → `components/character/CharacterSheet/index.tsx`
 
 ---
 
