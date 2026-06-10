@@ -36,3 +36,4 @@ export { DamageIcon } from './icons';
 export { VerbalIcon } from './icons';
 export { SomaticIcon } from './icons';
 export { MaterialIcon } from './icons';
+export { getDamageTypeIcon } from './icons';

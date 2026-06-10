@@ -15,6 +15,17 @@ import {
   Package,
   SquarePen,
   Eraser,
+  Snowflake,
+  Zap,
+  AudioLines,
+  Skull,
+  Bone,
+  Sun,
+  Hammer,
+  BowArrow,
+  Sword,
+  FlaskConical,
+  Wand2,
 } from 'lucide-react';
 import { createDndIcon } from './create-icon';
 
@@ -42,3 +53,28 @@ export const DamageIcon = createDndIcon(Flame);
 export const VerbalIcon = createDndIcon(MessageSquare);
 export const SomaticIcon = createDndIcon(Hand);
 export const MaterialIcon = createDndIcon(Package);
+
+// ── Damage Type Icons ─────────────────────────────────────────
+
+const damageTypeIconMap: Record<
+  string,
+  React.ComponentType<{ size?: 'sm' | 'md' | 'lg'; className?: string }>
+> = {
+  Fire: createDndIcon(Flame),
+  Cold: createDndIcon(Snowflake),
+  Lightning: createDndIcon(Zap),
+  Thunder: createDndIcon(AudioLines),
+  Acid: createDndIcon(FlaskConical),
+  Poison: createDndIcon(Skull),
+  Psychic: createDndIcon(Brain),
+  Force: createDndIcon(Wand2),
+  Necrotic: createDndIcon(Bone),
+  Radiant: createDndIcon(Sun),
+  Bludgeoning: createDndIcon(Hammer),
+  Piercing: createDndIcon(BowArrow),
+  Slashing: createDndIcon(Sword),
+};
+
+export function getDamageTypeIcon(type: string) {
+  return damageTypeIconMap[type] || createDndIcon(Flame);
+}

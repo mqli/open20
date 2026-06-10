@@ -17,6 +17,7 @@ import {
   SomaticIcon,
   MaterialIcon,
   ConcentrationIcon,
+  getDamageTypeIcon,
 } from '../../icons';
 
 const meta = {
@@ -95,6 +96,34 @@ export const CombatDomain: Story = {
   ),
 };
 
+// ── Damage Type Icons ─────────────────────────────────────────
+
+const damageTypes = [
+  'Fire',
+  'Cold',
+  'Lightning',
+  'Thunder',
+  'Acid',
+  'Poison',
+  'Psychic',
+  'Force',
+  'Necrotic',
+  'Radiant',
+  'Bludgeoning',
+  'Piercing',
+  'Slashing',
+] as const;
+
+export const DamageTypeIcons: Story = {
+  render: (args) => {
+    const items = damageTypes.map((type) => {
+      const Icon = getDamageTypeIcon(type) as unknown as IconComponent;
+      return { Icon, label: type };
+    });
+    return <IconGrid items={items} {...args} />;
+  },
+};
+
 // ── Spell Components ─────────────────────────────────────────────
 
 export const SpellComponents: Story = {
@@ -121,28 +150,35 @@ export const Concentration: Story = {
 // ── All Icons ────────────────────────────────────────────────────
 
 export const AllIcons: Story = {
-  render: (args) => (
-    <IconGrid
-      items={[
-        { Icon: PrepareSpellIcon, label: 'PrepareSpellIcon' },
-        { Icon: KnownSpellIcon, label: 'KnownSpellIcon' },
-        { Icon: ConcentrationIcon, label: 'ConcentrationIcon' },
-        { Icon: RitualIcon, label: 'RitualIcon' },
-        { Icon: SpellSlotIcon, label: 'SpellSlotIcon' },
-        { Icon: MagicIcon, label: 'MagicIcon' },
-        { Icon: AttackIcon, label: 'AttackIcon' },
-        { Icon: HealIcon, label: 'HealIcon' },
-        { Icon: DefenseIcon, label: 'DefenseIcon' },
-        { Icon: RangeIcon, label: 'RangeIcon' },
-        { Icon: DamageIcon, label: 'DamageIcon' },
-        { Icon: VerbalIcon, label: 'VerbalIcon' },
-        { Icon: SomaticIcon, label: 'SomaticIcon' },
-        { Icon: MaterialIcon, label: 'MaterialIcon' },
-        { Icon: ConcentrationIcon, label: 'ConcentrationIcon' },
-      ]}
-      {...args}
-    />
-  ),
+  render: (args) => {
+    const damageTypeItems = damageTypes.map((type) => {
+      const Icon = getDamageTypeIcon(type) as unknown as IconComponent;
+      return { Icon, label: `Damage: ${type}` };
+    });
+
+    return (
+      <IconGrid
+        items={[
+          { Icon: PrepareSpellIcon, label: 'PrepareSpellIcon' },
+          { Icon: KnownSpellIcon, label: 'KnownSpellIcon' },
+          { Icon: ConcentrationIcon, label: 'ConcentrationIcon' },
+          { Icon: RitualIcon, label: 'RitualIcon' },
+          { Icon: SpellSlotIcon, label: 'SpellSlotIcon' },
+          { Icon: MagicIcon, label: 'MagicIcon' },
+          { Icon: AttackIcon, label: 'AttackIcon' },
+          { Icon: HealIcon, label: 'HealIcon' },
+          { Icon: DefenseIcon, label: 'DefenseIcon' },
+          { Icon: RangeIcon, label: 'RangeIcon' },
+          { Icon: DamageIcon, label: 'DamageIcon' },
+          { Icon: VerbalIcon, label: 'VerbalIcon' },
+          { Icon: SomaticIcon, label: 'SomaticIcon' },
+          { Icon: MaterialIcon, label: 'MaterialIcon' },
+          ...damageTypeItems,
+        ]}
+        {...args}
+      />
+    );
+  },
 };
 
 // ── Helpers ──────────────────────────────────────────────────────

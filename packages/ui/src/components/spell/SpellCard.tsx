@@ -12,7 +12,7 @@ import {
   MagicIcon,
   AttackIcon,
   HealIcon,
-  DamageIcon,
+  getDamageTypeIcon,
 } from '@/components/base/icons';
 import { Button } from '@/components/base/Button';
 import { chipBase, collapseToggle, iconSizes, sectionDivider } from '@/styles/component-styles';
@@ -236,12 +236,17 @@ export function SpellCard({
           {/* Damage / Heal / Save / Attack */}
           {(spell.damage || spell.heal || spell.save || spell.attack) && (
             <div className={cn('mt-2 flex flex-wrap items-center gap-x-3 gap-y-1', sectionDivider)}>
-              {spell.damage && (
-                <CardMetaItem
-                  icon={<DamageIcon size="sm" className="text-amber-500" />}
-                  label={spell.damage.entries.map((e) => `${e.dice} ${e.type}`).join(' + ')}
-                />
-              )}
+              {spell.damage &&
+                spell.damage.entries.map((entry, i) => {
+                  const DamageTypeIcon = getDamageTypeIcon(entry.type);
+                  return (
+                    <CardMetaItem
+                      key={i}
+                      icon={<DamageTypeIcon size="sm" className="text-amber-500" />}
+                      label={`${entry.dice} ${entry.type}`}
+                    />
+                  );
+                })}
               {spell.heal && (
                 <CardMetaItem
                   icon={<HealIcon size="sm" className="text-rose-500" />}
