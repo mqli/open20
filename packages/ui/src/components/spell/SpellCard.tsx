@@ -208,6 +208,24 @@ export function SpellCard({
         <CardMetaItem icon={<Hourglass className={I.sm} />} label={spell.duration} />
       </div>
 
+      {/* ── Classes ─────────────────────────────────────────── */}
+      {spell.classes && spell.classes.length > 0 && (
+        <div
+          className={cn(
+            'flex flex-wrap items-center gap-1 text-xs text-text-secondary',
+            isCompact && 'text-xs',
+          )}
+        >
+          <span className="font-medium text-text-primary">{t('spell.classes')}:</span>
+          {spell.classes.map((cls, i) => (
+            <span key={cls}>
+              {i > 0 && <span className="text-text-tertiary">, </span>}
+              {cls}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* ── Description ────────────────────────────────────────── */}
       {effectiveShowDesc && (
         <div className="space-y-1.5">

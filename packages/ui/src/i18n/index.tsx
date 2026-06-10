@@ -36,6 +36,8 @@ export type BaseTranslationKeys =
   | 'spellEditor.cantripUpgrade'
   | 'spellEditor.createSpell'
   | 'spellEditor.updateSpell'
+  // Spell
+  | 'spell.classes'
   // Empty state
   | 'emptyState.noItems'
   | 'emptyState.noResults'
@@ -138,6 +140,9 @@ export const defaultTranslations: Translations = {
   'spellEditor.createSpell': 'Create Spell',
   'spellEditor.updateSpell': 'Update Spell',
 
+  // Spell
+  'spell.classes': 'Classes',
+
   'emptyState.noItems': 'No items',
   'emptyState.noResults': 'No results found',
   'emptyState.getStarted': 'Get started by creating your first item',
@@ -234,6 +239,9 @@ export const zhCNTranslations: Translations = {
   'spellEditor.cantripUpgrade': '戏法升级',
   'spellEditor.createSpell': '创建法术',
   'spellEditor.updateSpell': '更新法术',
+
+  // Spell
+  'spell.classes': '职业',
 
   'emptyState.noItems': '没有项目',
   'emptyState.noResults': '未找到结果',
