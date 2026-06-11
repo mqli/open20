@@ -88,6 +88,7 @@ export const buttonVariants = {
 } as const;
 
 export const badgeToggleSizeVariants = {
+  xs: 'px-1 py-0 text-[9px] rounded-full',
   sm: 'px-1.5 py-0.5 text-[10px] rounded-full',
   md: 'px-2 py-0.5 text-xs rounded-md',
   lg: 'px-3 py-1 text-sm rounded-lg',

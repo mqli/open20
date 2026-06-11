@@ -199,7 +199,6 @@ const shield: Armor = {
   category: 'Shield',
   ac: 2,
   dexBonus: false,
-  equipped: true,
 };
 
 /* -------------------------------------------------------------------------- */
