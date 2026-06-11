@@ -80,6 +80,8 @@ export {
   calculateHPIncrement,
   calculateMaxHP,
 } from './engine';
+export type { BuildClassSpellDataOpts } from './engine';
+export { buildClassSpellData, getMaxSpellLevel } from './engine';
 export {
   calculateSpellSlots,
   calculateSpellSlotsFromClasses,
@@ -134,11 +136,19 @@ export {
 
 // ── Character (state management) ────────────────────────
 export { createCharacter, getAlwaysPreparedSpellsFromSubclass } from './character';
+export type {
+  CreateCharacterParams,
+  LevelUpOptions,
+  RandomProvider as LevelUpRandomProvider,
+  ValidationError,
+  ValidationResult,
+} from './character';
 export { levelUp } from './character';
 export { shortRest, longRest } from './character';
 export {
   modifyHP,
   setTemporaryHP,
+  applyTypedDamage,
   consumeResource,
   recoverResource,
   consumeSpellSlot,
@@ -160,6 +170,10 @@ export {
   unprepareSpell,
   prepareSpellForClass,
   unprepareSpellForClass,
+  learnCantrip,
+  replaceCantrip,
+  learnCantripForClass,
+  replaceCantripForClass,
   addEquipment,
   removeEquipment,
   modifyCurrency,
@@ -199,6 +213,7 @@ export {
 export type { SpellFilter } from './spells';
 export type { CasterType, SpellClassState, SlotAvailability } from './spells';
 export {
+  getSpell,
   getSpell as getSpellData,
   searchSpells,
   getSpellsByClass,
@@ -269,6 +284,11 @@ export {
   addMonsterDamageResistance,
   addMonsterDamageImmunity,
   addMonsterDamageVulnerability,
+  getMonsterProficiencyBonus,
+  calculateMonsterAttackBonus,
+  calculateMonsterSaveDC,
+  calculateMonsterAC,
+  calculateMonsterHP,
 } from './monster';
 
 // ── Dice Rolling (New Layered Architecture) ───────────
@@ -345,5 +365,6 @@ export {
 
 // ── Storage ──────────────────────────────────────────────
 export type { ICharacterStorage, CharacterSummary } from './storage';
+export type { SchemaValidationResult } from './storage';
 export { InMemoryStorage } from './storage';
-export { serialize, deserialize, sanitizeFilename } from './storage';
+export { serialize, deserialize, validateSchemaVersion, sanitizeFilename } from './storage';
