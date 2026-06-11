@@ -93,7 +93,16 @@ export type BaseTranslationKeys =
   | 'glossary.aliases'
   | 'glossary.relatedEntries'
   | 'glossary.seeAlso'
-  | 'glossary.close';
+  | 'glossary.close'
+  // Rules - Species
+  | 'species.abilityBonuses'
+  | 'species.speed'
+  | 'species.languages'
+  | 'species.darkvision'
+  | 'species.baseTraits'
+  | 'species.subtypes'
+  | 'species.small'
+  | 'species.medium';
 
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
@@ -201,6 +210,16 @@ export const defaultTranslations: Translations = {
   'glossary.relatedEntries': 'Related entries',
   'glossary.seeAlso': 'See also',
   'glossary.close': 'Close glossary entry',
+
+  // Rules - Species
+  'species.abilityBonuses': 'Ability Bonuses',
+  'species.speed': 'Speed',
+  'species.languages': 'Languages',
+  'species.darkvision': 'Darkvision',
+  'species.baseTraits': 'Base Traits',
+  'species.subtypes': 'Subtypes',
+  'species.small': 'Small',
+  'species.medium': 'Medium',
 };
 
 // Chinese (Simplified) translations (flat dot-notation keys)
@@ -301,6 +320,16 @@ export const zhCNTranslations: Translations = {
   'glossary.relatedEntries': '相关条目',
   'glossary.seeAlso': '另见',
   'glossary.close': '关闭术语条目',
+
+  // Rules - Species
+  'species.abilityBonuses': '属性加值',
+  'species.speed': '速度',
+  'species.languages': '语言',
+  'species.darkvision': '黑暗视觉',
+  'species.baseTraits': '基础特性',
+  'species.subtypes': '亚种',
+  'species.small': '小型',
+  'species.medium': '中型',
 };
 
 // Context type
