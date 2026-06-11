@@ -10,7 +10,6 @@ import {
   calculateMonsterAC,
   calculateMonsterHP,
 } from '../../src/monster/calculator';
-import { createMockDataLoader } from '../fixtures/data-loader';
 import { MOCK_GOBLIN, ADULT_RED_DRAGON } from '../fixtures/monsters';
 
 // ── Tests ───────────────────────────────────────
@@ -60,7 +59,7 @@ describe('calculateMonsterAttackBonus', () => {
       damageEntries: [{ dice: '1d6', type: 'Slashing', bonus: 2 }],
     };
 
-    const result = calculateMonsterAttackBonus(MOCK_GOBLIN, attack, createMockDataLoader());
+    const result = calculateMonsterAttackBonus(MOCK_GOBLIN, attack);
     expect(result).toBe(4);
   });
 });
@@ -69,14 +68,14 @@ describe('calculateMonsterSaveDC', () => {
   it('should calculate save DC correctly', () => {
     // Dragon: Cha 21 → mod +5, CR 17 → prof +6
     // DC = 8 + 6 + 5 = 19
-    const result = calculateMonsterSaveDC(ADULT_RED_DRAGON, 'Charisma', createMockDataLoader());
+    const result = calculateMonsterSaveDC(ADULT_RED_DRAGON, 'Charisma');
     expect(result).toBe(19);
   });
 
   it('should calculate save DC for different abilities', () => {
     // Dragon: Str 27 → mod +8, CR 17 → prof +6
     // DC = 8 + 6 + 8 = 22
-    const result = calculateMonsterSaveDC(ADULT_RED_DRAGON, 'Strength', createMockDataLoader());
+    const result = calculateMonsterSaveDC(ADULT_RED_DRAGON, 'Strength');
     expect(result).toBe(22);
   });
 });

@@ -6,7 +6,7 @@
 import type { AbilityScores } from '@/types/ability';
 import type { Armor, EquipmentItem } from '@/types/equipment';
 import type { Feature, FeatureACFormula } from '@/types/class';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import type { FeatACBonus } from '@/types/feat';
 import type { ActiveEffect } from '@/types/character';
 import { getModifier, getTotalScore } from './ability-modifier';
@@ -41,7 +41,7 @@ type ACResult = {
  * @param scores - 属性值对象
  * @param equipment - 装备列表
  * @param features - 角色拥有的特性列表
- * @param data - DataLoader（查护甲数据）
+ * @param deps - RecomputeDerivedStatsDeps (for armor/weapon data)
  * @param activeEffects - 活跃效果列表（用于检测Mage Armor等，可选，默认空）
  * @param featACBonuses - 专长给予的AC加值（可选，用于战斗风格）
  * @returns AC值及其来源的详细分解
@@ -50,14 +50,14 @@ export function calculateAC(
   scores: AbilityScores,
   equipment: readonly EquipmentItem[],
   features: readonly Feature[],
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   activeEffects: readonly ActiveEffect[] = [],
   featACBonuses?: readonly FeatACBonus[],
 ): ACResult {
   const dexMod = getModifier(getTotalScore(scores, 'Dexterity'));
 
-  const equippedArmors = getEquippedArmor(equipment, data);
-  const equippedShields = getEquippedShields(equipment, data);
+  const equippedArmors = getEquippedArmor(equipment, deps);
+  const equippedShields = getEquippedShields(equipment, deps);
   const hasShield = equippedShields.length > 0;
   const hasArmor = equippedArmors.length > 0;
   const hasMageArmor = activeEffects.some((e) => e.id === 'mage-armor');
@@ -220,20 +220,26 @@ function calculateArmorAC(armor: Armor, dexMod: number): ACBreakdown {
 /**
  * 获取所有已装备的护甲（非盾牌）
  */
-function getEquippedArmor(equipment: readonly EquipmentItem[], data: DataLoader): Armor[] {
+function getEquippedArmor(
+  equipment: readonly EquipmentItem[],
+  deps: RecomputeDerivedStatsDeps,
+): Armor[] {
   return equipment
     .filter((e) => e.equipped && e.type === 'armor')
-    .map((e) => data.getArmor(e.id))
+    .map((e) => deps.armors?.[e.id])
     .filter((a): a is Armor => a != null && a.category !== 'Shield');
 }
 
 /**
  * 获取所有已装备的盾牌
  */
-function getEquippedShields(equipment: readonly EquipmentItem[], data: DataLoader): Armor[] {
+function getEquippedShields(
+  equipment: readonly EquipmentItem[],
+  deps: RecomputeDerivedStatsDeps,
+): Armor[] {
   return equipment
     .filter((e) => e.equipped && e.type === 'armor')
-    .map((e) => data.getArmor(e.id))
+    .map((e) => deps.armors?.[e.id])
     .filter((a): a is Armor => a != null && a.category === 'Shield');
 }
 

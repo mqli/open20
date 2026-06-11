@@ -2,6 +2,7 @@
 // Equipment-related character mutations//
 
 import type { Character, EquipmentItem } from '@/types';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import { recomputeDerivedStats } from '@/character/recompute';
 import { withUpdate } from './hp';
 
@@ -38,12 +39,12 @@ export function unequipItem(char: Character, itemId: string): Character {
 export function equipItemAndRecompute(
   char: Character,
   itemId: string,
-  data: import('../../data/loader').DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Character {
   const updatedChar = equipItem(char, itemId);
   if (updatedChar === char) return char;
 
-  return recomputeDerivedStats(updatedChar, data);
+  return recomputeDerivedStats(updatedChar, deps);
 }
 
 /**
@@ -53,12 +54,12 @@ export function equipItemAndRecompute(
 export function unequipItemAndRecompute(
   char: Character,
   itemId: string,
-  data: import('../../data/loader').DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Character {
   const updatedChar = unequipItem(char, itemId);
   if (updatedChar === char) return char;
 
-  return recomputeDerivedStats(updatedChar, data);
+  return recomputeDerivedStats(updatedChar, deps);
 }
 
 export function addEquipment(char: Character, item: EquipmentItem): Character {

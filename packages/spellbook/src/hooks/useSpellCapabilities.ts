@@ -12,7 +12,7 @@ import {
   isSpellPrepared,
 } from 'open20-core/spells';
 import { useCharacterStore } from '@/stores/characterStore';
-import { dataLoader } from '@/core/data-loader';
+import { resolveDeps } from '@/core/content-resolver';
 
 export interface SpellCapabilities {
   // Basic status
@@ -79,10 +79,10 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     if (!activeCharacter || !spell) return EMPTY_CAPABILITIES;
 
     const char = activeCharacter;
-    const data = dataLoader;
+    const deps = resolveDeps(char);
 
     // ── caster type ──
-    const casterType = getCasterType(char, data);
+    const casterType = getCasterType(char, deps);
 
     // ── matching class IDs ──
     const matchingClassIds = getMatchingClassIds(char, spell);

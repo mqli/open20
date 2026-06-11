@@ -23,7 +23,7 @@ All data files are in `data/` directory:
 - `subclasses.json` - Subclasses
 - `feats.json` - Feats
 - `weapons.json` - Weapons
-- `armor.json` - Armor
+- `armors.json` - Armor
 - `gear.json` - Gear items
 - `spells.json` - Spells
 - `monsters.json` - Monsters

@@ -1,12 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../create-test-loader';
+import { createTestDepsForCreate, createTestDeps } from '../create-test-loader';
 import { createCharacter, modifyHP, longRest } from 'open20-core/character';
-
-const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Survival Mechanics', () => {
   describe('Session 15: Death Save Roller Coaster', () => {
     it('should track death saves over multiple turns', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Halfling',
+        backgroundId: 'soldier',
+        classId: 'Rogue',
+      });
       let dyingHero = createCharacter(
         {
           name: 'Pip',
@@ -22,7 +25,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 12,
           },
         },
-        dataLoader,
+        deps,
       );
 
       dyingHero = modifyHP(dyingHero, -dyingHero.hitPoints.max);
@@ -45,6 +48,11 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
     });
 
     it('should stabilize from death saves then recover', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       let dyingHero = createCharacter(
         {
           name: 'Lucky',
@@ -60,7 +68,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 16,
           },
         },
-        dataLoader,
+        deps,
       );
 
       dyingHero = modifyHP(dyingHero, -dyingHero.hitPoints.max);
@@ -70,7 +78,8 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
       (dyingHero.hitPoints.deathSaves as any).isStable = true;
       expect(dyingHero.hitPoints.deathSaves!.successes).toBe(3);
 
-      const healed = longRest(dyingHero, dataLoader);
+      const depsForLongRest = createTestDeps(dyingHero);
+      const healed = longRest(dyingHero, depsForLongRest);
       expect(healed.hitPoints.current).toBe(healed.hitPoints.max);
       expect(healed.hitPoints.deathSaves!.successes).toBe(0);
       expect(healed.hitPoints.deathSaves!.failures).toBe(0);
@@ -79,6 +88,11 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
 
   describe('Session 16: Spell Slot Management', () => {
     it('should track spell slot usage and recovery', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Gnome',
+        backgroundId: 'sage',
+        classId: 'Wizard',
+      });
       const wizard = createCharacter(
         {
           name: 'Melara',
@@ -95,7 +109,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(wizard.spells.spellSlots[1]!.total).toBe(4);
@@ -106,7 +120,8 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
       (wizard.spells.spellSlots[1] as any).used = 1;
       expect(wizard.spells.spellSlots[1]!.total - wizard.spells.spellSlots[1]!.used).toBe(3);
 
-      const rested = longRest(wizard, dataLoader);
+      const depsForLongRest = createTestDeps(wizard);
+      const rested = longRest(wizard, depsForLongRest);
       expect(rested.spells.spellSlots[1]!.used).toBe(0);
       expect(rested.spells.spellSlots[2]!.used).toBe(0);
       expect(rested.spells.spellSlots[3]!.used).toBe(0);
@@ -114,6 +129,11 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
     });
 
     it('should handle Pact Magic slots separately', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Tiefling',
+        backgroundId: 'soldier',
+        classId: 'Warlock',
+      });
       const warlock = createCharacter(
         {
           name: 'Shadow',
@@ -129,7 +149,7 @@ describe('D&D Player Behavior - Survival Mechanics', () => {
             Charisma: 17,
           },
         },
-        dataLoader,
+        deps,
       );
 
       // Warlock uses Charisma for spellcasting

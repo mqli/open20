@@ -3,166 +3,71 @@ import { spellService } from '@/core/spell-service';
 import type { AppCharacter } from '@/core/types';
 import type { AbilityName } from 'open20-core';
 
-// Mock the dataLoader with already-normalised Spell[] data
-vi.mock('../data-loader', () => ({
-  dataLoader: {
-    getAllSpells: () =>
-      [
-        {
-          id: 'fireball',
-          name: 'Fireball',
-          level: 3 as const,
-          school: 'Evocation' as const,
-          castingTime: 'Action',
-          range: '150 feet',
-          components: ['V', 'S', 'M'] as const,
-          duration: 'Instantaneous',
-          concentration: false,
-          ritual: false,
-          description: ['A bright streak flashes from your pointing finger...'],
-          source: 'SRD 5.2',
-          classes: ['Sorcerer', 'Wizard'] as readonly string[],
-        },
-        {
-          id: 'cure-wounds',
-          name: 'Cure Wounds',
-          level: 1 as const,
-          school: 'Evocation' as const,
-          castingTime: 'Action',
-          range: 'Touch',
-          components: ['V', 'S'] as const,
-          duration: 'Instantaneous',
-          concentration: false,
-          ritual: false,
-          description: ['A creature you touch regains a number of hit points...'],
-          source: 'SRD 5.2',
-          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
-        },
-      ] as import('open20-core').Spell[],
-    getSpell: (id: string) => {
-      const spells = [
-        {
-          id: 'fireball',
-          name: 'Fireball',
-          level: 3 as const,
-          school: 'Evocation' as const,
-          castingTime: 'Action',
-          range: '150 feet',
-          components: ['V', 'S', 'M'] as const,
-          duration: 'Instantaneous',
-          concentration: false,
-          ritual: false,
-          description: ['A bright streak flashes from your pointing finger...'],
-          source: 'SRD 5.2',
-          classes: ['Sorcerer', 'Wizard'] as readonly string[],
-        },
-        {
-          id: 'cure-wounds',
-          name: 'Cure Wounds',
-          level: 1 as const,
-          school: 'Evocation' as const,
-          castingTime: 'Action',
-          range: 'Touch',
-          components: ['V', 'S'] as const,
-          duration: 'Instantaneous',
-          concentration: false,
-          ritual: false,
-          description: ['A creature you touch regains a number of hit points...'],
-          source: 'SRD 5.2',
-          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
-        },
-      ] as import('open20-core').Spell[];
-      return spells.find((s) => s.id === id);
-    },
+// Test data
+const testSpells = [
+  {
+    id: 'fireball',
+    name: 'Fireball',
+    level: 3 as const,
+    school: 'Evocation' as const,
+    castingTime: 'Action',
+    range: '150 feet',
+    components: ['V', 'S', 'M'] as const,
+    duration: 'Instantaneous',
+    concentration: false,
+    ritual: false,
+    description: ['A bright streak flashes from your pointing finger...'],
+    source: 'SRD 5.2',
+    classes: ['Sorcerer', 'Wizard'] as readonly string[],
   },
-  initDataLoader: vi.fn(),
-  isDataLoaderReady: () => true,
+  {
+    id: 'cure-wounds',
+    name: 'Cure Wounds',
+    level: 1 as const,
+    school: 'Evocation' as const,
+    castingTime: 'Action',
+    range: 'Touch',
+    components: ['V', 'S'] as const,
+    duration: 'Instantaneous',
+    concentration: false,
+    ritual: false,
+    description: ['A creature you touch regains a number of hit points...'],
+    source: 'SRD 5.2',
+    classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
+  },
+];
+
+// Mock content-resolver to return test data
+vi.mock('@/core/content-resolver', () => ({
+  initContent: vi.fn(),
+  getContentPack: vi.fn(() => ({
+    spells: testSpells,
+    classes: [],
+    species: [],
+    backgrounds: [],
+    feats: [],
+    subclasses: [],
+    weapons: [],
+    armors: [],
+    gear: [],
+  })),
+  getAllSpells: () => testSpells,
+  getSpell: (id: string) => testSpells.find((s) => s.id === id),
 }));
 
-// Mock open20-core/spells module
+// Mock open20-core/spells module (used by SpellService for isSpellKnown/isSpellPrepared)
 vi.mock('open20-core/spells', async () => {
   const actual = await vi.importActual('open20-core/spells');
   return {
     ...actual,
-    getSpell: (id: string) => {
-      const spells = [
-        {
-          id: 'fireball',
-          name: 'Fireball',
-          level: 3 as const,
-          school: 'Evocation' as const,
-          castingTime: 'Action',
-          range: '150 feet',
-          components: ['V', 'S', 'M'] as const,
-          duration: 'Instantaneous',
-          concentration: false,
-          ritual: false,
-          description: ['A bright streak flashes from your pointing finger...'],
-          source: 'SRD 5.2',
-          classes: ['Sorcerer', 'Wizard'] as readonly string[],
-        },
-      ] as import('open20-core').Spell[];
-      return spells.find((s) => s.id === id);
-    },
-    searchSpells: (filter: { name?: string; level?: number[]; class?: string[] }) => {
-      const allSpells = [
-        {
-          id: 'fireball',
-          name: 'Fireball',
-          level: 3 as const,
-          school: 'Evocation' as const,
-          castingTime: 'Action',
-          range: '150 feet',
-          components: ['V', 'S', 'M'] as const,
-          duration: 'Instantaneous',
-          concentration: false,
-          ritual: false,
-          description: ['A bright streak flashes from your pointing finger...'],
-          source: 'SRD 5.2',
-          classes: ['Sorcerer', 'Wizard'] as readonly string[],
-        },
-        {
-          id: 'cure-wounds',
-          name: 'Cure Wounds',
-          level: 1 as const,
-          school: 'Evocation' as const,
-          castingTime: 'Action',
-          range: 'Touch',
-          components: ['V', 'S'] as const,
-          duration: 'Instantaneous',
-          concentration: false,
-          ritual: false,
-          description: ['A creature you touch regains a number of hit points...'],
-          source: 'SRD 5.2',
-          classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
-        },
-      ] as import('open20-core').Spell[];
-
-      let result = allSpells;
-      if (filter.name) {
-        result = result.filter((s) => s.name.toLowerCase().includes(filter.name!.toLowerCase()));
-      }
-      if (filter.level && filter.level.length > 0) {
-        result = result.filter((s) => filter.level!.includes(s.level));
-      }
-      if (filter.class && filter.class.length > 0) {
-        const classSet = new Set(filter.class.map((c: string) => c.toLowerCase()));
-        result = result.filter((s) =>
-          s.classes?.some((c: string) => classSet.has(c.toLowerCase())),
-        );
-      }
-      return result;
-    },
-    isSpellPrepared: (char: AppCharacter, spellId: string) => {
-      return Object.values(char.spells.classSpellcasting).some((csd) =>
-        csd.preparedSpells.includes(spellId),
-      );
-    },
-    knowsSpell: (char: AppCharacter, spellId: string) => {
+    knowsSpell: vi.fn((char: AppCharacter, spellId: string) => {
       return Object.values(char.spells.classSpellcasting).some(
         (csd) => csd.knownCantrips?.includes(spellId) || csd.knownSpells.includes(spellId),
       );
-    },
+    }),
+    isSpellPreparedForClass: vi.fn((char: AppCharacter, classId: string, spellId: string) => {
+      return char.spells.classSpellcasting[classId]?.preparedSpells.includes(spellId) ?? false;
+    }),
   };
 });
 
@@ -190,6 +95,7 @@ describe('SpellService', () => {
 
   it('should check if a spell is prepared', () => {
     const mockCharacter = {
+      classes: [{ classId: 'Wizard', level: 3 }],
       spells: {
         classSpellcasting: {
           Wizard: {

@@ -38,17 +38,10 @@ export type {
 } from './types/spell';
 export { SPELL_SCHOOLS, SPELL_LEVELS } from './types/spell';
 export { ALL_DAMAGE_TYPES } from './types/damage';
+export type { DamageType } from './types/damage';
+export type { RecomputeDerivedStatsDeps } from './types/deps';
 export type { Resource } from './types';
 export { ResetType } from './types';
-export type {
-  CombatStats,
-  CharacterAttack,
-  ActiveCondition,
-  ConditionName,
-  ConcentrationState,
-  ActiveEffect,
-} from './types';
-export type { BaseAttack } from './types';
 export type {
   GlossaryEntry,
   GlossaryEntryTag,
@@ -57,11 +50,15 @@ export type {
   GlossaryTable,
   GlossaryAbbreviation,
   RulesGlossary,
+} from './types/glossary';
+export type {
+  CombatStats,
+  CharacterAttack,
+  ActiveCondition,
+  ConditionName,
+  ConcentrationState,
+  ActiveEffect,
 } from './types';
-
-// ── Data Loaders ────────────────────────────────────────
-export type { DataLoader } from './data';
-export { createDataLoader } from './data';
 
 // ── Content (R26: Content Pack Management) ─────────
 export type { ContentPack, ContentPackMeta } from './content';
@@ -166,12 +163,8 @@ export {
   unequipItem,
   equipItemAndRecompute,
   unequipItemAndRecompute,
-  prepareSpell,
-  unprepareSpell,
   prepareSpellForClass,
   unprepareSpellForClass,
-  learnCantrip,
-  replaceCantrip,
   learnCantripForClass,
   replaceCantripForClass,
   addEquipment,
@@ -195,28 +188,10 @@ export {
   getFeatSpecialAbilities,
 } from './character/feat-mutate';
 
-// ── Rules Glossary ─────────────────────────────────────
-export type { GlossaryFilter } from './glossary';
-export {
-  getGlossaryEntry,
-  resolveGlossaryTerm,
-  getGlossaryEntryByName,
-  searchGlossaryEntries,
-  getGlossaryEntriesByTag,
-  getAllGlossaryEntries,
-  getRulesGlossary,
-  getGlossaryAbbreviation,
-  getGlossaryAbbreviations,
-} from './glossary';
-
 // ── Spells (query + preparation rules) ─────────────────
 export type { SpellFilter } from './spells';
 export type { CasterType, SpellClassState, SlotAvailability } from './spells';
 export {
-  getSpell,
-  getSpell as getSpellData,
-  searchSpells,
-  getSpellsByClass,
   getKnownSpellsForClass,
   getSpellsForCharacter,
   getPreparedSpells,
@@ -243,53 +218,6 @@ export {
   getScaledDamageEntries,
   getScaledHealDice,
 } from './spells';
-
-// ── Monsters (query + combat) ─────────────────────────
-export type {
-  Monster,
-  MonsterSize,
-  MonsterType,
-  ChallengeRating,
-  MonsterAttack,
-  MonsterAction,
-  MonsterFeature,
-  MonsterReaction,
-  MonsterLegendaryAction,
-  MonsterFilter,
-  AttackNotation,
-  SavingThrowEffect,
-} from './monster';
-export {
-  getMonster,
-  searchMonsters,
-  getMonstersByCR,
-  getMonstersByType,
-  getMonstersForParty,
-  getMonsterActions,
-  getMonsterTraits,
-  getMonsterReactions,
-  getMonsterLegendaryActions,
-  getMonstersWithTrait,
-  getLegendaryMonsters,
-  getMonsterAllAttacks,
-  searchActionsByName,
-} from './monster';
-export {
-  initializeMonsterForCombat,
-  modifyMonsterHP,
-  applyMonsterTypedDamage,
-  setMonsterTemporaryHP,
-  isMonsterDefeated,
-  getMonsterAC,
-  addMonsterDamageResistance,
-  addMonsterDamageImmunity,
-  addMonsterDamageVulnerability,
-  getMonsterProficiencyBonus,
-  calculateMonsterAttackBonus,
-  calculateMonsterSaveDC,
-  calculateMonsterAC,
-  calculateMonsterHP,
-} from './monster';
 
 // ── Dice Rolling (New Layered Architecture) ───────────
 // Layer 1: Core Dice
@@ -368,3 +296,38 @@ export type { ICharacterStorage, CharacterSummary } from './storage';
 export type { SchemaValidationResult } from './storage';
 export { InMemoryStorage } from './storage';
 export { serialize, deserialize, validateSchemaVersion, sanitizeFilename } from './storage';
+
+// ── Monster (stat blocks + combat) ─────────────────
+export {
+  getMonsterProficiencyBonus,
+  calculateMonsterAttackBonus,
+  calculateMonsterSaveDC,
+  calculateMonsterAC,
+  calculateMonsterHP,
+} from './monster';
+export type {
+  Monster,
+  MonsterFilter,
+  MonsterSize,
+  MonsterType,
+  ChallengeRating,
+  ChallengeRatingInfo,
+  InitiativeInfo,
+  SensesInfo,
+  AttackNotation,
+  SavingThrowEffect,
+  SpellcastingDetails,
+  MonsterAttack,
+  MonsterSpellcasting,
+} from './types/monster';
+export {
+  initializeMonsterForCombat,
+  modifyMonsterHP,
+  applyMonsterTypedDamage,
+  setMonsterTemporaryHP,
+  isMonsterDefeated,
+  getMonsterAC,
+  addMonsterDamageResistance,
+  addMonsterDamageImmunity,
+  addMonsterDamageVulnerability,
+} from './monster';

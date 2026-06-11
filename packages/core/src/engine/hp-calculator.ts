@@ -5,7 +5,7 @@
 
 import type { DieType } from '@/types/dice';
 import type { CharacterClass } from '@/types/character';
-import type { DataLoader } from '@/data/loader';
+import type { Class } from '@/types/class';
 import { getHitDieFixedValue } from './hit-die';
 
 /**
@@ -58,18 +58,18 @@ export function calculateHPIncrement(die: DieType, conModifier: number): number 
  *
  * @param classes - 角色职业列表（支持多维职业）
  * @param conModifier - Constitution调整值
- * @param data - DataLoader（用于获取职业生命骰类型）
+ * @param classMap - 职业数据映射（用于获取职业生命骰类型）
  * @returns 最大HP
  *
  * @example
  * // 5级Fighter, Con +3
- * calculateMaxHP([{ classId: 'Fighter', level: 5, ... }], 3, data)
+ * calculateMaxHP([{ classId: 'Fighter', level: 5, ... }], 3, classes)
  * // 1级: 10+3=13, 2-5级: 4*(6+3)=36 → total = 49
  */
 export function calculateMaxHP(
   classes: readonly CharacterClass[],
   conModifier: number,
-  data: DataLoader,
+  classMap: Record<string, Class>,
 ): number {
   if (classes.length === 0) return 0;
 
@@ -79,7 +79,7 @@ export function calculateMaxHP(
   // PHB 2024 p.43-44: 后续职业的 HP 增量也取固定值（或掷骰）
   for (let i = 0; i < classes.length; i++) {
     const charClass = classes[i]!;
-    const classData = data.getClass(charClass.classId);
+    const classData = classMap[charClass.classId];
     if (!classData) continue;
 
     const die = classData.hitDie;

@@ -4,7 +4,7 @@
 
 import type { Character } from '@/types/character';
 import { ABILITY_NAMES } from '@/types/ability';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import type { SpellLevel } from '@/types/spell';
 
 export interface ValidationError {
@@ -23,18 +23,21 @@ export interface ValidationResult {
  *
  * Validation rules:
  * 1. Name must not be empty
- * 2. Species must exist in DataLoader
- * 3. Background must exist in DataLoader
- * 4. Each class must exist in DataLoader
+ * 2. Species must exist in deps
+ * 3. Background must exist in deps
+ * 4. Each class must exist in deps
  * 5. Each class level must be >= 1 and <= 20
  * 6. Each base ability must be between 1 and 30 (warning if < 8 or > 15)
  * 7. Total level (sum of all class levels) must be <= 20
  * 8. HP: current must be between 0 and max, max must be > 0
  * 9. Resources: used must be between 0 and max
  * 10. Spell slots: used must be between 0 and total for each level
- * 11. Feats: each feat ID must exist in DataLoader (warning if not found)
+ * 11. Feats: each feat ID must exist in deps (warning if not found)
  */
-export function validateCharacter(char: Character, data: DataLoader): ValidationResult {
+export function validateCharacter(
+  char: Character,
+  deps: RecomputeDerivedStatsDeps,
+): ValidationResult {
   const errors: ValidationError[] = [];
 
   // 1. Name
@@ -47,7 +50,7 @@ export function validateCharacter(char: Character, data: DataLoader): Validation
   }
 
   // 2. Species
-  if (!data.getSpecies(char.species)) {
+  if (!deps.species || deps.species.id !== char.species) {
     errors.push({
       field: 'species',
       message: `Species "${char.species}" not found in data`,
@@ -56,10 +59,10 @@ export function validateCharacter(char: Character, data: DataLoader): Validation
   }
 
   // 3. Background
-  if (!data.getBackground(char.background)) {
+  if (!deps.background || deps.background.id !== char.background) {
     errors.push({
       field: 'background',
-      message: `Background "${char.background}" not found in data`,
+      message: `Background "${char.background}" not found in deps`,
       severity: 'error',
     });
   }
@@ -69,10 +72,10 @@ export function validateCharacter(char: Character, data: DataLoader): Validation
   for (let i = 0; i < char.classes.length; i++) {
     const charClass = char.classes[i]!;
 
-    if (!data.getClass(charClass.classId)) {
+    if (!deps.classes?.[charClass.classId]) {
       errors.push({
         field: `classes[${i}].classId`,
-        message: `Class "${charClass.classId}" not found in data`,
+        message: `Class "${charClass.classId}" not found in deps`,
         severity: 'error',
       });
     }
@@ -94,10 +97,10 @@ export function validateCharacter(char: Character, data: DataLoader): Validation
     }
 
     // Validate subclass
-    if (charClass.subclassId && !data.getSubclass(charClass.subclassId)) {
+    if (charClass.subclassId && !deps.subclasses?.[charClass.subclassId]) {
       errors.push({
         field: `classes[${i}].subclassId`,
-        message: `Subclass "${charClass.subclassId}" not found in data`,
+        message: `Subclass "${charClass.subclassId}" not found in deps`,
         severity: 'error',
       });
     }
@@ -268,10 +271,10 @@ export function validateCharacter(char: Character, data: DataLoader): Validation
   for (let i = 0; i < char.feats.length; i++) {
     const entry = char.feats[i]!;
     const featId = entry.featId;
-    if (!data.getFeat(featId)) {
+    if (!deps.feats?.[featId]) {
       errors.push({
         field: `feats[${i}].featId`,
-        message: `Feat "${featId}" not found in data`,
+        message: `Feat "${featId}" not found in deps`,
         severity: 'warning',
       });
     }

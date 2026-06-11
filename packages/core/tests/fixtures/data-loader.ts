@@ -1,88 +1,73 @@
 // tests/fixtures/data-loader.ts
-// Shared mock DataLoader factory for tests
+// Shared mock RecomputeDerivedStatsDeps factory for tests
 // Eliminates ~200 lines of duplication across test files
 
-import type { DataLoader } from '../../src/data/loader';
-import type { ContentPack } from '../../src/content/types';
+import type { RecomputeDerivedStatsDeps } from '../../src/types/deps';
+import type { Species } from '../../src/types/species';
+import type { Background } from '../../src/types/background';
+import type { Class, Subclass } from '../../src/types/class';
+import type { Feat } from '../../src/types/feat';
+import type { Weapon, Armor, GearItem } from '../../src/types/equipment';
+import type { Spell } from '../../src/types/spell';
 
 /**
- * Creates a mock DataLoader with sensible defaults.
- * Only override the methods you need for your test.
+ * Creates a mock RecomputeDerivedStatsDeps with sensible defaults.
+ * Only override the properties you need for your test.
  *
- * @param overrides - Partial DataLoader with only the methods you need to mock
- * @returns A complete DataLoader with defaults for all unused methods
+ * @param overrides - Partial RecomputeDerivedStatsDeps with only the data you need to mock
+ * @returns A RecomputeDerivedStatsDeps with defaults for all unused properties
  *
  * @example
- * const data = createMockDataLoader({
- *   getSpecies: (id) => speciesMap[id],
- *   getClass: (id) => classMap[id],
+ * const deps = createMockDeps({
+ *   classes: { fighter: FIGHTER_CLASS },
+ *   species: HUMAN_SPECIES,
  * });
  */
-export function createMockDataLoader(overrides: Partial<DataLoader> = {}): DataLoader {
-  const defaults: DataLoader = {
-    // Species
-    getSpecies: () => undefined,
-    getSpeciesBySource: () => [],
-    getSpeciesSubtype: () => undefined,
-    getAllSpecies: () => [],
+export function createMockDeps(
+  overrides: Partial<RecomputeDerivedStatsDeps> = {},
+): RecomputeDerivedStatsDeps {
+  const defaults: RecomputeDerivedStatsDeps = {
+    // Required property
+    classes: {},
 
-    // Background
-    getBackground: () => undefined,
-    getBackgroundsBySource: () => [],
-    getAllBackgrounds: () => [],
-
-    // Class
-    getClass: () => undefined,
-    getClassesBySource: () => [],
-    getAllClasses: () => [],
-    getSubclass: () => undefined,
-    getSubclassesBySource: () => [],
-    getSubclassesForClass: () => [],
-    getAllSubclasses: () => [],
-
-    // Feats
-    getFeat: () => undefined,
-    getFeatsBySource: () => [],
-    getFeatsByCategory: () => [],
-    getAllFeats: () => [],
-
-    // Equipment
-    getWeapon: () => undefined,
-    getWeaponsBySource: () => [],
-    getAllWeapons: () => [],
-    getArmor: () => undefined,
-    getArmorBySource: () => [],
-    getAllArmor: () => [],
-    getGearItem: () => undefined,
-    getGearBySource: () => [],
-    getAllGear: () => [],
-
-    // Spells
-    getSpell: () => undefined,
-    getSpellsBySource: () => [],
-    getSpellsByLevel: () => [],
-    getAllSpells: () => [],
-
-    // Content Packs
-    registerContentPack: (_source: string | ContentPack) => {},
-    unregisterContentPack: (_packId: string) => {},
-    getContentPacks: () => [],
-
-    // Monster
-    getMonster: () => undefined,
-    getMonstersBySource: () => [],
-    getAllMonsters: () => [],
-
-    // Rules Glossary
-    getGlossaryEntry: () => undefined,
-    getGlossaryEntryByName: () => undefined,
-    resolveGlossaryTerm: () => undefined,
-    getGlossaryEntriesBySource: () => [],
-    getGlossaryEntriesByTag: () => [],
-    getAllGlossaryEntries: () => [],
-    getGlossaryAbbreviations: () => [],
-    getRulesGlossary: () => ({ source: 'Unknown', abbreviations: [], entries: [] }),
+    // Optional properties (undefined by default)
+    species: undefined,
+    background: undefined,
+    subclasses: undefined,
+    feats: undefined,
+    weapons: undefined,
+    armors: undefined,
+    gear: undefined,
+    spells: undefined,
   };
 
-  return { ...defaults, ...overrides } as DataLoader;
+  return { ...defaults, ...overrides };
+}
+
+/**
+ * Creates a mock RecomputeDerivedStatsDeps with common test data pre-loaded.
+ * Use this for tests that need standard species, backgrounds, and classes.
+ */
+export function createExtendedMockDeps(
+  speciesMap: Record<string, Species>,
+  backgroundMap: Record<string, Background>,
+  classMap: Record<string, Class>,
+  subclassMap: Record<string, Subclass> = {},
+  featMap: Record<string, Feat> = {},
+  weaponMap: Record<string, Weapon> = {},
+  armorMap: Record<string, Armor> = {},
+  gearMap: Record<string, GearItem> = {},
+  spellMap: Record<string, Spell> = {},
+): RecomputeDerivedStatsDeps {
+  return {
+    classes: classMap,
+    species: speciesMap['Human'] ?? undefined,
+    background: backgroundMap['Soldier'] ?? undefined,
+    subclasses: subclassMap,
+    feats: featMap,
+    weapons: weaponMap,
+    armors: armorMap,
+    gear: gearMap,
+    spells: spellMap,
+  };
 }

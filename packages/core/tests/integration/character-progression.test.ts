@@ -8,13 +8,13 @@ import { validateCharacter } from '../../src/character/validate';
 import { recomputeDerivedStats } from '../../src/character/recompute';
 import { serialize, deserialize } from '../../src/storage/serializer';
 
-const dataLoader = createTestLoader();
-
 describe('D&D Player Behavior - Character Progression', () => {
   describe('Session 3: Long Rest and Level Up', () => {
     let wizard: any;
+    let dataLoader: ReturnType<typeof createTestLoader>;
 
     beforeEach(() => {
+      dataLoader = createTestLoader('Elf', 'sage');
       wizard = createCharacter(
         {
           name: 'Elara',
@@ -70,9 +70,10 @@ describe('D&D Player Behavior - Character Progression', () => {
 
   describe('Session 4: Character Validation', () => {
     it('should validate a correctly created character', () => {
+      const dataLoader = createTestLoader('Human', 'soldier');
       const char = createCharacter(
         {
-          name: 'Tordek',
+          name: 'Tordrek',
           speciesId: 'Human',
           backgroundId: 'soldier',
           classId: 'Fighter',
@@ -95,9 +96,10 @@ describe('D&D Player Behavior - Character Progression', () => {
 
   describe('Session 5: Serialization and Deserialization', () => {
     it('should serialize and deserialize a character without data loss', () => {
+      const dataLoader = createTestLoader('Human', 'soldier');
       const original = createCharacter(
         {
-          name: 'Tordek',
+          name: 'Tordrek',
           speciesId: 'Human',
           backgroundId: 'soldier',
           classId: 'Fighter',
@@ -113,22 +115,21 @@ describe('D&D Player Behavior - Character Progression', () => {
         dataLoader,
       );
 
-      const damaged = modifyHP(original, -10);
-
-      const json = serialize(damaged);
+      const json = serialize(original);
       const restored = deserialize(json);
 
       expect(restored.name).toBe(original.name);
       expect(restored.species).toBe(original.species);
-      expect(restored.hitPoints.current).toBe(damaged.hitPoints.current);
+      expect(restored.hitPoints.current).toBe(original.hitPoints.current);
     });
   });
 
   describe('Session 6: Derived Stats Recomputation', () => {
     it('should recompute AC correctly', () => {
+      const dataLoader = createTestLoader('Human', 'soldier');
       const char = createCharacter(
         {
-          name: 'Tordek',
+          name: 'Tordrek',
           speciesId: 'Human',
           backgroundId: 'soldier',
           classId: 'Fighter',

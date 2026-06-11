@@ -42,8 +42,9 @@ vi.mock('open20-core/spells', () => ({
   isSpellPrepared: vi.fn(() => false),
 }));
 
-vi.mock('@/core/data-loader', () => ({
-  dataLoader: {},
+// Mock content-resolver (used by useSpellCapabilities)
+vi.mock('@/core/content-resolver', () => ({
+  resolveDeps: vi.fn(() => ({})),
 }));
 
 // Get mocked function references

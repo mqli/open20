@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestLoader } from '../../create-test-loader';
+import { createTestDepsForCreate, createTestDeps } from '../../create-test-loader';
 import {
   createCharacter,
   recomputeDerivedStats,
@@ -21,11 +21,14 @@ import {
 } from 'open20-core/engine';
 import monstersArray from '@open20/content-srd/data/monsters.json';
 
-// ── Test Helpers ─────────────────────────────────────────────
-
-const dataLoader = createTestLoader();
+// ── Test Helpers ─────────────────────────────────────
 
 function createTestFighter(name: string = 'Fighter') {
+  const deps = createTestDepsForCreate({
+    speciesId: 'Human',
+    backgroundId: 'soldier',
+    classId: 'Fighter',
+  });
   const char = createCharacter(
     {
       name,
@@ -41,9 +44,10 @@ function createTestFighter(name: string = 'Fighter') {
         Charisma: 10,
       },
     },
-    dataLoader,
+    deps,
   );
-  return recomputeDerivedStats(char, dataLoader);
+  const deps2 = createTestDeps(char);
+  return recomputeDerivedStats(char, deps2);
 }
 
 function getTestMonster(monsterId: string): any {

@@ -6,7 +6,7 @@ import {
   calculateHPIncrement,
   calculateMaxHP,
 } from '../../src/engine/hp-calculator';
-import { createMockDataLoader } from '../fixtures/data-loader';
+import { createMockDeps } from '../fixtures/data-loader';
 import type { Class } from '../../src/types/class';
 
 // ── Mock Class Data ──────────────────────────────────────
@@ -74,10 +74,10 @@ const MOCK_CLASSES: Record<string, Class> = {
   },
 };
 
-// ── Mock DataLoader ──────────────────────────────────────
+// ── Mock Deps ──────────────────────────────────────────
 
-const data = createMockDataLoader({
-  getClass: (id: string) => MOCK_CLASSES[id] ?? undefined,
+const data = createMockDeps({
+  classes: MOCK_CLASSES,
 });
 
 // ── Tests ──────────────────────────────────────────────────
@@ -139,7 +139,7 @@ describe('calculateMaxHP', () => {
         hitDice: { die: 'd10' as const, used: 0 },
       },
     ];
-    expect(calculateMaxHP(char, 3, data)).toBe(49);
+    expect(calculateMaxHP(char, 3, data.classes)).toBe(49);
   });
 
   it('calculates 1-level Wizard Con +2 = 8', () => {
@@ -152,7 +152,7 @@ describe('calculateMaxHP', () => {
         hitDice: { die: 'd6' as const, used: 0 },
       },
     ];
-    expect(calculateMaxHP(char, 2, data)).toBe(8);
+    expect(calculateMaxHP(char, 2, data.classes)).toBe(8);
   });
 
   it('calculates 3-level Barbarian Con +4 = 38', () => {
@@ -168,11 +168,11 @@ describe('calculateMaxHP', () => {
         hitDice: { die: 'd12' as const, used: 0 },
       },
     ];
-    expect(calculateMaxHP(char, 4, data)).toBe(38);
+    expect(calculateMaxHP(char, 4, data.classes)).toBe(38);
   });
 
   it('returns 0 for empty classes', () => {
-    expect(calculateMaxHP([], 3, data)).toBe(0);
+    expect(calculateMaxHP([], 3, data.classes)).toBe(0);
   });
 
   it('HP minimum is 1 even with very negative Con', () => {
@@ -186,6 +186,6 @@ describe('calculateMaxHP', () => {
         hitDice: { die: 'd6' as const, used: 0 },
       },
     ];
-    expect(calculateMaxHP(char, -5, data)).toBe(1); // Math.max(1, ...)
+    expect(calculateMaxHP(char, -5, data.classes)).toBe(1); // Math.max(1, ...)
   });
 });

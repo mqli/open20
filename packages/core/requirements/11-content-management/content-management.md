@@ -53,7 +53,7 @@ Define how game content (species, classes, spells, feats, equipment) is organize
   ├── feats.json
   ├── spells.json
   ├── weapons.json
-  ├── armor.json
+  ├── armors.json
   └── gear.json
   ```
 - Automatically loaded when using default `createDataLoader()`
@@ -77,7 +77,7 @@ static/
     ├── feats.json
     ├── spells.json
     ├── weapons.json
-    ├── armor.json
+    ├── armors.json
     └── gear.json
 ```
 

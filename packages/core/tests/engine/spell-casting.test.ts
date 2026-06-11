@@ -13,8 +13,9 @@ import {
   castSpell,
 } from '../../src/character/spell-casting';
 import type { Spell, Character } from '../../src/types';
+import { createMockDeps } from '../fixtures/data-loader';
 
-// Mock DataLoader
+// Mock spells
 const mockSpell: Spell = {
   id: 'detect-magic',
   name: 'Detect Magic',
@@ -66,21 +67,14 @@ const mockUpcastSpell: Spell = {
   source: 'SRD 5.2',
 };
 
-const mockDataLoader = {
-  getSpell: (id: string) => {
-    if (id === 'detect-magic') return mockSpell;
-    if (id === 'fire-bolt') return mockCantrip;
-    if (id === 'fireball') return mockUpcastSpell;
-    return undefined;
+// Mock deps with spells
+const deps = createMockDeps({
+  spells: {
+    'detect-magic': mockSpell,
+    'fire-bolt': mockCantrip,
+    fireball: mockUpcastSpell,
   },
-  getClass: (id: string) => {
-    if (id === 'wizard')
-      return { id: 'wizard', name: 'Wizard', savingThrowProficiencies: ['Intelligence', 'Wisdom'] };
-    if (id === 'bard')
-      return { id: 'bard', name: 'Bard', savingThrowProficiencies: ['Dexterity', 'Charisma'] };
-    return undefined;
-  },
-} as any;
+});
 
 const mockWizardChar = {
   schemaVersion: '1.0.0',
@@ -206,11 +200,11 @@ const mockWizardChar = {
 describe('spell-casting', () => {
   describe('canCastAsRitual', () => {
     it('should return true for ritual spells on class list', () => {
-      expect(canCastAsRitual(mockWizardChar, mockSpell, mockDataLoader)).toBe(true);
+      expect(canCastAsRitual(mockWizardChar, mockSpell)).toBe(true);
     });
 
     it('should return false for non-ritual spells', () => {
-      expect(canCastAsRitual(mockWizardChar, mockCantrip, mockDataLoader)).toBe(false);
+      expect(canCastAsRitual(mockWizardChar, mockCantrip)).toBe(false);
     });
 
     it('should return false if character cannot cast rituals', () => {
@@ -226,7 +220,7 @@ describe('spell-casting', () => {
           },
         ],
       };
-      expect(canCastAsRitual(nonCasterChar, mockSpell, mockDataLoader)).toBe(false);
+      expect(canCastAsRitual(nonCasterChar, mockSpell)).toBe(false);
     });
   });
 
@@ -242,13 +236,13 @@ describe('spell-casting', () => {
 
   describe('castAsRitual', () => {
     it('should succeed for valid ritual casting', () => {
-      const result = castAsRitual(mockWizardChar, mockSpell, mockDataLoader);
+      const result = castAsRitual(mockWizardChar, mockSpell);
       expect(result.success).toBe(true);
       expect(result.char).toBe(mockWizardChar); // Character unchanged
     });
 
     it('should fail for non-ritual spells', () => {
-      const result = castAsRitual(mockWizardChar, mockCantrip, mockDataLoader);
+      const result = castAsRitual(mockWizardChar, mockCantrip);
       expect(result.success).toBe(false);
     });
   });
@@ -322,7 +316,7 @@ describe('spell-casting', () => {
     // Create a higher-level wizard for testing level 3+ spells
     const highLevelWizard = {
       ...mockWizardChar,
-      classes: [{ classId: 'wizard', level: 5 }],
+      classes: [{ classId: 'Wizard', level: 5 }],
       spells: {
         ...mockWizardChar.spells,
         spellSlots: {
@@ -333,19 +327,19 @@ describe('spell-casting', () => {
     } as any;
 
     it('should succeed for cantrips without using slots', () => {
-      const result = castSpell(mockWizardChar, 'fire-bolt', 0, mockDataLoader);
+      const result = castSpell(mockWizardChar, mockCantrip, 0);
       expect(result.success).toBe(true);
       expect(result.message).toContain('cantrip');
     });
 
     it('should fail if slot level is too low', () => {
-      const result = castSpell(mockWizardChar, 'fireball', 2, mockDataLoader);
+      const result = castSpell(mockWizardChar, mockUpcastSpell, 2);
       expect(result.success).toBe(false);
       expect(result.message).toContain('requires level 3');
     });
 
     it('should succeed for valid spell cast', () => {
-      const result = castSpell(highLevelWizard, 'fireball', 3, mockDataLoader);
+      const result = castSpell(highLevelWizard, mockUpcastSpell, 3);
       expect(result.success).toBe(true);
     });
 
@@ -361,7 +355,7 @@ describe('spell-casting', () => {
           },
         },
       };
-      const result = castSpell(charWithSlots, 'fireball', 4, mockDataLoader);
+      const result = castSpell(charWithSlots, mockUpcastSpell, 4);
       expect(result.success).toBe(true);
       expect(result.message).toContain('damage increases');
     });

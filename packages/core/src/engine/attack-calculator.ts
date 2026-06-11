@@ -6,7 +6,7 @@ import type { AbilityScores } from '@/types/ability';
 import type { Weapon, EquipmentItem } from '@/types/equipment';
 import type { Feature } from '@/types/class';
 import type { CharacterAttack } from '@/types/character';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import type { FeatAttackBonus } from '@/types/feat';
 import { getModifier, getTotalScore } from './ability-modifier';
 
@@ -24,7 +24,7 @@ import { getModifier, getTotalScore } from './ability-modifier';
  * @param equipment - 装备列表
  * @param proficiencyBonus - 熟练加值
  * @param features - 角色特性列表
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps (for weapon data)
  * @param weaponProficiencies - 角色武器熟练项列表（可选，默认空）
  * @param featAttackBonuses - 专长给予的攻击加值（可选，用于战斗风格）
  * @returns 攻击列表
@@ -34,7 +34,7 @@ export function calculateAttacks(
   equipment: readonly EquipmentItem[],
   proficiencyBonus: number,
   features: readonly Feature[],
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   weaponProficiencies: readonly string[] = [],
   featAttackBonuses?: readonly FeatAttackBonus[],
 ): CharacterAttack[] {
@@ -43,7 +43,7 @@ export function calculateAttacks(
   // 获取所有已装备的武器
   const equippedWeapons = equipment
     .filter((e) => e.equipped && e.type === 'weapon')
-    .map((e) => ({ itemId: e.id, weapon: data.getWeapon(e.id) }))
+    .map((e) => ({ itemId: e.id, weapon: deps.weapons?.[e.id] }))
     .filter((w): w is { itemId: string; weapon: Weapon } => w.weapon != null);
 
   for (const { weapon } of equippedWeapons) {

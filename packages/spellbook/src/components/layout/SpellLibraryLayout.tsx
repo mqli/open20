@@ -12,7 +12,7 @@ import { EmptyState, Surface, Toggle, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
 import { getCasterType } from 'open20-core/spells';
-import { dataLoader } from '@/core/data-loader';
+import { resolveDeps } from '@/core/content-resolver';
 import { CharacterBar } from '@/components/character/CharacterBar';
 
 export function SpellLibraryLayout() {
@@ -62,7 +62,7 @@ export function SpellLibraryLayout() {
     if (!activeCharacter) {
       return { canLearn: false, canPrepare: false, isSpellbookCaster: false };
     }
-    return getCasterType(activeCharacter, dataLoader);
+    return getCasterType(activeCharacter, resolveDeps(activeCharacter));
   }, [activeCharacter]);
   const activeFilter = showPreparedOnly ? 'prepared' : showKnownOnly ? 'known' : null;
 

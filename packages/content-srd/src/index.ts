@@ -16,7 +16,7 @@ import classesJson from '../data/classes.json' with { type: 'json' };
 import subclassesJson from '../data/subclasses.json' with { type: 'json' };
 import featsJson from '../data/feats.json' with { type: 'json' };
 import weaponsJson from '../data/weapons.json' with { type: 'json' };
-import armorJson from '../data/armor.json' with { type: 'json' };
+import armorJson from '../data/armors.json' with { type: 'json' };
 import gearJson from '../data/gear.json' with { type: 'json' };
 import spellsJsonRaw from '../data/spells.json' with { type: 'json' };
 import monstersJson from '../data/monsters.json' with { type: 'json' };
@@ -90,6 +90,10 @@ function normaliseSpells(raw: unknown): Spell[] {
   });
 }
 
+// ── Merge & Resolve Helpers ─────────────────────
+export { mergeContentPacks } from './merge';
+export { resolveCharacterDeps } from './query/resolve';
+
 // Build and export the SRD content pack
 export const srdContentPack: ContentPack = {
   meta: metaJson as unknown as ContentPack['meta'],
@@ -99,7 +103,7 @@ export const srdContentPack: ContentPack = {
   subclasses: subclassesJson as unknown as ContentPack['subclasses'],
   feats: featsJson as unknown as ContentPack['feats'],
   weapons: weaponsJson as unknown as ContentPack['weapons'],
-  armor: armorJson as unknown as ContentPack['armor'],
+  armors: armorJson as unknown as ContentPack['armors'],
   gear: gearJson as unknown as ContentPack['gear'],
   spells: normaliseSpells(spellsJsonRaw),
   monsters: monstersJson as unknown as ContentPack['monsters'],

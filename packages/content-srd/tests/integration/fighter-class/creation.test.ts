@@ -1,11 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../../create-test-loader';
+import { createTestDepsForCreate, createTestDeps, getTestClass } from '../../create-test-loader';
 import { createCharacter, validateCharacter } from 'open20-core/character';
-
-const dataLoader = createTestLoader();
 
 describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
   it('should create a level 1 Human Fighter', () => {
+    const deps = createTestDepsForCreate({
+      speciesId: 'Human',
+      backgroundId: 'soldier',
+      classId: 'Fighter',
+    });
     const fighter = createCharacter(
       {
         name: 'Sir Roland',
@@ -21,7 +24,7 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 8,
         },
       },
-      dataLoader,
+      deps,
     );
 
     expect(fighter.name).toBe('Sir Roland');
@@ -35,6 +38,11 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
   });
 
   it('should create a Dwarven Fighter with racial bonuses', () => {
+    const deps = createTestDepsForCreate({
+      speciesId: 'Dwarf',
+      backgroundId: 'soldier',
+      classId: 'Fighter',
+    });
     const fighter = createCharacter(
       {
         name: 'Thorin',
@@ -51,7 +59,7 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 11,
         },
       },
-      dataLoader,
+      deps,
     );
 
     expect(fighter.species).toBe('Dwarf');
@@ -61,6 +69,11 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
   });
 
   it('should create a Fighter 5 with Extra Attack feature', () => {
+    const deps = createTestDepsForCreate({
+      speciesId: 'Human',
+      backgroundId: 'soldier',
+      classId: 'Fighter',
+    });
     const fighter = createCharacter(
       {
         name: 'Aldric',
@@ -77,19 +90,23 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 8,
         },
       },
-      dataLoader,
+      deps,
     );
 
     expect(fighter.classes[0]!.level).toBe(5);
     expect(fighter.combatStats.proficiencyBonus).toBe(3);
-    const level5Features = dataLoader
-      .getClass('Fighter')!
+    const level5Features = getTestClass('Fighter')!
       .featuresByLevel.find((entry) => entry.level === 5)!
       .features.map((feature) => feature.name);
     expect(level5Features).toContain('Extra Attack');
   });
 
   it('should validate a Fighter character', () => {
+    const deps = createTestDepsForCreate({
+      speciesId: 'Human',
+      backgroundId: 'soldier',
+      classId: 'Fighter',
+    });
     const fighter = createCharacter(
       {
         name: 'Valeros',
@@ -105,10 +122,11 @@ describe('D&D SRD 5.2 - Fighter Class: Character Creation', () => {
           Charisma: 8,
         },
       },
-      dataLoader,
+      deps,
     );
 
-    const validation = validateCharacter(fighter, dataLoader);
+    const depsForValidate = createTestDeps(fighter);
+    const validation = validateCharacter(fighter, depsForValidate);
     expect(validation.valid).toBe(true);
   });
 });

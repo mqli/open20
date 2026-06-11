@@ -9,7 +9,6 @@ import {
   calculateMulticlassSpellSlots,
   type SpellSlotEntry,
 } from '../../src/engine/spell-slots';
-import { createMockDataLoader } from '../fixtures/data-loader';
 import { FULL_CASTER_SLOTS, PACT_MAGIC_SLOTS } from '../fixtures/spell-slots';
 import type { Class } from '../../src/types/class';
 import type { CharacterClass } from '../../src/types/character';
@@ -200,12 +199,6 @@ const SPELLCASTING_CLASSES: Record<string, Class> = {
   },
 };
 
-// ── Mock Data Loader ──────────────────────────────────────
-
-const data = createMockDataLoader({
-  getClass: (id: string) => SPELLCASTING_CLASSES[id],
-});
-
 // ── Helper Functions ──────────────────────────────────────
 
 /** Create CharacterClass object */
@@ -222,21 +215,21 @@ function getSlotTotal(result: Record<number, SpellSlotEntry>, level: number): nu
 
 describe('calculateSpellSlots', () => {
   it('should return 2 level-1 slots for Wizard level 1', () => {
-    const result = calculateSpellSlots('Wizard', 1, data);
+    const result = calculateSpellSlots('Wizard', 1, SPELLCASTING_CLASSES);
     expect(getSlotTotal(result, 1)).toBe(2);
     expect(getSlotTotal(result, 2)).toBe(0);
     expect(getSlotTotal(result, 9)).toBe(0);
   });
 
   it('should return 4/2 slots for Wizard level 3', () => {
-    const result = calculateSpellSlots('Wizard', 3, data);
+    const result = calculateSpellSlots('Wizard', 3, SPELLCASTING_CLASSES);
     expect(getSlotTotal(result, 1)).toBe(4);
     expect(getSlotTotal(result, 2)).toBe(2);
     expect(getSlotTotal(result, 3)).toBe(0);
   });
 
   it('should return 4/3/2 slots for Wizard level 5', () => {
-    const result = calculateSpellSlots('Wizard', 5, data);
+    const result = calculateSpellSlots('Wizard', 5, SPELLCASTING_CLASSES);
     expect(getSlotTotal(result, 1)).toBe(4);
     expect(getSlotTotal(result, 2)).toBe(3);
     expect(getSlotTotal(result, 3)).toBe(2);
@@ -244,20 +237,20 @@ describe('calculateSpellSlots', () => {
   });
 
   it('should return all zeros for non-spellcaster (Fighter)', () => {
-    const result = calculateSpellSlots('Fighter', 5, data);
+    const result = calculateSpellSlots('Fighter', 5, SPELLCASTING_CLASSES);
     for (let level = 1; level <= 9; level++) {
       expect(getSlotTotal(result, level)).toBe(0);
     }
   });
 
   it('should return 2 level-1 slots for Cleric level 1 (full caster)', () => {
-    const result = calculateSpellSlots('Cleric', 1, data);
+    const result = calculateSpellSlots('Cleric', 1, SPELLCASTING_CLASSES);
     expect(getSlotTotal(result, 1)).toBe(2);
     expect(getSlotTotal(result, 2)).toBe(0);
   });
 
   it('should return 4/3/3/3/1 slots for Wizard level 9', () => {
-    const result = calculateSpellSlots('Wizard', 9, data);
+    const result = calculateSpellSlots('Wizard', 9, SPELLCASTING_CLASSES);
     expect(getSlotTotal(result, 1)).toBe(4);
     expect(getSlotTotal(result, 2)).toBe(3);
     expect(getSlotTotal(result, 3)).toBe(3);
@@ -267,14 +260,14 @@ describe('calculateSpellSlots', () => {
   });
 
   it('should always set used to 0 after calculation', () => {
-    const result = calculateSpellSlots('Wizard', 5, data);
+    const result = calculateSpellSlots('Wizard', 5, SPELLCASTING_CLASSES);
     for (let level = 1; level <= 9; level++) {
       expect(result[level]!.used).toBe(0);
     }
   });
 
   it('should return all 9 levels in result', () => {
-    const result = calculateSpellSlots('Wizard', 1, data);
+    const result = calculateSpellSlots('Wizard', 1, SPELLCASTING_CLASSES);
     for (let level = 1; level <= 9; level++) {
       expect(result[level]!).toBeDefined();
       expect(result[level]!).toHaveProperty('total');
@@ -336,65 +329,65 @@ describe('calculatePactMagic', () => {
 describe('getMulticlassSpellcasterLevel', () => {
   it('should return 5 for single full caster (Wizard 5)', () => {
     const classes = [makeClass('Wizard', 5)];
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(5);
   });
 
   it('should return 0 for single non-caster (Fighter 5)', () => {
     const classes = [makeClass('Fighter', 5)];
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(0);
   });
 
   it('should return 3 for Fighter 5 + Wizard 3 (only Wizard counts)', () => {
     const classes = [makeClass('Fighter', 5), makeClass('Wizard', 3)];
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(3);
   });
 
   it('should return 5 for Paladin 4 + Wizard 3 (Paladin is half-caster)', () => {
     const classes = [makeClass('Paladin', 4), makeClass('Wizard', 3)];
     // Paladin: floor(4/2) = 2, Wizard: 3, total = 5
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(5);
   });
 
   it('should return 0 for Warlock 3 (Warlock does not count toward multiclass slots)', () => {
     const classes = [makeClass('Warlock', 3)];
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(0);
   });
 
   it('should return 8 for Bard 6 + Paladin 4', () => {
     const classes = [makeClass('Bard', 6), makeClass('Paladin', 4)];
     // Bard: 6, Paladin: floor(4/2) = 2, total = 8
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(8);
   });
 
   it('should handle Ranger as half-caster', () => {
     const classes = [makeClass('Ranger', 6)];
     // Ranger: floor(6/2) = 3
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(3);
   });
 
   it('should handle empty classes array', () => {
-    const result = getMulticlassSpellcasterLevel([], data);
+    const result = getMulticlassSpellcasterLevel([], SPELLCASTING_CLASSES);
     expect(result).toBe(0);
   });
 
   it('should handle multiple half-casters', () => {
     const classes = [makeClass('Paladin', 4), makeClass('Ranger', 6)];
     // Paladin: floor(4/2) = 2, Ranger: floor(6/2) = 3, total = 5
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(5);
   });
 
   it('should exclude Warlock from multiclass calculation even with other casters', () => {
     const classes = [makeClass('Wizard', 3), makeClass('Warlock', 5)];
     // Wizard: 3, Warlock: 0 (excluded), total = 3
-    const result = getMulticlassSpellcasterLevel(classes, data);
+    const result = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(result).toBe(3);
   });
 });
@@ -458,7 +451,7 @@ describe('calculateMulticlassSpellSlots', () => {
 describe('integration: multiclass spell slots flow', () => {
   it('should calculate correct multiclass slots for Fighter 5 + Wizard 3', () => {
     const classes = [makeClass('Fighter', 5), makeClass('Wizard', 3)];
-    const totalLevel = getMulticlassSpellcasterLevel(classes, data);
+    const totalLevel = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(totalLevel).toBe(3);
 
     const slots = calculateMulticlassSpellSlots(totalLevel);
@@ -468,7 +461,7 @@ describe('integration: multiclass spell slots flow', () => {
 
   it('should calculate correct multiclass slots for Paladin 4 + Wizard 3', () => {
     const classes = [makeClass('Paladin', 4), makeClass('Wizard', 3)];
-    const totalLevel = getMulticlassSpellcasterLevel(classes, data);
+    const totalLevel = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(totalLevel).toBe(5);
 
     const slots = calculateMulticlassSpellSlots(totalLevel);
@@ -479,7 +472,7 @@ describe('integration: multiclass spell slots flow', () => {
 
   it('should return no slots for Warlock 5 (Pact Magic does not use multiclass slots)', () => {
     const classes = [makeClass('Warlock', 5)];
-    const totalLevel = getMulticlassSpellcasterLevel(classes, data);
+    const totalLevel = getMulticlassSpellcasterLevel(classes, SPELLCASTING_CLASSES);
     expect(totalLevel).toBe(0);
 
     const slots = calculateMulticlassSpellSlots(totalLevel);

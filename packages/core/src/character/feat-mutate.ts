@@ -4,11 +4,11 @@
 
 import type { Character } from '@/types/character';
 import type { FeatSpellSelection, CharacterFeatEntry } from '@/types/feat';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import { validateFeatPrerequisites, canTakeFeat } from './feat-validator';
 import { recomputeDerivedStats } from './recompute';
 
-// ── Helpers ──────────────────────────────────────────
+// ── Helpers ──────────────────────────────────
 
 /** Check if a character has a feat by featId. */
 function hasFeat(char: Character, featId: string): boolean {
@@ -37,7 +37,7 @@ function removeFeatEntry(
   return feats.filter((f) => f.featId !== featId);
 }
 
-// ── Public Interface ──────────────────────────────────────
+// ── Public Interface ──────────────────────────────────
 
 /**
  * Options for adding a feat to a character.
@@ -57,36 +57,36 @@ export interface AddFeatOptions {
  *
  * @param char - The character to modify
  * @param featId - The ID of the feat to add
- * @param data - DataLoader for validation
+ * @param deps - RecomputeDerivedStatsDeps for validation
  * @param options - Optional choices and spell selection
  * @returns New Character with the feat added
  * @throws Error if prerequisites not met
  *
  * @example
  * // Add a feat with skill choices
- * addFeat(char, 'skilled', data, { skillChoices: ['Athletics', 'Stealth', 'Perception'] });
+ * addFeat(char, 'skilled', deps, { skillChoices: ['Athletics', 'Stealth', 'Perception'] });
  *
  * @example
  * // Add a feat with ability bonus choice
- * addFeat(char, 'ability-score-improvement', data, { abilityChoices: { Strength: 2 } });
+ * addFeat(char, 'ability-score-improvement', deps, { abilityChoices: { Strength: 2 } });
  *
  * @example
  * // Add a feat with spell selection (Magic Initiate)
- * addFeat(char, 'magic-initiate', data, { spellSelection: { classId: 'Wizard', spells: { cantrips: ['fire-bolt'], level1Spell: ['magic-missile'] } } });
+ * addFeat(char, 'magic-initiate', deps, { spellSelection: { classId: 'Wizard', spells: { cantrips: ['fire-bolt'], level1Spell: ['magic-missile'] } } });
  */
 export function addFeat(
   char: Character,
   featId: string,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   options?: AddFeatOptions,
 ): Character {
-  const feat = data.getFeat(featId);
+  const feat = deps.feats?.[featId];
   if (!feat) {
-    throw new Error(`Feat "${featId}" not found in data`);
+    throw new Error(`Feat "${featId}" not found in deps`);
   }
 
   // Validate prerequisites
-  const validation = validateFeatPrerequisites(char, feat, data);
+  const validation = validateFeatPrerequisites(char, feat, deps);
   if (!validation.valid) {
     throw new Error(`Cannot take feat "${feat.name ?? featId}": ${validation.reasons.join(', ')}`);
   }
@@ -116,7 +116,7 @@ export function addFeat(
     updatedAt: new Date().toISOString(),
   };
 
-  return recomputeDerivedStats(newChar, data);
+  return recomputeDerivedStats(newChar, deps);
 }
 
 /**
@@ -126,10 +126,14 @@ export function addFeat(
  *
  * @param char - The character to modify
  * @param featId - The ID of the feat to remove
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps
  * @returns New Character with the feat removed
  */
-export function removeFeat(char: Character, featId: string, data: DataLoader): Character {
+export function removeFeat(
+  char: Character,
+  featId: string,
+  deps: RecomputeDerivedStatsDeps,
+): Character {
   if (!hasFeat(char, featId)) {
     throw new Error(`Feat "${featId}" not found on character`);
   }
@@ -144,7 +148,7 @@ export function removeFeat(char: Character, featId: string, data: DataLoader): C
     updatedAt: new Date().toISOString(),
   };
 
-  return recomputeDerivedStats(newChar, data);
+  return recomputeDerivedStats(newChar, deps);
 }
 
 /**
@@ -153,7 +157,7 @@ export function removeFeat(char: Character, featId: string, data: DataLoader): C
  * @param char - The character to modify
  * @param featId - The ID of the feat
  * @param choices - New choices for this feat
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps
  * @returns New Character with updated choices
  */
 export function updateFeatChoices(
@@ -163,15 +167,15 @@ export function updateFeatChoices(
     skillChoices?: readonly string[];
     abilityChoices?: Partial<Record<import('../types/ability').AbilityName, number>>;
   },
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Character {
   if (!hasFeat(char, featId)) {
     throw new Error(`Feat "${featId}" not found on character`);
   }
 
-  const feat = data.getFeat(featId);
+  const feat = deps.feats?.[featId];
   if (!feat) {
-    throw new Error(`Feat "${featId}" not found in data`);
+    throw new Error(`Feat "${featId}" not found in deps`);
   }
 
   const existing = findFeatEntry(char, featId);
@@ -201,7 +205,7 @@ export function updateFeatChoices(
     updatedAt: new Date().toISOString(),
   };
 
-  return recomputeDerivedStats(newChar, data);
+  return recomputeDerivedStats(newChar, deps);
 }
 
 /**
@@ -210,22 +214,22 @@ export function updateFeatChoices(
  * @param char - The character to modify
  * @param featId - The ID of the feat
  * @param spellSelection - New spell selection for this feat
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps
  * @returns New Character with updated spell choices
  */
 export function updateFeatSpellChoices(
   char: Character,
   featId: string,
   spellSelection: FeatSpellSelection,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Character {
   if (!hasFeat(char, featId)) {
     throw new Error(`Feat "${featId}" not found on character`);
   }
 
-  const feat = data.getFeat(featId);
+  const feat = deps.feats?.[featId];
   if (!feat) {
-    throw new Error(`Feat "${featId}" not found in data`);
+    throw new Error(`Feat "${featId}" not found in deps`);
   }
 
   // Find spellChoices grant in the grants array
@@ -254,7 +258,7 @@ export function updateFeatSpellChoices(
     updatedAt: new Date().toISOString(),
   };
 
-  return recomputeDerivedStats(newChar, data);
+  return recomputeDerivedStats(newChar, deps);
 }
 
 /**
@@ -262,14 +266,17 @@ export function updateFeatSpellChoices(
  * Useful for UI display and engine logic.
  *
  * @param char - The character
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps
  * @returns Array of special ability names
  */
-export function getFeatSpecialAbilities(char: Character, data: DataLoader): string[] {
+export function getFeatSpecialAbilities(
+  char: Character,
+  deps: RecomputeDerivedStatsDeps,
+): string[] {
   const abilities: string[] = [];
 
   for (const entry of char.feats) {
-    const feat = data.getFeat(entry.featId);
+    const feat = deps.feats?.[entry.featId];
     if (!feat?.grants) continue;
 
     // Find specialAbilities grant in the grants array

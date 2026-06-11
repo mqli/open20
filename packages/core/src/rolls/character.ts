@@ -23,7 +23,7 @@ import { getSkillBonus } from '@/engine/skill-bonus';
 import { SKILL_ABILITY_MAP } from '@/types/skill';
 import { getActiveDamageDefenses, calculateTypedDamage } from '@/engine/damage-calculator';
 import { modifyHP } from '@/character/mutate';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import type { DamageResult } from '@/engine/damage-calculator';
 
 // ── Character Skill Check ───────────────────────────────────────
@@ -360,9 +360,9 @@ export function applyDamageWithDefenses(
   char: Character,
   damage: number,
   damageType: import('../types/damage').DamageType,
-  dataLoader: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): { char: Character; result: DamageResult; defenses: import('../types/damage').DamageDefenses } {
-  const { defenses } = getActiveDamageDefenses(char, dataLoader);
+  const { defenses } = getActiveDamageDefenses(char, deps);
   const result = calculateTypedDamage(damage, damageType, defenses);
   const updatedChar = modifyHP(char, -result.effectiveDamage);
 

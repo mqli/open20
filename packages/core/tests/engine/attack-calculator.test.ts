@@ -5,14 +5,13 @@ import { describe, it, expect } from 'vitest';
 import { calculateAttacks } from '../../src/engine/attack-calculator';
 import type { Feature, EquipmentItem } from '../../src/types';
 import { makeScores } from '../fixtures/ability-scores';
-import { createMockDataLoader } from '../fixtures/data-loader';
+import { createMockDeps } from '../fixtures/data-loader';
 import { getStandardWeapons } from '../fixtures/equipment';
 
 // ── Mock DataLoader ──────────────────────────────────────
 
-const mockData = createMockDataLoader({
-  getWeapon: (id: string) => getStandardWeapons()[id] ?? undefined,
-  getAllWeapons: () => Object.values(getStandardWeapons()),
+const mockDeps = createMockDeps({
+  weapons: getStandardWeapons(),
 });
 
 // ── Helper Functions ──────────────────────────────────────
@@ -53,7 +52,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -69,7 +68,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -88,7 +87,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -107,7 +106,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -125,7 +124,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -144,7 +143,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -162,7 +161,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -179,7 +178,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -196,7 +195,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -216,7 +215,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -235,7 +234,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -255,7 +254,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -272,7 +271,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -290,7 +289,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -307,7 +306,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -323,7 +322,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -339,7 +338,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 
@@ -358,7 +357,7 @@ describe('calculateAttacks', () => {
       equipment,
       2,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
     expect(result1).toHaveLength(1);
@@ -370,7 +369,7 @@ describe('calculateAttacks', () => {
       equipment,
       4,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
     expect(result2[0]!.attackBonus).toBe(7); // 4 + 3
@@ -385,7 +384,7 @@ describe('calculateAttacks', () => {
       equipment,
       3,
       emptyFeatures,
-      mockData,
+      mockDeps,
       allWeaponProficiencies,
     );
 

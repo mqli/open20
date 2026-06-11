@@ -16,10 +16,6 @@ export {
   unprepareSpellForClass,
   learnCantripForClass,
   replaceCantripForClass,
-  prepareSpell,
-  unprepareSpell,
-  learnCantrip,
-  replaceCantrip,
 } from './spells';
 
 export {

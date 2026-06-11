@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { SelectContent, SelectItem, SelectRoot, SelectTrigger, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
-import { dataLoader } from '@/core/data-loader';
+import { getAllSubclasses } from '@/core/content-resolver';
 
 interface SubclassSelectProps {
   classId: string;
@@ -12,7 +12,10 @@ interface SubclassSelectProps {
 
 export function SubclassSelect({ classId, value, onChange, label }: SubclassSelectProps) {
   const t = useTranslation();
-  const subclasses = useMemo(() => dataLoader.getSubclassesForClass(classId), [classId]);
+  const subclasses = useMemo(
+    () => getAllSubclasses().filter((sc) => sc.parentClass === classId),
+    [classId],
+  );
 
   if (subclasses.length === 0) return null;
 

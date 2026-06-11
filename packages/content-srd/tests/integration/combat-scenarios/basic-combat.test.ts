@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestLoader } from '../../create-test-loader';
+import { createTestDepsForCreate, createTestDeps } from '../../create-test-loader';
 import { createCharacter, recomputeDerivedStats, modifyHP } from 'open20-core/character';
 import {
   initializeMonsterForCombat,
@@ -26,9 +26,12 @@ import monstersArray from '@open20/content-srd/data/monsters.json';
 
 // ── Test Helpers ─────────────────────────────────────────────
 
-const dataLoader = createTestLoader();
-
 function createTestFighter(name: string = 'Fighter') {
+  const deps = createTestDepsForCreate({
+    speciesId: 'Human',
+    backgroundId: 'soldier',
+    classId: 'Fighter',
+  });
   const char = createCharacter(
     {
       name,
@@ -44,9 +47,10 @@ function createTestFighter(name: string = 'Fighter') {
         Charisma: 10,
       },
     },
-    dataLoader,
+    deps,
   );
-  return recomputeDerivedStats(char, dataLoader);
+  const deps2 = createTestDeps(char);
+  return recomputeDerivedStats(char, deps2);
 }
 
 function getTestMonster(monsterId: string): any {
@@ -125,7 +129,7 @@ describe('Combat Scenarios - Basic Combat (Fighter vs Goblin)', () => {
     };
 
     const attackBonus =
-      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin, goblinAttack, dataLoader);
+      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin, goblinAttack);
     const result = rollMonsterAttack({ monster: goblin, attackBonus, rng: defaultRandom });
     const { total, isCritical } = result;
     const hits = isCritical || total >= fighterAC;
@@ -190,8 +194,7 @@ describe('Combat Scenarios - Multi-Round Combat', () => {
         };
 
         const attackBonus =
-          goblinAttack.attackBonus ??
-          calculateMonsterAttackBonus(currentGoblin1, goblinAttack, dataLoader);
+          goblinAttack.attackBonus ?? calculateMonsterAttackBonus(currentGoblin1, goblinAttack);
         const monsterAttack = rollMonsterAttack({
           monster: currentGoblin1,
           attackBonus,
@@ -225,7 +228,7 @@ describe('Combat Scenarios - Multi-Round Combat', () => {
     };
 
     const attackBonus1 =
-      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin1, goblinAttack, dataLoader);
+      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin1, goblinAttack);
     const attack1 = rollMonsterAttack({
       monster: goblin1,
       attackBonus: attackBonus1,
@@ -237,7 +240,7 @@ describe('Combat Scenarios - Multi-Round Combat', () => {
     }
 
     const attackBonus2 =
-      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin2, goblinAttack, dataLoader);
+      goblinAttack.attackBonus ?? calculateMonsterAttackBonus(goblin2, goblinAttack);
     const attack2 = rollMonsterAttack({
       monster: goblin2,
       attackBonus: attackBonus2,

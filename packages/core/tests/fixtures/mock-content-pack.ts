@@ -289,7 +289,7 @@ const mockWeapons: Weapon[] = [
 /**
  * Minimal mock armor for testing
  */
-const mockArmor: Armor[] = [
+const mockArmors: Armor[] = [
   {
     id: 'Leather',
     name: 'Leather Armor',
@@ -409,7 +409,7 @@ export const mockContentPack: ContentPack = {
   feats: mockFeats,
   spells: mockSpells,
   weapons: mockWeapons,
-  armor: mockArmor,
+  armors: mockArmors,
   gear: mockGear,
   monsters: mockMonsters,
   glossary: mockGlossary,

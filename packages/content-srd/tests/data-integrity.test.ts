@@ -5,7 +5,7 @@ import _classes from '../data/classes.json';
 import _subclasses from '../data/subclasses.json';
 import _feats from '../data/feats.json';
 import _weapons from '../data/weapons.json';
-import _armors from '../data/armor.json';
+import _armors from '../data/armors.json';
 import _spells from '../data/spells.json';
 
 // Cast JSON imports to any to allow dynamic property access in integrity tests

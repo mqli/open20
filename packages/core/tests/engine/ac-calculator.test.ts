@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { calculateAC } from '../../src/engine/ac-calculator';
 import type { Feature } from '../../src/types/class';
 import { createAbilityScores } from '../fixtures/ability-scores';
-import { createMockDataLoader } from '../fixtures/data-loader';
+import { createMockDeps } from '../fixtures/data-loader';
 import { LEATHER_ARMOR, CHAIN_MAIL, HALF_PLATE, SHIELD } from '../fixtures/equipment';
 
 // ── Test Data ──────────────────────────────────────
@@ -23,9 +23,9 @@ describe('calculateAC', () => {
   const noFeatures: Feature[] = [];
 
   it('unarmored = 10 + Dex', () => {
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
     // Dex 14 → +2
-    const result = calculateAC(defaultScores, [], noFeatures, data);
+    const result = calculateAC(defaultScores, [], noFeatures, deps);
     expect(result.ac).toBe(12);
     expect(result.breakdown[0]!.source.type).toBe('Unarmored');
     expect(result.breakdown[0]!.source.value).toContain('10 + Dex');
@@ -42,11 +42,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Leather Armor' ? LEATHER_ARMOR : undefined),
+    const deps = createMockDeps({
+      armors: { 'Leather Armor': LEATHER_ARMOR },
     });
     // 11 + 2(Dex) = 13
-    const result = calculateAC(defaultScores, equip, noFeatures, data);
+    const result = calculateAC(defaultScores, equip, noFeatures, deps);
     expect(result.ac).toBe(13);
     expect(result.breakdown[0]!.source.type).toBe('Armor');
     expect(result.breakdown[0]!.source.value).toContain('Leather Armor');
@@ -63,11 +63,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Chain Mail' ? CHAIN_MAIL : undefined),
+    const deps = createMockDeps({
+      armors: { 'Chain Mail': CHAIN_MAIL },
     });
     // 16 (no Dex bonus)
-    const result = calculateAC(defaultScores, equip, noFeatures, data);
+    const result = calculateAC(defaultScores, equip, noFeatures, deps);
     expect(result.ac).toBe(16);
     expect(result.breakdown[0]!.source.type).toBe('Armor');
     expect(result.breakdown[0]!.source.value).toContain('Chain Mail');
@@ -84,11 +84,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Half Plate' ? HALF_PLATE : undefined),
+    const deps = createMockDeps({
+      armors: { 'Half Plate': HALF_PLATE },
     });
     // Dex +2, cap +2 → 15 + 2 = 17
-    const result = calculateAC(defaultScores, equip, noFeatures, data);
+    const result = calculateAC(defaultScores, equip, noFeatures, deps);
     expect(result.ac).toBe(17);
     expect(result.breakdown[0]!.source.value).toBe('Half Plate');
   });
@@ -112,11 +112,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Half Plate' ? HALF_PLATE : undefined),
+    const deps = createMockDeps({
+      armors: { 'Half Plate': HALF_PLATE },
     });
     // 15 + min(5, 2) = 17 (not 20)
-    const result = calculateAC(highDex, equip, noFeatures, data);
+    const result = calculateAC(highDex, equip, noFeatures, deps);
     expect(result.ac).toBe(17);
     expect(result.breakdown[0]!.source.value).toBe('Half Plate');
   });
@@ -140,15 +140,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => {
-        if (id === 'Chain Mail') return CHAIN_MAIL;
-        if (id === 'Shield') return SHIELD;
-        return undefined;
-      },
+    const deps = createMockDeps({
+      armors: { 'Chain Mail': CHAIN_MAIL, Shield: SHIELD },
     });
     // 16 + 2 = 18
-    const result = calculateAC(defaultScores, equip, noFeatures, data);
+    const result = calculateAC(defaultScores, equip, noFeatures, deps);
     expect(result.ac).toBe(18);
     expect(result.breakdown[0]!.source.value).toBe('Chain Mail');
     expect(result.breakdown[1]!).toEqual({
@@ -170,9 +166,9 @@ describe('calculateAC', () => {
         },
       },
     ];
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
     // Dex +2, Con +2 → 10 + 2 + 2 = 14
-    const result = calculateAC(defaultScores, [], features, data);
+    const result = calculateAC(defaultScores, [], features, deps);
     expect(result.ac).toBe(14);
     expect(result.breakdown[0]!.source.value).toBe('Unarmored Defense');
   });
@@ -190,9 +186,9 @@ describe('calculateAC', () => {
         },
       },
     ];
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
     // Dex +2, Wis +1 → 10 + 2 + 1 = 13
-    const result = calculateAC(defaultScores, [], features, data);
+    const result = calculateAC(defaultScores, [], features, deps);
     expect(result.ac).toBe(13);
     expect(result.breakdown[0]!.source.value).toBe('Unarmored Defense');
   });
@@ -220,11 +216,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Shield' ? SHIELD : undefined),
+    const deps = createMockDeps({
+      armors: { Shield: SHIELD },
     });
     // UD: 10+2+2=14, Shield +2 → 16
-    const result = calculateAC(defaultScores, equip, features, data);
+    const result = calculateAC(defaultScores, equip, features, deps);
     expect(result.ac).toBe(16);
     expect(result.breakdown[0]!.source.value).toBe('Unarmored Defense');
     // expect(result.bonuses).toContainEqual({ ac: 2, source: 'Shield' });
@@ -253,11 +249,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Shield' ? SHIELD : undefined),
+    const deps = createMockDeps({
+      armors: { Shield: SHIELD },
     });
     // UD blocked, unarmored 10+2=12, Shield +2 → 14
-    const result = calculateAC(defaultScores, equip, features, data);
+    const result = calculateAC(defaultScores, equip, features, deps);
     expect(result.ac).toBe(14);
     expect(result.breakdown[0]!.source.type).toContain('Unarmored');
     // expect(result.bonuses).toContainEqual({ ac: 2, source: 'Shield' });
@@ -286,11 +282,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Leather Armor' ? LEATHER_ARMOR : undefined),
+    const deps = createMockDeps({
+      armors: { 'Leather Armor': LEATHER_ARMOR },
     });
     // UD blocked, Leather 11+2=13
-    const result = calculateAC(defaultScores, equip, features, data);
+    const result = calculateAC(defaultScores, equip, features, deps);
     expect(result.ac).toBe(13);
     expect(result.breakdown[0]!.source.value).toBe('Leather Armor');
   });
@@ -307,11 +303,11 @@ describe('calculateAC', () => {
         equipped: true,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Chain Mail' ? CHAIN_MAIL : undefined),
+    const deps = createMockDeps({
+      armors: { 'Chain Mail': CHAIN_MAIL },
     });
     // Unarmored: 10+2+2=14, Chain Mail: 16 → takes 16
-    const result = calculateAC(defaultScores, equip, features, data);
+    const result = calculateAC(defaultScores, equip, features, deps);
     expect(result.ac).toBe(16);
     expect(result.breakdown[0]!.source.value).toBe('Chain Mail');
   });
@@ -327,11 +323,11 @@ describe('calculateAC', () => {
         equipped: false,
       },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Chain Mail' ? CHAIN_MAIL : undefined),
+    const deps = createMockDeps({
+      armors: { 'Chain Mail': CHAIN_MAIL },
     });
     // No armor equipped → falls back to unarmored 10+2=12
-    const result = calculateAC(defaultScores, equip, noFeatures, data);
+    const result = calculateAC(defaultScores, equip, noFeatures, deps);
     expect(result.ac).toBe(12);
     expect(result.breakdown[0]!.source.type).toContain('Unarmored');
   });
@@ -358,10 +354,10 @@ describe('calculateAC', () => {
     const conditions = [
       { id: 'mage-armor', source: 'Mage Armor', appliedAt: '2024-01-01T00:00:00.000Z' },
     ];
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
 
     // Mage Armor: 13 + Dex mod (3) = 16
-    const result = calculateAC(scores, equip, features, data, conditions);
+    const result = calculateAC(scores, equip, features, deps, conditions);
     expect(result.ac).toBe(16);
     expect(result.breakdown[0]!.source.type).toContain('Spell');
   });
@@ -388,11 +384,11 @@ describe('calculateAC', () => {
     const conditions = [
       { id: 'mage-armor', source: 'Mage Armor', appliedAt: '2024-01-01T00:00:00.000Z' },
     ];
-    const data = createMockDataLoader({
-      getArmor: (id: string) => (id === 'Leather Armor' ? LEATHER_ARMOR : undefined),
+    const deps = createMockDeps({
+      armors: { 'Leather Armor': LEATHER_ARMOR },
     });
 
-    const result = calculateAC(scores, equip, noFeatures, data, conditions);
+    const result = calculateAC(scores, equip, noFeatures, deps, conditions);
     expect(result.ac).toBe(14);
     expect(result.breakdown[0]!.source.value).toBe('Leather Armor');
   });
@@ -416,10 +412,10 @@ describe('calculateAC', () => {
     }[] = [];
     const features: readonly Feature[] = [];
     const conditions: { id: string; source: string; appliedAt: string }[] = [];
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
 
     // No Mage Armor → unarmored 10 + 3 = 13
-    const result = calculateAC(scores, equip, features, data, conditions);
+    const result = calculateAC(scores, equip, features, deps, conditions);
     expect(result.ac).toBe(13);
     expect(result.breakdown[0]!.source.type).toContain('Unarmored');
   });

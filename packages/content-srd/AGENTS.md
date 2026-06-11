@@ -32,7 +32,7 @@ packages/content-srd/
 │   ├── subclasses.json
 │   ├── feats.json
 │   ├── weapons.json
-│   ├── armor.json
+│   ├── armors.json
 │   ├── gear.json
 │   ├── spells.json
 │   └── monsters.json
@@ -99,7 +99,7 @@ const dataLoader = createTestLoader(); // Auto-registers SRD content
 | `subclasses.json`  | Subclasses (School of Evocation, etc.) | SRD 5.2 |
 | `feats.json`       | Feats (Alert, etc.)                    | SRD 5.2 |
 | `weapons.json`     | Weapons (Longbow, etc.)                | SRD 5.2 |
-| `armor.json`       | Armor (Leather, etc.)                  | SRD 5.2 |
+| `armors.json`      | Armor (Leather, etc.)                  | SRD 5.2 |
 | `gear.json`        | Gear (Backpack, etc.)                  | SRD 5.2 |
 | `spells.json`      | Spells (Fireball, etc.)                | SRD 5.2 |
 | `monsters.json`    | Monsters (Goblin, etc.)                | SRD 5.2 |

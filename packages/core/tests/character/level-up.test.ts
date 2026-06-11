@@ -5,40 +5,10 @@ import { describe, it, expect } from 'vitest';
 import { levelUp } from '../../src/character/level-up';
 import type { RandomProvider } from '../../src/character/level-up';
 import type { Character } from '../../src/types/character';
+import type { CharacterFeatEntry } from '../../src/types/feat';
 import type { Class } from '../../src/types/class';
-import type { DataLoader } from '../../src/data/loader';
-
-// ── Helpers ──────────────────────────────────────────────
-
-import type {
-  ClassSpellData,
-  CharacterSpells,
-  SpellLevel,
-  SpellSlotEntry,
-} from '../../src/types/spell';
-
-/** Create CharacterSpells with per-class tracking (new structure) */
-function makeCharSpells(classId: string, overrides?: Partial<ClassSpellData>): CharacterSpells {
-  return {
-    classSpellcasting: {
-      [classId]: {
-        classId,
-        spellcastingAbility: 'Intelligence' as const,
-        spellSaveDC: 0,
-        spellAttackBonus: 0,
-        knownCantrips: [],
-        maxCantripsKnown: 0,
-        knownSpells: [],
-        preparedSpells: [],
-        alwaysPreparedSpells: [],
-        maxPrepared: 0,
-        ...overrides,
-      },
-    },
-    spellSlots: {} as Record<SpellLevel, SpellSlotEntry>,
-    pactMagicSlots: null,
-  };
-}
+import { createMockDeps } from '../fixtures/data-loader';
+import { Resource } from '../../src';
 
 // ── Mock Helpers ────────────────────────────────────────────────
 
@@ -119,55 +89,6 @@ function makeWizardClass(): Class {
       changesPerPreparation: 'all',
     },
   };
-}
-
-function makeMockDataLoader(fighterClass?: Class, wizardClass?: Class): DataLoader {
-  const fc = fighterClass ?? makeFighterClass();
-  const wc = wizardClass ?? makeWizardClass();
-  return {
-    getSpecies: () => undefined,
-    getSpeciesSubtype: () => undefined,
-    getAllSpecies: () => [],
-    getBackground: () => undefined,
-    getAllBackgrounds: () => [],
-    getClass: (id: string) => {
-      if (id === 'Fighter') return fc;
-      if (id === 'Wizard') return wc;
-      return undefined;
-    },
-    getAllClasses: () => [fc, wc],
-    getSubclass: () => undefined,
-    getSubclassesForClass: () => [],
-    getAllSubclasses: () => [],
-    getFeat: () => undefined,
-    getFeatsByCategory: () => [],
-    getAllFeats: () => [],
-    getWeapon: () => undefined,
-    getAllWeapons: () => [],
-    getArmor: () => undefined,
-    getAllArmor: () => [],
-    getGearItem: () => undefined,
-    getAllGear: () => [],
-    getSpell: () => undefined,
-    getSpellsByLevel: () => [],
-    getAllSpells: () => [],
-    getProficiencyBonus: (level: number) => {
-      if (level <= 4) return 2;
-      if (level <= 8) return 3;
-      if (level <= 12) return 4;
-      if (level <= 16) return 5;
-      return 6;
-    },
-    getHitDieFixedValue: (die: string) => {
-      const map: Record<string, number> = { d4: 3, d6: 4, d8: 5, d10: 6, d12: 7, d20: 11 };
-      return map[die] ?? 0;
-    },
-    getSpellSlots: () => ({}),
-    getMulticlassSpellSlots: () => ({}),
-    getPactMagicSlots: () => ({ slots: 0, slotLevel: 1 }),
-    getWeaponMasteryProperties: () => [],
-    getConditionNames: () => [],
-  } as any as DataLoader;
 }
 
 function makeLevel1Fighter(_overrides?: Partial<Character>): Character {
@@ -323,11 +244,13 @@ function makeLevel1Wizard(): Character {
 // ── Tests ────────────────────────────────────────────────────────
 
 describe('levelUp', () => {
-  const data = makeMockDataLoader();
+  const deps = createMockDeps({
+    classes: { Fighter: makeFighterClass(), Wizard: makeWizardClass() },
+  });
 
   it('1. basic level up: Fighter 1 → 2', () => {
     const char = makeLevel1Fighter();
-    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
 
     // Level becomes 2
     expect(result.classes[0]!.level).toBe(2);
@@ -344,7 +267,7 @@ describe('levelUp', () => {
   it('2. level up with roll: Fighter 1 → 2', () => {
     const char = makeLevel1Fighter();
     const mockRng: RandomProvider = { d: () => 8 };
-    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'roll' }, data, mockRng);
+    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'roll' }, deps, mockRng);
 
     // HP increases by 8 (rolled) + 3 (Con mod) = 11
     // 12 + 11 = 23
@@ -355,8 +278,8 @@ describe('levelUp', () => {
   it('3. level up with ASI: Fighter 3 → 4', () => {
     let char = makeLevel1Fighter();
     // Level up to 3 first
-    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
-    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
+    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
 
     expect(char.classes[0]!.level).toBe(3);
 
@@ -371,7 +294,7 @@ describe('levelUp', () => {
           asi: { Strength: 2 },
         },
       },
-      data,
+      deps,
     );
 
     expect(result.classes[0]!.level).toBe(4);
@@ -383,7 +306,7 @@ describe('levelUp', () => {
     let char = makeLevel1Fighter();
     // Level up to 7
     for (let i = 0; i < 6; i++) {
-      char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+      char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
     }
     expect(char.classes[0]!.level).toBe(7);
 
@@ -398,16 +321,16 @@ describe('levelUp', () => {
           featId: 'Tough',
         },
       },
-      data,
+      deps,
     );
 
     expect(result.classes[0]!.level).toBe(8);
-    expect(result.feats.some((f) => f.featId === 'Tough')).toBe(true);
+    expect(result.feats.some((f: CharacterFeatEntry) => f.featId === 'Tough')).toBe(true);
   });
 
   it('5. level up to subclass level: Fighter 2 → 3', () => {
     let char = makeLevel1Fighter();
-    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
     expect(char.classes[0]!.level).toBe(2);
 
     const result = levelUp(
@@ -417,7 +340,7 @@ describe('levelUp', () => {
         hpChoice: 'fixed',
         subclassId: 'Champion',
       },
-      data,
+      deps,
     );
 
     expect(result.classes[0]!.level).toBe(3);
@@ -434,7 +357,7 @@ describe('levelUp', () => {
         hpChoice: 'fixed',
         newSpells: ['Shield', 'Misty Step'],
       },
-      data,
+      deps,
     );
 
     expect(result.classes[0]!.level).toBe(2);
@@ -451,12 +374,16 @@ describe('levelUp', () => {
     expect(char.resources['Fighter']!.resources.some((r) => r.id === 'Second Wind')).toBe(true);
     expect(char.resources['Fighter']!.resources.some((r) => r.id === 'Action Surge')).toBe(false);
 
-    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
 
     // Should still have Second Wind
-    expect(result.resources['Fighter']!.resources.some((r) => r.id === 'Second Wind')).toBe(true);
+    expect(
+      result.resources['Fighter']!.resources.some((r: Resource) => r.id === 'Second Wind'),
+    ).toBe(true);
     // Should now have Action Surge
-    expect(result.resources['Fighter']!.resources.some((r) => r.id === 'Action Surge')).toBe(true);
+    expect(
+      result.resources['Fighter']!.resources.some((r: Resource) => r.id === 'Action Surge'),
+    ).toBe(true);
   });
 
   it('8. HP minimum: level up never gives less than 1 HP', () => {
@@ -485,7 +412,7 @@ describe('levelUp', () => {
     };
 
     // Fixed HP: d10 fixed = 6, Con mod = -5 (Con 1 → -5), 6 + (-5) = 1 → minimum is 1
-    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
     expect(result.hitPoints.max).toBe(6); // 5 + 1
     expect(result.hitPoints.current).toBe(6);
   });
@@ -498,7 +425,7 @@ describe('levelUp', () => {
       hitPoints: { ...char.hitPoints, current: 8 },
     };
 
-    const result = levelUp(damagedChar, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    const result = levelUp(damagedChar, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
 
     // Current HP should increase by the same amount as max HP
     // Fixed d10 = 6, Con mod = +3, increase = 9
@@ -508,7 +435,7 @@ describe('levelUp', () => {
 
   it('10. error case: invalid classId throws error', () => {
     const char = makeLevel1Fighter();
-    expect(() => levelUp(char, { classId: 'Barbarian', hpChoice: 'fixed' }, data)).toThrow(
+    expect(() => levelUp(char, { classId: 'Barbarian', hpChoice: 'fixed' }, deps)).toThrow(
       'Class Barbarian not found on character',
     );
   });
@@ -517,13 +444,13 @@ describe('levelUp', () => {
     let char = makeLevel1Fighter();
     // Level up to level 4 (proficiency bonus still 2)
     for (let i = 0; i < 3; i++) {
-      char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+      char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
     }
     expect(char.classes[0]!.level).toBe(4);
     expect(char.combatStats.proficiencyBonus).toBe(2);
 
     // Level up to 5 → proficiency bonus becomes 3
-    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
     expect(result.classes[0]!.level).toBe(5);
     expect(result.combatStats.proficiencyBonus).toBe(3);
   });
@@ -531,12 +458,12 @@ describe('levelUp', () => {
   it('subclassId is not overwritten when not provided', () => {
     let char = makeLevel1Fighter();
     // Level up to 3 with subclass
-    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
-    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed', subclassId: 'Champion' }, data);
+    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
+    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed', subclassId: 'Champion' }, deps);
     expect(char.classes[0]!.subclassId).toBe('Champion');
 
     // Level up to 4 without subclassId — subclass should remain
-    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    const result = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
     expect(result.classes[0]!.subclassId).toBe('Champion');
     expect(result.classes[0]!.subclassLevel).toBe(3); // stays at level 3
   });
@@ -550,7 +477,7 @@ describe('levelUp', () => {
 
     // Level up to 2 and back down conceptually — let's just verify
     // that if the same resource appeared again it wouldn't duplicate
-    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, data);
+    char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, deps);
     expect(char.resources['Fighter']!.resources.filter((r) => r.id === 'Second Wind')).toHaveLength(
       1,
     );

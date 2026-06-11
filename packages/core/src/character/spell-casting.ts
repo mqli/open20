@@ -7,7 +7,6 @@
 import type { Spell, SpellLevel, ClassSpellData, CastingTime } from '@/types';
 import type { FeatSpellsEntry } from '@/types/spell';
 import type { Character } from '@/types';
-import type { DataLoader } from '@/data/loader';
 import { getAvailableSlots } from '@/spells/capabilities';
 
 // ── Helper Functions ──────────────────────────────────────
@@ -47,7 +46,7 @@ function getFeatSpellEntriesForSpell(
 // ── Ritual Casting ──────────────────────────────────────
 
 /** Check if a character can cast a spell as a ritual. */
-export function canCastAsRitual(char: Character, spell: Spell, _data: DataLoader): boolean {
+export function canCastAsRitual(char: Character, spell: Spell): boolean {
   if (!spell.ritual) return false;
 
   const hasRitualCasterFeat = char.feats?.some((f) => f.featId === 'ritual-caster') ?? false;
@@ -66,9 +65,8 @@ export function canCastAsRitual(char: Character, spell: Spell, _data: DataLoader
 export function castAsRitual(
   char: Character,
   spell: Spell,
-  data: DataLoader,
 ): { success: boolean; char: Character; message?: string } {
-  if (!canCastAsRitual(char, spell, data)) {
+  if (!canCastAsRitual(char, spell)) {
     return { success: false, char, message: 'Cannot cast this spell as a ritual.' };
   }
   return {
@@ -118,7 +116,7 @@ export function isCantrip(spell: Spell): boolean {
 }
 
 /** Check if character can cast a cantrip (including feat spells like Magic Initiate). */
-export function canCastCantrip(char: Character, spell: Spell, _data: DataLoader): boolean {
+export function canCastCantrip(char: Character, spell: Spell): boolean {
   if (!isCantrip(spell)) return false;
 
   // Check class spellcasting (regular casters)
@@ -205,18 +203,14 @@ function findCastingClasses(char: Character, spellId: string): ClassSpellData[] 
  */
 export function castSpell(
   char: Character,
-  spellId: string,
+  spell: Spell,
   slotLevel: SpellLevel,
-  data: DataLoader,
 ): { success: boolean; char: Character; message?: string; castingClassId?: string } {
-  const spell = data.getSpell(spellId);
-  if (!spell) return { success: false, char, message: 'Spell not found.' };
-
   // Check class spellcasting
-  const castingClasses = findCastingClasses(char, spellId);
+  const castingClasses = findCastingClasses(char, spell.id);
 
   // Check feat spells (e.g., Magic Initiate)
-  const featSpellEntries = getFeatSpellEntriesForSpell(char, spellId);
+  const featSpellEntries = getFeatSpellEntriesForSpell(char, spell.id);
 
   if (castingClasses.length === 0 && featSpellEntries.length === 0) {
     return { success: false, char, message: 'Character does not know this spell.' };
@@ -237,8 +231,8 @@ export function castSpell(
   if (featSpellEntries.length > 0 && castingClasses.length === 0) {
     const { featId, entry: featEntry } = featSpellEntries[0]!;
 
-    if (featEntry.oncePerLongRest?.[spellId]) {
-      if (featEntry.usedOncePerLongRest?.[spellId]) {
+    if (featEntry.oncePerLongRest?.[spell.id]) {
+      if (featEntry.usedOncePerLongRest?.[spell.id]) {
         return {
           success: false,
           char,
@@ -248,7 +242,7 @@ export function castSpell(
 
       const updatedEntry: FeatSpellsEntry = {
         ...featEntry,
-        usedOncePerLongRest: { ...featEntry.usedOncePerLongRest, [spellId]: true },
+        usedOncePerLongRest: { ...featEntry.usedOncePerLongRest, [spell.id]: true },
       };
       const updatedChar: Character = {
         ...char,

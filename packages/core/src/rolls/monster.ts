@@ -7,7 +7,7 @@ import type { MonsterAttack } from '@/types/monster';
 import type { RandomProvider } from '@/dice/core';
 import type { AttackRollResult, DamageRollResult, RollResult } from '@/dice/mechanics';
 import { rollAttack, rollDamage, rollInitiative, type DamageRollParams } from '@/dice/mechanics';
-import { defaultRandom, parseDiceExpression } from '@/dice/core';
+import { defaultRandom } from '@/dice/core';
 import { calculateMonsterAttackBonus } from '@/monster/calculator';
 
 // ── Monster Attack Roll ─────────────────────────────────
@@ -71,12 +71,9 @@ export function rollMonsterAttackDamage(attack: MonsterAttack): number {
 
   let total = 0;
   for (const entry of attack.damageEntries) {
-    // Use parseDiceExpression from dice-core
-    const expr = parseDiceExpression(entry.dice);
     // Simple roll: sum the dice
     const sides = parseInt(entry.dice.replace(/^\d*d/, ''), 10);
     const count = parseInt(entry.dice.replace(/d\d+$/, ''), 10) || 1;
-    const dieType = `d${sides}` as 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20';
 
     let entryTotal = 0;
     for (let i = 0; i < count; i++) {
@@ -111,7 +108,6 @@ function estimateDamageFromString(damageStr: string): number {
 export interface MonsterFullAttackParams {
   attack: MonsterAttack;
   monster: Monster;
-  data: import('../data/loader').DataLoader;
   rng?: RandomProvider;
 }
 
@@ -127,8 +123,8 @@ export function rollMonsterFullAttack(params: MonsterFullAttackParams): {
   total: number;
   critical: boolean;
 } {
-  const { attack, monster, data, rng = defaultRandom } = params;
-  const attackBonus = attack.attackBonus ?? calculateMonsterAttackBonus(monster, attack, data);
+  const { attack, monster, rng = defaultRandom } = params;
+  const attackBonus = attack.attackBonus ?? calculateMonsterAttackBonus(monster, attack);
 
   const result = rollMonsterAttack({
     monster,
@@ -155,7 +151,7 @@ export interface MonsterInitiativeParams {
  * Roll initiative for a monster
  */
 export function rollMonsterInitiative(params: MonsterInitiativeParams): RollResult {
-  const { monster, rollModifier = 'none', rng } = params;
+  const { rollModifier = 'none', rng } = params;
 
   // Monster initiative is typically based on DEX
   // This would need to be added to monster type

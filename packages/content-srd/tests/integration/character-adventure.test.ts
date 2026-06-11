@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../create-test-loader';
+import { createTestDepsForCreate, createTestDeps } from '../create-test-loader';
 import {
   createCharacter,
   modifyHP,
@@ -13,11 +13,14 @@ import { serialize, deserialize } from 'open20-core/storage';
 import type { DamageDefenses } from 'open20-core';
 import type { ActiveEffect } from 'open20-core';
 
-const dataLoader = createTestLoader();
-
 describe('D&D Player Behavior - Adventure Arc', () => {
   describe('Session 17: Barbarian Rage and Reckless Attack', () => {
     it('should simulate a raging barbarian in combat', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Half-Orc',
+        backgroundId: 'soldier',
+        classId: 'Barbarian',
+      });
       const barbarian = createCharacter(
         {
           name: 'Grommash',
@@ -34,7 +37,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const initialHP = (barbarian as any).hitPoints.current;
@@ -74,6 +77,11 @@ describe('D&D Player Behavior - Adventure Arc', () => {
 
   describe('Session 18: Initiative and Turn Order', () => {
     it('should recalculate initiative after stat changes', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Rogue',
+      });
       let rogue = createCharacter(
         {
           name: 'Whisper',
@@ -89,22 +97,29 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const initialInitiative = rogue.combatStats.initiative;
       expect(initialInitiative).toBe(3);
 
-      rogue = levelUp(rogue, { classId: 'Rogue', hpChoice: 'fixed' }, dataLoader);
+      const depsForLevelUp = createTestDeps(rogue);
+      rogue = levelUp(rogue, { classId: 'Rogue', hpChoice: 'fixed' }, depsForLevelUp);
       expect(rogue.combatStats.initiative).toBe(initialInitiative);
 
-      const recomputed = recomputeDerivedStats(rogue, dataLoader);
+      const depsForRecompute = createTestDeps(rogue);
+      const recomputed = recomputeDerivedStats(rogue, depsForRecompute);
       expect(recomputed.combatStats.initiative).toBe(initialInitiative);
     });
   });
 
   describe('Session 19: Full Adventure Arc', () => {
     it('should simulate a complete adventure from level 1 to 3', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Paladin',
+      });
       let hero = createCharacter(
         {
           name: 'Kira',
@@ -120,7 +135,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 15,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(hero.classes[0]!.level).toBe(1);
@@ -129,20 +144,25 @@ describe('D&D Player Behavior - Adventure Arc', () => {
       hero = modifyHP(hero, -8);
       expect(hero.hitPoints.current).toBeGreaterThan(0);
 
-      hero = shortRest(hero, 1, dataLoader);
+      const depsForShortRest = createTestDeps(hero);
+      hero = shortRest(hero, 1, depsForShortRest);
       expect(hero.hitPoints.current).toBeGreaterThan(level1HP - 8);
 
-      hero = longRest(hero, dataLoader);
+      const depsForLongRest = createTestDeps(hero);
+      hero = longRest(hero, depsForLongRest);
       expect(hero.hitPoints.current).toBe(hero.hitPoints.max);
 
-      hero = levelUp(hero, { classId: 'Paladin', hpChoice: 'fixed' }, dataLoader);
+      const depsForLevelUp1 = createTestDeps(hero);
+      hero = levelUp(hero, { classId: 'Paladin', hpChoice: 'fixed' }, depsForLevelUp1);
       expect(hero.classes[0]!.level).toBe(2);
       expect(hero.hitPoints.max).toBeGreaterThan(level1HP);
 
       hero = modifyHP(hero, -15);
-      hero = longRest(hero, dataLoader);
+      const depsForLongRest2 = createTestDeps(hero);
+      hero = longRest(hero, depsForLongRest2);
 
-      hero = levelUp(hero, { classId: 'Paladin', hpChoice: 'fixed' }, dataLoader);
+      const depsForLevelUp2 = createTestDeps(hero);
+      hero = levelUp(hero, { classId: 'Paladin', hpChoice: 'fixed' }, depsForLevelUp2);
       expect(hero.classes[0]!.level).toBe(3);
       expect(hero.hitPoints.max).toBeGreaterThanOrEqual(hero.hitPoints.current);
 
@@ -155,6 +175,11 @@ describe('D&D Player Behavior - Adventure Arc', () => {
 
   describe('Session 20: Edge Cases and Error Handling', () => {
     it('should handle negative ability scores gracefully', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const hero = createCharacter(
         {
           name: 'Test',
@@ -170,13 +195,18 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 1,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(hero.abilityScores.base['Strength']).toBe(1);
     });
 
     it('should handle maximum hit points correctly', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Dwarf',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       let hero = createCharacter(
         {
           name: 'Tank',
@@ -192,7 +222,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       hero = modifyHP(hero, -hero.hitPoints.current);
@@ -203,6 +233,11 @@ describe('D&D Player Behavior - Adventure Arc', () => {
     });
 
     it('should handle rapid level ups', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'sage',
+        classId: 'Wizard',
+      });
       let hero = createCharacter(
         {
           name: 'Power Gamer',
@@ -218,19 +253,22 @@ describe('D&D Player Behavior - Adventure Arc', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const level1Slots = hero.spells.spellSlots[1]!.total;
       expect(level1Slots).toBe(2);
 
-      hero = levelUp(hero, { classId: 'Wizard', hpChoice: 'fixed' }, dataLoader);
+      const depsForLevelUp1 = createTestDeps(hero);
+      hero = levelUp(hero, { classId: 'Wizard', hpChoice: 'fixed' }, depsForLevelUp1);
       expect(hero.classes[0]!.level).toBe(2);
 
-      hero = levelUp(hero, { classId: 'Wizard', hpChoice: 'fixed' }, dataLoader);
+      const depsForLevelUp2 = createTestDeps(hero);
+      hero = levelUp(hero, { classId: 'Wizard', hpChoice: 'fixed' }, depsForLevelUp2);
       expect(hero.classes[0]!.level).toBe(3);
 
-      hero = levelUp(hero, { classId: 'Wizard', hpChoice: 'fixed' }, dataLoader);
+      const depsForLevelUp3 = createTestDeps(hero);
+      hero = levelUp(hero, { classId: 'Wizard', hpChoice: 'fixed' }, depsForLevelUp3);
       expect(hero.classes[0]!.level).toBe(4);
       expect(hero.combatStats.proficiencyBonus).toBe(2);
 

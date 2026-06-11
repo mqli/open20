@@ -15,7 +15,7 @@ import {
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
 import { getCasterTypeForClass } from 'open20-core/spells';
-import { dataLoader } from '@/core/data-loader';
+import { resolveDeps } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useSpellStore } from '@/stores/spellStore';
 import type { SpellLevel, Spell, SpellSlotEntry } from 'open20-core/types';
@@ -66,19 +66,19 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
 
   // All hooks must be called before any early returns
   const classData = activeCharacter?.spells.classSpellcasting[classId];
-
   const availableCantrips = useMemo(() => {
     if (!classData) return [];
+    const knownCantrips = classData.knownCantrips;
     return spellService
       .searchSpells({ classes: [classId], level: 0 })
-      .filter((s) => !classData.knownCantrips.includes(s.id));
-  }, [classId, classData?.knownCantrips]);
+      .filter((s) => !knownCantrips.includes(s.id));
+  }, [classId, classData]);
 
   // Early returns after all hooks
   if (!activeCharacter) return null;
   if (!classData) return null;
 
-  const casterType = getCasterTypeForClass(classId, dataLoader);
+  const casterType = getCasterTypeForClass(classId, resolveDeps(activeCharacter));
   const ability = classData.spellcastingAbility;
   const stats = RulesService.getProjectedStats(activeCharacter);
   const abilityMod = stats.abilityModifiers[ability] ?? 0;

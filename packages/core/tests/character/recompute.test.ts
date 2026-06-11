@@ -4,15 +4,13 @@
 import { describe, it, expect } from 'vitest';
 import { recomputeDerivedStats } from '../../src/character/recompute';
 import { createCharacter } from '../../src/character/create';
-import type { DataLoader } from '../../src/data/loader';
 import type { Class, Feature, Subclass } from '../../src/types/class';
 
 // ── Shared Fixtures ─────────────────────────
 
-import { createMockDataLoader } from '../fixtures/data-loader';
+import { createMockDeps } from '../fixtures/data-loader';
 import {
   HUMAN_SPECIES,
-  DWARF_SPECIES,
   SOLDIER_BACKGROUND,
   SAGE_BACKGROUND,
   FIGHTER_CLASS,
@@ -37,6 +35,28 @@ const MOCK_SORCERER_CLASS: Class = {
     knownSource: 'class_list',
     preparationTiming: 'level_up',
     changesPerPreparation: 'all',
+  },
+  spellSlotsByLevel: {
+    1: [2, 0, 0, 0, 0, 0, 0, 0, 0],
+    2: [3, 0, 0, 0, 0, 0, 0, 0, 0],
+    3: [4, 2, 0, 0, 0, 0, 0, 0, 0],
+    4: [4, 3, 0, 0, 0, 0, 0, 0, 0],
+    5: [4, 3, 2, 0, 0, 0, 0, 0, 0],
+    6: [4, 3, 3, 0, 0, 0, 0, 0, 0],
+    7: [4, 3, 3, 1, 0, 0, 0, 0, 0],
+    8: [4, 3, 3, 2, 0, 0, 0, 0, 0],
+    9: [4, 3, 3, 3, 1, 0, 0, 0, 0],
+    10: [4, 3, 3, 3, 2, 0, 0, 0, 0],
+    11: [4, 3, 3, 3, 2, 1, 0, 0, 0],
+    12: [4, 3, 3, 3, 2, 1, 0, 0, 0],
+    13: [4, 3, 3, 3, 2, 1, 1, 0, 0],
+    14: [4, 3, 3, 3, 2, 1, 1, 0, 0],
+    15: [4, 3, 3, 3, 2, 1, 1, 1, 0],
+    16: [4, 3, 3, 3, 2, 1, 1, 1, 0],
+    17: [4, 3, 3, 3, 2, 1, 1, 1, 1],
+    18: [4, 3, 3, 3, 2, 1, 1, 1, 1],
+    19: [4, 3, 3, 3, 2, 1, 1, 1, 1],
+    20: [4, 3, 3, 3, 2, 1, 1, 1, 1],
   },
 };
 
@@ -102,9 +122,9 @@ const WARLOCK_CLASS: Class = {
   },
 };
 
-// ── Mock DataLoader ─────────────────────────────
+// ── Mock Deps ───────────────────────────────────
 
-function createMockDataLoaderExtended(): DataLoader {
+function createMockDepsExtended() {
   // Spell slots by level in array format for mock classes
   const spellSlotsByLevel: Record<number, ReadonlyArray<number>> = {
     1: [2, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -114,32 +134,18 @@ function createMockDataLoaderExtended(): DataLoader {
     5: [4, 3, 2, 0, 0, 0, 0, 0, 0],
   };
 
-  return createMockDataLoader({
-    getSpecies: (id: string) => {
-      if (id === 'Human') return HUMAN_SPECIES;
-      if (id === 'Dwarf') return DWARF_SPECIES;
-      return undefined;
+  return createMockDeps({
+    species: HUMAN_SPECIES,
+    background: SOLDIER_BACKGROUND,
+    classes: {
+      Fighter: FIGHTER_CLASS,
+      Barbarian: BARBARIAN_CLASS,
+      Wizard: { ...WIZARD_CLASS, spellSlotsByLevel },
+      Warlock: WARLOCK_CLASS,
     },
-    getAllSpecies: () => [HUMAN_SPECIES, DWARF_SPECIES],
-    getBackground: (id: string) => {
-      if (id === 'Soldier') return SOLDIER_BACKGROUND;
-      if (id === 'Sage') return SAGE_BACKGROUND;
-      return undefined;
+    subclasses: {
+      Champion: CHAMPION_SUBCLASS_EXTENDED,
     },
-    getAllBackgrounds: () => [SOLDIER_BACKGROUND, SAGE_BACKGROUND],
-    getClass: (id: string) => {
-      if (id === 'Fighter') return FIGHTER_CLASS;
-      if (id === 'Barbarian') return BARBARIAN_CLASS;
-      if (id === 'Wizard') return { ...WIZARD_CLASS, spellSlotsByLevel };
-      if (id === 'Warlock') return WARLOCK_CLASS;
-      return undefined;
-    },
-    getAllClasses: () => [FIGHTER_CLASS, BARBARIAN_CLASS, WIZARD_CLASS, WARLOCK_CLASS],
-    getSubclass: (id: string) => {
-      if (id === 'Champion') return CHAMPION_SUBCLASS_EXTENDED;
-      return undefined;
-    },
-    getAllSubclasses: () => [CHAMPION_SUBCLASS_EXTENDED],
   });
 }
 
@@ -152,7 +158,7 @@ function mutate<T extends object>(obj: T): { -readonly [K in keyof T]: T[K] } {
 // ── Tests ─────────────────────────────────────
 
 describe('recomputeDerivedStats', () => {
-  const data = createMockDataLoaderExtended();
+  const data = createMockDepsExtended();
 
   it('recalculates proficiency bonus', () => {
     let char = createCharacter(
@@ -685,29 +691,22 @@ describe('recomputeDerivedStats', () => {
       9: [4, 3, 3, 3, 1, 0, 0, 0, 0],
     };
 
-    return createMockDataLoader({
-      getSpecies: (id: string) => {
-        if (id === 'Human') return HUMAN_SPECIES;
-        return undefined;
+    // Convert spells array to Record keyed by id
+    const spellRecord: Record<string, any> = {};
+    for (const spell of spells) {
+      spellRecord[spell.id] = spell;
+    }
+
+    return createMockDeps({
+      species: HUMAN_SPECIES,
+      background: SAGE_BACKGROUND,
+      classes: {
+        Wizard: WIZARD_CLASS,
+        Sorcerer: { ...MOCK_SORCERER_CLASS, spellSlotsByLevel },
+        Cleric: { ...MOCK_CLERIC_CLASS, spellSlotsByLevel },
+        Fighter: FIGHTER_CLASS,
       },
-      getAllSpecies: () => [HUMAN_SPECIES],
-      getBackground: (id: string) => {
-        if (id === 'Sage') return SAGE_BACKGROUND;
-        return undefined;
-      },
-      getAllBackgrounds: () => [SAGE_BACKGROUND],
-      getClass: (id: string) => {
-        if (id === 'Wizard') return WIZARD_CLASS;
-        if (id === 'Sorcerer') return { ...MOCK_SORCERER_CLASS, spellSlotsByLevel };
-        if (id === 'Cleric') return { ...MOCK_CLERIC_CLASS, spellSlotsByLevel };
-        if (id === 'Fighter') return FIGHTER_CLASS;
-        return undefined;
-      },
-      getAllClasses: () => [WIZARD_CLASS, FIGHTER_CLASS, MOCK_CLERIC_CLASS, MOCK_SORCERER_CLASS],
-      getSubclass: () => undefined,
-      getAllSubclasses: () => [],
-      getSpell: (id: string) => spells.find((s) => s.id === id),
-      getAllSpells: () => spells,
+      spells: spellRecord,
     });
   }
 

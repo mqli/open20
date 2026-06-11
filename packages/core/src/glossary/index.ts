@@ -1,14 +1,3 @@
 // glossary/index.ts
-
-export type { GlossaryFilter } from './query';
-export {
-  getGlossaryEntry,
-  resolveGlossaryTerm,
-  getGlossaryEntryByName,
-  searchGlossaryEntries,
-  getGlossaryEntriesByTag,
-  getAllGlossaryEntries,
-  getRulesGlossary,
-  getGlossaryAbbreviation,
-  getGlossaryAbbreviations,
-} from './query';
+// Glossary module — types and query functions are now in content-srd
+// This file is kept for potential future glossary-related exports from core

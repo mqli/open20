@@ -101,7 +101,7 @@ packages/core/                  # path inside monorepo
 │       ├── feats.json          # Limited feats (SRD 5.2)
 │       ├── spells.json         # 391+ spells (SRD 5.2)
 │       ├── weapons.json        # ~30 weapons (SRD 5.2)
-│       ├── armor.json          # ~15 armors (SRD 5.2)
+│       ├── armors.json          # ~15 armors (SRD 5.2)
 │       └── gear.json           # ~20 gear items (SRD 5.2)
 ├── src/
 │   ├── index.ts                # Node.js barrel export (includes storage)
