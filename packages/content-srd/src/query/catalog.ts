@@ -7,7 +7,7 @@ import type { Species, SpeciesSubtype } from 'open20-core';
 import type { Background } from 'open20-core';
 import type { Class, Subclass } from 'open20-core';
 import type { Feat, FeatCategory } from 'open20-core';
-import type { Weapon, Armor, GearItem } from 'open20-core';
+import type { Weapon, Armor, Gear } from 'open20-core';
 
 // ── Species ───────────────────────────────────────
 
@@ -143,17 +143,17 @@ export function getArmorsBySource(source: string, pack: ContentPack): Armor[] {
 
 // ── Equipment: Gear ───────────────────────────────────────
 
-/** Find a gear item by ID. */
-export function findGearItem(id: string, pack: ContentPack): GearItem | undefined {
-  return pack.gear?.find((g) => g.id === id);
+/** Find a gears item by ID. */
+export function findGearItem(id: string, pack: ContentPack): Gear | undefined {
+  return pack.gears?.find((g) => g.id === id);
 }
 
-/** Get all gear items from a pack. */
-export function getGearItems(pack: ContentPack): GearItem[] {
-  return pack.gear ?? [];
+/** Get all gears items from a pack. */
+export function getGearItems(pack: ContentPack): Gear[] {
+  return pack.gears ?? [];
 }
 
-/** Get all gear items matching a source tag. */
-export function getGearBySource(source: string, pack: ContentPack): GearItem[] {
-  return pack.gear?.filter((g) => g.source === source) ?? [];
+/** Get all gears items matching a source tag. */
+export function getGearBySource(source: string, pack: ContentPack): Gear[] {
+  return pack.gears?.filter((g) => g.source === source) ?? [];
 }

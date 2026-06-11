@@ -6,7 +6,7 @@
 
 ## Description
 
-Manage weapons, armor, shields, adventuring gear, and currency.
+Manage weapons, armor, shields, adventuring gears, and currency.
 
 Equipment affects AC calculation, attack bonuses, skill checks (tool proficiencies).
 
@@ -35,13 +35,13 @@ Equipment affects AC calculation, attack bonuses, skill checks (tool proficienci
 
 ## Data Model
 
-See `../../spec/data-model.md` → `Equipment`, `Weapon`, `Armor`, `GearItem`
+See `../../spec/data-model.md` → `Equipment`, `Weapon`, `Armor`, `Gear`
 
 ```typescript
 interface EquipmentItem {
   readonly id: string;
   readonly name: string;
-  readonly type: 'weapon' | 'armor' | 'gear';
+  readonly type: 'weapon' | 'armor' | 'gears';
   readonly quantity: number;
   readonly equipped: boolean;
   readonly weight?: number;
@@ -67,8 +67,8 @@ interface Armor extends EquipmentItem {
   readonly stealthDisadvantage?: boolean;
 }
 
-interface GearItem extends EquipmentItem {
-  readonly type: 'gear';
+interface Gear extends EquipmentItem {
+  readonly type: 'gears';
   readonly description?: string;
 }
 

@@ -15,7 +15,7 @@ import type {
   Spell,
   Weapon,
   Armor,
-  GearItem,
+  Gear,
   Subclass,
 } from 'open20-core';
 import { mergeContentPacks } from '@open20/content-srd/merge';
@@ -132,9 +132,9 @@ export function getAllArmors(): Armor[] {
   return getContentPack().armors ?? [];
 }
 
-/** Get all gear items from the merged content pack. */
-export function getAllGear(): GearItem[] {
-  return getContentPack().gear ?? [];
+/** Get all gears items from the merged content pack. */
+export function getAllGear(): Gear[] {
+  return getContentPack().gears ?? [];
 }
 
 // ── Deps resolution ───────────────────────────────────────

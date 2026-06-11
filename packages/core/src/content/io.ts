@@ -11,7 +11,7 @@ import type { Background } from '@/types/background';
 import type { Class, Subclass } from '@/types/class';
 import type { Feat } from '@/types/feat';
 import type { Spell } from '@/types/spell';
-import type { Weapon, Armor, GearItem } from '@/types/equipment';
+import type { Weapon, Armor, Gear } from '@/types/equipment';
 import type { RulesGlossary } from '@/types/glossary';
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -64,7 +64,7 @@ export function exportContentPack(dirPath: string): ContentPack {
   const spells = readJsonFile<Spell[]>(resolvedPath, 'spells.json');
   const weapons = readJsonFile<Weapon[]>(resolvedPath, 'weapons.json');
   const armors = readJsonFile<Armor[]>(resolvedPath, 'armors.json');
-  const gear = readJsonFile<GearItem[]>(resolvedPath, 'gear.json');
+  const gears = readJsonFile<Gear[]>(resolvedPath, 'gears.json');
   const glossary = readJsonFile<RulesGlossary>(resolvedPath, 'glossary.json');
 
   // Build ContentPack
@@ -78,7 +78,7 @@ export function exportContentPack(dirPath: string): ContentPack {
   if (spells) pack.spells = spells;
   if (weapons) pack.weapons = weapons;
   if (armors) pack.armors = armors;
-  if (gear) pack.gear = gear;
+  if (gears) pack.gears = gears;
   if (glossary) pack.glossary = glossary;
 
   return pack;
@@ -116,7 +116,7 @@ export function importContentPack(pack: ContentPack, dirPath: string): void {
   if (pack.spells) writeJsonFile(resolvedPath, 'spells.json', pack.spells);
   if (pack.weapons) writeJsonFile(resolvedPath, 'weapons.json', pack.weapons);
   if (pack.armors) writeJsonFile(resolvedPath, 'armors.json', pack.armors);
-  if (pack.gear) writeJsonFile(resolvedPath, 'gear.json', pack.gear);
+  if (pack.gears) writeJsonFile(resolvedPath, 'gears.json', pack.gears);
   if (pack.glossary) writeJsonFile(resolvedPath, 'glossary.json', pack.glossary);
 }
 

@@ -4,7 +4,7 @@ import type { Background } from '../../src/types/background';
 import type { Class, Subclass } from '../../src/types/class';
 import type { Feat } from '../../src/types/feat';
 import type { Spell } from '../../src/types/spell';
-import type { Weapon, Armor, GearItem } from '../../src/types/equipment';
+import type { Weapon, Armor, Gear } from '../../src/types/equipment';
 import type { Monster } from '../../src/monster/types';
 import type { RulesGlossary } from '../../src/types/glossary';
 
@@ -303,13 +303,13 @@ const mockArmors: Armor[] = [
 ];
 
 /**
- * Minimal mock gear for testing
+ * Minimal mock gears for testing
  */
-const mockGear: GearItem[] = [
+const mockGear: Gear[] = [
   {
     id: 'Backpack',
     name: 'Backpack',
-    type: 'gear',
+    type: 'gears',
     source: 'Mock',
     weight: 5,
     cost: '2 gp',
@@ -410,7 +410,7 @@ export const mockContentPack: ContentPack = {
   spells: mockSpells,
   weapons: mockWeapons,
   armors: mockArmors,
-  gear: mockGear,
+  gears: mockGear,
   monsters: mockMonsters,
   glossary: mockGlossary,
 };

@@ -49,7 +49,7 @@ vi.mock('@/core/content-resolver', () => ({
     subclasses: [],
     weapons: [],
     armors: [],
-    gear: [],
+    gears: [],
   })),
   getAllSpells: () => testSpells,
   getSpell: (id: string) => testSpells.find((s) => s.id === id),

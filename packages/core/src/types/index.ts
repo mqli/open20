@@ -61,7 +61,7 @@ export type { Feat, FeatCategory, FeatPrerequisite, FeatGrant } from './feat';
 // 装备
 export type { EquipmentItem, Weapon, WeaponDamage, WeaponRange, WeaponProperty } from './equipment';
 export type { Armor } from './equipment';
-export type { GearItem } from './equipment';
+export type { Gear } from './equipment';
 export type { WeaponMasteryProperty } from './equipment';
 
 // 法术

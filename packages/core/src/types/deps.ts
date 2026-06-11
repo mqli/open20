@@ -8,7 +8,7 @@ import type { Species } from './species';
 import type { Background } from './background';
 import type { Class, Subclass } from './class';
 import type { Feat } from './feat';
-import type { Weapon, Armor, GearItem } from './equipment';
+import type { Weapon, Armor, Gear } from './equipment';
 import type { Spell } from './spell';
 
 /**
@@ -34,7 +34,7 @@ export interface RecomputeDerivedStatsDeps {
   // ── Equipment (keyed by EquipmentItem.id) ─────────
   weapons?: Record<string, Weapon>;
   armors?: Record<string, Armor>;
-  gear?: Record<string, GearItem>;
+  gears?: Record<string, Gear>;
 
   // ── Spells (keyed by Spell.id) ───────────────────
   spells?: Record<string, Spell>;

@@ -8,7 +8,7 @@ import type { AbilityName } from './ability';
 export interface EquipmentItem {
   readonly id: string;
   readonly name: string;
-  readonly type: 'weapon' | 'armor' | 'gear' | 'consumable';
+  readonly type: 'weapon' | 'armor' | 'gears' | 'consumable';
   readonly source?: string; // '2024 PHB' | '2014 PHB' | 'SRD 5.2' | ...（可选，测试中可以省略）
   readonly weight: number; // 重量（磅），0=无重量
   readonly cost?: string; // 价格（如 "15 gp"）
@@ -88,6 +88,6 @@ export interface Armor {
 }
 
 // 通用装备（工具、冒险装备、消耗品等）
-export interface GearItem extends EquipmentItem {
-  readonly type: 'gear' | 'consumable';
+export interface Gear extends EquipmentItem {
+  readonly type: 'gears' | 'consumable';
 }

@@ -25,7 +25,7 @@ export type {
   FeatSpellChoice,
   CharacterFeatEntry,
 } from './types/feat';
-export type { Weapon, Armor, GearItem, EquipmentItem } from './types';
+export type { Weapon, Armor, Gear, EquipmentItem } from './types';
 export type {
   Spell,
   SpellLevel,

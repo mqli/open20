@@ -7,7 +7,7 @@ import type { Species } from '../../src/types/species';
 import type { Background } from '../../src/types/background';
 import type { Class, Subclass } from '../../src/types/class';
 import type { Feat } from '../../src/types/feat';
-import type { Weapon, Armor, GearItem } from '../../src/types/equipment';
+import type { Weapon, Armor, Gear } from '../../src/types/equipment';
 import type { Spell } from '../../src/types/spell';
 
 /**
@@ -37,7 +37,7 @@ export function createMockDeps(
     feats: undefined,
     weapons: undefined,
     armors: undefined,
-    gear: undefined,
+    gears: undefined,
     spells: undefined,
   };
 
@@ -56,7 +56,7 @@ export function createExtendedMockDeps(
   featMap: Record<string, Feat> = {},
   weaponMap: Record<string, Weapon> = {},
   armorMap: Record<string, Armor> = {},
-  gearMap: Record<string, GearItem> = {},
+  gearMap: Record<string, Gear> = {},
   spellMap: Record<string, Spell> = {},
 ): RecomputeDerivedStatsDeps {
   return {
@@ -67,7 +67,7 @@ export function createExtendedMockDeps(
     feats: featMap,
     weapons: weaponMap,
     armors: armorMap,
-    gear: gearMap,
+    gears: gearMap,
     spells: spellMap,
   };
 }

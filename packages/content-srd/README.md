@@ -24,6 +24,6 @@ All data files are in `data/` directory:
 - `feats.json` - Feats
 - `weapons.json` - Weapons
 - `armors.json` - Armor
-- `gear.json` - Gear items
+- `gears.json` - Gear items
 - `spells.json` - Spells
 - `monsters.json` - Monsters

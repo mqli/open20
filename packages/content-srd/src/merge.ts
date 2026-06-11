@@ -42,7 +42,7 @@ export function mergeContentPacks(packs: ContentPack[], sortByPriority = false):
     spells: [],
     weapons: [],
     armors: [],
-    gear: [],
+    gears: [],
     monsters: [],
     glossary: undefined,
   };
@@ -56,7 +56,7 @@ export function mergeContentPacks(packs: ContentPack[], sortByPriority = false):
   const allSpells: NonNullable<ContentPack['spells']> = [];
   const allWeapons: NonNullable<ContentPack['weapons']> = [];
   const allArmors: NonNullable<ContentPack['armors']> = [];
-  const allGear: NonNullable<ContentPack['gear']> = [];
+  const allGear: NonNullable<ContentPack['gears']> = [];
   const allMonsters: NonNullable<ContentPack['monsters']> = [];
 
   for (const pack of sorted) {
@@ -68,7 +68,7 @@ export function mergeContentPacks(packs: ContentPack[], sortByPriority = false):
     if (pack.spells) allSpells.push(...pack.spells);
     if (pack.weapons) allWeapons.push(...pack.weapons);
     if (pack.armors) allArmors.push(...pack.armors);
-    if (pack.gear) allGear.push(...pack.gear);
+    if (pack.gears) allGear.push(...pack.gears);
     if (pack.monsters) allMonsters.push(...pack.monsters);
 
     // Glossary: last pack wins (no merge)
@@ -86,7 +86,7 @@ export function mergeContentPacks(packs: ContentPack[], sortByPriority = false):
   merged.spells = dedupById(allSpells);
   merged.weapons = dedupById(allWeapons);
   merged.armors = dedupById(allArmors);
-  merged.gear = dedupById(allGear);
+  merged.gears = dedupById(allGear);
   merged.monsters = dedupById(allMonsters);
 
   return merged;

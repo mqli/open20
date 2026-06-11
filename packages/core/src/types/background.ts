@@ -1,7 +1,7 @@
 // types/background.ts
 // 背景相关类型（零依赖）
 
-import type { GearItem } from './equipment';
+import type { Gear } from './equipment';
 
 // 背景类型
 export interface Background {
@@ -13,7 +13,7 @@ export interface Background {
   readonly toolProficiencies: readonly string[]; // 授予的工具熟练项
   readonly languages: readonly string[]; // 授予的语言
   readonly originFeatId: string; // 授予的Origin Feat ID
-  readonly startingEquipment?: readonly GearItem[];
+  readonly startingEquipment?: readonly Gear[];
   readonly startingGold: number; // gp
 }
 

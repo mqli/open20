@@ -31,7 +31,7 @@ export function createTestLoader(
 
   const armorMap = Object.fromEntries((mockContentPack.armors ?? []).map((a) => [a.id, a]));
 
-  const gearMap = Object.fromEntries((mockContentPack.gear ?? []).map((g) => [g.id, g]));
+  const gearMap = Object.fromEntries((mockContentPack.gears ?? []).map((g) => [g.id, g]));
 
   return {
     classes: classMap,
@@ -42,6 +42,6 @@ export function createTestLoader(
     spells: spellMap,
     weapons: weaponMap,
     armors: armorMap,
-    gear: gearMap,
+    gears: gearMap,
   };
 }

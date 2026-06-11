@@ -131,15 +131,15 @@ interface Monster {
 
 Located in `static/srd/` as separate files:
 
-| Dataset     | File                                       | Count       | Source  |
-| ----------- | ------------------------------------------ | ----------- | ------- |
-| Species     | `species.json`                             | 9           | SRD 5.2 |
-| Backgrounds | `backgrounds.json`                         | 13          | SRD 5.2 |
-| Classes     | `classes.json`                             | 12          | SRD 5.2 |
-| Subclasses  | `subclasses.json`                          | ~12         | SRD 5.2 |
-| Feats       | `feats.json`                               | Limited set | SRD 5.2 |
-| Spells      | `spells.json`                              | 391+        | SRD 5.2 |
-| Equipment   | `weapons.json`, `armors.json`, `gear.json` | ~100        | SRD 5.2 |
+| Dataset     | File                                        | Count       | Source  |
+| ----------- | ------------------------------------------- | ----------- | ------- |
+| Species     | `species.json`                              | 9           | SRD 5.2 |
+| Backgrounds | `backgrounds.json`                          | 13          | SRD 5.2 |
+| Classes     | `classes.json`                              | 12          | SRD 5.2 |
+| Subclasses  | `subclasses.json`                           | ~12         | SRD 5.2 |
+| Feats       | `feats.json`                                | Limited set | SRD 5.2 |
+| Spells      | `spells.json`                               | 391+        | SRD 5.2 |
+| Equipment   | `weapons.json`, `armors.json`, `gears.json` | ~100        | SRD 5.2 |
 
 #### Content Pack System
 
@@ -156,7 +156,7 @@ static/srd/
 ├── spells.json
 ├── weapons.json
 ├── armors.json
-└── gear.json
+└── gears.json
 ```
 
 **Import/Export Support** (for distribution):
@@ -242,7 +242,7 @@ static/
     ├── spells.json            # Spell[]
     ├── weapons.json           # Weapon[]
     ├── armors.json             # Armor[]
-    └── gear.json              # GearItem[]
+    └── gears.json              # Gear[]
 ```
 
 ---

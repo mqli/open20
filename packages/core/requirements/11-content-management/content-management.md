@@ -39,7 +39,7 @@ Define how game content (species, classes, spells, feats, equipment) is organize
 - [ ] SRD subclasses (basic archetypes for each class)
 - [ ] SRD feats (limited set)
 - [ ] SRD spells (~391+ spells from SRD 5.2)
-- [ ] SRD equipment (basic weapons, armor, gear)
+- [ ] SRD equipment (basic weapons, armor, gears)
 
 **Implementation Notes**:
 - SRD content located in `static/srd/` directory as separate files:
@@ -54,7 +54,7 @@ Define how game content (species, classes, spells, feats, equipment) is organize
   ├── spells.json
   ├── weapons.json
   ├── armors.json
-  └── gear.json
+  └── gears.json
   ```
 - Automatically loaded when using default `createDataLoader()`
 - All SRD content has `source: 'SRD 5.2'` tag
@@ -78,7 +78,7 @@ static/
     ├── spells.json
     ├── weapons.json
     ├── armors.json
-    └── gear.json
+    └── gears.json
 ```
 
 **Import/Export Functions**:
@@ -120,7 +120,7 @@ interface ContentPack {
   spells?: Spell[];
   weapons?: Weapon[];
   armor?: Armor[];
-  gear?: GearItem[];
+  gears?: Gear[];
 }
 ```
 
@@ -200,7 +200,7 @@ export interface ContentPack {
   spells?: Spell[];
   weapons?: Weapon[];
   armor?: Armor[];
-  gear?: GearItem[];
+  gears?: Gear[];
 }
 ```
 

@@ -33,7 +33,7 @@ packages/content-srd/
 │   ├── feats.json
 │   ├── weapons.json
 │   ├── armors.json
-│   ├── gear.json
+│   ├── gears.json
 │   ├── spells.json
 │   └── monsters.json
 ├── src/
@@ -100,7 +100,7 @@ const dataLoader = createTestLoader(); // Auto-registers SRD content
 | `feats.json`       | Feats (Alert, etc.)                    | SRD 5.2 |
 | `weapons.json`     | Weapons (Longbow, etc.)                | SRD 5.2 |
 | `armors.json`      | Armor (Leather, etc.)                  | SRD 5.2 |
-| `gear.json`        | Gear (Backpack, etc.)                  | SRD 5.2 |
+| `gears.json`       | Gear (Backpack, etc.)                  | SRD 5.2 |
 | `spells.json`      | Spells (Fireball, etc.)                | SRD 5.2 |
 | `monsters.json`    | Monsters (Goblin, etc.)                | SRD 5.2 |
 | `meta.json`        | Content pack metadata                  | Manual  |

@@ -14,7 +14,7 @@ import type {
   Feat,
   Weapon,
   Armor,
-  GearItem,
+  Gear,
   Spell,
 } from 'open20-core';
 import {
@@ -80,11 +80,11 @@ export function resolveCharacterDeps(
     if (Object.keys(featMap).length > 0) deps.feats = featMap;
   }
 
-  // ── Equipment → weapons / armors / gear ─────────────
+  // ── Equipment → weapons / armors / gears ─────────────
   if (char.equipment?.length) {
     const weaponMap: Record<string, Weapon> = {};
     const armorMap: Record<string, Armor> = {};
-    const gearMap: Record<string, GearItem> = {};
+    const gearMap: Record<string, Gear> = {};
 
     for (const eq of char.equipment) {
       const w = findWeapon(eq.id, pack);
@@ -103,7 +103,7 @@ export function resolveCharacterDeps(
 
     if (Object.keys(weaponMap).length > 0) deps.weapons = weaponMap;
     if (Object.keys(armorMap).length > 0) deps.armors = armorMap;
-    if (Object.keys(gearMap).length > 0) deps.gear = gearMap;
+    if (Object.keys(gearMap).length > 0) deps.gears = gearMap;
   }
 
   // ── Spells ───────────────────────────────────────────

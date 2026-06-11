@@ -32,7 +32,7 @@
 | `src/types/ability.ts`   | `AbilityName`, `AbilityScores`, `ABILITY_NAMES`                         |
 | `src/types/character.ts` | `Character`, `CharacterClass`, `HitPoints`, `DeathSaves`, `CombatStats` |
 | `src/types/spell.ts`     | `Spell`, `CharacterSpells`, `SpellSlotEntry`                            |
-| `src/types/equipment.ts` | `Weapon`, `Armor`, `GearItem`                                           |
+| `src/types/equipment.ts` | `Weapon`, `Armor`, `Gear`                                               |
 | `src/types/resource.ts`  | `Resource`, `ResetType`                                                 |
 
 ### S3 — DataLoader Interface + Implementation ✅
@@ -59,17 +59,17 @@
 
 ### S12 — Static Rule Data ✅
 
-| File                      | Data Count     | Status               |
-| ------------------------- | -------------- | -------------------- |
-| `static/species.json`     | 12 species     | ✅ Complete          |
-| `static/backgrounds.json` | 16 backgrounds | ✅ Complete          |
-| `static/classes.json`     | 12 classes     | ✅ Complete          |
-| `static/subclasses.json`  | All subclasses | ✅ Complete          |
-| `static/feats.json`       | 75 feats       | ✅ Complete          |
-| `static/spells.json`      | 560+ spells    | ✅ Imported from SRD |
-| `static/weapons.json`     | ~40 weapons    | ✅ Complete          |
-| `static/armors.json`      | ~20 armors     | ✅ Complete          |
-| `static/gear.json`        | ~50 gear items | ✅ Complete          |
+| File                      | Data Count      | Status               |
+| ------------------------- | --------------- | -------------------- |
+| `static/species.json`     | 12 species      | ✅ Complete          |
+| `static/backgrounds.json` | 16 backgrounds  | ✅ Complete          |
+| `static/classes.json`     | 12 classes      | ✅ Complete          |
+| `static/subclasses.json`  | All subclasses  | ✅ Complete          |
+| `static/feats.json`       | 75 feats        | ✅ Complete          |
+| `static/spells.json`      | 560+ spells     | ✅ Imported from SRD |
+| `static/weapons.json`     | ~40 weapons     | ✅ Complete          |
+| `static/armors.json`      | ~20 armors      | ✅ Complete          |
+| `static/gears.json`       | ~50 gears items | ✅ Complete          |
 
 ---
 

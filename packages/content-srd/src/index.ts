@@ -17,7 +17,7 @@ import subclassesJson from '../data/subclasses.json' with { type: 'json' };
 import featsJson from '../data/feats.json' with { type: 'json' };
 import weaponsJson from '../data/weapons.json' with { type: 'json' };
 import armorJson from '../data/armors.json' with { type: 'json' };
-import gearJson from '../data/gear.json' with { type: 'json' };
+import gearJson from '../data/gears.json' with { type: 'json' };
 import spellsJsonRaw from '../data/spells.json' with { type: 'json' };
 import monstersJson from '../data/monsters.json' with { type: 'json' };
 import glossaryJson from '../data/glossary.json' with { type: 'json' };
@@ -104,7 +104,7 @@ export const srdContentPack: ContentPack = {
   feats: featsJson as unknown as ContentPack['feats'],
   weapons: weaponsJson as unknown as ContentPack['weapons'],
   armors: armorJson as unknown as ContentPack['armors'],
-  gear: gearJson as unknown as ContentPack['gear'],
+  gears: gearJson as unknown as ContentPack['gears'],
   spells: normaliseSpells(spellsJsonRaw),
   monsters: monstersJson as unknown as ContentPack['monsters'],
   glossary: glossaryJson as unknown as RulesGlossary,

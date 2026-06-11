@@ -35,7 +35,7 @@ describe('CharacterService', () => {
       },
       race: {},
       background: {},
-      gear: {},
+      gears: {},
       misc: {},
       feats: {},
     },

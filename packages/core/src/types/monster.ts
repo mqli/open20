@@ -183,7 +183,7 @@ export interface Monster {
   readonly vulnerabilities?: readonly DamageType[]; // R28.7 - Separate from damageDefenses
   readonly senses?: SensesInfo; // R28.7 - Senses and Passive Perception
   readonly languages?: readonly string[]; // R28.7 - Spoken languages
-  readonly gear?: readonly string[]; // R28.7 - Equipment
+  readonly gears?: readonly string[]; // R28.7 - Equipment
   readonly spellcasting?: readonly MonsterSpellcasting[]; // R28.11 - Spellcasting details
   readonly traits?: readonly MonsterFeature[];
   readonly actions?: readonly MonsterAction[];

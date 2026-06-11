@@ -9,7 +9,7 @@ import type {
   Feat,
   Weapon,
   Armor,
-  GearItem,
+  Gear,
   Subclass,
   RecomputeDerivedStatsDeps,
   Character,
@@ -59,8 +59,8 @@ export function getTestArmor(id: string): Armor | undefined {
   return srdContentPack.armors?.find((a) => a.id === id);
 }
 
-export function getTestGear(id: string): GearItem | undefined {
-  return srdContentPack.gear?.find((g) => g.id === id);
+export function getTestGear(id: string): Gear | undefined {
+  return srdContentPack.gears?.find((g) => g.id === id);
 }
 /**
  * Create RecomputeDerivedStatsDeps for a test character.
@@ -91,7 +91,7 @@ export function createTestDepsForCreate(
     classes: {},
     weapons: {},
     armors: {},
-    gear: {},
+    gears: {},
     spells: {},
     feats: {},
   };
@@ -139,10 +139,10 @@ export function createTestDepsForCreate(
       deps.armors[armor.id] = armor;
     }
   }
-  if (srdContentPack.gear) {
-    deps.gear = {};
-    for (const gearItem of srdContentPack.gear) {
-      deps.gear[gearItem.id] = gearItem;
+  if (srdContentPack.gears) {
+    deps.gears = {};
+    for (const gearItem of srdContentPack.gears) {
+      deps.gears[gearItem.id] = gearItem;
     }
   }
 

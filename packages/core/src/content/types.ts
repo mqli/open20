@@ -5,7 +5,7 @@ import type { Species } from '@/types/species';
 import type { Background } from '@/types/background';
 import type { Class, Subclass } from '@/types/class';
 import type { Feat } from '@/types/feat';
-import type { Weapon, Armor, GearItem } from '@/types/equipment';
+import type { Weapon, Armor, Gear } from '@/types/equipment';
 import type { Spell } from '@/types/spell';
 import type { Monster } from '@/types/monster';
 import type { RulesGlossary } from '@/types/glossary';
@@ -40,7 +40,7 @@ export interface ContentPack {
   spells?: Spell[];
   weapons?: Weapon[];
   armors?: Armor[];
-  gear?: GearItem[];
+  gears?: Gear[];
   monsters?: Monster[];
   glossary?: RulesGlossary;
 }
