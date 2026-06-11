@@ -5,7 +5,7 @@
 import type { Character, CharacterClass } from '@/types/character';
 import type { Resource, CharacterClassResources } from '@/types/resource';
 import { ResetType } from '@/types/resource';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import type { SpellLevel, FeatSpellsEntry } from '@/types/spell';
 
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
@@ -51,7 +51,7 @@ function getConMod(char: Character): number {
 export function shortRest(
   char: Character,
   hitDiceToSpend: number,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   rng?: RandomProvider,
 ): Character {
   let result = char;
@@ -66,7 +66,7 @@ export function shortRest(
 
     if (toSpend <= 0) continue;
 
-    const classData = data.getClass(charClass.classId);
+    const classData = deps.classes?.[charClass.classId];
     if (!classData) continue;
 
     // Calculate HP recovery for each die spent
@@ -124,8 +124,8 @@ export function shortRest(
 
 // ── Long Rest ──────────────────────────────────────────────────
 
-// _data is intentionally kept for API consistency (future rules may need it, e.g. class-specific long rest benefits)
-export function longRest(char: Character, _data: DataLoader): Character {
+// _deps is intentionally kept for API consistency (future rules may need it, e.g. class-specific long rest benefits)
+export function longRest(char: Character, _deps: RecomputeDerivedStatsDeps): Character {
   // 1. Regain all HP
   let result = withUpdate(char, {
     hitPoints: {

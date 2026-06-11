@@ -68,7 +68,7 @@
 | `static/feats.json`       | 75 feats       | ✅ Complete          |
 | `static/spells.json`      | 560+ spells    | ✅ Imported from SRD |
 | `static/weapons.json`     | ~40 weapons    | ✅ Complete          |
-| `static/armor.json`       | ~20 armors     | ✅ Complete          |
+| `static/armors.json`      | ~20 armors     | ✅ Complete          |
 | `static/gear.json`        | ~50 gear items | ✅ Complete          |
 
 ---

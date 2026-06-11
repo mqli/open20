@@ -1,12 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../create-test-loader';
+import { createTestDepsForCreate, createTestDeps } from '../create-test-loader';
 import { createCharacter, levelUp, validateCharacter } from 'open20-core/character';
-
-const dataLoader = createTestLoader();
 
 describe('D&D Player Behavior - Multiclass Characters', () => {
   describe('Session 7: Multiclass Characters', () => {
     it('should create a Fighter 1 / Wizard 1 multiclass character', () => {
+      const deps = createTestDepsForCreate(
+        {
+          speciesId: 'Human',
+          backgroundId: 'sage',
+          classId: 'Fighter',
+        },
+        {
+          additionalClassIds: ['Wizard'],
+        },
+      );
       const char = createCharacter(
         {
           name: 'Gand',
@@ -23,7 +31,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Wizard', level: 1 }],
         },
-        dataLoader,
+        deps,
       );
 
       expect(char.classes).toHaveLength(2);
@@ -35,6 +43,16 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
     });
 
     it('should create a Wizard 3 / Fighter 2 with correct spell slots', () => {
+      const deps = createTestDepsForCreate(
+        {
+          speciesId: 'Elf',
+          backgroundId: 'sage',
+          classId: 'Wizard',
+        },
+        {
+          additionalClassIds: ['Fighter'],
+        },
+      );
       const char = createCharacter(
         {
           name: 'Mika',
@@ -52,7 +70,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Fighter', level: 2 }],
         },
-        dataLoader,
+        deps,
       );
 
       expect(char.classes).toHaveLength(2);
@@ -65,6 +83,16 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
     });
 
     it('should validate a multiclass character', () => {
+      const deps = createTestDepsForCreate(
+        {
+          speciesId: 'Human',
+          backgroundId: 'sage',
+          classId: 'Fighter',
+        },
+        {
+          additionalClassIds: ['Wizard'],
+        },
+      );
       const char = createCharacter(
         {
           name: 'Gand',
@@ -81,14 +109,25 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Wizard', level: 1 }],
         },
-        dataLoader,
+        deps,
       );
 
-      const result = validateCharacter(char, dataLoader);
+      const depsForValidate = createTestDeps(char);
+      const result = validateCharacter(char, depsForValidate);
       expect(result.valid).toBe(true);
     });
 
     it('should level up multiclass character correctly', () => {
+      const deps = createTestDepsForCreate(
+        {
+          speciesId: 'Human',
+          backgroundId: 'sage',
+          classId: 'Wizard',
+        },
+        {
+          additionalClassIds: ['Fighter'],
+        },
+      );
       let char = createCharacter(
         {
           name: 'Kira',
@@ -105,14 +144,15 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Fighter', level: 1 }],
         },
-        dataLoader,
+        deps,
       );
 
       expect(char.classes).toHaveLength(2);
       expect(char.classes[0]!.level).toBe(1);
       expect(char.classes[1]!.level).toBe(1);
 
-      char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, dataLoader);
+      const depsForLevelUp = createTestDeps(char);
+      char = levelUp(char, { classId: 'Fighter', hpChoice: 'fixed' }, depsForLevelUp);
 
       expect(char.classes[1]!.classId).toBe('Fighter');
       expect(char.classes[1]!.level).toBe(2);
@@ -123,6 +163,16 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
 
   describe('Session 8: Half-Caster Multiclass', () => {
     it('should calculate correct spell slots for Paladin 5 / Wizard 5', () => {
+      const deps = createTestDepsForCreate(
+        {
+          speciesId: 'Human',
+          backgroundId: 'soldier',
+          classId: 'Paladin',
+        },
+        {
+          additionalClassIds: ['Wizard'],
+        },
+      );
       const char = createCharacter(
         {
           name: 'Theron',
@@ -140,7 +190,7 @@ describe('D&D Player Behavior - Multiclass Characters', () => {
           },
           additionalClasses: [{ classId: 'Wizard', level: 5 }],
         },
-        dataLoader,
+        deps,
       );
 
       expect(char.spells.spellSlots[1]!.total).toBe(4);

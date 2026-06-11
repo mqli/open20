@@ -1,3 +1,4 @@
+import type { RecomputeDerivedStatsDeps } from 'open20-core';
 import {
   createCharacter as open20CreateCharacter,
   prepareSpellForClass as open20PrepareSpellForClass,
@@ -22,7 +23,6 @@ import {
   type AttackRollResult,
   type DamageRollResult,
   type SpellHealRollResult,
-  type DataLoader,
 } from 'open20-core';
 import {
   getCasterType as coreGetCasterType,
@@ -30,17 +30,19 @@ import {
 } from 'open20-core/spells';
 import type { AppCharacter } from './types';
 import { SpellService, spellService } from './spell-service';
+import { resolveDeps, buildDepsForCreate } from './content-resolver';
+import type { SpellLevel } from 'open20-core';
 
-import { dataLoader } from './data-loader';
-import type { SpellLevel } from 'open20-core/data';
-
-// Wrappers around core functions (core functions require DataLoader parameter)
+// Wrappers around core functions (core functions take RecomputeDerivedStatsDeps)
 export function getCasterType(character: AppCharacter) {
-  return coreGetCasterType(character as unknown as import('open20-core').Character, dataLoader);
+  return coreGetCasterType(
+    character as unknown as import('open20-core').Character,
+    resolveDeps(character),
+  );
 }
 
-export function getCasterTypeForClass(classId: string) {
-  return coreGetCasterTypeForClass(classId, dataLoader);
+export function getCasterTypeForClass(classId: string, deps: RecomputeDerivedStatsDeps) {
+  return coreGetCasterTypeForClass(classId, deps);
 }
 
 export class CharacterService {
@@ -51,16 +53,18 @@ export class CharacterService {
   }
 
   createCharacter(params: Parameters<typeof open20CreateCharacter>[0]): AppCharacter {
-    const raw = open20CreateCharacter(params, dataLoader as unknown as DataLoader);
-    const char = open20Recompute(raw, dataLoader as unknown as DataLoader);
-    return { ...char, id: crypto.randomUUID() } as AppCharacter;
+    const deps = buildDepsForCreate(params);
+    const raw = open20CreateCharacter(params, deps);
+    const recomputed = open20Recompute(raw, resolveDeps(raw as unknown as AppCharacter));
+    return { ...recomputed, id: crypto.randomUUID() } as AppCharacter;
   }
 
   recompute(character: AppCharacter): AppCharacter {
     if (!character.classes || !character.abilityScores?.base || !character.hitPoints) {
       return character;
     }
-    const recomputed = open20Recompute(character, dataLoader as unknown as DataLoader);
+    const deps = resolveDeps(character);
+    const recomputed = open20Recompute(character, deps);
     return { ...recomputed, id: character.id } as AppCharacter;
   }
 
@@ -136,15 +140,17 @@ export class CharacterService {
   }
 
   longRest(character: AppCharacter): AppCharacter {
+    const deps = resolveDeps(character);
     return {
-      ...open20LongRest(character, dataLoader as unknown as DataLoader),
+      ...open20LongRest(character, deps),
       id: character.id,
     } as AppCharacter;
   }
 
-  shortRest(character: AppCharacter): AppCharacter {
+  shortRest(character: AppCharacter, hitDiceToSpend: number = 0): AppCharacter {
+    const deps = resolveDeps(character);
     return {
-      ...open20ShortRest(character, 0, dataLoader as unknown as DataLoader),
+      ...open20ShortRest(character, hitDiceToSpend, deps),
       id: character.id,
     } as AppCharacter;
   }
@@ -177,7 +183,7 @@ export class CharacterService {
 
     return {
       ...addKnownSpell(character, matchingClass, spellId),
-      updatedAt: new Date().toISOString(),
+      id: character.id,
     } as AppCharacter;
   }
 
@@ -192,7 +198,7 @@ export class CharacterService {
 
     return {
       ...removeKnownSpell(character, classId, spellId),
-      updatedAt: new Date().toISOString(),
+      id: character.id,
     } as AppCharacter;
   }
 
@@ -275,7 +281,10 @@ export class CharacterService {
   }
 
   castSpell(character: AppCharacter, spellId: string, level: SpellLevel): AppCharacter {
-    const result = open20CastSpell(character, spellId, level, dataLoader as unknown as DataLoader);
+    const spell = this.spellService.getSpell(spellId);
+    if (!spell) return character;
+
+    const result = open20CastSpell(character, spell, level);
     if (!result.success) return character;
 
     const updated = { ...result.char, id: character.id } as AppCharacter;
@@ -305,7 +314,6 @@ export class CharacterService {
     const spell = this.spellService.getSpell(spellId);
     if (!spell) throw new Error(`Spell not found: ${spellId}`);
 
-    // Get spellcasting ability modifier
     const classSpellcasting = character.spells.classSpellcasting;
     const primaryClassId = Object.keys(classSpellcasting)[0];
     const spellcastingAbility = primaryClassId

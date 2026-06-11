@@ -5,7 +5,6 @@
 
 import type { Monster } from './types';
 import type { DamageType, DamageDefenses, DamageResult } from '@/types/damage';
-import type { DataLoader } from '@/data/loader';
 import { calculateTypedDamage } from '@/engine/damage-calculator';
 import {
   applyHPChange,
@@ -45,19 +44,13 @@ export function initializeMonsterForCombat(monster: Monster): Monster {
  * @param monster - Monster object
  * @param delta - HP change (negative = damage, positive = healing)
  * @param damageType - Damage type (for typed damage)
- * @param data - DataLoader (for additional defenses)
  * @returns New monster with updated HP
  *
  * @example
- * modifyMonsterHP(goblin, -5, 'Slashing', data) // Apply 5 slashing damage
+ * modifyMonsterHP(goblin, -5, 'Slashing') // Apply 5 slashing damage
  * modifyMonsterHP(goblin, 3) // Heal 3 HP
  */
-export function modifyMonsterHP(
-  monster: Monster,
-  delta: number,
-  damageType?: DamageType,
-  _data?: DataLoader,
-): Monster {
+export function modifyMonsterHP(monster: Monster, delta: number, damageType?: DamageType): Monster {
   // Get defenses from monster or empty
   const defenses: DamageDefenses = monster.damageDefenses || emptyDefenses();
 

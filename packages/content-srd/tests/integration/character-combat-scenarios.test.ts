@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../create-test-loader';
+import { createTestDepsForCreate, createTestDeps } from '../create-test-loader';
 import {
   createCharacter,
   modifyHP,
@@ -13,11 +13,14 @@ import { serialize, deserialize } from 'open20-core/storage';
 import type { DamageDefenses } from 'open20-core';
 import type { ActiveCondition } from 'open20-core';
 
-const dataLoader = createTestLoader();
-
 describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
   describe('Session 10: Full Character Lifecycle', () => {
     it('should handle complete character journey', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Elf',
+        backgroundId: 'sage',
+        classId: 'Wizard',
+      });
       let char = createCharacter(
         {
           name: 'Aria',
@@ -33,12 +36,13 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(char.classes[0]!.level).toBe(1);
 
-      char = levelUp(char, { classId: 'Wizard', hpChoice: 'fixed' }, dataLoader);
+      const deps1 = createTestDeps(char);
+      char = levelUp(char, { classId: 'Wizard', hpChoice: 'fixed' }, deps1);
       expect(char.classes[0]!.level).toBe(2);
 
       const damageAmount = char.hitPoints.current - 1;
@@ -46,11 +50,13 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       expect(char.hitPoints.current).toBe(1);
 
       const hitDiceBefore = char.classes[0]!.hitDice.used;
-      const afterShortRest = shortRest(char, 1, dataLoader);
+      const deps2 = createTestDeps(char);
+      const afterShortRest = shortRest(char, 1, deps2);
       expect(afterShortRest.hitPoints.current).toBeGreaterThan(char.hitPoints.current);
       expect(afterShortRest.classes[0]!.hitDice.used).toBe(hitDiceBefore + 1);
 
-      char = longRest(afterShortRest, dataLoader);
+      const deps3 = createTestDeps(afterShortRest);
+      char = longRest(afterShortRest, deps3);
       expect(char.hitPoints.current).toBe(char.hitPoints.max);
       expect(char.classes[0]!.hitDice.used).toBe(0);
 
@@ -60,13 +66,19 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       expect(restored.hitPoints.current).toBe(char.hitPoints.current);
       expect(restored.classes[0]!.level).toBe(char.classes[0]!.level);
 
-      const validation = validateCharacter(restored, dataLoader);
+      const deps4 = createTestDeps(restored);
+      const validation = validateCharacter(restored, deps4);
       expect(validation.valid).toBe(true);
     });
   });
 
   describe('Session 12: Full Combat Round Simulation', () => {
     it('should simulate a complete combat encounter', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       let fighter = createCharacter(
         {
           name: 'Sir Roland',
@@ -83,7 +95,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const initialHP = fighter.hitPoints.current;
@@ -102,10 +114,12 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       expect(result.effectiveDamage).toBe(8);
       expect(fighter.hitPoints.current).toBe(initialHP - 20);
 
-      fighter = shortRest(fighter, 1, dataLoader);
+      const deps1 = createTestDeps(fighter);
+      fighter = shortRest(fighter, 1, deps1);
       expect(fighter.hitPoints.current).toBeGreaterThan(initialHP - 20);
 
-      fighter = levelUp(fighter, { classId: 'Fighter', hpChoice: 'fixed' }, dataLoader);
+      const deps2 = createTestDeps(fighter);
+      fighter = levelUp(fighter, { classId: 'Fighter', hpChoice: 'fixed' }, deps2);
       expect(fighter.classes[0]!.level).toBe(6);
       expect(fighter.combatStats.proficiencyBonus).toBe(3);
 
@@ -113,6 +127,11 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
     });
 
     it('should simulate a wizard casting multiple spells then resting', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Elf',
+        backgroundId: 'sage',
+        classId: 'Wizard',
+      });
       const wizard = createCharacter(
         {
           name: 'Zara',
@@ -129,7 +148,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(wizard.spells.spellSlots[1]!.total).toBe(4);
@@ -139,11 +158,13 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       (wizard.spells.spellSlots[1] as any).used = 2;
       (wizard.spells.spellSlots[2] as any).used = 1;
 
-      const afterShortRest = shortRest(wizard, 0, dataLoader);
+      const deps1 = createTestDeps(wizard);
+      const afterShortRest = shortRest(wizard, 0, deps1);
       expect(afterShortRest.spells.spellSlots[1]!.used).toBe(2);
       expect(afterShortRest.spells.spellSlots[2]!.used).toBe(1);
 
-      const afterLongRest = longRest(wizard, dataLoader);
+      const deps2 = createTestDeps(wizard);
+      const afterLongRest = longRest(wizard, deps2);
       expect(afterLongRest.spells.spellSlots[1]!.used).toBe(0);
       expect(afterLongRest.spells.spellSlots[2]!.used).toBe(0);
     });
@@ -151,6 +172,11 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
 
   describe('Session 13: Polymorph and Transformation Effects', () => {
     it('should handle temp HP from abilities', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Dwarf',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Grimjaw',
@@ -166,7 +192,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const originalHP = (fighter as any).hitPoints.current;
@@ -185,6 +211,11 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
     });
 
     it('should track conditions that affect gameplay', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Elf',
+        backgroundId: 'sage',
+        classId: 'Ranger',
+      });
       const ranger = createCharacter(
         {
           name: 'Sylara',
@@ -200,7 +231,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 10,
           },
         },
-        dataLoader,
+        deps,
       );
 
       (ranger as any).conditions.push({ id: 'Poisoned', source: 'test', appliedAt: '2024-01-01' });
@@ -215,6 +246,11 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
 
   describe('Session 14: Multi-Enemy Combat Scenario', () => {
     it('should handle multiple attacks from different enemies', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const hero = createCharacter(
         {
           name: 'Aldric',
@@ -230,7 +266,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const initialHP = hero.hitPoints.current;
@@ -249,13 +285,19 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       ({ char: damaged } = applyTypedDamage(damaged, 16, 'Bludgeoning', defenses));
       expect(damaged.hitPoints.current).toBeGreaterThanOrEqual(0);
 
-      const afterRest = shortRest(damaged, 1, dataLoader);
+      const deps1 = createTestDeps(damaged);
+      const afterRest = shortRest(damaged, 1, deps1);
       if (damaged.hitPoints.current > 0) {
         expect(afterRest.hitPoints.current).toBeGreaterThan(damaged.hitPoints.current);
       }
     });
 
     it('should handle resistance reducing multiple attacks', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Dwarf',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const tank = createCharacter(
         {
           name: 'Thordin',
@@ -271,7 +313,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
             Charisma: 11,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const defenses: DamageDefenses = {

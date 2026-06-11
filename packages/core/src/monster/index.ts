@@ -24,24 +24,6 @@ export type {
   SavingThrowEffect,
 } from '../types/monster';
 
-// Query functions
-export type { MonsterFilter } from './query';
-export {
-  getMonster,
-  searchMonsters,
-  getMonstersByCR,
-  getMonstersByType,
-  getMonstersForParty,
-  getMonsterActions,
-  getMonsterTraits,
-  getMonsterReactions,
-  getMonsterLegendaryActions,
-  getMonstersWithTrait,
-  getLegendaryMonsters,
-  getMonsterAllAttacks,
-  searchActionsByName,
-} from './query';
-
 // Calculator functions
 export {
   getMonsterProficiencyBonus,

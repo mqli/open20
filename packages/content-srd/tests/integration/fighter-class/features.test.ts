@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../../create-test-loader';
+import { createTestDepsForCreate, createTestDeps, getTestClass } from '../../create-test-loader';
 import { createCharacter } from 'open20-core/character';
 import { modifyHP, consumeResource, shortRest, longRest } from 'open20-core/character';
-
-const dataLoader = createTestLoader();
 
 // Helper: get a resource by id from the per-class Record
 function getResource(char: any, classId: string, resourceId: string) {
@@ -18,6 +16,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
   // ============================================================
   describe('Fighter: Second Wind (Level 1)', () => {
     it('should have Second Wind resource available at level 1', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Roland',
@@ -33,7 +36,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const secondWind = getResource(fighter, 'Fighter', 'Second Wind');
@@ -44,6 +47,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
     });
 
     it('should have Second Wind reset on Short Rest', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       let fighter = createCharacter(
         {
           name: 'Roland',
@@ -59,7 +67,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const secondWind = getResource(fighter, 'Fighter', 'Second Wind');
@@ -68,12 +76,18 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
       fighter = consumeResource(fighter, 'Fighter', 'Second Wind');
       expect(getResource(fighter, 'Fighter', 'Second Wind')!.used).toBe(1);
 
-      fighter = shortRest(fighter, 1, dataLoader);
+      const depsForShortRest = createTestDeps(fighter);
+      fighter = shortRest(fighter, 1, depsForShortRest);
       const afterRest = getResource(fighter, 'Fighter', 'Second Wind');
       expect(afterRest!.used).toBe(0);
     });
 
     it('should have Second Wind reset on Long Rest', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       let fighter = createCharacter(
         {
           name: 'Roland',
@@ -89,7 +103,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const secondWind = getResource(fighter, 'Fighter', 'Second Wind');
@@ -98,12 +112,18 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
       fighter = consumeResource(fighter, 'Fighter', 'Second Wind');
       expect(getResource(fighter, 'Fighter', 'Second Wind')!.used).toBe(1);
 
-      fighter = longRest(fighter, dataLoader);
+      const depsForLongRest = createTestDeps(fighter);
+      fighter = longRest(fighter, depsForLongRest);
       const afterRest = getResource(fighter, 'Fighter', 'Second Wind');
       expect(afterRest!.used).toBe(0);
     });
 
     it('should heal when using Second Wind', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       let fighter = createCharacter(
         {
           name: 'Roland',
@@ -119,7 +139,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       fighter = modifyHP(fighter, -15);
@@ -145,6 +165,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
   // ============================================================
   describe('Fighter: Action Surge (Level 2)', () => {
     it('should have Action Surge at level 5 with correct max (PB=3)', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Aldric',
@@ -161,7 +186,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const actionSurge = getResource(fighter, 'Fighter', 'Action Surge');
@@ -172,6 +197,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
     });
 
     it('should have six Action Surges at level 17 (PB=6)', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Veteran',
@@ -188,7 +218,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const actionSurge = getResource(fighter, 'Fighter', 'Action Surge');
@@ -202,6 +232,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
   // ============================================================
   describe('Fighter: Extra Attack (Level 5, 11, 20)', () => {
     it('should have single attack at level 4', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Novice',
@@ -218,7 +253,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(fighter.classes[0]!.level).toBe(4);
@@ -227,6 +262,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
     });
 
     it('should have Extra Attack feature at level 5', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Aldric',
@@ -243,11 +283,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(fighter.classes[0]!.level).toBe(5);
-      const fighterClass = dataLoader.getClass('Fighter')!;
+      const fighterClass = getTestClass('Fighter')!;
       const level5Features = fighterClass.featuresByLevel
         .find((entry) => entry.level === 5)!
         .features.map((feature) => feature.name);
@@ -255,6 +295,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
     });
 
     it('should have improved Extra Attack at level 11', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Veteran',
@@ -271,11 +316,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(fighter.classes[0]!.level).toBe(11);
-      const fighterClass = dataLoader.getClass('Fighter')!;
+      const fighterClass = getTestClass('Fighter')!;
       const level11Features = fighterClass.featuresByLevel
         .find((entry) => entry.level === 11)!
         .features.map((feature) => feature.name);
@@ -283,6 +328,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
     });
 
     it('should have maximum Extra Attack at level 20', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Champion',
@@ -299,11 +349,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(fighter.classes[0]!.level).toBe(20);
-      const fighterClass = dataLoader.getClass('Fighter')!;
+      const fighterClass = getTestClass('Fighter')!;
       const level20Features = fighterClass.featuresByLevel
         .find((entry) => entry.level === 20)!
         .features.map((feature) => feature.name);
@@ -316,6 +366,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
   // ============================================================
   describe('Fighter: Indomitable (Level 9, 13, 17)', () => {
     it('should have Indomitable at level 9 with correct max (PB=4)', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Veteran',
@@ -332,7 +387,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const indomitable = getResource(fighter, 'Fighter', 'Indomitable');
@@ -343,6 +398,11 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
     });
 
     it('should have Indomitable at level 17 with max 6 (PB=6)', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Champion',
@@ -359,7 +419,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 5-10 Features', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const indomitable = getResource(fighter, 'Fighter', 'Indomitable');

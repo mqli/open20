@@ -11,16 +11,14 @@ import {
   getAlwaysPreparedSpellsFromSubclass,
 } from '../../src/character/create';
 import type { CreateCharacterParams } from '../../src/character/create';
-import type { DataLoader } from '../../src/data/loader';
 import type { AbilityName } from '../../src/types/ability';
+import { createMockDeps } from '../fixtures/data-loader';
 
 // ── Shared Fixtures ──────────────────────────────────────────────
 
-import { createMockDataLoader } from '../fixtures/data-loader';
 import {
   HUMAN_SPECIES,
   DWARF_SPECIES,
-  ELF_SPECIES,
   SOLDIER_BACKGROUND,
   SAGE_BACKGROUND,
   FIGHTER_CLASS,
@@ -31,40 +29,7 @@ import {
   CLERIC_CLASS,
   LIFE_DOMAIN_SUBCLASS,
 } from '../fixtures/characters';
-
-// ── Mock DataLoader ────────────────────────────────────────────
-
-function createMockDataLoaderExtended(): DataLoader {
-  return createMockDataLoader({
-    getSpecies: (id: string) => {
-      if (id === 'Human') return HUMAN_SPECIES;
-      if (id === 'Dwarf') return DWARF_SPECIES;
-      if (id === 'Elf') return ELF_SPECIES;
-      return undefined;
-    },
-    getAllSpecies: () => [HUMAN_SPECIES, DWARF_SPECIES, ELF_SPECIES],
-    getBackground: (id: string) => {
-      if (id === 'Soldier') return SOLDIER_BACKGROUND;
-      if (id === 'Sage') return SAGE_BACKGROUND;
-      return undefined;
-    },
-    getAllBackgrounds: () => [SOLDIER_BACKGROUND, SAGE_BACKGROUND],
-    getClass: (id: string) => {
-      if (id === 'Fighter') return FIGHTER_CLASS;
-      if (id === 'Barbarian') return BARBARIAN_CLASS;
-      if (id === 'Wizard') return WIZARD_CLASS;
-      if (id === 'Rogue') return ROGUE_CLASS;
-      if (id === 'Cleric') return CLERIC_CLASS;
-      return undefined;
-    },
-    getSubclass: (id: string) => {
-      if (id === 'Champion') return CHAMPION_SUBCLASS;
-      if (id === 'Life Domain') return LIFE_DOMAIN_SUBCLASS;
-      return undefined;
-    },
-    getAllClasses: () => [FIGHTER_CLASS, BARBARIAN_CLASS, WIZARD_CLASS, ROGUE_CLASS, CLERIC_CLASS],
-  });
-}
+import { Resource } from '../../src';
 
 // ── Standard ability score set ─────────────────────────────────
 
@@ -80,7 +45,21 @@ const STANDARD_SCORES: Record<AbilityName, number> = {
 // ── Tests ──────────────────────────────────────────────────────
 
 describe('createCharacter', () => {
-  const data = createMockDataLoaderExtended();
+  const deps = createMockDeps({
+    species: HUMAN_SPECIES,
+    background: SOLDIER_BACKGROUND,
+    classes: {
+      Fighter: FIGHTER_CLASS,
+      Barbarian: BARBARIAN_CLASS,
+      Wizard: WIZARD_CLASS,
+      Rogue: ROGUE_CLASS,
+      Cleric: CLERIC_CLASS,
+    },
+    subclasses: {
+      Champion: CHAMPION_SUBCLASS,
+      'Life Domain': LIFE_DOMAIN_SUBCLASS,
+    },
+  });
 
   describe('1st-level Fighter (Human, Soldier)', () => {
     it('creates a Fighter with all Character fields populated', () => {
@@ -93,7 +72,7 @@ describe('createCharacter', () => {
         skillChoices: ['Perception', 'Survival'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
 
       // Basic fields
       expect(char.schemaVersion).toBe('2024.1');
@@ -118,7 +97,7 @@ describe('createCharacter', () => {
         skillChoices: ['Perception', 'Survival'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.hitPoints.max).toBe(12);
       expect(char.hitPoints.current).toBe(12);
       expect(char.hitPoints.temporary).toBe(0);
@@ -139,7 +118,7 @@ describe('createCharacter', () => {
         skillChoices: ['Perception', 'Survival'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.combatStats.AC).toBe(12);
     });
 
@@ -153,7 +132,7 @@ describe('createCharacter', () => {
         skillChoices: ['Perception', 'Survival'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
 
       // Background skills
       expect(char.skills['Athletics']!.proficient).toBe(true);
@@ -177,7 +156,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.combatStats.proficiencyBonus).toBe(2);
     });
 
@@ -190,10 +169,10 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       const fighterResources = char.resources['Fighter'];
       expect(fighterResources).toBeDefined();
-      const secondWind = fighterResources!.resources.find((r) => r.id === 'Second Wind');
+      const secondWind = fighterResources!.resources.find((r: Resource) => r.id === 'Second Wind');
       expect(secondWind).toBeDefined();
       // 2024 PHB: Second Wind scales with Proficiency Bonus (PB at level 1 = 2)
       expect(secondWind!.max).toBe(2);
@@ -209,7 +188,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.classes).toHaveLength(1);
       expect(char.classes[0]!.classId).toBe('Fighter');
       expect(char.classes[0]!.level).toBe(1);
@@ -228,7 +207,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       // Non-caster should have empty classSpellcasting
       expect(Object.keys(char.spells.classSpellcasting)).toHaveLength(0);
       expect(char.spells.pactMagicSlots).toBeNull();
@@ -247,7 +226,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.currency.gp).toBe(10);
       expect(char.currency.cp).toBe(0);
       expect(char.currency.sp).toBe(0);
@@ -265,7 +244,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.combatStats.initiative).toBe(2);
     });
 
@@ -280,7 +259,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.combatStats.passivePerception).toBe(11);
     });
 
@@ -293,7 +272,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.combatStats.speed).toBe(30);
     });
 
@@ -306,7 +285,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.equipment).toHaveLength(0);
       expect(char.conditions).toHaveLength(0);
       expect(char.feats).toHaveLength(0);
@@ -322,12 +301,28 @@ describe('createCharacter', () => {
         featIds: ['Great Weapon Fighting', 'Alert'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.feats).toEqual([{ featId: 'Great Weapon Fighting' }, { featId: 'Alert' }]);
     });
   });
 
   describe('1st-level Wizard (Human, Sage)', () => {
+    const deps = createMockDeps({
+      species: HUMAN_SPECIES,
+      background: SAGE_BACKGROUND,
+      classes: {
+        Fighter: FIGHTER_CLASS,
+        Barbarian: BARBARIAN_CLASS,
+        Wizard: WIZARD_CLASS,
+        Rogue: ROGUE_CLASS,
+        Cleric: CLERIC_CLASS,
+      },
+      subclasses: {
+        Champion: CHAMPION_SUBCLASS,
+        'Life Domain': LIFE_DOMAIN_SUBCLASS,
+      },
+    });
+
     const wizardScores: Record<AbilityName, number> = {
       Strength: 8,
       Dexterity: 14,
@@ -346,7 +341,7 @@ describe('createCharacter', () => {
         abilityScores: wizardScores,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       // Check per-class spell data
       expect(char.spells.classSpellcasting['Wizard']).toBeDefined();
       expect(char.spells.classSpellcasting['Wizard']!.spellcastingAbility).toBe('Intelligence');
@@ -363,7 +358,7 @@ describe('createCharacter', () => {
         abilityScores: wizardScores,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.spells.spellSlots[1]!.total).toBe(2);
       expect(char.spells.spellSlots[1]!.used).toBe(0);
     });
@@ -379,7 +374,7 @@ describe('createCharacter', () => {
         abilityScores: wizardScores,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.spells.classSpellcasting['Wizard']!.spellSaveDC).toBe(13);
     });
 
@@ -394,7 +389,7 @@ describe('createCharacter', () => {
         abilityScores: wizardScores,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.spells.classSpellcasting['Wizard']!.spellAttackBonus).toBe(5);
     });
 
@@ -407,7 +402,7 @@ describe('createCharacter', () => {
         abilityScores: wizardScores,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.skills['Arcana']!.proficient).toBe(true);
       expect(char.skills['History']!.proficient).toBe(true);
       expect(char.skills['Athletics']!.proficient).toBe(false);
@@ -424,7 +419,7 @@ describe('createCharacter', () => {
         abilityScores: wizardScores,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.hitPoints.max).toBe(7);
     });
 
@@ -437,12 +432,28 @@ describe('createCharacter', () => {
         abilityScores: wizardScores,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.spells.pactMagicSlots).toBeNull();
     });
   });
 
   describe('1st-level Barbarian (Dwarf)', () => {
+    const deps = createMockDeps({
+      species: DWARF_SPECIES,
+      background: SOLDIER_BACKGROUND,
+      classes: {
+        Fighter: FIGHTER_CLASS,
+        Barbarian: BARBARIAN_CLASS,
+        Wizard: WIZARD_CLASS,
+        Rogue: ROGUE_CLASS,
+        Cleric: CLERIC_CLASS,
+      },
+      subclasses: {
+        Champion: CHAMPION_SUBCLASS,
+        'Life Domain': LIFE_DOMAIN_SUBCLASS,
+      },
+    });
+
     it('applies racial bonuses to ability scores', () => {
       const params: CreateCharacterParams = {
         name: 'Thorin',
@@ -453,7 +464,7 @@ describe('createCharacter', () => {
         skillChoices: ['Perception'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       // Dwarf gives Con +2, so base Con 15 + 2 = 17 → mod +3
       expect(char.abilityScores.racialBonuses.Constitution).toBe(2);
     });
@@ -468,7 +479,7 @@ describe('createCharacter', () => {
         skillChoices: ['Perception'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       // Dwarf: Con +2 → total Con = 15+2 = 17 → mod +3
       // Barbarian d12: HP = 12 + 3 = 15
       expect(char.hitPoints.max).toBe(15);
@@ -484,7 +495,7 @@ describe('createCharacter', () => {
         skillChoices: ['Perception'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       // Dex 14 → +2, Con 15+2=17 → +3
       // Unarmored Defense: 10 + 2 + 3 = 15
       expect(char.combatStats.AC).toBe(15);
@@ -500,10 +511,10 @@ describe('createCharacter', () => {
         skillChoices: ['Perception'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       const barbarianResources = char.resources['Barbarian'];
       expect(barbarianResources).toBeDefined();
-      const rage = barbarianResources!.resources.find((r) => r.id === 'Rage');
+      const rage = barbarianResources!.resources.find((r: Resource) => r.id === 'Rage');
       expect(rage).toBeDefined();
       expect(rage!.max).toBe(2);
       expect(rage!.used).toBe(0);
@@ -519,23 +530,27 @@ describe('createCharacter', () => {
         skillChoices: ['Perception'],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.combatStats.speed).toBe(30);
     });
   });
 
   describe('Error cases', () => {
-    it('throws error for invalid speciesId', () => {
+    it('throws error when species is not in deps', () => {
+      const depsWithoutSpecies = createMockDeps({
+        classes: { Fighter: FIGHTER_CLASS },
+        background: SOLDIER_BACKGROUND,
+      });
       const params: CreateCharacterParams = {
         name: 'Test',
-        speciesId: 'Dragonborn',
+        speciesId: 'Human',
         backgroundId: 'Soldier',
         classId: 'Fighter',
         abilityScores: STANDARD_SCORES,
       };
 
-      expect(() => createCharacter(params, data)).toThrow(
-        'Invalid speciesId: "Dragonborn" not found in data',
+      expect(() => createCharacter(params, depsWithoutSpecies)).toThrow(
+        'Invalid speciesId: "Human" not found in deps',
       );
     });
 
@@ -548,22 +563,26 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      expect(() => createCharacter(params, data)).toThrow(
-        'Invalid classId: "Artificer" not found in data',
+      expect(() => createCharacter(params, deps)).toThrow(
+        'Invalid classId: "Artificer" not found in deps',
       );
     });
 
-    it('throws error for invalid backgroundId', () => {
+    it('throws error when background is not in deps', () => {
+      const depsWithoutBackground = createMockDeps({
+        species: HUMAN_SPECIES,
+        classes: { Fighter: FIGHTER_CLASS },
+      });
       const params: CreateCharacterParams = {
         name: 'Test',
         speciesId: 'Human',
-        backgroundId: 'Pirate',
+        backgroundId: 'Soldier',
         classId: 'Fighter',
         abilityScores: STANDARD_SCORES,
       };
 
-      expect(() => createCharacter(params, data)).toThrow(
-        'Invalid backgroundId: "Pirate" not found in data',
+      expect(() => createCharacter(params, depsWithoutBackground)).toThrow(
+        'Invalid backgroundId: "Soldier" not found in deps',
       );
     });
   });
@@ -579,7 +598,7 @@ describe('createCharacter', () => {
         featIds: [],
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.feats).toEqual([]);
     });
 
@@ -592,7 +611,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       // Only background skills are proficient
       expect(char.skills['Athletics']!.proficient).toBe(true);
       expect(char.skills['Intimidation']!.proficient).toBe(true);
@@ -617,7 +636,7 @@ describe('createCharacter', () => {
         },
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.species).toBe('Elf');
       expect(char.speciesSubtype).toBe('High Elf');
     });
@@ -631,7 +650,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       const skillNames = Object.keys(char.skills);
       expect(skillNames).toHaveLength(18);
     });
@@ -645,7 +664,7 @@ describe('createCharacter', () => {
         abilityScores: STANDARD_SCORES,
       };
 
-      const char = createCharacter(params, data);
+      const char = createCharacter(params, deps);
       expect(char.equipment).toEqual([]);
       expect(char.combatStats.attacks).toEqual([]);
     });
@@ -690,8 +709,23 @@ describe('isProficient', () => {
 });
 
 describe('wizard spell data (via createCharacter)', () => {
+  const deps = createMockDeps({
+    species: HUMAN_SPECIES,
+    background: SAGE_BACKGROUND,
+    classes: {
+      Fighter: FIGHTER_CLASS,
+      Barbarian: BARBARIAN_CLASS,
+      Wizard: WIZARD_CLASS,
+      Rogue: ROGUE_CLASS,
+      Cleric: CLERIC_CLASS,
+    },
+    subclasses: {
+      Champion: CHAMPION_SUBCLASS,
+      'Life Domain': LIFE_DOMAIN_SUBCLASS,
+    },
+  });
+
   it('calculates spell save DC and attack bonus correctly', () => {
-    const data = createMockDataLoaderExtended();
     const params: CreateCharacterParams = {
       name: 'Gandalf',
       speciesId: 'Human',
@@ -707,7 +741,7 @@ describe('wizard spell data (via createCharacter)', () => {
       },
     };
 
-    const char = createCharacter(params, data);
+    const char = createCharacter(params, deps);
     const wizard = char.spells.classSpellcasting['Wizard'];
 
     // Int 16 → +3, PB = 2
@@ -750,11 +784,11 @@ describe('extractAllClassResources', () => {
         featGrants: {},
         temporaryBonuses: {},
       } as any,
-      createMockDataLoaderForResources(),
+      createMockDepsForResources(),
     );
     const fighter = result['Fighter'];
     expect(fighter).toBeDefined();
-    const secondWind = fighter!.resources.find((r) => r.id === 'Second Wind');
+    const secondWind = fighter!.resources.find((r: Resource) => r.id === 'Second Wind');
     expect(secondWind).toBeDefined();
     // 2024 PHB: Second Wind scales with Proficiency Bonus (PB at level 1 = 2)
     expect(secondWind!.max).toBe(2);
@@ -779,26 +813,22 @@ describe('extractAllClassResources', () => {
         featGrants: {},
         temporaryBonuses: {},
       } as any,
-      createMockDataLoaderForResources(),
+      createMockDepsForResources(),
     );
     const barbarian = result['Barbarian'];
     expect(barbarian).toBeDefined();
-    const rage = barbarian!.resources.find((r) => r.id === 'Rage');
+    const rage = barbarian!.resources.find((r: Resource) => r.id === 'Rage');
     expect(rage).toBeDefined();
     expect(rage!.max).toBe(2);
   });
 });
 
-// Helper to create a minimal DataLoader for resource tests
-function createMockDataLoaderForResources() {
-  return createMockDataLoader({
-    getClass: (id: string) => {
-      if (id === 'Fighter') return FIGHTER_CLASS;
-      if (id === 'Barbarian') return BARBARIAN_CLASS;
-      return undefined;
-    },
-    getSubclass: () => undefined,
-  });
+// Helper to create minimal classes map for resource tests
+function createMockDepsForResources(): Record<string, import('../../src/types/class').Class> {
+  return {
+    Fighter: FIGHTER_CLASS,
+    Barbarian: BARBARIAN_CLASS,
+  };
 }
 
 describe('getAlwaysPreparedSpellsFromSubclass', () => {
@@ -827,7 +857,21 @@ describe('getAlwaysPreparedSpellsFromSubclass', () => {
 });
 
 describe('createCharacter with alwaysPreparedSpells', () => {
-  const data = createMockDataLoaderExtended();
+  const deps = createMockDeps({
+    species: HUMAN_SPECIES,
+    background: SOLDIER_BACKGROUND,
+    classes: {
+      Fighter: FIGHTER_CLASS,
+      Barbarian: BARBARIAN_CLASS,
+      Wizard: WIZARD_CLASS,
+      Rogue: ROGUE_CLASS,
+      Cleric: CLERIC_CLASS,
+    },
+    subclasses: {
+      Champion: CHAMPION_SUBCLASS,
+      'Life Domain': LIFE_DOMAIN_SUBCLASS,
+    },
+  });
 
   it('populates alwaysPreparedSpells for Cleric with Life Domain', () => {
     const params: CreateCharacterParams = {
@@ -839,7 +883,7 @@ describe('createCharacter with alwaysPreparedSpells', () => {
       abilityScores: STANDARD_SCORES,
     };
 
-    const char = createCharacter(params, data);
+    const char = createCharacter(params, deps);
     const clericSpells = char.spells.classSpellcasting['Cleric'];
     expect(clericSpells).toBeDefined();
     expect(clericSpells!.alwaysPreparedSpells).toContain('bless');
@@ -857,7 +901,7 @@ describe('createCharacter with alwaysPreparedSpells', () => {
       abilityScores: STANDARD_SCORES,
     };
 
-    const char = createCharacter(params, data);
+    const char = createCharacter(params, deps);
     const clericSpells = char.spells.classSpellcasting['Cleric'];
     // maxPrepared = 4 (from SRD 5.2 table for Cleric level 1)
     expect(clericSpells!.maxPrepared).toBe(4);

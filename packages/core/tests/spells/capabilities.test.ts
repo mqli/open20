@@ -1,7 +1,7 @@
 // tests/spells/capabilities.test.ts
 // Tests for spell capability pure functions
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   getCasterType,
   getCasterTypeForClass,
@@ -13,20 +13,14 @@ import {
   getBestSpellAttackBonus,
   pickBestClassId,
 } from '../../src/spells/capabilities';
-import type { DataLoader } from '../../src/data/loader';
-import type { Character, SpellLevel } from '../../src/types';
+import type { Character } from '../../src/types/character';
+import type { SpellLevel } from '../../src/types/spell';
 import type { ClassSpellData, PactMagicSlots } from '../../src/types/spell';
+import type { Class } from '../../src/types/class';
 
-// ── Mocks ──────────────────────────────────────────────
+// ── Fixtures ─────────────────────────────────
 
-// Mock calculateSpellSlots to return empty (tests control slots via character object)
-vi.mock('../../src/engine/spell-slots', () => ({
-  calculateSpellSlots: vi.fn(() => ({})),
-}));
-
-// ── Fixtures ───────────────────────────────────────────
-
-import { createMockDataLoader } from '../fixtures/data-loader';
+import { createMockDeps } from '../fixtures/data-loader';
 import { createMockSpell } from '../fixtures/spells';
 
 // Minimal mock character with Wizard class
@@ -52,46 +46,70 @@ const MOCK_CHARACTER = {
         preparedSpells: ['shield', 'fireball'],
         alwaysPreparedSpells: [],
         maxPrepared: 5,
-        maxCantripsKnown: 3,
       } as unknown as ClassSpellData,
     },
     spellSlots: {
       1: { total: 4, used: 1 },
       2: { total: 3, used: 0 },
-    },
+      3: { total: 3, used: 0 },
+    } as unknown as Record<number, { total: number; used: number }>,
     pactMagicSlots: null as unknown as PactMagicSlots | null,
   },
 };
 
-// DataLoader that treats Wizard as a spellbook caster
-const mockWizardLoader = createMockDataLoader({
-  getClass: (id: string) =>
-    ({
-      id,
-      spellcasting: { knownSource: 'spellbook', preparationTiming: 'long_rest' },
-    }) as unknown as Parameters<DataLoader['getClass']>[0] extends string
-      ? ReturnType<DataLoader['getClass']>
-      : never,
-} as Partial<DataLoader>);
+// Mock classes for getCasterType tests
+const mockWizardClass: Class = {
+  id: 'Wizard',
+  name: 'Wizard',
+  source: '2024 PHB',
+  hitDie: 'd6' as any,
+  savingThrowProficiencies: ['Intelligence', 'Wisdom'] as any,
+  armorTraining: [],
+  weaponProficiencies: [],
+  weaponMastery: false,
+  featuresByLevel: [],
+  spellcasting: {
+    ability: 'Intelligence' as any,
+    knownSource: 'spellbook',
+    preparationTiming: 'long_rest',
+    changesPerPreparation: 'all',
+  },
+};
 
-// DataLoader that treats Cleric as a preparer (not spellbook)
-const mockClericLoader = createMockDataLoader({
-  getClass: (id: string) =>
-    ({
-      id,
-      spellcasting: { knownSource: 'class_list', preparationTiming: 'long_rest' },
-    }) as unknown as Parameters<DataLoader['getClass']>[0] extends string
-      ? ReturnType<DataLoader['getClass']>
-      : never,
-} as Partial<DataLoader>);
+const mockClericClass: Class = {
+  id: 'Cleric',
+  name: 'Cleric',
+  source: '2024 PHB',
+  hitDie: 'd8' as any,
+  savingThrowProficiencies: ['Wisdom', 'Charisma'] as any,
+  armorTraining: ['Light', 'Medium', 'Heavy', 'Shields'],
+  weaponProficiencies: ['Simple'],
+  weaponMastery: false,
+  featuresByLevel: [],
+  spellcasting: {
+    ability: 'Wisdom' as any,
+    knownSource: 'class_list',
+    preparationTiming: 'long_rest',
+    changesPerPreparation: 'all',
+  },
+};
 
-// ── Tests ──────────────────────────────────────────────
+// deps with classes for getCasterType tests
+const mockWizardDeps = createMockDeps({
+  classes: { Wizard: mockWizardClass },
+});
+
+const mockClericDeps = createMockDeps({
+  classes: { Cleric: mockClericClass },
+});
+
+// ── Tests ─────────────────────────────────────
 
 describe('getCasterType', () => {
   it('should identify non-caster', () => {
     const char = { ...MOCK_CHARACTER, classes: [] } as unknown as Character;
-    const data = createMockDataLoader();
-    const result = getCasterType(char, data);
+    const deps = createMockDeps();
+    const result = getCasterType(char, deps);
     expect(result.isSpellbookCaster).toBe(false);
     expect(result.canLearn).toBe(false);
     expect(result.canPrepare).toBe(false);
@@ -99,7 +117,7 @@ describe('getCasterType', () => {
 
   it('should identify spellbook caster (Wizard)', () => {
     const char = MOCK_CHARACTER as unknown as Character;
-    const result = getCasterType(char, mockWizardLoader as unknown as DataLoader);
+    const result = getCasterType(char, mockWizardDeps);
     expect(result.isSpellbookCaster).toBe(true);
     expect(result.canLearn).toBe(true);
     expect(result.canPrepare).toBe(true);
@@ -118,7 +136,7 @@ describe('getCasterType', () => {
         },
       ],
     } as unknown as Character;
-    const result = getCasterType(char, mockClericLoader as unknown as DataLoader);
+    const result = getCasterType(char, mockClericDeps);
     expect(result.isSpellbookCaster).toBe(false);
     expect(result.canLearn).toBe(false);
     expect(result.canPrepare).toBe(true);
@@ -127,15 +145,18 @@ describe('getCasterType', () => {
 
 describe('getCasterTypeForClass', () => {
   it('should return false for unknown class', () => {
-    const data = createMockDataLoader();
-    const result = getCasterTypeForClass('Unknown', data);
+    const deps = createMockDeps();
+    const result = getCasterTypeForClass('Unknown', deps);
     expect(result.isSpellbookCaster).toBe(false);
+    expect(result.canLearn).toBe(false);
+    expect(result.canPrepare).toBe(false);
   });
 
   it('should identify Wizard as spellbook caster', () => {
-    const result = getCasterTypeForClass('Wizard', mockWizardLoader as unknown as DataLoader);
+    const result = getCasterTypeForClass('Wizard', mockWizardDeps);
     expect(result.isSpellbookCaster).toBe(true);
     expect(result.canLearn).toBe(true);
+    expect(result.canPrepare).toBe(true);
   });
 });
 
@@ -200,7 +221,10 @@ describe('getAvailableSlots', () => {
       ...MOCK_CHARACTER,
       spells: {
         ...MOCK_CHARACTER.spells,
-        spellSlots: { ...MOCK_CHARACTER.spells.spellSlots, 1: { total: 2, used: 2 } },
+        spellSlots: {
+          ...MOCK_CHARACTER.spells.spellSlots,
+          1: { total: 2, used: 2 },
+        },
       },
     } as unknown as Character;
     const result = getAvailableSlots(char, 1 as SpellLevel);
@@ -217,7 +241,7 @@ describe('getAvailableSlots', () => {
           level: 3,
           subclassId: null,
           subclassLevel: null,
-          hitDice: { die: 'd8' as const, used: 0 },
+          hitDice: { die: 'd6' as const, used: 0 },
         },
       ],
       spells: {
@@ -235,7 +259,7 @@ describe('getAvailableSlots', () => {
 describe('canCastSpellWithSlots', () => {
   it('should return false if spell not known/prepared', () => {
     const spell = createMockSpell({ id: 'unknown-spell', level: 1, classes: ['Wizard'] });
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
     const result = canCastSpellWithSlots(MOCK_CHARACTER as unknown as Character, spell);
     expect(result).toBe(false);
   });
@@ -248,16 +272,15 @@ describe('canCastSpellWithSlots', () => {
       spells: {
         ...MOCK_CHARACTER.spells,
         classSpellcasting: {
-          ...MOCK_CHARACTER.spells.classSpellcasting,
           Wizard: {
             ...MOCK_CHARACTER.spells.classSpellcasting.Wizard,
-            knownSpells: ['fireball'],
+            knownSpells: ['fireball', 'shield'],
             preparedSpells: ['fireball'],
           },
         },
       },
     } as unknown as Character;
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
     const result = canCastSpellWithSlots(char, spell);
     expect(result).toBe(true);
   });
@@ -276,7 +299,7 @@ describe('canCastSpellWithSlots', () => {
         },
       },
     } as unknown as Character;
-    const data = createMockDataLoader();
+    const deps = createMockDeps();
     const result = canCastSpellWithSlots(char, spell);
     expect(result).toBe(true);
   });
@@ -301,17 +324,26 @@ describe('getBestSpellAttackBonus', () => {
       spells: {
         ...MOCK_CHARACTER.spells,
         classSpellcasting: {
-          Wizard: { ...MOCK_CHARACTER.spells.classSpellcasting.Wizard, spellAttackBonus: 5 },
-          Cleric: {
+          Wizard: {
             ...MOCK_CHARACTER.spells.classSpellcasting.Wizard,
-            spellAttackBonus: 7,
+            spellAttackBonus: 5,
+          },
+          Cleric: {
             classId: 'Cleric',
+            spellcastingAbility: 'Wisdom' as const,
+            spellSaveDC: 13,
+            spellAttackBonus: 7,
+            knownCantrips: [],
+            knownSpells: [],
+            preparedSpells: [],
+            alwaysPreparedSpells: [],
+            maxPrepared: 0,
           },
         },
       },
     } as unknown as Character;
     const result = getBestSpellAttackBonus(char);
-    expect(result).toBe(7);
+    expect(result).toBe(7); // Cleric has higher bonus
   });
 
   it('should return 0 for no classes', () => {
@@ -344,16 +376,25 @@ describe('pickBestClassId', () => {
       spells: {
         ...MOCK_CHARACTER.spells,
         classSpellcasting: {
-          Wizard: { ...MOCK_CHARACTER.spells.classSpellcasting.Wizard, spellAttackBonus: 5 },
-          Cleric: {
+          Wizard: {
             ...MOCK_CHARACTER.spells.classSpellcasting.Wizard,
-            spellAttackBonus: 7,
+            spellAttackBonus: 5,
+          },
+          Cleric: {
             classId: 'Cleric',
+            spellcastingAbility: 'Wisdom' as const,
+            spellSaveDC: 13,
+            spellAttackBonus: 7,
+            knownCantrips: [],
+            knownSpells: [],
+            preparedSpells: [],
+            alwaysPreparedSpells: [],
+            maxPrepared: 0,
           },
         },
       },
     } as unknown as Character;
     const result = pickBestClassId(char, ['Wizard', 'Cleric']);
-    expect(result).toBe('Cleric');
+    expect(result).toBe('Cleric'); // Higher spellAttackBonus
   });
 });

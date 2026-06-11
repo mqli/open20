@@ -3,7 +3,6 @@
 // 对应 HLD §6.1 + PRD v4.0 §10 附录C
 
 import type { CharacterClass } from '@/types/character';
-import type { DataLoader } from '@/data/loader';
 import type { Class } from '@/types/class';
 import { getMulticlassSpellSlots } from './multiclass-spell-slots';
 
@@ -28,20 +27,20 @@ export interface PactMagicResult {
  *
  * @param classId - 职业ID
  * @param classLevel - 职业等级
- * @param data - DataLoader（用于获取职业数据）
+ * @param classes - 职业数据映射（用于获取职业数据）
  * @returns 法术位 Map（level → { total, used }），从1级到9级
  *
  * @example
  * // 5级 Wizard
- * calculateSpellSlots('Wizard', 5, data)
+ * calculateSpellSlots('Wizard', 5, classes)
  * // { 1: {total:4, used:0}, 2: {total:3, used:0}, 3: {total:2, used:0}, 4-9: {total:0, used:0} }
  */
 export function calculateSpellSlots(
   classId: string,
   classLevel: number,
-  data: DataLoader,
+  classes: Record<string, Class>,
 ): Record<number, SpellSlotEntry> {
-  const classData = data.getClass(classId);
+  const classData = classes?.[classId];
   const slotsArray = classData?.spellSlotsByLevel?.[classLevel] ?? [];
   const result: Record<number, SpellSlotEntry> = {};
 
@@ -58,21 +57,21 @@ export function calculateSpellSlots(
  * 计算法术位（支持单职业或多维职业）
  *
  * @param classes - 职业列表（单个或多个）
- * @param data - DataLoader（用于获取职业数据）
+ * @param classMap - 职业数据映射（用于获取职业数据）
  * @returns 法术位 Map
  *
  * @example
  * // 单职业: 5级 Wizard
- * calculateSpellSlotsFromClasses([{ classId: 'Wizard', level: 5 }], data)
+ * calculateSpellSlotsFromClasses([{ classId: 'Wizard', level: 5 }], classes)
  *
  * // 多维职业: Wizard 5 / Fighter 2
- * calculateSpellSlotsFromClasses([{ classId: 'Wizard', level: 5 }, { classId: 'Fighter', level: 2 }], data)
+ * calculateSpellSlotsFromClasses([{ classId: 'Wizard', level: 5 }, { classId: 'Fighter', level: 2 }], classes)
  */
 export function calculateSpellSlotsFromClasses(
   classes: readonly CharacterClass[],
-  data: DataLoader,
+  classMap: Record<string, Class>,
 ): Record<number, SpellSlotEntry> {
-  const totalLevel = getMulticlassSpellcasterLevel(classes, data);
+  const totalLevel = getMulticlassSpellcasterLevel(classes, classMap);
   return calculateMulticlassSpellSlots(totalLevel);
 }
 
@@ -116,20 +115,20 @@ export function calculatePactMagic(
  * - 非施法者(Fighter/Rogue/Barbarian等): 不计入（除非Eldritch Knight/Arcane Trickster）
  *
  * @param classes - 角色职业列表
- * @param data - DataLoader
+ * @param classMap - 职业数据映射
  * @returns 总施法者等级
  *
  * @example
  * // Fighter 5 / Wizard 3
  * getMulticlassSpellcasterLevel(
  *   [{ classId: 'Fighter', level: 5 }, { classId: 'Wizard', level: 3 }],
- *   data
+ *   classes
  * )
  * // 3 (只有Wizard计入)
  */
 export function getMulticlassSpellcasterLevel(
   classes: readonly CharacterClass[],
-  data: DataLoader,
+  classMap: Record<string, Class>,
 ): number {
   let totalLevel = 0;
 
@@ -137,7 +136,7 @@ export function getMulticlassSpellcasterLevel(
   const HALF_CASTERS = ['Paladin', 'Ranger'];
 
   for (const charClass of classes) {
-    const classData = data.getClass(charClass.classId);
+    const classData = classMap?.[charClass.classId];
     if (!classData?.spellcasting) continue;
 
     // Warlock使用Pact Magic，不计入多维职业施法者等级
@@ -159,7 +158,6 @@ export function getMulticlassSpellcasterLevel(
  * 计算多维职业法术位
  *
  * @param totalSpellcasterLevel - 总施法者等级（由 getMulticlassSpellcasterLevel 计算）
- * @param data - DataLoader
  * @returns 法术位 Map
  */
 export function calculateMulticlassSpellSlots(

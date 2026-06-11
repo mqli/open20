@@ -16,7 +16,8 @@ import type { DamageDefenses } from '../../src/types/damage';
 import { createTestLoader } from '../create-test-loader';
 import { createCharacter } from '../../src/character/create';
 import { modifyHP } from '../../src/character/mutate';
-const dataLoader = createTestLoader();
+const humanLoader = createTestLoader('Human', 'soldier');
+const dwarfLoader = createTestLoader('Dwarf', 'soldier');
 
 describe('DamageType parsing', () => {
   it('parses standard damage types case-sensitively', () => {
@@ -259,10 +260,10 @@ describe('getActiveDamageDefenses', () => {
             Charisma: 11,
           },
         },
-        dataLoader,
+        dwarfLoader,
       );
 
-      const { defenses, sources } = getActiveDamageDefenses(dwarf, dataLoader);
+      const { defenses, sources } = getActiveDamageDefenses(dwarf, dwarfLoader);
 
       expect(defenses.resistances).toContain('Poison');
       expect(defenses.resistances).toHaveLength(1);
@@ -288,10 +289,10 @@ describe('getActiveDamageDefenses', () => {
             Charisma: 11,
           },
         },
-        dataLoader,
+        dwarfLoader,
       );
 
-      const { defenses } = getActiveDamageDefenses(dwarf, dataLoader);
+      const { defenses } = getActiveDamageDefenses(dwarf, dwarfLoader);
 
       // Hill Dwarf has Dwarven Resilience (poison resistance)
       expect(defenses.resistances).toContain('Poison');
@@ -315,10 +316,10 @@ describe('getActiveDamageDefenses', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        humanLoader,
       );
 
-      const { defenses, sources } = getActiveDamageDefenses(human, dataLoader);
+      const { defenses, sources } = getActiveDamageDefenses(human, humanLoader);
 
       expect(defenses.resistances).toHaveLength(0);
       expect(defenses.immunities).toHaveLength(0);
@@ -345,10 +346,10 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader,
+      humanLoader,
     );
 
-    const { defenses } = getActiveDamageDefenses(barbarian, dataLoader);
+    const { defenses } = getActiveDamageDefenses(barbarian, humanLoader);
 
     // Should NOT have physical resistance when not raging
     expect(defenses.resistances).not.toContain('Bludgeoning');
@@ -372,7 +373,7 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader,
+      humanLoader,
     );
 
     // Add Raging condition
@@ -391,7 +392,7 @@ describe('Rage condition integration', () => {
       updatedAt: new Date().toISOString(),
     };
 
-    const { defenses, sources } = getActiveDamageDefenses(barbarian, dataLoader);
+    const { defenses, sources } = getActiveDamageDefenses(barbarian, humanLoader);
 
     // Should have physical resistance when raging
     expect(defenses.resistances).toContain('Bludgeoning');
@@ -420,7 +421,7 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader,
+      humanLoader,
     );
 
     // Add rage active effect
@@ -442,7 +443,7 @@ describe('Rage condition integration', () => {
       barbarian,
       10,
       'Slashing',
-      dataLoader,
+      humanLoader,
     );
 
     // Should be halved due to rage resistance
@@ -468,7 +469,7 @@ describe('Rage condition integration', () => {
           Charisma: 8,
         },
       },
-      dataLoader,
+      humanLoader,
     );
 
     // Add rage active effect
@@ -486,7 +487,7 @@ describe('Rage condition integration', () => {
     };
 
     // Take 10 fire damage while raging (rage doesn't protect from fire)
-    const { result } = applyDamageWithDefenses(barbarian, 10, 'Fire', dataLoader);
+    const { result } = applyDamageWithDefenses(barbarian, 10, 'Fire', humanLoader);
 
     expect(result.originalDamage).toBe(10);
     expect(result.effectiveDamage).toBe(10);
@@ -512,7 +513,7 @@ describe('applyDamageWithDefenses', () => {
           Charisma: 11,
         },
       },
-      dataLoader,
+      dwarfLoader,
     );
 
     const originalHP = dwarf.hitPoints.current;
@@ -520,7 +521,7 @@ describe('applyDamageWithDefenses', () => {
       char: damaged,
       result,
       defenses,
-    } = applyDamageWithDefenses(dwarf, 10, 'Poison', dataLoader);
+    } = applyDamageWithDefenses(dwarf, 10, 'Poison', dwarfLoader);
 
     // Poison damage should be halved
     expect(result.effectiveDamage).toBe(5);
@@ -545,7 +546,7 @@ describe('applyDamageWithDefenses', () => {
           Charisma: 11,
         },
       },
-      dataLoader,
+      dwarfLoader,
     );
 
     // Add custom immunity to fire
@@ -559,7 +560,7 @@ describe('applyDamageWithDefenses', () => {
       updatedAt: new Date().toISOString(),
     };
 
-    const { char: _damaged, result } = applyDamageWithDefenses(dwarf, 100, 'Fire', dataLoader);
+    const { char: _damaged, result } = applyDamageWithDefenses(dwarf, 100, 'Fire', dwarfLoader);
 
     expect(result.effectiveDamage).toBe(0);
     expect(_damaged.hitPoints.current).toBe(dwarf.hitPoints.current);
@@ -584,10 +585,10 @@ describe('getDamageDefenses (convenience function)', () => {
           Charisma: 11,
         },
       },
-      dataLoader,
+      dwarfLoader,
     );
 
-    const defenses = getDamageDefenses(dwarf, dataLoader);
+    const defenses = getDamageDefenses(dwarf, dwarfLoader);
 
     expect(defenses.resistances).toContain('Poison');
     expect(Array.isArray(defenses.resistances)).toBe(true);

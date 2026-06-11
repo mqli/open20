@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../../create-test-loader';
+import {
+  createTestDepsForCreate,
+  createTestDeps,
+  getTestSubclass,
+  getTestClass,
+} from '../../create-test-loader';
 import {
   createCharacter,
   applyTypedDamage,
@@ -7,14 +12,17 @@ import {
   shortRest,
 } from 'open20-core/character';
 
-const dataLoader = createTestLoader();
-
 describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
   // ============================================================
   // COMBINED FIGHTER GAMEPLAY SCENARIO
   // ============================================================
   describe('Fighter: Full Combat Scenario (Level 10)', () => {
     it('should simulate a complete Fighter combat encounter', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       let fighter = createCharacter(
         {
           name: 'Commander',
@@ -31,7 +39,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       const initialHP = fighter.hitPoints.current;
@@ -65,13 +73,20 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
       );
       expect(swAfterConsume!.used).toBe(1);
 
-      fighter = shortRest(fighter, 1, dataLoader);
+      const depsForShortRest = createTestDeps(fighter);
+      fighter = shortRest(fighter, 1, depsForShortRest);
 
       const afterRest = fighter.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind');
       expect(afterRest!.used).toBe(0);
     });
 
     it('should simulate Eldritch Knight spell combat', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        subclassId: 'Eldritch Knight',
+      });
       const ek = createCharacter(
         {
           name: 'Battle Mage',
@@ -89,7 +104,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       // Note: Eldritch Knight spellcasting is granted by a subclass feature at level 3
@@ -97,7 +112,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
       // This test verifies the character is created successfully
       expect(ek.classes[0]!.level).toBe(7);
       expect(ek.classes[0]!.subclassId).toBe('Eldritch Knight');
-      const eldritchKnight = dataLoader.getSubclass('Eldritch Knight')!;
+      const eldritchKnight = getTestSubclass('Eldritch Knight')!;
       const level7Features = eldritchKnight.featuresByLevel
         .find((entry) => entry.level === 7)!
         .features.map((feature) => feature.name);
@@ -110,6 +125,11 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
   // ============================================================
   describe('Fighter: Fighting Styles', () => {
     it('should have Fighting Style available', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Warrior',
@@ -125,11 +145,11 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(fighter.classes[0]!.level).toBe(1);
-      const fighterClass = dataLoader.getClass('Fighter')!;
+      const fighterClass = getTestClass('Fighter')!;
       const level1Features = fighterClass.featuresByLevel
         .find((entry) => entry.level === 1)!
         .features.map((feature) => feature.name);
@@ -142,6 +162,11 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
   // ============================================================
   describe('Fighter: Weapon Mastery (2024)', () => {
     it('should have Weapon Mastery feature', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+      });
       const fighter = createCharacter(
         {
           name: 'Master',
@@ -157,13 +182,12 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(fighter.classes[0]!.classId).toBe('Fighter');
-      expect(dataLoader.getClass('Fighter')!.weaponMastery).toBe(true);
-      const level1Features = dataLoader
-        .getClass('Fighter')!
+      expect(getTestClass('Fighter')!.weaponMastery).toBe(true);
+      const level1Features = getTestClass('Fighter')!
         .featuresByLevel.find((entry) => entry.level === 1)!
         .features.map((feature) => feature.name);
       expect(level1Features).toContain('Weapon Mastery');

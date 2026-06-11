@@ -2,22 +2,24 @@ import { describe, it, expect } from 'vitest';
 import { createCharacter } from '../../src/character/create';
 import { recomputeDerivedStats } from '../../src/character/recompute';
 import { addFeat, updateFeatChoices } from '../../src/character/feat-mutate';
-import type { DataLoader } from '../../src/data/loader';
+import type { RecomputeDerivedStatsDeps } from '../../src/types/deps';
+import type { Feat, CharacterFeatEntry } from '../../src/types/feat';
+import type { Class } from '../../src/types/class';
+import type { Species } from '../../src/types/species';
+import type { Background } from '../../src/types/background';
 
-// Mock DataLoader for testing
-function createMockDataLoader(): DataLoader {
-  const feats = new Map();
-
+// Mock Deps for testing
+function createMockDeps(): RecomputeDerivedStatsDeps {
   // Register feats
-  const featData = [
-    {
+  const feats: Record<string, Feat> = {
+    'ability-score-improvement': {
       id: 'ability-score-improvement',
       source: 'SRD 5.2',
       name: 'Ability Score Improvement',
       description:
         'Increase one ability score of your choice by 2, or increase two ability scores of your choice by 1.',
       category: 'General',
-      prerequisites: null, // Simplified for testing
+      prerequisites: undefined,
       grants: [
         {
           type: 'abilityBonusChoice',
@@ -30,13 +32,13 @@ function createMockDataLoader(): DataLoader {
       ],
       repeatable: true,
     },
-    {
+    grappler: {
       id: 'grappler',
       source: 'SRD 5.2',
       name: 'Grappler',
       description: 'Increase your Strength or Dexterity score by 1.',
       category: 'General',
-      prerequisites: null, // Simplified for testing
+      prerequisites: undefined,
       grants: [
         {
           type: 'abilityBonusChoice',
@@ -48,100 +50,79 @@ function createMockDataLoader(): DataLoader {
         },
       ],
     },
-    {
+    skilled: {
       id: 'skilled',
       source: 'SRD 5.2',
       name: 'Skilled',
       description: 'Gain proficiency in any combination of three skills or tools of your choice.',
       category: 'Origin',
-      prerequisites: null,
+      prerequisites: undefined,
       grants: [],
       repeatable: true,
     },
-    {
+    alert: {
       id: 'alert',
       source: 'SRD 5.2',
       name: 'Alert',
       description: 'You gain Initiative Proficiency.',
       category: 'Origin',
-      prerequisites: null,
+      prerequisites: undefined,
       grants: [{ type: 'specialAbilities', abilities: ['Initiative Proficiency'] }],
     },
-  ];
-
-  for (const feat of featData) {
-    feats.set(feat.id, feat);
-  }
+  };
 
   // Mock species
-  const species = {
+  const species: Species = {
     id: 'Human',
-    name: 'Human',
-    abilityBonuses: {},
-    skillProficiencies: [],
+    source: 'PHB',
+    description: '',
+    size: 'Medium',
+    speed: 30,
     languages: ['Common'],
+    abilityBonuses: {},
+    baseTraits: [],
   };
 
   // Mock background
-  const background = {
+  const background: Background = {
     id: 'Soldier',
-    name: 'Soldier',
+    source: 'PHB',
     skillProficiencies: ['Athletics', 'Intimidation'],
     toolProficiencies: [],
     languages: [],
+    originFeatId: 'alert', // Required field
+    startingGold: 10,
   };
 
-  // Mock skills
-  const skills = new Map();
-  const skillList = [
-    'Athletics',
-    'Stealth',
-    'Perception',
-    'Intimidation',
-    "Thieves' Tools",
-    "Cook's Utensils",
-  ];
-  for (const skillName of skillList) {
-    skills.set(skillName, {
-      id: skillName,
-      name: skillName,
-      ability: 'Strength',
-    });
-  }
-
   // Mock class
-  const fighterClass = {
-    id: 'Fighter',
+  const fighterClass: Class = {
+    id: 'fighter',
     name: 'Fighter',
-    hitDie: 10,
-    primaryAbility: ['Strength', 'Dexterity'],
-    savingThrows: ['Strength', 'Constitution'],
+    source: 'PHB',
+    hitDie: 'd10',
+    savingThrowProficiencies: ['Strength', 'Constitution'],
+    armorTraining: ['Light', 'Medium', 'Heavy', 'Shields'],
     weaponProficiencies: ['Simple', 'Martial'],
-    armorProficiencies: ['Light', 'Medium', 'Heavy', 'Shields'],
+    weaponMastery: true,
     featuresByLevel: [
       {
         level: 1,
-        features: [{ name: 'Fighting Style', source: 'PHB', description: '' }],
+        features: [{ name: 'Fighting Style', description: '' }],
       },
     ],
     spellcasting: null,
   };
 
   return {
-    getFeat: (id: string) => feats.get(id) || null,
-    getClass: (id: string) => (id === 'Fighter' ? fighterClass : null),
-    getSubclass: () => null,
-    getBackground: (id: string) => (id === 'Soldier' ? background : null),
-    getSpecies: (id: string) => (id === 'Human' ? species : null),
-    getSkill: (id: string) => skills.get(id) || null,
-    getAllSpells: () => [],
-    getClassFeaturesForLevel: () => [],
-    getSubclassFeaturesForLevel: () => [],
-  } as unknown as DataLoader;
+    classes: { fighter: fighterClass },
+    feats,
+    species,
+    background,
+  };
 }
 
 describe('feat choices', () => {
-  const data = createMockDataLoader();
+  const data = createMockDeps();
 
   describe('Ability Score Improvement feat', () => {
     it('should apply +2 to chosen ability (Strength)', () => {
@@ -150,7 +131,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 15,
             Dexterity: 14,
@@ -181,7 +162,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 15,
             Dexterity: 14,
@@ -211,7 +192,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 16,
             Dexterity: 14,
@@ -239,7 +220,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 16,
             Dexterity: 14,
@@ -269,7 +250,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 15,
             Dexterity: 14,
@@ -301,7 +282,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 15,
             Dexterity: 14,
@@ -335,7 +316,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 15,
             Dexterity: 14,
@@ -361,7 +342,8 @@ describe('feat choices', () => {
 
       // Verify the choice was stored correctly
       expect(
-        updated.feats.find((f) => f.featId === 'ability-score-improvement')?.abilityChoices,
+        updated.feats.find((f: CharacterFeatEntry) => f.featId === 'ability-score-improvement')
+          ?.abilityChoices,
       ).toEqual({ Strength: 2 });
 
       // Verify recompute applies the bonus
@@ -375,7 +357,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 15,
             Dexterity: 14,
@@ -402,11 +384,9 @@ describe('feat choices', () => {
       );
 
       // Verify the choices were updated
-      expect(updated.feats.find((f) => f.featId === 'skilled')?.skillChoices).toEqual([
-        'Perception',
-        'Investigation',
-        'Nature',
-      ]);
+      expect(
+        updated.feats.find((f: CharacterFeatEntry) => f.featId === 'skilled')?.skillChoices,
+      ).toEqual(['Perception', 'Investigation', 'Nature']);
     });
   });
 
@@ -417,7 +397,7 @@ describe('feat choices', () => {
           name: 'Test',
           speciesId: 'Human',
           backgroundId: 'Soldier',
-          classId: 'Fighter',
+          classId: 'fighter',
           abilityScores: {
             Strength: 15,
             Dexterity: 14,

@@ -7,7 +7,7 @@
 //   computeClassSpellData, recomputeDerivedStats (orchestrator)
 
 import type { Character } from '@/types/character';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import type { AbilityName, AbilityScores } from '@/types/ability';
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
 import { getProficiencyBonus } from '@/engine/proficiency-bonus';
@@ -35,12 +35,12 @@ import type { FeatAttackBonus, FeatACBonus } from '@/types/feat';
  */
 function computeFeatGrants(
   char: Character,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Partial<Record<AbilityName, number>> {
   const featGrants: Partial<Record<AbilityName, number>> = {};
 
   for (const entry of char.feats) {
-    const feat = data.getFeat(entry.featId);
+    const feat = deps.feats?.[entry.featId];
     if (!feat) continue;
 
     // 1. Apply fixed ability bonuses from grants array (if any)
@@ -79,12 +79,12 @@ function computeFeatGrants(
 function applyFeatSkillProficiencies(
   skills: Record<string, import('../types/skill').SkillEntry>,
   char: Character,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Record<string, import('../types/skill').SkillEntry> {
   const updatedSkills = { ...skills };
 
   for (const entry of char.feats) {
-    const feat = data.getFeat(entry.featId);
+    const feat = deps.feats?.[entry.featId];
     if (!feat) continue;
 
     // Apply predefined skill proficiencies from feat data (grants array)
@@ -116,10 +116,13 @@ function applyFeatSkillProficiencies(
 /**
  * Extract attack bonuses from feats (for Fighting Style feats like Archery).
  */
-function computeFeatAttackBonuses(char: Character, data: DataLoader): readonly FeatAttackBonus[] {
+function computeFeatAttackBonuses(
+  char: Character,
+  deps: RecomputeDerivedStatsDeps,
+): readonly FeatAttackBonus[] {
   const bonuses: FeatAttackBonus[] = [];
   for (const entry of char.feats) {
-    const feat = data.getFeat(entry.featId);
+    const feat = deps.feats?.[entry.featId];
     if (!feat?.grants) continue;
 
     for (const grant of feat.grants) {
@@ -134,10 +137,13 @@ function computeFeatAttackBonuses(char: Character, data: DataLoader): readonly F
 /**
  * Extract AC bonuses from feats (for Fighting Style feats like Defense).
  */
-function computeFeatACBonuses(char: Character, data: DataLoader): readonly FeatACBonus[] {
+function computeFeatACBonuses(
+  char: Character,
+  deps: RecomputeDerivedStatsDeps,
+): readonly FeatACBonus[] {
   const bonuses: FeatACBonus[] = [];
   for (const entry of char.feats) {
-    const feat = data.getFeat(entry.featId);
+    const feat = deps.feats?.[entry.featId];
     if (!feat?.grants) continue;
 
     for (const grant of feat.grants) {
@@ -154,10 +160,10 @@ function computeFeatACBonuses(char: Character, data: DataLoader): readonly FeatA
 // ── Weapon Proficiencies ──────────────────────────────────
 
 /** Compute weapon proficiencies from all classes. */
-function computeWeaponProficiencies(char: Character, data: DataLoader): string[] {
+function computeWeaponProficiencies(char: Character, deps: RecomputeDerivedStatsDeps): string[] {
   const weaponProficiencies = new Set<string>();
   for (const charClass of char.classes) {
-    const classData = data.getClass(charClass.classId);
+    const classData = deps.classes?.[charClass.classId];
     if (classData?.weaponProficiencies) {
       for (const wp of classData.weaponProficiencies) {
         weaponProficiencies.add(wp);
@@ -180,7 +186,7 @@ function computeCombatStats(
   skills: Character['skills'],
   pb: number,
   weaponProficiencies: string[],
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   featAttackBonuses: readonly import('../types/feat').FeatAttackBonus[],
   featACBonuses: readonly import('../types/feat').FeatACBonus[],
 ) {
@@ -188,7 +194,7 @@ function computeCombatStats(
     abilityScores,
     equipment,
     features,
-    data,
+    deps,
     activeEffects,
     featACBonuses,
   );
@@ -205,7 +211,7 @@ function computeCombatStats(
     equipment,
     pb,
     features,
-    data,
+    deps,
     weaponProficiencies,
     featAttackBonuses,
   );
@@ -222,7 +228,7 @@ function computeCombatStats(
  */
 function computeClassSpellData(
   char: Character,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   pb: number,
   abilityScores: AbilityScores,
   existing: Record<string, ClassSpellData>,
@@ -236,7 +242,7 @@ function computeClassSpellData(
       abilityScores,
       proficiencyBonus: pb,
       existing: existing[charClass.classId],
-      data,
+      deps,
     });
     if (built) result[charClass.classId] = built;
   }
@@ -248,7 +254,7 @@ function computeClassSpellData(
 /** Recalculate Warlock Pact Magic slots, or remove if no longer Warlock. */
 function computePactMagic(
   char: Character,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   existingSlots: Character['spells']['pactMagicSlots'],
 ) {
   const hasWarlock = char.classes.some((c) => c.classId === 'Warlock');
@@ -259,7 +265,7 @@ function computePactMagic(
 
   const warlockClassEntry = char.classes.find((c) => c.classId === 'Warlock');
   if (!warlockClassEntry) return { ...char.spells, pactMagicSlots: null };
-  const warlockClass = data.getClass('Warlock');
+  const warlockClass = deps.classes?.['Warlock'];
   if (!warlockClass) return { ...char.spells, pactMagicSlots: null };
   const pactResult = calculatePactMagic(warlockClassEntry.level, warlockClass);
   if (!pactResult) return char.spells;
@@ -278,8 +284,8 @@ function computePactMagic(
 // ── Spell Slots ───────────────────────────────────────────
 
 /** Recalculate regular spell slots, preserving used counts. */
-function computeSpellSlots(char: Character, data: DataLoader) {
-  const newSlots = calculateSpellSlotsFromClasses(char.classes, data);
+function computeSpellSlots(char: Character, deps: RecomputeDerivedStatsDeps) {
+  const newSlots = calculateSpellSlotsFromClasses(char.classes, deps.classes ?? {});
   const hasNonZero = Object.values(newSlots).some((entry) => entry.total > 0);
 
   if (!hasNonZero) return char.spells.spellSlots;
@@ -306,7 +312,7 @@ function computeSpellSlots(char: Character, data: DataLoader) {
  */
 function computeFeatSpells(
   char: Character,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Record<string, import('../types/spell').FeatSpellsEntry> | undefined {
   const existingFeatSpells = char.spells.featSpells;
   const featSpells: Record<string, import('../types/spell').FeatSpellsEntry> = {};
@@ -314,7 +320,7 @@ function computeFeatSpells(
   for (const entry of char.feats) {
     if (!entry.spellChoices) continue;
 
-    const feat = data.getFeat(entry.featId);
+    const feat = deps.feats?.[entry.featId];
     if (!feat?.grants) continue;
 
     // Find spellChoices grant in the grants array
@@ -324,7 +330,7 @@ function computeFeatSpells(
     const selection = entry.spellChoices;
 
     // Determine spellcasting ability from classId
-    const classData = data.getClass(selection.classId);
+    const classData = deps.classes?.[selection.classId];
     if (!classData?.spellcasting) continue;
 
     const spellcastingAbility = classData.spellcasting.ability;
@@ -373,16 +379,16 @@ function computeFeatSpells(
  * 8. Spell slot totals (preserving used counts where possible)
  * 9. Apply feat skill/tool proficiencies
  */
-export function recomputeDerivedStats(char: Character, data: DataLoader): Character {
+export function recomputeDerivedStats(char: Character, deps: RecomputeDerivedStatsDeps): Character {
   // 1. Feat grants (single source of truth)
-  const featGrants = computeFeatGrants(char, data);
+  const featGrants = computeFeatGrants(char, deps);
 
   // 1.5. Compute feat attack and AC bonuses (for Fighting Style feats)
-  const featAttackBonuses = computeFeatAttackBonuses(char, data);
-  const featACBonuses = computeFeatACBonuses(char, data);
+  const featAttackBonuses = computeFeatAttackBonuses(char, deps);
+  const featACBonuses = computeFeatACBonuses(char, deps);
 
   // 1.6. Apply feat skill proficiencies
-  const updatedSkills = applyFeatSkillProficiencies(char.skills, char, data);
+  const updatedSkills = applyFeatSkillProficiencies(char.skills, char, deps);
 
   // 2. Update abilityScores with computed grants
   const updatedAbilityScores: AbilityScores = {
@@ -395,8 +401,8 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
   const conMod = getModifier(getTotalScore(updatedAbilityScores, 'Constitution'));
 
   // 3. Gather features & weapon proficiencies
-  const features = gatherAllFeatures(char.classes, data);
-  const weaponProficiencies = computeWeaponProficiencies(char, data);
+  const features = gatherAllFeatures(char.classes, deps);
+  const weaponProficiencies = computeWeaponProficiencies(char, deps);
 
   // 4. Combat stats
   const { newAC, newInitiative, newPassivePerception, newAttacks } = computeCombatStats(
@@ -409,22 +415,22 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
     updatedSkills,
     pb,
     weaponProficiencies,
-    data,
+    deps,
     featAttackBonuses,
     featACBonuses,
   );
 
   // 5. Spell data (per-class)
-  const classSpellcasting = computeClassSpellData(char, data, pb, updatedAbilityScores, {
+  const classSpellcasting = computeClassSpellData(char, deps, pb, updatedAbilityScores, {
     ...char.spells.classSpellcasting,
   });
 
   // 6. Pact Magic (Warlock)
-  let newSpells = computePactMagic(char, data, char.spells.pactMagicSlots);
+  let newSpells = computePactMagic(char, deps, char.spells.pactMagicSlots);
 
   // 7. Regular spell slots + feat spells
-  const updatedSlots = computeSpellSlots(char, data);
-  const featSpells = computeFeatSpells(char, data);
+  const updatedSlots = computeSpellSlots(char, deps);
+  const featSpells = computeFeatSpells(char, deps);
   newSpells = {
     ...newSpells,
     classSpellcasting,
@@ -437,11 +443,11 @@ export function recomputeDerivedStats(char: Character, data: DataLoader): Charac
     char.resources,
     char.classes,
     updatedAbilityScores,
-    data,
+    deps.classes ?? {},
   );
 
   // 9. Max HP (cap current at new max; never heal via recompute)
-  const newMaxHP = calculateMaxHP(char.classes, conMod, data);
+  const newMaxHP = calculateMaxHP(char.classes, conMod, deps.classes ?? {});
   const newCurrent = Math.min(char.hitPoints.current, newMaxHP);
 
   // 10. Assemble result

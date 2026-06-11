@@ -2,7 +2,6 @@
 // Import/export ContentPack to/from separate files (Node.js only)
 // R26.2: Separate files for maintainability, unified format for distribution
 
-import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
@@ -14,8 +13,6 @@ import type { Feat } from '@/types/feat';
 import type { Spell } from '@/types/spell';
 import type { Weapon, Armor, GearItem } from '@/types/equipment';
 import type { RulesGlossary } from '@/types/glossary';
-
-const require = createRequire(import.meta.url);
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -66,7 +63,7 @@ export function exportContentPack(dirPath: string): ContentPack {
   const feats = readJsonFile<Feat[]>(resolvedPath, 'feats.json');
   const spells = readJsonFile<Spell[]>(resolvedPath, 'spells.json');
   const weapons = readJsonFile<Weapon[]>(resolvedPath, 'weapons.json');
-  const armor = readJsonFile<Armor[]>(resolvedPath, 'armor.json');
+  const armors = readJsonFile<Armor[]>(resolvedPath, 'armors.json');
   const gear = readJsonFile<GearItem[]>(resolvedPath, 'gear.json');
   const glossary = readJsonFile<RulesGlossary>(resolvedPath, 'glossary.json');
 
@@ -80,7 +77,7 @@ export function exportContentPack(dirPath: string): ContentPack {
   if (feats) pack.feats = feats;
   if (spells) pack.spells = spells;
   if (weapons) pack.weapons = weapons;
-  if (armor) pack.armor = armor;
+  if (armors) pack.armors = armors;
   if (gear) pack.gear = gear;
   if (glossary) pack.glossary = glossary;
 
@@ -118,7 +115,7 @@ export function importContentPack(pack: ContentPack, dirPath: string): void {
   if (pack.feats) writeJsonFile(resolvedPath, 'feats.json', pack.feats);
   if (pack.spells) writeJsonFile(resolvedPath, 'spells.json', pack.spells);
   if (pack.weapons) writeJsonFile(resolvedPath, 'weapons.json', pack.weapons);
-  if (pack.armor) writeJsonFile(resolvedPath, 'armor.json', pack.armor);
+  if (pack.armors) writeJsonFile(resolvedPath, 'armors.json', pack.armors);
   if (pack.gear) writeJsonFile(resolvedPath, 'gear.json', pack.gear);
   if (pack.glossary) writeJsonFile(resolvedPath, 'glossary.json', pack.glossary);
 }

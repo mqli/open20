@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestLoader } from '../../create-test-loader';
+import { createTestDepsForCreate, createTestDeps } from '../../create-test-loader';
 import {
   createCharacter,
   recomputeDerivedStats,
@@ -29,11 +29,14 @@ import {
 import type { DamageDefenses } from 'open20-core';
 import monstersArray from '@open20/content-srd/data/monsters.json';
 
-// ── Test Helpers ─────────────────────────────────────────────
-
-const dataLoader = createTestLoader();
+// ── Test Helpers ─────────────────────────────────────
 
 function createTestFighter(name: string = 'Fighter') {
+  const deps = createTestDepsForCreate({
+    speciesId: 'Human',
+    backgroundId: 'soldier',
+    classId: 'Fighter',
+  });
   const char = createCharacter(
     {
       name,
@@ -49,9 +52,10 @@ function createTestFighter(name: string = 'Fighter') {
         Charisma: 10,
       },
     },
-    dataLoader,
+    deps,
   );
-  return recomputeDerivedStats(char, dataLoader);
+  const deps2 = createTestDeps(char);
+  return recomputeDerivedStats(char, deps2);
 }
 
 function getTestMonster(monsterId: string): any {
@@ -60,7 +64,7 @@ function getTestMonster(monsterId: string): any {
   return monster;
 }
 
-// ── Scenario 2: Damage Types and Defenses ────────────────────
+// ── Scenario 2: Damage Types and Defenses ─────────────────
 
 describe('Combat Scenarios - Damage Types and Defenses', () => {
   let fighter: ReturnType<typeof createTestFighter>;
@@ -240,7 +244,7 @@ describe('Combat Scenarios - Character Damage Defenses', () => {
   });
 });
 
-// ── Scenario 9: Edge Cases in Combat ─────────────────────────
+// ── Scenario 9: Edge Cases in Combat ─────────────────
 
 describe('Combat Scenarios - Edge Cases', () => {
   let fighter: ReturnType<typeof createTestFighter>;

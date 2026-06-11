@@ -133,7 +133,7 @@ export const GREATAXE: Weapon = {
 
 /**
  * Creates an equipped weapon EquipmentItem reference.
- * Use with createMockDataLoader that has weapon data.
+ * Use with createMockDeps that has weapon data.
  */
 export function makeEquippedWeapon(
   id: string,

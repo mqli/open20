@@ -4,7 +4,7 @@
 
 import type { Character } from '@/types/character';
 import type { Feat } from '@/types/feat';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import type { AbilityName } from '@/types/ability';
 import { getTotalScore } from '@/engine/ability-modifier';
 
@@ -28,20 +28,21 @@ export interface FeatValidationResult {
  *
  * @param char - The character to validate
  * @param feat - The feat to validate
- * @param data - DataLoader for looking up class/feature data
+ * @param deps - RecomputeDerivedStatsDeps for looking up class/feature data
  * @returns Validation result with reasons if invalid
  *
  * @example
  * // Character with Str 14, level 4, Fighter (has Fighting Style)
- * validateFeatPrerequisites(char, archeryFeat, data)  // { valid: true, reasons: [] }
+ * validateFeatPrerequisites(char, archeryFeat, deps)  // { valid: true, reasons: [] }
  *
+ * @example
  * // Character with Str 10, level 3
- * validateFeatPrerequisites(char, grapplerFeat, data)  // { valid: false, reasons: [...] }
+ * validateFeatPrerequisites(char, grapplerFeat, deps)  // { valid: false, reasons: [...] }
  */
 export function validateFeatPrerequisites(
   char: Character,
   feat: Feat,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): FeatValidationResult {
   const reasons: string[] = [];
 
@@ -74,7 +75,7 @@ export function validateFeatPrerequisites(
   if (prereq.classId) {
     const hasClass = char.classes.some((c) => c.classId === prereq.classId);
     if (!hasClass) {
-      const classData = data.getClass(prereq.classId);
+      const classData = deps.classes?.[prereq.classId];
       const className = classData?.name ?? prereq.classId;
       reasons.push(`Must have at least 1 level in ${className}`);
     }
@@ -97,7 +98,7 @@ export function validateFeatPrerequisites(
 
   // 6. Check feature prerequisite (e.g., "Fighting Style Feature")
   if (prereq.feature) {
-    const hasFeature = checkFeaturePrerequisite(char, prereq.feature, data);
+    const hasFeature = checkFeaturePrerequisite(char, prereq.feature, deps);
     if (!hasFeature) {
       reasons.push(`Must have the ${prereq.feature} feature`);
     }
@@ -120,36 +121,38 @@ function getTotalAbilityScore(char: Character, ability: AbilityName): number {
  * Checks if a character has a specific feature (by name).
  * Used for prerequisites like "Fighting Style Feature".
  */
-function checkFeaturePrerequisite(char: Character, featureName: string, data: DataLoader): boolean {
+function checkFeaturePrerequisite(
+  char: Character,
+  featureName: string,
+  deps: RecomputeDerivedStatsDeps,
+): boolean {
   // Check all classes and their features
   for (const charClass of char.classes) {
-    const classData = data.getClass(charClass.classId);
+    const classData = deps.classes?.[charClass.classId];
     if (!classData) continue;
 
     // Check features at current level and below
-    for (const levelFeatures of classData.featuresByLevel) {
-      if (levelFeatures.level <= charClass.level) {
-        for (const feature of levelFeatures.features) {
+    for (const entry of classData.featuresByLevel) {
+      if (entry.level <= charClass.level) {
+        for (const feature of entry.features) {
           if (feature.name === featureName) {
             return true;
           }
         }
       }
     }
-  }
 
-  // Also check subclass features
-  for (const charClass of char.classes) {
-    if (!charClass.subclassId) continue;
-
-    const subclass = data.getSubclass(charClass.subclassId);
-    if (!subclass) continue;
-
-    for (const levelFeatures of subclass.featuresByLevel) {
-      if (levelFeatures.level <= charClass.level) {
-        for (const feature of levelFeatures.features) {
-          if (feature.name === featureName) {
-            return true;
+    // Check subclass features
+    if (charClass.subclassId) {
+      const subclass = deps.subclasses?.[charClass.subclassId];
+      if (subclass) {
+        for (const entry of subclass.featuresByLevel) {
+          if (entry.level <= charClass.level) {
+            for (const feature of entry.features) {
+              if (feature.name === featureName) {
+                return true;
+              }
+            }
           }
         }
       }
@@ -160,18 +163,20 @@ function checkFeaturePrerequisite(char: Character, featureName: string, data: Da
 }
 
 /**
- * Checks if a feat can be taken multiple times (repeatable).
+ * Check if a feat can be taken by a character.
+ * A feat can be taken if:
+ * - The character doesn't already have it, OR
+ * - The feat is marked as repeatable
  *
- * @param char - The character
+ * @param char - The character to check
  * @param feat - The feat to check
- * @returns True if the feat is repeatable or not yet taken
+ * @returns True if the feat can be taken
  */
 export function canTakeFeat(char: Character, feat: Feat): boolean {
-  // If feat is not in character's feat list, can take it
-  if (!char.feats.some((f) => f.featId === feat.id)) {
-    return true;
-  }
+  const hasFeat = char.feats.some((f) => f.featId === feat.id);
 
-  // If feat is already taken, can only take again if repeatable
-  return feat.repeatable === true;
+  if (!hasFeat) return true;
+  if (feat.repeatable) return true;
+
+  return false;
 }

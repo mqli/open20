@@ -7,6 +7,12 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
+    "./merge": "./dist/merge.js",
+    "./query/resolve": "./dist/query/resolve.js",
+    "./query/catalog": "./dist/query/catalog.js",
+    "./query/spells": "./dist/query/spells.js",
+    "./query/monsters": "./dist/query/monsters.js",
+    "./query/glossary": "./dist/query/glossary.js",
     "./data/*": "./data/*"
   },
   "files": [

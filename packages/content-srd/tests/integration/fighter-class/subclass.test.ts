@@ -1,11 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { createTestLoader } from '../../create-test-loader';
+import { createTestDepsForCreate, getTestSubclass } from '../../create-test-loader';
 import { createCharacter } from 'open20-core/character';
 
-const dataLoader = createTestLoader();
-
 function getSubclassFeatureNames(subclassId: string, level: number) {
-  const subclass = dataLoader.getSubclass(subclassId);
+  const subclass = getTestSubclass(subclassId);
   expect(subclass).toBeDefined();
   return subclass!.featuresByLevel
     .find((entry) => entry.level === level)!
@@ -18,6 +16,12 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
   // ============================================================
   describe('Fighter: Champion Subclass', () => {
     it('should create a Champion Fighter', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+        subclassId: 'Champion',
+      });
       const champion = createCharacter(
         {
           name: 'Valeros',
@@ -35,7 +39,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 9,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(champion.classes[0]!.classId).toBe('Fighter');
@@ -45,6 +49,12 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
     });
 
     it('should have Champion features at level 3', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+        subclassId: 'Champion',
+      });
       const champion = createCharacter(
         {
           name: 'Valeros',
@@ -62,7 +72,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 9,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(champion.classes[0]!.level).toBe(3);
@@ -76,6 +86,12 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
   // ============================================================
   describe('Fighter: Battle Master Subclass', () => {
     it('should create a Battle Master Fighter', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+        subclassId: 'Battle Master',
+      });
       const battlemaster = createCharacter(
         {
           name: 'Dungeon Master',
@@ -93,7 +109,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(battlemaster.classes[0]!.classId).toBe('Fighter');
@@ -105,6 +121,12 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
     });
 
     it('should have Battle Master features at level 3', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Fighter',
+        subclassId: 'Battle Master',
+      });
       const battlemaster = createCharacter(
         {
           name: 'Tactician',
@@ -122,7 +144,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(battlemaster.classes[0]!.level).toBe(3);
@@ -138,6 +160,12 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
   // ============================================================
   describe('Fighter: Eldritch Knight Subclass', () => {
     it('should create an Eldritch Knight (spellcasting granted at level 3 via feature)', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        subclassId: 'Eldritch Knight',
+      });
       const ek = createCharacter(
         {
           name: 'Arcanist',
@@ -155,7 +183,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       // Note: Eldritch Knight spellcasting is granted by a subclass feature at level 3
@@ -170,6 +198,12 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
     });
 
     it('should have fighter levels', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        subclassId: 'Eldritch Knight',
+      });
       const ek = createCharacter(
         {
           name: 'Arcanist',
@@ -187,7 +221,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(ek.classes[0]!.level).toBe(3);
@@ -198,6 +232,12 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
     });
 
     it('should document that Eldritch Knight spell slots are not materialized yet', () => {
+      const deps = createTestDepsForCreate({
+        speciesId: 'Human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        subclassId: 'Eldritch Knight',
+      });
       const ek = createCharacter(
         {
           name: 'Arcanist',
@@ -215,7 +255,7 @@ describe('D&D SRD 5.2 - Fighter Class: Subclasses', () => {
             Charisma: 8,
           },
         },
-        dataLoader,
+        deps,
       );
 
       expect(ek.classes[0]!.level).toBe(7);

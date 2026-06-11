@@ -4,7 +4,6 @@
 import type { Monster } from './types';
 import type { ChallengeRating } from '@/types/monster';
 import type { AbilityName } from '@/types/ability';
-import type { DataLoader } from '@/data/loader';
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
 
 // ── Proficiency Bonus by CR ────────────────────────────────
@@ -52,16 +51,14 @@ export function getMonsterProficiencyBonus(cr: ChallengeRating): number {
  *
  * @param monster - Monster object
  * @param attack - MonsterAttack object
- * @param data - DataLoader
  * @returns Attack bonus
  *
  * @example
- * calculateMonsterAttackBonus(goblin, goblin.attacks[0], data) // 4
+ * calculateMonsterAttackBonus(goblin, goblin.attacks[0]) // 4
  */
 export function calculateMonsterAttackBonus(
   monster: Monster,
   attack: import('../types/monster').MonsterAttack,
-  data: DataLoader,
 ): number {
   // If attack has explicit attackBonus, use it
   if (attack.attackBonus !== undefined) {
@@ -87,17 +84,12 @@ export function calculateMonsterAttackBonus(
  *
  * @param monster - Monster object
  * @param ability - Ability name
- * @param data - DataLoader
  * @returns Save DC (8 + prof bonus + ability mod)
  *
  * @example
- * calculateMonsterSaveDC(dragon, 'Charisma', data) // 8 + 5 + 5 = 18
+ * calculateMonsterSaveDC(dragon, 'Charisma') // 8 + 5 + 5 = 18
  */
-export function calculateMonsterSaveDC(
-  monster: Monster,
-  ability: AbilityName,
-  data: DataLoader,
-): number {
+export function calculateMonsterSaveDC(monster: Monster, ability: AbilityName): number {
   const abilityMod = getModifier(getTotalScore(monster.abilityScores, ability));
   const profBonus = getMonsterProficiencyBonus(monster.challengeRating.rating);
   return 8 + profBonus + abilityMod;

@@ -7,7 +7,7 @@ import type { Class, Subclass } from '@/types/class';
 import type { Feat } from '@/types/feat';
 import type { Weapon, Armor, GearItem } from '@/types/equipment';
 import type { Spell } from '@/types/spell';
-import type { Monster } from '@/monster/types';
+import type { Monster } from '@/types/monster';
 import type { RulesGlossary } from '@/types/glossary';
 
 /**
@@ -39,7 +39,7 @@ export interface ContentPack {
   feats?: Feat[];
   spells?: Spell[];
   weapons?: Weapon[];
-  armor?: Armor[];
+  armors?: Armor[];
   gear?: GearItem[];
   monsters?: Monster[];
   glossary?: RulesGlossary;

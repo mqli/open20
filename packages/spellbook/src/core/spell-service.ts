@@ -1,96 +1,101 @@
+// spell-service.ts
+// Service for querying and managing spells.
+// Uses content-srd query functions (take ContentPack, not DataLoader).
+
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from './types';
-import { dataLoader, initDataLoader, isDataLoaderReady } from './data-loader';
-
-import {
-  getSpell as getSpellData,
-  searchSpells,
-  getSpellsByClass,
-  getSpellsForCharacter,
-  getPreparedSpells,
-  isSpellPrepared,
-  knowsSpell,
-  canCastSpell,
-} from 'open20-core/spells';
-
-import type { SpellFilter } from 'open20-core/spells';
-
-interface SpellSearchFilter {
-  query?: string;
-  level?: number;
-  classes?: string[];
-}
+import { initContent, getContentPack } from './content-resolver';
+import { knowsSpell, isSpellPreparedForClass } from 'open20-core/spells';
 
 /**
  * Service for querying and managing spells.
- * Wraps open20-core query functions with async initialisation.
- *
- * Data normalisation now happens at the source (`@open20/content-srd`),
- * so `dataLoader.getAllSpells()` is guaranteed to return properly-typed
- * `Spell[]` — no `SchemaService` transform step is needed.
+ * Wraps @open20/content-srd query functions.
  */
 export class SpellService {
-  private initialized = false;
-
   async ensureInitialized(): Promise<void> {
-    if (this.initialized) return;
-    await initDataLoader();
-    this.initialized = true;
+    await initContent();
   }
 
   isReady(): boolean {
-    return isDataLoaderReady();
+    try {
+      getContentPack();
+      return true;
+    } catch {
+      return false;
+    }
   }
 
-  /** All spells — already normalised by content-srd */
+  /** All spells from the merged content pack. */
   getAllSpells(): Spell[] {
-    if (!this.initialized) return [];
-    return dataLoader.getAllSpells();
+    if (!this.isReady()) return [];
+    const pack = getContentPack();
+    return pack.spells ?? [];
   }
 
   getSpell(id: string): Spell | undefined {
-    return getSpellData(id, dataLoader);
+    if (!this.isReady()) return undefined;
+    const pack = getContentPack();
+    return pack.spells?.find((s) => s.id === id);
   }
 
-  searchSpells(filter: SpellSearchFilter): Spell[] {
-    if (!this.initialized) return [];
-
-    const coreFilter: SpellFilter = {};
-    if (filter.query) coreFilter.name = filter.query;
-    if (filter.level !== undefined) coreFilter.level = [filter.level as Spell['level']];
-    if (filter.classes && filter.classes.length > 0) coreFilter.class = filter.classes;
-
-    return searchSpells(coreFilter, dataLoader);
-  }
-
-  getSpellsForCharacter(character: AppCharacter): Spell[] {
-    return getSpellsForCharacter(character, dataLoader);
-  }
-
-  getPreparedSpellsForCharacter(character: AppCharacter): Spell[] {
-    return getPreparedSpells(character, dataLoader);
-  }
-
-  isSpellPrepared(character: AppCharacter, spellId: string): boolean {
-    return isSpellPrepared(character, spellId);
-  }
-
-  isSpellKnown(character: AppCharacter, spellId: string): boolean {
-    return knowsSpell(character, spellId);
-  }
-
-  canCastSpell(character: AppCharacter, spell: Spell): boolean {
-    return canCastSpell(character, spell);
+  searchSpells(filter: { query?: string; level?: number; classes?: string[] }): Spell[] {
+    if (!this.isReady()) return [];
+    const pack = getContentPack();
+    const spells = pack.spells ?? [];
+    return spells.filter((s) => {
+      if (filter.query) {
+        if (!s.name.toLowerCase().includes(filter.query.toLowerCase())) return false;
+      }
+      if (filter.level !== undefined) {
+        if (s.level !== filter.level) return false;
+      }
+      if (filter.classes && filter.classes.length > 0) {
+        if (!s.classes?.some((c) => filter.classes!.includes(c))) return false;
+      }
+      return true;
+    });
   }
 
   getSpellsByClass(classId: string): Spell[] {
-    return getSpellsByClass(classId, dataLoader);
+    if (!this.isReady()) return [];
+    const pack = getContentPack();
+    return pack.spells?.filter((s) => s.classes?.includes(classId)) ?? [];
   }
 
+  /** Check if a spell is known by any of the character's classes. */
   isSpellForCharacter(character: AppCharacter, spell: Spell): boolean {
-    const characterClassIds = character.classes?.map((c) => c.classId.toLowerCase()) ?? [];
-    return spell.classes?.some((c) => characterClassIds.includes(c.toLowerCase())) ?? false;
+    const classIds = character.classes?.map((c) => c.classId) ?? [];
+    return spell.classes?.some((c) => classIds.includes(c)) ?? false;
+  }
+
+  /** Check if a spell is known by the character (in any class's known spells). */
+  isSpellKnown(character: AppCharacter, spellId: string): boolean {
+    return knowsSpell(character as unknown as import('open20-core').Character, spellId);
+  }
+
+  /**
+   * Check if a spell is prepared for a specific class.
+   * If classId is not provided, checks if the spell is prepared for any class.
+   */
+  isSpellPrepared(character: AppCharacter, spellId: string, classId?: string): boolean {
+    if (classId) {
+      return isSpellPreparedForClass(
+        character as unknown as import('open20-core').Character,
+        classId,
+        spellId,
+      );
+    }
+    // Check all classes
+    const classIds = character.classes?.map((c) => c.classId) ?? [];
+    return classIds.some((cid) =>
+      isSpellPreparedForClass(
+        character as unknown as import('open20-core').Character,
+        cid,
+        spellId,
+      ),
+    );
   }
 }
 
+// Create default instance (will be replaced in tests)
 export const spellService = new SpellService();

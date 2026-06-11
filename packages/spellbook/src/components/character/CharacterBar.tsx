@@ -2,7 +2,7 @@ import { useState, Fragment, useMemo } from 'react';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useUIStore } from '@/stores/uiStore';
 import type { AppCharacter } from '@/core/types';
-import { dataLoader } from '@/core/data-loader';
+import { getAllClasses } from '@/core/content-resolver';
 import {
   Button,
   Divider,
@@ -50,7 +50,7 @@ export function CharacterBar() {
   const [editingId, setEditingId] = useState<string | undefined>();
   const [isSwitchOpen, setIsSwitchOpen] = useState(false);
   const classNameMap = useMemo(
-    () => Object.fromEntries(dataLoader.getAllClasses().map((c) => [c.id, c.name || c.id])),
+    () => Object.fromEntries(getAllClasses().map((c) => [c.id, c.name || c.id])),
     [],
   );
   const handleToggleTheme = () => {

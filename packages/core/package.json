@@ -14,6 +14,7 @@
     "./spells": "./dist/spells/index.js",
     "./monster": "./dist/monster/index.js",
     "./content": "./dist/content/index.js",
+    "./content/io": "./dist/content/io.js",
     "./rolls": "./dist/rolls/index.js",
     "./dice": "./dist/dice/index.js",
     "./storage": "./dist/storage/index.js",

@@ -3,11 +3,10 @@
 // Corresponds to requirement R11
 
 import type { Spell, SpellLevel, SpellSchool, ClassSpellData } from '@/types/spell';
-import { normalizeCastingTime } from '@/character/spell-casting';
 
 import type { Character } from '@/types/character';
 import type { Class } from '@/types/class';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import { calculateSpellSlots } from '@/engine/spell-slots';
 
 // ── Spellcasting Type Helpers ──────────────────────────────
@@ -47,104 +46,20 @@ export interface SpellFilter {
   source?: string[];
 }
 
-// ── Query Functions ────────────────────────────────────────────
-
-/**
- * Get a single spell by ID
- *
- * @param id - Spell ID (kebab-case)
- * @param data - DataLoader
- * @returns Spell or undefined
- *
- * @example
- * getSpell('fireball', data) // { id: 'fireball', name: 'Fire Ball', ... }
- */
-export function getSpell(id: string, data: DataLoader): Spell | undefined {
-  return data.getSpell(id);
-}
-
-/**
- * Search/filter spells based on criteria
- *
- * @param filter - Filter criteria
- * @param data - DataLoader
- * @returns Array of matching spells
- *
- * @example
- * searchSpells({ level: [0, 1], school: 'Evocation' }, data)
- */
-export function searchSpells(filter: SpellFilter, data: DataLoader): Spell[] {
-  let spells = data.getAllSpells();
-
-  if (filter.name) {
-    const searchLower = filter.name.toLowerCase();
-    spells = spells.filter(
-      (s) => s.id.toLowerCase().includes(searchLower) || s.name.toLowerCase().includes(searchLower),
-    );
-  }
-
-  if (filter.level && filter.level.length > 0) {
-    const levelSet = new Set(filter.level);
-    spells = spells.filter((s) => levelSet.has(s.level));
-  }
-
-  if (filter.school && filter.school.length > 0) {
-    const schoolSet = new Set(filter.school);
-    spells = spells.filter((s) => schoolSet.has(s.school));
-  }
-
-  if (filter.class && filter.class.length > 0) {
-    const classSet = new Set(filter.class.map((c) => c.toLowerCase()));
-    spells = spells.filter((s) => s.classes?.some((c) => classSet.has(c.toLowerCase())));
-  }
-
-  if (filter.damageType && filter.damageType.length > 0) {
-    const damageTypeSet = new Set<string>(filter.damageType);
-    spells = spells.filter(
-      (s) =>
-        s.damage?.entries.some((e) => damageTypeSet.has(e.type)) ||
-        s.damage?.additional?.some((e) => damageTypeSet.has(e.type)),
-    );
-  }
-
-  if (filter.castingTime && filter.castingTime.length > 0) {
-    const castingTimeSet = new Set(filter.castingTime);
-    spells = spells.filter((s) => castingTimeSet.has(normalizeCastingTime(s.castingTime)));
-  }
-
-  if (filter.range) {
-    const rangeLower = filter.range.toLowerCase();
-    spells = spells.filter((s) => s.range.toLowerCase() === rangeLower);
-  }
-
-  if (filter.concentration !== undefined) {
-    spells = spells.filter((s) => s.concentration === filter.concentration);
-  }
-
-  if (filter.ritual !== undefined) {
-    spells = spells.filter((s) => s.ritual === filter.ritual);
-  }
-
-  if (filter.source && filter.source.length > 0) {
-    const sourceSet = new Set(filter.source);
-    spells = spells.filter((s) => sourceSet.has(s.source));
-  }
-
-  return spells;
-}
+// ── Query Functions (Character-Centric) ─────────────────────────────────
 
 /**
  * Get spells for a character (known by any class or from feats)
  * Only returns spells the character can actually cast (cantrips + up to max spell level)
  *
  * @param char - Character object
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps
  * @returns Array of known spells within casting level
  *
  * @example
- * getSpellsForCharacter(char, data) // Character's known spells within casting level
+ * getSpellsForCharacter(char, deps) // Character's known spells within casting level
  */
-export function getSpellsForCharacter(char: Character, data: DataLoader): Spell[] {
+export function getSpellsForCharacter(char: Character, deps: RecomputeDerivedStatsDeps): Spell[] {
   // Determine max spell level the character can cast
   let maxSpellLevel = 0;
   for (let level = 1; level <= 9; level++) {
@@ -165,7 +80,7 @@ export function getSpellsForCharacter(char: Character, data: DataLoader): Spell[
     }
     // Add level 1+ spells from knownSpells (filtered by castable level)
     for (const spellId of classSpellData.knownSpells) {
-      const spell = data.getSpell(spellId);
+      const spell = deps.spells?.[spellId];
       if (spell && spell.level <= maxSpellLevel) {
         knownSpellIds.add(spellId);
       }
@@ -181,7 +96,7 @@ export function getSpellsForCharacter(char: Character, data: DataLoader): Spell[
       }
       // Add prepared spells (level 1+ from feat)
       for (const spellId of featSpellEntry.preparedSpells) {
-        const spell = data.getSpell(spellId);
+        const spell = deps.spells?.[spellId];
         // Feat spells can always be cast (once per long rest for level 1+)
         if (spell) {
           knownSpellIds.add(spellId);
@@ -191,7 +106,7 @@ export function getSpellsForCharacter(char: Character, data: DataLoader): Spell[
   }
 
   return Array.from(knownSpellIds)
-    .map((id) => data.getSpell(id))
+    .map((id) => deps.spells?.[id])
     .filter((s): s is Spell => s !== undefined);
 }
 
@@ -200,10 +115,10 @@ export function getSpellsForCharacter(char: Character, data: DataLoader): Spell[
  * Includes both regularly prepared and always-prepared spells from all classes
  *
  * @param char - Character object
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps
  * @returns Array of prepared spells
  */
-export function getPreparedSpells(char: Character, data: DataLoader): Spell[] {
+export function getPreparedSpells(char: Character, deps: RecomputeDerivedStatsDeps): Spell[] {
   const allPreparedIds = new Set<string>();
 
   for (const classSpellData of Object.values(char.spells.classSpellcasting)) {
@@ -218,7 +133,7 @@ export function getPreparedSpells(char: Character, data: DataLoader): Spell[] {
   }
 
   return Array.from(allPreparedIds)
-    .map((id) => data.getSpell(id))
+    .map((id) => deps.spells?.[id])
     .filter((s): s is Spell => s !== undefined);
 }
 
@@ -284,11 +199,7 @@ export function knowsSpell(char: Character, spellId: string): boolean {
  *
  * @param char - Character object
  * @param spell - Spell to check
- * @param data - DataLoader
  * @returns True if the character can cast the spell
- *
- * @example
- * canCastSpell(char, spell, data) // true if cantrip (known) or level 1+ (prepared or feat spell)
  */
 export function canCastSpell(char: Character, spell: Spell): boolean {
   if (spell.level === 0) {
@@ -366,16 +277,16 @@ export function isSpellPreparedForClass(
  *
  * @param char - Character object
  * @param classId - Class ID
- * @param data - DataLoader
+ * @param deps - RecomputeDerivedStatsDeps
  * @returns Array of known spells within casting level for that class
  *
  * @example
- * getKnownSpellsForClass(char, 'sorcerer', data) // Sorcerer's known spells filtered by level
+ * getKnownSpellsForClass(char, 'sorcerer', deps) // Sorcerer's known spells filtered by level
  */
 export function getKnownSpellsForClass(
   char: Character,
   classId: string,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): Spell[] {
   const classSpellData = char.spells.classSpellcasting[classId];
   if (!classSpellData) return [];
@@ -383,7 +294,7 @@ export function getKnownSpellsForClass(
   // Calculate per-class max spell level (not combined multiclass level)
   const charClass = char.classes.find((c) => c.classId === classId);
   const classLevel = charClass?.level ?? 1;
-  const classSlots = calculateSpellSlots(classId, classLevel, data);
+  const classSlots = calculateSpellSlots(classId, classLevel, deps.classes ?? {});
   let classMaxSpellLevel = 0;
   for (let level = 1; level <= 9; level++) {
     const entry = classSlots[level];
@@ -393,20 +304,6 @@ export function getKnownSpellsForClass(
   }
 
   return classSpellData.knownSpells
-    .map((id) => data.getSpell(id))
+    .map((id) => deps.spells?.[id])
     .filter((s): s is Spell => s !== undefined && (s.level === 0 || s.level <= classMaxSpellLevel));
-}
-
-/**
- * Get all spells for a specific class
- *
- * @param classId - Class ID (e.g., 'wizard', 'cleric')
- * @param data - DataLoader
- * @returns Array of spells available to the class
- *
- * @example
- * getSpellsByClass('wizard', data) // All wizard spells
- */
-export function getSpellsByClass(classId: string, data: DataLoader): Spell[] {
-  return data.getAllSpells().filter((s) => s.classes?.includes(classId));
 }

@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest';
 import { validateCharacter } from '../../src/character/validate';
 import { createCharacter } from '../../src/character/create';
-import type { DataLoader } from '../../src/data/loader';
+import type { RecomputeDerivedStatsDeps } from '../../src/types/deps';
 import type { Species } from '../../src/types/species';
 import type { Background } from '../../src/types/background';
 import type { Class, Feature, Subclass } from '../../src/types/class';
@@ -100,12 +100,12 @@ const CHAMPION_SUBCLASS: Subclass = {
   ],
 };
 
-// ── Mock DataLoader ────────────────────────────────────────────
+// ── Mock Deps ──────────────────────────────────────────────────
 
-function createMockDataLoader(overrides?: {
+function createMockDeps(overrides?: {
   feats?: Record<string, Feat>;
   subclasses?: Record<string, Subclass>;
-}): DataLoader {
+}): RecomputeDerivedStatsDeps {
   const speciesMap: Record<string, Species> = { Human: HUMAN_SPECIES };
   const backgroundMap: Record<string, Background> = { Soldier: SOLDIER_BACKGROUND };
   const classMap: Record<string, Class> = { Fighter: FIGHTER_CLASS, Wizard: WIZARD_CLASS };
@@ -114,61 +114,18 @@ function createMockDataLoader(overrides?: {
     Champion: CHAMPION_SUBCLASS,
   };
 
-  const fullCasterSlots: Record<number, Record<number, number>> = {
-    1: { 1: 2, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-    2: { 1: 3, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 },
-  };
-
   return {
-    getSpecies: (id: string) => speciesMap[id],
-    getSpeciesSubtype: () => undefined,
-    getAllSpecies: () => Object.values(speciesMap),
-    getBackground: (id: string) => backgroundMap[id],
-    getAllBackgrounds: () => Object.values(backgroundMap),
-    getClass: (id: string) => classMap[id],
-    getAllClasses: () => Object.values(classMap),
-    getSubclass: (id: string) => subclassMap[id],
-    getSubclassesForClass: () => [],
-    getAllSubclasses: () => Object.values(subclassMap),
-    getFeat: (id: string) => featMap[id],
-    getFeatsByCategory: () => [],
-    getAllFeats: () => Object.values(featMap),
-    getWeapon: () => undefined,
-    getAllWeapons: () => [],
-    getArmor: () => undefined,
-    getAllArmor: () => [],
-    getGearItem: () => undefined,
-    getAllGear: () => [],
-    getSpell: () => undefined,
-    getSpellsByLevel: () => [],
-    getAllSpells: () => [],
-    getProficiencyBonus: (level: number) => {
-      if (level <= 4) return 2;
-      if (level <= 8) return 3;
-      if (level <= 12) return 4;
-      if (level <= 16) return 5;
-      return 6;
-    },
-    getHitDieFixedValue: () => 6,
-    getSpellSlots: (classId: string, classLevel: number) => {
-      const nonCasters = ['Fighter', 'Rogue', 'Barbarian', 'Monk'];
-      if (nonCasters.includes(classId)) {
-        return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
-      }
-      return (
-        fullCasterSlots[classLevel] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 }
-      );
-    },
-    getMulticlassSpellSlots: () => ({}),
-    getPactMagicSlots: () => ({ slots: 0, slotLevel: 0 }),
-    getWeaponMasteryProperties: () => [],
-    getConditionNames: () => [],
-  } as any as DataLoader;
+    species: HUMAN_SPECIES,
+    background: SOLDIER_BACKGROUND,
+    classes: classMap,
+    subclasses: subclassMap,
+    feats: featMap,
+  };
 }
 
 // ── Helper: create valid character ─────────────────────────────
 
-function createValidCharacter(data: DataLoader): Character {
+function createValidCharacter(deps: RecomputeDerivedStatsDeps): Character {
   const params: CreateCharacterParams = {
     name: 'Aragorn',
     speciesId: 'Human',
@@ -183,7 +140,7 @@ function createValidCharacter(data: DataLoader): Character {
       Charisma: 10,
     },
   };
-  return createCharacter(params, data);
+  return createCharacter(params, deps);
 }
 
 // ── Helper: mutate character (bypass readonly) ─────────────────
@@ -195,19 +152,19 @@ function mutate<T extends object>(obj: T): { -readonly [K in keyof T]: T[K] } {
 // ── Tests ──────────────────────────────────────────────────────
 
 describe('validateCharacter', () => {
-  const data = createMockDataLoader();
+  const deps = createMockDeps();
 
   it('returns valid=true with no errors for a valid character', () => {
-    const char = createValidCharacter(data);
-    const result = validateCharacter(char, data);
+    const char = createValidCharacter(deps);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(true);
     expect(result.errors.filter((e) => e.severity === 'error')).toEqual([]);
   });
 
   it('returns error for empty name', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).name = '';
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'name', severity: 'error' }),
@@ -215,9 +172,9 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for invalid species', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).species = 'Dragonborn';
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'species', severity: 'error' }),
@@ -225,9 +182,9 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for invalid background', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).background = 'Pirate';
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'background', severity: 'error' }),
@@ -235,9 +192,9 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for invalid class', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).classes = [{ ...char.classes[0]!, classId: 'Artificer' }];
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'classes[0].classId', severity: 'error' }),
@@ -245,9 +202,9 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for level 0', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).classes = [{ ...char.classes[0]!, level: 0 }];
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({
@@ -259,9 +216,9 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for level 21', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).classes = [{ ...char.classes[0]!, level: 21 }];
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({
@@ -273,7 +230,7 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for total level > 20', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).classes = [
       {
         classId: 'Fighter',
@@ -290,7 +247,7 @@ describe('validateCharacter', () => {
         hitDice: { die: 'd6', used: 0 },
       },
     ];
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({
@@ -302,10 +259,10 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for base ability < 1', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     const scores = mutate(char.abilityScores);
     scores.base = { ...scores.base, Strength: 0 };
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'abilityScores.base.Strength', severity: 'error' }),
@@ -313,10 +270,10 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for base ability > 30', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     const scores = mutate(char.abilityScores);
     scores.base = { ...scores.base, Strength: 31 };
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'abilityScores.base.Strength', severity: 'error' }),
@@ -324,10 +281,10 @@ describe('validateCharacter', () => {
   });
 
   it('returns warning for base ability 7 (below typical range)', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     const scores = mutate(char.abilityScores);
     scores.base = { ...scores.base, Intelligence: 7 };
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     // Should have a warning but still be valid
     expect(result.valid).toBe(true);
     expect(result.errors).toContainEqual(
@@ -336,9 +293,9 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for HP current > max', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).hitPoints = { ...char.hitPoints, current: 999 };
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'hitPoints.current', severity: 'error' }),
@@ -346,7 +303,7 @@ describe('validateCharacter', () => {
   });
 
   it('returns error for resource used > max', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).resources = {
       Fighter: {
         classId: 'Fighter',
@@ -355,7 +312,7 @@ describe('validateCharacter', () => {
         ],
       },
     };
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({ field: 'resources.Fighter.resources[0].used', severity: 'error' }),
@@ -363,9 +320,9 @@ describe('validateCharacter', () => {
   });
 
   it('returns warning for invalid feat', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).feats = [{ featId: 'NonExistentFeat' }];
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     // Warning means valid is still true
     expect(result.valid).toBe(true);
     expect(result.errors).toContainEqual(
@@ -378,11 +335,11 @@ describe('validateCharacter', () => {
   });
 
   it('returns multiple errors at once', () => {
-    const char = createValidCharacter(data);
+    const char = createValidCharacter(deps);
     mutate(char).name = '';
     mutate(char).species = 'Invalid';
     mutate(char).background = 'Invalid';
-    const result = validateCharacter(char, data);
+    const result = validateCharacter(char, deps);
     expect(result.valid).toBe(false);
     const errorFields = result.errors.filter((e) => e.severity === 'error').map((e) => e.field);
     expect(errorFields).toContain('name');

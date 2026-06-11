@@ -5,8 +5,8 @@
 import type { AbilityName } from '@/types/ability';
 import type { Character, CharacterClass } from '@/types/character';
 import type { ClassSpellData } from '@/types/spell';
-import type { DataLoader } from '@/data/loader';
 import type { DieType } from '@/types/dice';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
 import { getHitDieFixedValue } from '@/engine/hit-die';
@@ -41,12 +41,12 @@ export interface RandomProvider {
 export function levelUp(
   char: Character,
   options: LevelUpOptions,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   rng?: RandomProvider,
 ): Character {
   // Check if adding a new class (multiclassing)
   if (options.isNewClass) {
-    return addNewClass(char, options, data, rng);
+    return addNewClass(char, options, deps, rng);
   }
 
   // Validate class exists on character
@@ -58,10 +58,10 @@ export function levelUp(
   const charClass = char.classes[classIdx]!;
   const newLevel = charClass.level + 1;
 
-  // Validate class exists in data
-  const classData = data.getClass(options.classId);
+  // Validate class exists in deps
+  const classData = deps.classes?.[options.classId];
   if (!classData) {
-    throw new Error(`Class ${options.classId} not found in data`);
+    throw new Error(`Class ${options.classId} not found in deps`);
   }
 
   // 1. Update class level
@@ -141,7 +141,13 @@ export function levelUp(
   const newProficiencyBonus = getProficiencyBonus(totalLevel);
 
   // 6. Recompute resources for this class (per-class model)
-  const newResources = recomputeResources(char.resources, newClasses, newAbilityScores, data);
+  const newResources = recomputeResources(
+    char.resources,
+    newClasses,
+    newAbilityScores,
+    deps.classes,
+    deps.subclasses,
+  );
 
   // Build result
   let result: Character = {
@@ -175,7 +181,7 @@ export function levelUp(
   // Recompute derived stats (AC, initiative, perception, attacks, spell DCs, ...).
   // Preserve hitPoints because recompute uses the fixed-die HP formula and would
   // clobber rolled HP from this level-up.
-  const recomputed = recomputeDerivedStats(result, data);
+  const recomputed = recomputeDerivedStats(result, deps);
   return { ...recomputed, hitPoints: result.hitPoints };
 }
 
@@ -187,13 +193,13 @@ export function levelUp(
 function addNewClass(
   char: Character,
   options: LevelUpOptions,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   rng?: RandomProvider,
 ): Character {
-  // Validate new class exists in data
-  const classData = data.getClass(options.classId);
+  // Validate new class exists in deps
+  const classData = deps.classes?.[options.classId];
   if (!classData) {
-    throw new Error(`Class ${options.classId} not found in data`);
+    throw new Error(`Class ${options.classId} not found in deps`);
   }
 
   // Calculate HP for the new class (level 1).
@@ -220,7 +226,13 @@ function addNewClass(
 
   // Recompute resources with per-class model (preserves used counts from existing classes)
   // Note: addNewClass doesn't apply feat grants (done in recomputeDerivedStats)
-  const newResources = recomputeResources(char.resources, newClasses, char.abilityScores, data);
+  const newResources = recomputeResources(
+    char.resources,
+    newClasses,
+    char.abilityScores,
+    deps.classes,
+    deps.subclasses,
+  );
 
   // Handle spellcasting for multiclass (per-class tracking)
   let newSpells = { ...char.spells };
@@ -228,7 +240,7 @@ function addNewClass(
 
   if (hasSpellcasting) {
     // Recalculate spell slots using multiclass rules
-    const totalSpellcastingLevel = getMulticlassSpellcasterLevel(newClasses, data);
+    const totalSpellcastingLevel = getMulticlassSpellcasterLevel(newClasses, deps.classes);
 
     if (totalSpellcastingLevel > 0) {
       const spellSlots = calculateMulticlassSpellSlots(totalSpellcastingLevel);
@@ -303,7 +315,7 @@ function addNewClass(
   };
 
   // Recompute derived stats; preserve hitPoints (see levelUp above).
-  const recomputed = recomputeDerivedStats(result, data);
+  const recomputed = recomputeDerivedStats(result, deps);
   return { ...recomputed, hitPoints: result.hitPoints };
 }
 

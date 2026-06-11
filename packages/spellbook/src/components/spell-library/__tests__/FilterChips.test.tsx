@@ -4,17 +4,13 @@ import { render, screen } from '@testing-library/react';
 import { I18nProvider } from '@open20/ui';
 import { enTranslations } from '@/i18n';
 
-// Mock dataLoader BEFORE importing FilterChips (which uses it at module level)
-vi.mock('@/core/data-loader', () => ({
-  dataLoader: {
-    getAllClasses: () => [
-      { id: 'Wizard', spellcasting: { ability: 'Intelligence' } },
-      { id: 'Cleric', spellcasting: { ability: 'Wisdom' } },
-      { id: 'Fighter', spellcasting: null }, // No spellcasting
-    ],
-  },
-  initDataLoader: vi.fn(),
-  isDataLoaderReady: () => true,
+// Mock content-resolver BEFORE importing FilterChips (which uses it at module level)
+vi.mock('@/core/content-resolver', () => ({
+  getAllClasses: () => [
+    { id: 'Wizard', name: 'Wizard', spellcasting: { ability: 'Intelligence' } },
+    { id: 'Cleric', name: 'Cleric', spellcasting: { ability: 'Wisdom' } },
+    { id: 'Fighter', name: 'Fighter', spellcasting: null }, // No spellcasting
+  ],
 }));
 
 // Now import FilterChips after the mock is set up

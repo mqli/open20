@@ -5,7 +5,7 @@
 import type { AbilityScores } from '@/types/ability';
 import type { Subclass } from '@/types/class';
 import type { ClassSpellData, SpellSlotEntry } from '@/types/spell';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 import { getModifier, getTotalScore } from './ability-modifier';
 import { calculateSpellSlots } from './spell-slots';
 
@@ -46,7 +46,7 @@ export interface BuildClassSpellDataOpts {
   readonly proficiencyBonus: number;
   /** Existing entry, used to preserve spellbook caster's known spells, prepared spells, etc. */
   readonly existing?: ClassSpellData;
-  readonly data: DataLoader;
+  readonly deps: RecomputeDerivedStatsDeps;
 }
 
 /**
@@ -63,15 +63,15 @@ export interface BuildClassSpellDataOpts {
  *  - preparedSpells (preserved from `existing`)
  */
 export function buildClassSpellData(opts: BuildClassSpellDataOpts): ClassSpellData | null {
-  const { classId, classLevel, subclassId, abilityScores, proficiencyBonus, existing, data } = opts;
+  const { classId, classLevel, subclassId, abilityScores, proficiencyBonus, existing, deps } = opts;
 
-  const classData = data.getClass(classId);
+  const classData = deps.classes?.[classId];
   if (!classData?.spellcasting) return null;
 
   const ability = classData.spellcasting.ability;
   const abilityMod = getModifier(getTotalScore(abilityScores, ability));
 
-  const classSlots = calculateSpellSlots(classId, classLevel, data);
+  const classSlots = calculateSpellSlots(classId, classLevel, deps.classes);
   const classMaxSpellLevel = getMaxSpellLevel(classSlots);
 
   const levelEntry = classData.featuresByLevel.find((f) => f.level === classLevel);
@@ -81,8 +81,7 @@ export function buildClassSpellData(opts: BuildClassSpellDataOpts): ClassSpellDa
   let knownSpells: readonly string[];
   let knownCantrips: readonly string[];
   if (classData.spellcasting.knownSource === 'class_list') {
-    knownSpells = data
-      .getAllSpells()
+    knownSpells = Object.values(deps.spells ?? {})
       .filter((s) => s.classes?.includes(classId) && s.level >= 1 && s.level <= classMaxSpellLevel)
       .map((s) => s.id);
     knownCantrips = existing?.knownCantrips ?? [];
@@ -94,7 +93,7 @@ export function buildClassSpellData(opts: BuildClassSpellDataOpts): ClassSpellDa
 
   let alwaysPreparedSpells: readonly string[] = [];
   if (subclassId) {
-    const subclass = data.getSubclass(subclassId);
+    const subclass = deps.subclasses?.[subclassId];
     if (subclass) {
       alwaysPreparedSpells = getAlwaysPreparedSpellsFromSubclass(subclass, classLevel);
     }

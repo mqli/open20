@@ -8,7 +8,7 @@ import type { AbilityName, AbilityScores } from '@/types/ability';
 import type { SkillEntry } from '@/types/skill';
 import type { Character, CharacterClass, Currency, DamageDefenses } from '@/types/character';
 import type { Class } from '@/types/class';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 
 import { getProficiencyBonus } from '@/engine/proficiency-bonus';
 import { emptyCharacterSpells } from './spells-init';
@@ -45,23 +45,26 @@ export interface CreateCharacterParams {
 
 // ── 主函数 ──────────────────────────────────────────────
 
-export function createCharacter(params: CreateCharacterParams, data: DataLoader): Character {
+export function createCharacter(
+  params: CreateCharacterParams,
+  deps: RecomputeDerivedStatsDeps,
+): Character {
   // 1. Validate inputs
-  const species = data.getSpecies(params.speciesId);
-  if (!species) throw new Error(`Invalid speciesId: "${params.speciesId}" not found in data`);
+  const species = deps.species;
+  if (!species) throw new Error(`Invalid speciesId: "${params.speciesId}" not found in deps`);
 
-  const backgroundData = data.getBackground(params.backgroundId);
+  const backgroundData = deps.background;
   if (!backgroundData)
-    throw new Error(`Invalid backgroundId: "${params.backgroundId}" not found in data`);
+    throw new Error(`Invalid backgroundId: "${params.backgroundId}" not found in deps`);
 
-  const classData = data.getClass(params.classId);
-  if (!classData) throw new Error(`Invalid classId: "${params.classId}" not found in data`);
+  const classData = deps.classes?.[params.classId];
+  if (!classData) throw new Error(`Invalid classId: "${params.classId}" not found in deps`);
 
   // Validate additional classes (multiclassing)
   const additionalClasses = params.additionalClasses ?? [];
   for (const additional of additionalClasses) {
-    if (!data.getClass(additional.classId)) {
-      throw new Error(`Invalid classId: "${additional.classId}" not found in data`);
+    if (!deps.classes?.[additional.classId]) {
+      throw new Error(`Invalid classId: "${additional.classId}" not found in deps`);
     }
   }
 
@@ -95,7 +98,7 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
       level: ac.level,
       subclassId: ac.subclassId ?? null,
       subclassLevel: ac.subclassId ? ac.level : null,
-      hitDice: { die: data.getClass(ac.classId)!.hitDie, used: 0 },
+      hitDice: { die: deps.classes?.[ac.classId]!.hitDie, used: 0 },
     })),
   ];
 
@@ -110,7 +113,7 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
   );
 
   // 5. Build Resources (per-class tracking, same pattern as classSpellcasting)
-  const resources = extractAllClassResources(charClasses, abilityScores, data);
+  const resources = extractAllClassResources(charClasses, abilityScores, deps.classes ?? {});
 
   // 6. Build Currency
   const currency: Currency = {
@@ -169,7 +172,7 @@ export function createCharacter(params: CreateCharacterParams, data: DataLoader)
   };
 
   // Single source of truth for all derived stats
-  const char = recomputeDerivedStats(partialChar, data);
+  const char = recomputeDerivedStats(partialChar, deps);
   // Set current HP to max on creation (recompute never heals)
   return {
     ...char,

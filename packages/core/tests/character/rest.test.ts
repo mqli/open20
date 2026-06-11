@@ -13,12 +13,12 @@ import type {
   SpellLevel,
 } from '../../src/types/spell';
 import { ResetType } from '../../src/types/resource';
-import type { DataLoader } from '../../src/data/loader';
 import type { Class } from '../../src/types/class';
 
 import { shortRest, longRest } from '../../src/character/rest';
 import type { RandomProvider } from '../../src/character/rest';
 import { createMockCharacter } from '../fixtures/characters';
+import { createMockDeps } from '../fixtures/data-loader';
 
 // ── Helper ─────────────────────────────────────────
 
@@ -72,53 +72,6 @@ function makeMockClass(id: string, hitDie: DieType): Class {
 const FIGHTER_CLASS = makeMockClass('Fighter', 'd10');
 const WARLOCK_CLASS = makeMockClass('Warlock', 'd8');
 const WIZARD_CLASS = makeMockClass('Wizard', 'd6');
-
-function createMockDataLoader(): DataLoader {
-  const classes: Record<string, Class> = {
-    Fighter: FIGHTER_CLASS,
-    Warlock: WARLOCK_CLASS,
-    Wizard: WIZARD_CLASS,
-  };
-
-  return {
-    getSpecies: (_id: string) => undefined,
-    getSpeciesSubtype: (_sid: string, _ssid: string) => undefined,
-    getAllSpecies: () => [],
-    getBackground: (_id: string) => undefined,
-    getAllBackgrounds: () => [],
-    getClass: (id: string) => classes[id] ?? undefined,
-    getAllClasses: () => Object.values(classes),
-    getSubclass: (_id: string) => undefined,
-    getSubclassesForClass: (_id: string) => [],
-    getAllSubclasses: () => [],
-    getFeat: (_id: string) => undefined,
-    getFeatsByCategory: () => [],
-    getAllFeats: () => [],
-    getWeapon: (_id: string) => undefined,
-    getAllWeapons: () => [],
-    getArmor: (_id: string) => undefined,
-    getAllArmor: () => [],
-    getGearItem: (_id: string) => undefined,
-    getAllGear: () => [],
-    getSpell: (_id: string) => undefined,
-    getSpellsByLevel: (_level: SpellLevel) => [],
-    getAllSpells: () => [],
-    getProficiencyBonus: (level: number) =>
-      level < 5 ? 2 : level < 9 ? 3 : level < 13 ? 4 : level < 17 ? 5 : 6,
-    getHitDieFixedValue: (die: DieType) => {
-      const map: Record<DieType, number> = { d4: 3, d6: 4, d8: 5, d10: 6, d12: 7, d20: 11 };
-      return map[die] ?? 0;
-    },
-    getSpellSlots: (_classId: string, _level: number) => ({}),
-    getMulticlassSpellSlots: (_level: number) => ({}),
-    getPactMagicSlots: (level: number) => {
-      if (level >= 1) return { slots: 1, slotLevel: 1 };
-      return { slots: 0, slotLevel: 1 };
-    },
-    getWeaponMasteryProperties: () => [],
-    getConditionNames: () => [],
-  } as any as DataLoader;
-}
 
 // ── Character Builders ─────────────────────────────────────────
 
@@ -240,13 +193,15 @@ function getResource(char: Character, classId: string, resourceId: string): Reso
 // ── Tests ──────────────────────────────────────────────────────
 
 describe('shortRest', () => {
-  const data = createMockDataLoader();
+  const deps = createMockDeps({
+    classes: { Fighter: FIGHTER_CLASS, Warlock: WARLOCK_CLASS, Wizard: WIZARD_CLASS },
+  });
 
   it('spends 1 hit die and recovers HP (fixed value)', () => {
     const char = makeFighterWithResources();
     // Fighter level 5, Con mod = +3 (Con 16), d10 hit die
     // Fixed value: ceil(10/2) + 3 = 6 + 3 = 9 HP per die
-    const result = shortRest(char, 1, data);
+    const result = shortRest(char, 1, deps);
 
     expect(result.hitPoints.current).toBe(25 + 9); // 34
     expect(result.classes[0]!.hitDice.used).toBe(3); // was 2, now 3
@@ -254,7 +209,7 @@ describe('shortRest', () => {
 
   it('spends 0 hit dice: no HP change, resources still reset', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, data);
+    const result = shortRest(char, 0, deps);
 
     expect(result.hitPoints.current).toBe(25); // unchanged
     expect(result.classes[0]!.hitDice.used).toBe(2); // unchanged
@@ -264,7 +219,7 @@ describe('shortRest', () => {
 
   it('resets short rest resources (Second Wind)', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, data);
+    const result = shortRest(char, 0, deps);
 
     const secondWind = getResource(result, 'Fighter', 'Second Wind')!;
     expect(secondWind.used).toBe(0);
@@ -272,7 +227,7 @@ describe('shortRest', () => {
 
   it('does NOT reset long rest resources', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, data);
+    const result = shortRest(char, 0, deps);
 
     const indomitable = getResource(result, 'Fighter', 'Indomitable')!;
     expect(indomitable.used).toBe(1); // still used
@@ -280,7 +235,7 @@ describe('shortRest', () => {
 
   it('does NOT reset per-turn resources', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, data);
+    const result = shortRest(char, 0, deps);
 
     const sneakAttack = getResource(result, 'Fighter', 'Sneak Attack')!;
     expect(sneakAttack.used).toBe(1); // still used
@@ -288,7 +243,7 @@ describe('shortRest', () => {
 
   it('recovers pact magic slots', () => {
     const char = makeWarlock();
-    const result = shortRest(char, 0, data);
+    const result = shortRest(char, 0, deps);
 
     expect(result.spells.pactMagicSlots!.used).toBe(0);
   });
@@ -297,7 +252,7 @@ describe('shortRest', () => {
     const char = makeFighterWithResources();
     // Level 5, 2 used, so 3 available
     // Try to spend 10 — should only spend 3
-    const result = shortRest(char, 10, data);
+    const result = shortRest(char, 10, deps);
 
     // Should spend all 3 remaining: 3 * 9 = 27, but capped at max 49
     expect(result.hitPoints.current).toBe(49); // capped at max
@@ -322,7 +277,7 @@ describe('shortRest', () => {
         },
       ],
     });
-    const result = shortRest(char, 1, data);
+    const result = shortRest(char, 1, deps);
 
     // 45 + 9 = 54, but max is 49
     expect(result.hitPoints.current).toBe(49);
@@ -334,7 +289,7 @@ describe('shortRest', () => {
     const mockRng: RandomProvider = {
       d: (_max: number) => 8, // always roll 8
     };
-    const result = shortRest(char, 1, data, mockRng);
+    const result = shortRest(char, 1, deps, mockRng);
 
     // HP recovered = 8 (roll) + 3 (con mod) = 11
     expect(result.hitPoints.current).toBe(25 + 11); // 36
@@ -342,25 +297,25 @@ describe('shortRest', () => {
 
   it('updates updatedAt timestamp', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, data);
+    const result = shortRest(char, 0, deps);
 
     expect(result.updatedAt).not.toBe(char.updatedAt);
   });
 });
 
 describe('longRest', () => {
-  const data = createMockDataLoader();
+  const deps = createMockDeps();
 
   it('restores HP to max', () => {
     const char = makeFighterWithResources();
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     expect(result.hitPoints.current).toBe(result.hitPoints.max);
   });
 
   it('resets all hit dice used', () => {
     const char = makeFighterWithResources();
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     expect(result.classes[0]!.hitDice.used).toBe(0);
   });
@@ -409,7 +364,7 @@ describe('longRest', () => {
       },
     });
 
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     expect(result.spells.spellSlots[1]!.used).toBe(0);
     expect(result.spells.spellSlots[2]!.used).toBe(0);
@@ -418,14 +373,14 @@ describe('longRest', () => {
 
   it('recovers pact magic', () => {
     const char = makeWarlock();
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     expect(result.spells.pactMagicSlots!.used).toBe(0);
   });
 
   it('resets long rest resources (Indomitable)', () => {
     const char = makeFighterWithResources();
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     const indomitable = getResource(result, 'Fighter', 'Indomitable')!;
     expect(indomitable.used).toBe(0);
@@ -433,7 +388,7 @@ describe('longRest', () => {
 
   it('resets short rest resources too', () => {
     const char = makeFighterWithResources();
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     const secondWind = getResource(result, 'Fighter', 'Second Wind')!;
     expect(secondWind.used).toBe(0);
@@ -441,7 +396,7 @@ describe('longRest', () => {
 
   it('does NOT reset per-turn resources', () => {
     const char = makeFighterWithResources();
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     const sneakAttack = getResource(result, 'Fighter', 'Sneak Attack')!;
     expect(sneakAttack.used).toBe(1); // still used
@@ -449,7 +404,7 @@ describe('longRest', () => {
 
   it('resets death saves', () => {
     const char = makeWarlock(); // has death saves: successes=2, failures=1
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     expect(result.hitPoints.deathSaves.successes).toBe(0);
     expect(result.hitPoints.deathSaves.failures).toBe(0);
@@ -458,14 +413,16 @@ describe('longRest', () => {
 
   it('updates updatedAt timestamp', () => {
     const char = makeFighterWithResources();
-    const result = longRest(char, data);
+    const result = longRest(char, deps);
 
     expect(result.updatedAt).not.toBe(char.updatedAt);
   });
 });
 
 describe('shortRest with multi-class', () => {
-  const data = createMockDataLoader();
+  const deps = createMockDeps({
+    classes: { Fighter: FIGHTER_CLASS, Wizard: WIZARD_CLASS },
+  });
 
   it('spends hit dice across classes in order', () => {
     const char = createMockCharacter({
@@ -509,7 +466,7 @@ describe('shortRest with multi-class', () => {
     // Fighter: 5-3=2 available, d10 fixed+con=6+3=9 each
     // Wizard: 3-1=2 available, d6 fixed+con=4+3=7 each
     // Spend 3 dice: 2 from Fighter (18 HP) + 1 from Wizard (7 HP) = 25 HP
-    const result = shortRest(char, 3, data);
+    const result = shortRest(char, 3, deps);
 
     expect(result.classes[0]!.hitDice.used).toBe(5); // 3+2=5
     expect(result.classes[1]!.hitDice.used).toBe(2); // 1+1=2

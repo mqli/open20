@@ -11,7 +11,7 @@ import {
 import { useTranslation } from '@/i18n';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
-import { dataLoader } from '@/core/data-loader';
+import { getAllClasses } from '@/core/content-resolver';
 
 interface AdditionalClassEntryProps {
   entry: AdditionalClassEntry;
@@ -25,7 +25,7 @@ export function AdditionalClassEntryComponent({
   onRemove,
 }: AdditionalClassEntryProps) {
   const t = useTranslation();
-  const CLASSES = dataLoader.getAllClasses().map((c) => ({
+  const CLASSES = getAllClasses().map((c) => ({
     id: c.id,
     name: c.name || c.id,
   }));

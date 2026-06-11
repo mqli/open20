@@ -2,13 +2,13 @@
 // Condition and concentration-related character mutations
 
 import type { Character, ConditionName, ActiveCondition, ActiveEffect } from '@/types/character';
-import type { DataLoader } from '@/data/loader';
 import type { RandomProvider } from '@/dice/core';
 import type { ConcentrationCheckResult } from '@/engine/concentration';
 import { isConcentrating, calculateConcentrationDC } from '@/engine/concentration';
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
 import { rollSavingThrow } from '@/dice/mechanics';
 import { withUpdate } from './hp';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 
 export function toggleCondition(char: Character, conditionId: ConditionName): Character {
   const existingIdx = char.conditions.findIndex((c) => c.id === conditionId);
@@ -79,7 +79,7 @@ export function toggleActiveEffect(char: Character, effectId: string): Character
 export function makeConcentrationCheck(
   char: Character,
   damageAmount: number,
-  data: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
   rng: RandomProvider,
 ): { char: Character; result: ConcentrationCheckResult } {
   // Calculate DC
@@ -91,7 +91,7 @@ export function makeConcentrationCheck(
   // Check if proficient in Constitution saves
   let isProficient = false;
   for (const charClass of char.classes) {
-    const classData = data.getClass(charClass.classId);
+    const classData = deps.classes?.[charClass.classId];
     if (classData?.savingThrowProficiencies.includes('Constitution')) {
       isProficient = true;
       break;

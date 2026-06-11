@@ -18,7 +18,7 @@ import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
 import type { AdditionalClassEntry, CharacterFormData } from './types';
 import type { AppCharacter } from '@/core/types';
-import { dataLoader } from '@/core/data-loader';
+import { getAllClasses, getAllSpecies, getAllBackgrounds } from '@/core/content-resolver';
 
 interface CharacterModalFormProps {
   open: boolean;
@@ -42,17 +42,17 @@ export function CharacterModalForm({
   onCancel,
 }: CharacterModalFormProps) {
   // Get dynamic data from open20-core
-  const CLASSES = dataLoader.getAllClasses().map((c) => ({
+  const CLASSES = getAllClasses().map((c) => ({
     id: c.id,
     name: c.name || c.id,
   }));
 
-  const SPECIES = dataLoader.getAllSpecies().map((s) => ({
+  const SPECIES = getAllSpecies().map((s) => ({
     id: s.id,
     name: s.id, // Species doesn't have 'name' property, use id
   }));
 
-  const BACKGROUNDS = dataLoader.getAllBackgrounds().map((b) => ({
+  const BACKGROUNDS = getAllBackgrounds().map((b) => ({
     id: b.id,
     name: b.name,
   }));

@@ -1,15 +1,14 @@
 import { useSpellStore } from '@/stores/spellStore';
 import { Button, FilterChip, Text } from '@open20/ui';
 import { useTranslation } from '@/i18n';
-import { dataLoader } from '@/core/data-loader';
+import { getAllClasses } from '@/core/content-resolver';
 import { useMemo } from 'react';
 import { SPELL_SCHOOLS } from 'open20-core';
 
 export function FilterChips() {
   const classes = useMemo(
     () =>
-      dataLoader
-        .getAllClasses()
+      getAllClasses()
         .filter((c) => !!c.spellcasting)
         .map((c) => c.id),
     [],

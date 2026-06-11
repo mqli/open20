@@ -29,7 +29,7 @@ import {
 
 // ── Shared Fixtures ──────────────────────────────────────────
 
-import { createMockDataLoader } from '../fixtures/data-loader';
+import { createMockDeps } from '../fixtures/data-loader';
 
 import {
   HUMAN_SPECIES,
@@ -51,17 +51,10 @@ const STANDARD_SCORES: Record<AbilityName, number> = {
 };
 
 function makeFighter(): ReturnType<typeof createCharacter> {
-  const data = createMockDataLoader({
-    getSpecies: (id: string) => (id === 'Human' ? HUMAN_SPECIES : undefined),
-    getAllSpecies: () => [HUMAN_SPECIES],
-    getBackground: (id: string) => (id === 'Soldier' ? SOLDIER_BACKGROUND : undefined),
-    getAllBackgrounds: () => [SOLDIER_BACKGROUND],
-    getClass: (id: string) => {
-      if (id === 'Fighter') return FIGHTER_CLASS;
-      if (id === 'Wizard') return WIZARD_CLASS;
-      return undefined;
-    },
-    getAllClasses: () => [FIGHTER_CLASS, WIZARD_CLASS],
+  const deps = createMockDeps({
+    species: HUMAN_SPECIES,
+    background: SOLDIER_BACKGROUND,
+    classes: { Fighter: FIGHTER_CLASS, Wizard: WIZARD_CLASS },
   });
   const params: CreateCharacterParams = {
     name: 'Aragorn',
@@ -70,21 +63,14 @@ function makeFighter(): ReturnType<typeof createCharacter> {
     classId: 'Fighter',
     abilityScores: STANDARD_SCORES,
   };
-  return createCharacter(params, data);
+  return createCharacter(params, deps);
 }
 
 function makeWizard(): ReturnType<typeof createCharacter> {
-  const data = createMockDataLoader({
-    getSpecies: (id: string) => (id === 'Human' ? HUMAN_SPECIES : undefined),
-    getAllSpecies: () => [HUMAN_SPECIES],
-    getBackground: (id: string) => (id === 'Soldier' ? SOLDIER_BACKGROUND : undefined),
-    getAllBackgrounds: () => [SOLDIER_BACKGROUND],
-    getClass: (id: string) => {
-      if (id === 'Fighter') return FIGHTER_CLASS;
-      if (id === 'Wizard') return WIZARD_CLASS;
-      return undefined;
-    },
-    getAllClasses: () => [FIGHTER_CLASS, WIZARD_CLASS],
+  const defs = createMockDeps({
+    species: HUMAN_SPECIES,
+    background: SOLDIER_BACKGROUND,
+    classes: { Fighter: FIGHTER_CLASS, Wizard: WIZARD_CLASS },
   });
   const params: CreateCharacterParams = {
     name: 'Gandalf',
@@ -100,7 +86,7 @@ function makeWizard(): ReturnType<typeof createCharacter> {
       Charisma: 10,
     },
   };
-  return createCharacter(params, data);
+  return createCharacter(params, defs);
 }
 
 const SWORD: EquipmentItem = {

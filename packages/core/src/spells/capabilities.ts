@@ -4,8 +4,8 @@
 // not in the React-specific spellbook package.
 
 import type { Character, Spell, SpellLevel } from '@/types';
-import type { DataLoader } from '@/data/loader';
 import type { Class } from '@/types/class';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 
 import { isSpellbookCaster, canChangeSpellsOnLongRest, canChangeSpellsOnLevelUp } from './query';
 import { canCastSpell } from './query';
@@ -43,9 +43,9 @@ export interface SlotAvailability {
  * Get the caster type for a character.
  * Indicates what kind of spellcasting the character can do.
  */
-export function getCasterType(char: Character, data: DataLoader): CasterType {
+export function getCasterType(char: Character, deps: RecomputeDerivedStatsDeps): CasterType {
   const classes = (char.classes ?? [])
-    .map((c) => data.getClass(c.classId))
+    .map((c) => deps.classes?.[c.classId])
     .filter((c): c is Class => c != null);
 
   const canPrepare = classes.some(
@@ -63,8 +63,11 @@ export function getCasterType(char: Character, data: DataLoader): CasterType {
 /**
  * Get the caster type for a single class.
  */
-export function getCasterTypeForClass(classId: string, data: DataLoader): CasterType {
-  const classDef = data.getClass(classId);
+export function getCasterTypeForClass(
+  classId: string,
+  deps: RecomputeDerivedStatsDeps,
+): CasterType {
+  const classDef = deps.classes?.[classId];
   if (!classDef) {
     return { isSpellbookCaster: false, canLearn: false, canPrepare: false };
   }

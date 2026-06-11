@@ -21,15 +21,16 @@ import type { AbilityScores } from '@/types/ability';
 export function extractAllClassResources(
   charClasses: ReadonlyArray<{ classId: string; level: number; subclassId: string | null }>,
   abilityScores: AbilityScores,
-  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined },
+  classes: Record<string, Class>,
+  subclasses?: Record<string, Subclass>,
 ): Record<string, CharacterClassResources> {
   const result: Record<string, CharacterClassResources> = {};
 
   for (const cc of charClasses) {
-    const classData = data.getClass(cc.classId);
+    const classData = classes[cc.classId];
     if (!classData) continue;
 
-    const subclassData = cc.subclassId ? data.getSubclass(cc.subclassId) : undefined;
+    const subclassData = cc.subclassId ? subclasses?.[cc.subclassId] : undefined;
 
     const resources = buildResourcesForClass(classData, subclassData, cc.level, abilityScores);
 
@@ -216,23 +217,22 @@ function parseResetType(value: string | ResetType | undefined): ResetType {
   return value;
 }
 
-// ── Recomputation ─────────────────────────────────────────────
+// ── Recomputation ─────────────────────────
 
 /**
  * Recompute resource max values for all classes.
  * Rebuilds from scratch using current levels/features, then preserves used counts.
  * Called from recomputeDerivedStats and levelUp.
- *
- * Handles both old format (Resource[]) and new format (Record<string, CharacterClassResources>).
  */
 export function recomputeResources(
   resources: Record<string, CharacterClassResources> | readonly Resource[],
   charClasses: ReadonlyArray<{ classId: string; level: number; subclassId: string | null }>,
   abilityScores: AbilityScores,
-  data: { getClass(id: string): Class | undefined; getSubclass(id: string): Subclass | undefined },
+  classes: Record<string, Class>,
+  subclasses?: Record<string, Subclass>,
 ): Record<string, CharacterClassResources> {
   // Always rebuild from scratch using current levels/features
-  const newResources = extractAllClassResources(charClasses, abilityScores, data);
+  const newResources = extractAllClassResources(charClasses, abilityScores, classes, subclasses);
 
   // Preserve used counts from existing resources (if in new format)
   if (!Array.isArray(resources)) {

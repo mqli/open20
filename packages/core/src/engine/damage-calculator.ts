@@ -5,7 +5,7 @@
 import type { Character } from '@/types/character';
 import type { DamageType, DamageDefenses, DamageDefenseSource, DamageResult } from '@/types/damage';
 export type { DamageDefenses, DamageDefenseSource, DamageResult } from '../types/damage';
-import type { DataLoader } from '@/data/loader';
+import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 export { ALL_DAMAGE_TYPES } from '@/types/damage';
 
 /**
@@ -186,16 +186,18 @@ function isRaging(char: Character): boolean {
 /**
  * Get damage defenses from species features
  */
-function getSpeciesDefenses(char: Character, dataLoader: DataLoader): DamageDefenseSource | null {
-  const species = dataLoader.getSpecies(char.species);
+function getSpeciesDefenses(
+  char: Character,
+  deps: RecomputeDerivedStatsDeps,
+): DamageDefenseSource | null {
+  const species = deps.species;
   if (!species) return null;
 
   const defenses: DamageType[] = [];
   const baseTraits = species.baseTraits ?? [];
-  const subtype = char.speciesSubtype
-    ? dataLoader.getSpeciesSubtype(char.species, char.speciesSubtype)
-    : null;
-  const subtypeTraits = subtype?.traits ?? [];
+
+  // TODO: Add speciesSubtypes to RecomputeDerivedStatsDeps to handle species subtype traits
+  const subtypeTraits: typeof baseTraits = [];
 
   const allTraits = [...baseTraits, ...subtypeTraits];
 
@@ -219,7 +221,7 @@ function getSpeciesDefenses(char: Character, dataLoader: DataLoader): DamageDefe
   // Deduplicate
   const unique = [...new Set(defenses)];
 
-  const sourceName = subtype ? subtype.name : species.id;
+  const sourceName = species.id;
 
   return {
     source: `${sourceName} traits`,
@@ -236,11 +238,11 @@ function getSpeciesDefenses(char: Character, dataLoader: DataLoader): DamageDefe
  * Get damage defenses from class features
  * Handles conditional defenses like Barbarian Rage
  */
-function getClassDefenses(char: Character, dataLoader: DataLoader): DamageDefenseSource[] {
+function getClassDefenses(char: Character, deps: RecomputeDerivedStatsDeps): DamageDefenseSource[] {
   const sources: DamageDefenseSource[] = [];
 
   for (const charClass of char.classes) {
-    const classData = dataLoader.getClass(charClass.classId);
+    const classData = deps.classes?.[charClass.classId];
     if (!classData) continue;
 
     // Check all features for damage resistances
@@ -327,12 +329,12 @@ function getEquipmentDefenses(char: Character): DamageDefenseSource[] {
  * Returns both aggregated defenses and detailed sources for debugging
  *
  * @param char - The character to get defenses for
- * @param dataLoader - DataLoader for accessing game data
+ * @param deps - RecomputeDerivedStatsDeps for accessing game data
  * @returns Object containing aggregated defenses and individual sources
  */
 export function getActiveDamageDefenses(
   char: Character,
-  dataLoader: DataLoader,
+  deps: RecomputeDerivedStatsDeps,
 ): {
   defenses: DamageDefenses;
   sources: readonly DamageDefenseSource[];
@@ -340,10 +342,10 @@ export function getActiveDamageDefenses(
   const allSources: DamageDefenseSource[] = [];
 
   // Collect from all sources
-  const speciesSource = getSpeciesDefenses(char, dataLoader);
+  const speciesSource = getSpeciesDefenses(char, deps);
   if (speciesSource) allSources.push(speciesSource);
 
-  const classSources = getClassDefenses(char, dataLoader);
+  const classSources = getClassDefenses(char, deps);
   allSources.push(...classSources);
 
   const equipmentSources = getEquipmentDefenses(char);
@@ -387,6 +389,9 @@ export function getActiveDamageDefenses(
 /**
  * Convenience function: Get only aggregated defenses
  */
-export function getDamageDefenses(char: Character, dataLoader: DataLoader): DamageDefenses {
-  return getActiveDamageDefenses(char, dataLoader).defenses;
+export function getDamageDefenses(
+  char: Character,
+  deps: RecomputeDerivedStatsDeps,
+): DamageDefenses {
+  return getActiveDamageDefenses(char, deps).defenses;
 }
