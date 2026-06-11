@@ -102,7 +102,29 @@ export type BaseTranslationKeys =
   | 'species.baseTraits'
   | 'species.subtypes'
   | 'species.small'
-  | 'species.medium';
+  | 'species.medium'
+  // Rules - Equipment
+  | 'equipment.damage'
+  | 'equipment.ability'
+  | 'equipment.bonus'
+  | 'equipment.range'
+  | 'equipment.properties'
+  | 'equipment.mastery'
+  | 'equipment.versatile'
+  | 'equipment.ac'
+  | 'equipment.dexBonus'
+  | 'equipment.unlimited'
+  | 'equipment.strengthReq'
+  | 'equipment.stealth'
+  | 'equipment.disadvantage'
+  | 'equipment.equipped'
+  | 'equipment.weight'
+  | 'equipment.cost'
+  | 'equipment.quantity'
+  | 'equipment.type.weapon'
+  | 'equipment.type.armor'
+  | 'equipment.type.gears'
+  | 'equipment.type.consumable';
 
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
@@ -220,6 +242,29 @@ export const defaultTranslations: Translations = {
   'species.subtypes': 'Subtypes',
   'species.small': 'Small',
   'species.medium': 'Medium',
+
+  // Rules - Equipment
+  'equipment.damage': 'Damage',
+  'equipment.ability': 'Ability',
+  'equipment.bonus': 'Bonus',
+  'equipment.range': 'Range',
+  'equipment.properties': 'Properties',
+  'equipment.mastery': 'Mastery',
+  'equipment.versatile': 'Versatile',
+  'equipment.ac': 'AC',
+  'equipment.dexBonus': 'Dex Bonus',
+  'equipment.unlimited': 'Unlimited',
+  'equipment.strengthReq': 'Str Req',
+  'equipment.stealth': 'Stealth',
+  'equipment.disadvantage': 'Disadvantage',
+  'equipment.equipped': 'Equipped',
+  'equipment.weight': 'Weight',
+  'equipment.cost': 'Cost',
+  'equipment.quantity': 'Qty',
+  'equipment.type.weapon': 'Weapon',
+  'equipment.type.armor': 'Armor',
+  'equipment.type.gears': 'Gear',
+  'equipment.type.consumable': 'Consumable',
 };
 
 // Chinese (Simplified) translations (flat dot-notation keys)
@@ -330,6 +375,29 @@ export const zhCNTranslations: Translations = {
   'species.subtypes': '亚种',
   'species.small': '小型',
   'species.medium': '中型',
+
+  // Rules - Equipment
+  'equipment.damage': '伤害',
+  'equipment.ability': '属性',
+  'equipment.bonus': '加值',
+  'equipment.range': '射程',
+  'equipment.properties': '属性',
+  'equipment.mastery': '精通',
+  'equipment.versatile': '通用',
+  'equipment.ac': 'AC',
+  'equipment.dexBonus': '敏捷加值',
+  'equipment.unlimited': '无上限',
+  'equipment.strengthReq': '力量需求',
+  'equipment.stealth': '隐匿',
+  'equipment.disadvantage': '劣势',
+  'equipment.equipped': '已装备',
+  'equipment.weight': '重量',
+  'equipment.cost': '价格',
+  'equipment.quantity': '数量',
+  'equipment.type.weapon': '武器',
+  'equipment.type.armor': '护甲',
+  'equipment.type.gears': '装备',
+  'equipment.type.consumable': '消耗品',
 };
 
 // Context type
