@@ -32,6 +32,8 @@ export { SpellCard } from './components/spell/index';
 export type { SpellCardProps } from './components/spell/index';
 export { FeatCard } from './components/rules/feat/index';
 export type { FeatCardProps } from './components/rules/feat/index';
+export { MonsterCard } from './components/monster/index';
+export type { MonsterCardProps } from './components/monster/index';
 export {
   GlossaryEntryCard,
   GlossaryEntryContent,

@@ -124,7 +124,33 @@ export type BaseTranslationKeys =
   | 'equipment.type.weapon'
   | 'equipment.type.armor'
   | 'equipment.type.gears'
-  | 'equipment.type.consumable';
+  | 'equipment.type.consumable'
+  // Monster
+  | 'monster.armorClass'
+  | 'monster.hitPoints'
+  | 'monster.speed'
+  | 'monster.initiative'
+  | 'monster.savingThrows'
+  | 'monster.skills'
+  | 'monster.senses'
+  | 'monster.languages'
+  | 'monster.challenge'
+  | 'monster.proficiencyBonus'
+  | 'monster.traits'
+  | 'monster.actions'
+  | 'monster.bonusActions'
+  | 'monster.reactions'
+  | 'monster.legendaryActions'
+  | 'monster.spellcasting'
+  | 'monster.equipment'
+  | 'monster.environments'
+  | 'monster.conditionImmunities'
+  | 'monster.damageVulnerabilities'
+  | 'monster.damageResistances'
+  | 'monster.damageImmunities'
+  | 'monster.limitedUsage.xPerDay'
+  | 'monster.limitedUsage.recharge'
+  | 'monster.limitedUsage.rechargeAfterRest';
 
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
@@ -265,6 +291,33 @@ export const defaultTranslations: Translations = {
   'equipment.type.armor': 'Armor',
   'equipment.type.gears': 'Gear',
   'equipment.type.consumable': 'Consumable',
+
+  // Monster
+  'monster.armorClass': 'Armor Class',
+  'monster.hitPoints': 'Hit Points',
+  'monster.speed': 'Speed',
+  'monster.initiative': 'Initiative',
+  'monster.savingThrows': 'Saving Throws',
+  'monster.skills': 'Skills',
+  'monster.senses': 'Senses',
+  'monster.languages': 'Languages',
+  'monster.challenge': 'Challenge',
+  'monster.proficiencyBonus': 'Proficiency Bonus',
+  'monster.traits': 'Traits',
+  'monster.actions': 'Actions',
+  'monster.bonusActions': 'Bonus Actions',
+  'monster.reactions': 'Reactions',
+  'monster.legendaryActions': 'Legendary Actions',
+  'monster.spellcasting': 'Spellcasting',
+  'monster.equipment': 'Equipment',
+  'monster.environments': 'Environments',
+  'monster.conditionImmunities': 'Condition Immunities',
+  'monster.damageVulnerabilities': 'Damage Vulnerabilities',
+  'monster.damageResistances': 'Damage Resistances',
+  'monster.damageImmunities': 'Damage Immunities',
+  'monster.limitedUsage.xPerDay': '{count}/Day',
+  'monster.limitedUsage.recharge': 'Recharge {range}',
+  'monster.limitedUsage.rechargeAfterRest': 'Recharge after {rest}',
 };
 
 // Chinese (Simplified) translations (flat dot-notation keys)
@@ -398,6 +451,33 @@ export const zhCNTranslations: Translations = {
   'equipment.type.armor': '护甲',
   'equipment.type.gears': '装备',
   'equipment.type.consumable': '消耗品',
+
+  // Monster
+  'monster.armorClass': '护甲等级',
+  'monster.hitPoints': '生命值',
+  'monster.speed': '速度',
+  'monster.initiative': '先攻',
+  'monster.savingThrows': '豁免',
+  'monster.skills': '技能',
+  'monster.senses': '感知',
+  'monster.languages': '语言',
+  'monster.challenge': '挑战等级',
+  'monster.proficiencyBonus': '熟练加值',
+  'monster.traits': '特性',
+  'monster.actions': '动作',
+  'monster.bonusActions': '附赠动作',
+  'monster.reactions': '反应',
+  'monster.legendaryActions': '传奇动作',
+  'monster.spellcasting': '法术施展',
+  'monster.equipment': '装备',
+  'monster.environments': '环境',
+  'monster.conditionImmunities': '状态免疫',
+  'monster.damageVulnerabilities': '伤害脆弱性',
+  'monster.damageResistances': '伤害抗性',
+  'monster.damageImmunities': '伤害免疫',
+  'monster.limitedUsage.xPerDay': '每日{count}次',
+  'monster.limitedUsage.recharge': '充能 {range}',
+  'monster.limitedUsage.rechargeAfterRest': '{rest}后充能',
 };
 
 // Context type
