@@ -31,8 +31,9 @@
   },
   "devDependencies": {
     "@open20/config": "workspace:*",
+    "eslint": "catalog:",
+    "fake-indexeddb": "^6.2.5",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "eslint": "catalog:"
+    "vitest": "catalog:"
   }
 }
