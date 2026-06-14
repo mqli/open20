@@ -138,6 +138,9 @@ catalogs:
     vitest:
       specifier: ^4.1.7
       version: 4.1.7
+    zod:
+      specifier: ^4.4.3
+      version: 4.4.3
     zustand:
       specifier: ^5.0.13
       version: 5.0.13
@@ -259,6 +262,28 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+
+  packages/rulebook:
+    dependencies:
+      open20-core:
+        specifier: workspace:*
+        version: link:../core
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@open20/config':
+        specifier: workspace:*
+        version: link:../config
+      eslint:
+        specifier: 'catalog:'
+        version: 10.4.0(jiti@2.7.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@15.11.7)(jsdom@29.1.1)(vite@6.4.2(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/spellbook:
     dependencies:
