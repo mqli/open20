@@ -1,6 +1,7 @@
 {
   "extends": "@open20/config/tsconfig/base.json",
   "compilerOptions": {
+    "lib": ["DOM", "ES2015"],
     "outDir": "./dist",
     "rootDir": "./src",
     "declaration": true,

@@ -138,15 +138,15 @@ export { ContentPackManager } from './content-pack-manager';
 
 ## Acceptance Criteria
 
-- [ ] `createPack(meta)` returns `EditableContentPack` with all 11 arrays initialized to `[]`
-- [ ] `savePack(pack)` persists to IndexedDB and updates cache
-- [ ] `loadPack(id)` returns pack from storage or null
-- [ ] `loadPack(id)` retrieves correct data after `savePack` (round-trip)
-- [ ] `listPacks()` returns `ContentPackMeta[]` from storage
-- [ ] `enablePack/disablePack/isPackEnabled` correctly tracks state
-- [ ] `deletePack(id)` removes from storage and cache
-- [ ] Tests: create → save → load → verify; save → list → verify; disable → isPackEnabled=false
-- [ ] `pnpm test` passes for manager module
+- [x] `createPack(meta)` returns `EditableContentPack` with all 10 arrays initialized to `[]` (note: `glossary` is not an array, it's a `RulesGlossary` object)
+- [x] `savePack(pack)` persists to IndexedDB and updates cache
+- [x] `loadPack(id)` returns pack from storage or null
+- [x] `loadPack(id)` retrieves correct data after `savePack` (round-trip)
+- [x] `listPacks()` returns `ContentPackMeta[]` from storage
+- [x] `enablePack/disablePack/isPackEnabled` correctly tracks state
+- [x] `deletePack(id)` removes from storage and cache
+- [x] Tests: create → save → load → verify; save → list → verify; disable → isPackEnabled=false
+- [x] `pnpm test` passes for manager module
 
 ## Key Constraints
 
