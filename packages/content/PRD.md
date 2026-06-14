@@ -1,6 +1,6 @@
 # Rulebook Package - Product Requirements Document
 
-> **Package Name**: `@open20/rulebook`
+> **Package Name**: `@open20/content`
 > **Version**: 0.1.0 (MVP)
 > **Status**: 📋 Planned
 > **Last Updated**: 2026-06-14 (v1.2 — post second review)
@@ -17,7 +17,7 @@
 
 ### 1.1 Purpose
 
-`rulebook` 是一个内容包管理工具包，为 D&D 5e 内容创作者提供完整的内容包创建、编辑、组织和分享工作流。
+`content` 是一个内容包管理工具包，为 D&D 5e 内容创作者提供完整的内容包创建、编辑、组织和分享工作流。
 
 ### 1.2 Problem Statement
 
@@ -93,11 +93,11 @@
 
 ### 4.1 Package Type
 
-`rulebook` 将是一个 **monorepo 子包**，类似 `@open20/ui`：
+`content` 将是一个 **monorepo 子包**，类似 `@open20/ui`：
 
 ```
-packages/rulebook/
-├── package.json          # @open20/rulebook
+packages/content/
+├── package.json          # @open20/content
 ├── tsconfig.json
 ├── src/
 │   ├── index.ts         # 公开 API
@@ -113,7 +113,7 @@ packages/rulebook/
 ### 4.2 Dependencies
 
 ```
-@open20/rulebook  →  open20-core  (workspace:*)
+@open20/content  →  open20-core  (workspace:*)
 ```
 
 - 复用 `open20-core` 的 `ContentPack`, `ContentPackMeta` 类型
@@ -123,10 +123,10 @@ packages/rulebook/
 
 ### 4.3 Optional: React UI Package
 
-如果需要 UI 组件，可以创建单独的 `@open20/rulebook-ui` 包：
+如果需要 UI 组件，可以创建单独的 `@open20/rulebook` 包：
 
 ```
-packages/rulebook-ui/     # @open20/rulebook-ui
+packages/rulebook/     # @open20/rulebook
 ├── package.json
 ├── src/
 │   ├── components/
@@ -138,7 +138,7 @@ packages/rulebook-ui/     # @open20/rulebook-ui
 └── ...
 ```
 
-依赖：`@open20/rulebook`, `@open20/ui`, `open20-core`
+依赖：`@open20/content`, `@open20/ui`, `open20-core`
 
 ---
 
@@ -515,7 +515,7 @@ interface ValidationError {
 扩展 `open20-core` 的 `ContentPack` 类型，添加编辑元数据：
 
 ```typescript
-// packages/rulebook/src/types.ts
+// packages/content/src/types.ts
 
 import { ContentPack as CoreContentPack, ContentPackMeta } from 'open20-core';
 
@@ -534,7 +534,7 @@ export interface EditableContentPack extends CoreContentPack {
 编辑元数据作为 **运行时内部状态**，不存储在 `EditableContentPack` 对象中，由 `ContentEditor` 内部维护：
 
 ```typescript
-// packages/rulebook/src/editor/edit-state.ts
+// packages/content/src/editor/edit-state.ts
 
 /** 运行时编辑状态 — 不序列化到 JSON，不污染导出格式 */
 export interface EditState {
@@ -589,7 +589,7 @@ function exportPack(pack: EditableContentPack, editState: EditState): string {
 注册所有 11 种 `ContentPack` 支持的内容类型（与 `open20-core` 的 `ContentPack` 接口对齐）：
 
 ```typescript
-// packages/rulebook/src/types/registry.ts
+// packages/content/src/types/registry.ts
 
 export interface ContentTypeDescriptor {
   id: ContentTypeId; // 'spell', 'monster', 'species', etc.
@@ -635,7 +635,7 @@ export const contentTypes: ContentTypeDescriptor[] = [
 ### 7.1 Core API (Headless)
 
 ```typescript
-// packages/rulebook/src/index.ts
+// packages/content/src/index.ts
 
 // 内容包管理
 export { ContentPackManager } from './manager';
@@ -662,7 +662,7 @@ export { getTemplate } from './templates';
 ### 7.2 Usage Example
 
 ```typescript
-import { ContentPackManager, ContentEditor, exportPack } from '@open20/rulebook';
+import { ContentPackManager, ContentEditor, exportPack } from '@open20/content';
 
 // 创建内容包
 const manager = new ContentPackManager();
@@ -709,19 +709,19 @@ console.log(json);
 - 复用 `Species`, `Spell`, `Monster` 等具体内容类型
 - 自行定义所有 11 种内容类型的 Zod schema（core 中仅存在 `CharacterSchema`）
 - JSON 格式兼容 `open20-core` 的 `exportContentPack()` / `importContentPack()`（`src/content/io.ts`，Node.js only）
-- `rulebook` 提供浏览器可用的 `loadContentPack()` 等价物（基于 IndexedDB 存储层）
+- `content` 提供浏览器可用的 `loadContentPack()` 等价物（基于 IndexedDB 存储层）
 
 ```typescript
 // rulebook 导出的 JSON 可直接用于 open20-core 的 importContentPack()
 import { importContentPack } from 'open20-core';
-import { exportPackToJson } from '@open20/rulebook';
+import { exportPackToJson } from '@open20/content';
 
 const json = await exportPackToJson('my-homebrew');
 importContentPack(JSON.parse(json), './output-dir/');
 
 // rulebook 也可以加载 open20-core 导出的 JSON
 import { exportContentPack } from 'open20-core';
-import { importPackFromJson } from '@open20/rulebook';
+import { importPackFromJson } from '@open20/content';
 
 const pack = exportContentPack('./static/srd/'); // Node.js
 await importPackFromJson(JSON.stringify(pack)); // 浏览器端存储
@@ -729,7 +729,7 @@ await importPackFromJson(JSON.stringify(pack)); // 浏览器端存储
 
 ### 8.2 Integration with `@open20/ui` (Optional)
 
-如果创建 `@open20/rulebook-ui` 包：
+如果创建 `@open20/rulebook` 包：
 
 - 复用 `@open20/ui` 的基础组件（Button, Input, Card 等）
 - 使用 `SpellCard` 预览法术
@@ -755,12 +755,12 @@ await importPackFromJson(JSON.stringify(pack)); // 浏览器端存储
 
 **存储方案决策**（必须在 Phase 1 开始时确定）:
 
-- 采用 **抽象存储接口 + IndexedDB 实现**（rulebook-ui 为 React Web app）
+- 采用 **抽象存储接口 + IndexedDB 实现**（rulebook 为 React Web app）
 - 文件系统适配器延后到 CLI 工具阶段（Phase 5）
 
 **Scope**:
 
-- [ ] 创建 `packages/rulebook/` 包结构
+- [ ] 创建 `packages/content/` 包结构
 - [ ] 定义抽象存储接口 `IStorage` + IndexedDB 实现
 - [ ] 实现 `ContentPackManager`（创建、加载、保存、启用/禁用、删除）
 - [ ] 实现 `ContentEditor`（添加、编辑、删除法术 — **仅 Spell**）
@@ -790,7 +790,7 @@ See [tasks/README.md](./tasks/README.md) for dependency graph and execution orde
 - ✗ UI 组件（Phase 4）
 - ✗ 文件系统存储适配器（Phase 5）
 
-**Deliverable**: `@open20/rulebook` v0.1.0
+**Deliverable**: `@open20/content` v0.1.0
 
 ### Phase 2: Extended Content Types
 
@@ -817,7 +817,7 @@ See [tasks/README.md](./tasks/README.md) for dependency graph and execution orde
 - [ ] 扩展导入/导出涵盖所有内容类型
 - [ ] 为每种类型编写验证测试
 
-**Deliverable**: `@open20/rulebook` v0.2.0
+**Deliverable**: `@open20/content` v0.2.0
 
 ### Phase 3: Content Browser & Search
 
@@ -828,20 +828,20 @@ See [tasks/README.md](./tasks/README.md) for dependency graph and execution orde
 - [ ] 实现按来源过滤
 - [ ] 添加内容预览（使用 `open20-core` 的查询函数）
 
-**Deliverable**: `@open20/rulebook` v0.3.0
+**Deliverable**: `@open20/content` v0.3.0
 
 ### Phase 4: React UI Components (Optional)
 
 **Goal**: 提供 React UI 组件库
 
-- [ ] 创建 `@open20/rulebook-ui` 包
+- [ ] 创建 `@open20/rulebook` 包
 - [ ] 实现 `ContentPackEditor` 组件
 - [ ] 实现 `SpellEditor` 组件
 - [ ] 实现 `MonsterEditor` 组件
 - [ ] 实现导入/导出向导
 - [ ] 编写 Storybook 文档
 
-**Deliverable**: `@open20/rulebook-ui` v0.1.0
+**Deliverable**: `@open20/rulebook` v0.1.0
 
 ### Phase 5: Advanced Features (Future)
 
@@ -888,10 +888,10 @@ See [tasks/README.md](./tasks/README.md) for dependency graph and execution orde
 
 #### 11.1.1 存储方案 ✅ DECIDED
 
-| 决策                                                      | 理由                                           |
-| --------------------------------------------------------- | ---------------------------------------------- |
-| Phase 1 采用 **抽象存储接口 `IStorage` + IndexedDB 实现** | rulebook-ui 是 React Web app，需要浏览器持久化 |
-| 文件系统适配器延后到 Phase 5 CLI 工具阶段                 | Node.js 文件 IO 不是 Phase 1~4 的需求          |
+| 决策                                                      | 理由                                        |
+| --------------------------------------------------------- | ------------------------------------------- |
+| Phase 1 采用 **抽象存储接口 `IStorage` + IndexedDB 实现** | rulebook 是 React Web app，需要浏览器持久化 |
+| 文件系统适配器延后到 Phase 5 CLI 工具阶段                 | Node.js 文件 IO 不是 Phase 1~4 的需求       |
 
 ```typescript
 // 抽象存储接口
@@ -925,8 +925,8 @@ export class FileSystemStorage implements IStorage {
 #### 11.1.3 Headless 优先策略 ✅ DECIDED
 
 - 先发布 headless 包（Phase 1-3），然后根据用户反馈决定是否创建 UI 包（Phase 4）
-- `@open20/rulebook` 保持零 UI 依赖
-- `@open20/rulebook-ui` 作为独立可选包
+- `@open20/content` 保持零 UI 依赖
+- `@open20/rulebook` 作为独立可选包
 
 ### 11.2 待定问题
 

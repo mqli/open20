@@ -1,4 +1,6 @@
 import type { ZodSchema } from 'zod';
+import { SpellSchema } from '../validator/schemas';
+import { getSpellTemplate } from '../templates/spell-template';
 
 export type ContentTypeId =
   | 'species'
@@ -22,6 +24,5 @@ export interface ContentTypeDescriptor {
 
 // Phase 1: Only Spell is registered. Other 10 are commented out for Phase 2.
 export const contentTypes: ContentTypeDescriptor[] = [
-  // Fill in Task D after SpellSchema is created:
-  // { id: 'spells', name: 'Spells', schema: SpellSchema, template: getSpellTemplate },
+  { id: 'spells', name: 'Spells', schema: SpellSchema, template: getSpellTemplate },
 ];

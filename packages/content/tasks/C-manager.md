@@ -13,7 +13,7 @@ Implement `ContentPackManager` — the headless class for content pack CRUD oper
 ## Files to Create
 
 ```
-packages/rulebook/src/manager/
+packages/content/src/manager/
 ├── index.ts                      # barrel export
 └── content-pack-manager.ts       # ContentPackManager class
 

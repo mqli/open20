@@ -16,7 +16,7 @@ Implement JSON export (with runtime state stripping) and JSON import (with confl
 ## Files to Create
 
 ```
-packages/rulebook/src/io/
+packages/content/src/io/
 ├── index.ts           # barrel export
 ├── export.ts          # exportPack, exportPackToJson
 ├── import.ts          # importPack, importPackFromJson, mergePack

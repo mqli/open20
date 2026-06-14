@@ -14,7 +14,7 @@ Define `SpellSchema` (Zod), implement `ContentValidator`, and implement `Content
 ## Files to Create
 
 ```
-packages/rulebook/src/
+packages/content/src/
 ├── validator/
 │   ├── index.ts              # barrel export
 │   ├── schemas.ts            # SpellSchema (Zod)

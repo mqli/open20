@@ -26,7 +26,9 @@ describe('contentTypes', () => {
     expect(Array.isArray(contentTypes)).toBe(true);
   });
 
-  it('should be empty in Phase 1 (spell registered in Task D)', () => {
-    expect(contentTypes).toHaveLength(0);
+  it('should have spell registered in Phase 1 (Task D)', () => {
+    expect(contentTypes).toHaveLength(1);
+    expect(contentTypes[0].id).toBe('spells');
+    expect(contentTypes[0].name).toBe('Spells');
   });
 });

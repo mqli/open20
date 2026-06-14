@@ -13,7 +13,7 @@ Define all shared types (`EditableContentPack`, `ContentTypeId`, `ContentTypeReg
 ## Files to Create
 
 ```
-packages/rulebook/src/
+packages/content/src/
 ├── types/
 │   ├── index.ts              # barrel export
 │   ├── content-pack.ts       # EditableContentPack

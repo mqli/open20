@@ -1,6 +1,6 @@
 # Rulebook Package - UI/UX Design Document
 
-> **Document**: UI/UX Design for @open20/rulebook
+> **Document**: UI/UX Design for @open20/rulebook (UI Package)
 > **Version**: 2.2
 > **Status**: 📋 Draft
 > **Last Updated**: 2026-06-14 (v2.2 — post second UX review)

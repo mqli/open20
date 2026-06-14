@@ -4,7 +4,7 @@
 
 ## Objective
 
-Create the `@open20/rulebook` package skeleton and wire it into the open20 monorepo.
+Create the `@open20/content` package skeleton and wire it into the open20 monorepo.
 
 ## Dependencies
 
@@ -13,8 +13,8 @@ Create the `@open20/rulebook` package skeleton and wire it into the open20 monor
 ## Files to Create
 
 ```
-packages/rulebook/
-├── package.json          # @open20/rulebook
+packages/content/
+├── package.json          # @open20/content
 ├── tsconfig.json
 ├── eslint.config.js
 ├── src/
@@ -27,7 +27,7 @@ packages/rulebook/
 
 ```json
 {
-  "name": "@open20/rulebook",
+  "name": "@open20/content",
   "version": "0.1.0",
   "type": "module",
   "main": "./src/index.ts",
@@ -97,7 +97,7 @@ export default [
 
 1. **Update `pnpm-workspace.yaml`** — no changes needed (workspace covers `packages/*`)
 
-2. **Update `turbo.json`** — add rulebook to build pipeline:
+2. **Update `turbo.json`** — add content to build pipeline:
 
    ```json
    // In tasks.build.dependsOn, verify "^build" is already present (it is — rulebook depends on core via workspace:*)
@@ -107,9 +107,9 @@ export default [
 
 4. **Verify**:
    ```bash
-   pnpm --filter @open20/rulebook test     # should run 0 tests (vitest finds none)
-   pnpm --filter @open20/rulebook typecheck # should pass (empty src/)
-   pnpm --filter @open20/rulebook lint      # should pass
+   pnpm --filter @open20/content test     # should run 0 tests (vitest finds none)
+   pnpm --filter @open20/content typecheck # should pass (empty src/)
+   pnpm --filter @open20/content lint      # should pass
    ```
 
 ## Acceptance Criteria
@@ -117,8 +117,8 @@ export default [
 - [ ] `package.json` has correct name, deps, and exports map
 - [ ] `tsconfig.json` extends `@open20/config/tsconfig/base.json`
 - [ ] `pnpm install` from root succeeds (rulebook linked as workspace package)
-- [ ] `pnpm --filter @open20/rulebook typecheck` passes
-- [ ] `pnpm --filter @open20/rulebook lint` passes
+- [ ] `pnpm --filter @open20/content typecheck` passes
+- [ ] `pnpm --filter @open20/content lint` passes
 - [ ] `src/index.ts` exports nothing (empty barrel for now)
 
 ## Key Constraints

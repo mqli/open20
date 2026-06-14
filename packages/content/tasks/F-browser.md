@@ -15,7 +15,7 @@ Implement `ContentBrowser` — the headless class for browsing and searching spe
 ## Files to Create
 
 ```
-packages/rulebook/src/
+packages/content/src/
 └── browser/
     ├── index.ts                # barrel export
     └── content-browser.ts      # ContentBrowser class

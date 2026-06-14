@@ -2,7 +2,7 @@
 
 **Source**: [PRD v1.2](../PRD.md) | [DESIGN v2.2](../DESIGN.md)  
 **Phase**: 1 (MVP — headless spell editing)  
-**Target**: `@open20/rulebook` v0.1.0
+**Target**: `@open20/content` v0.1.0
 
 ---
 
@@ -52,7 +52,7 @@ A (scaffold)
 Update `src/index.ts` barrel export:
 
 ```typescript
-// packages/rulebook/src/index.ts
+// packages/content/src/index.ts
 
 // Types
 export type { EditableContentPack } from './types/content-pack';
@@ -96,9 +96,9 @@ export { getSpellTemplate } from './templates';
 
 ```bash
 pnpm install                          # Link workspace deps
-pnpm --filter @open20/rulebook typecheck  # Must pass
-pnpm --filter @open20/rulebook lint       # Must pass
-pnpm --filter @open20/rulebook test       # Must pass all tests
+pnpm --filter @open20/content typecheck  # Must pass
+pnpm --filter @open20/content lint       # Must pass
+pnpm --filter @open20/content test       # Must pass all tests
 pnpm build                             # Turbo: build entire monorepo
 ```
 
@@ -119,7 +119,7 @@ pnpm build                             # Turbo: build entire monorepo
 The following are explicitly excluded from these tasks:
 
 - ❌ Other 10 content types (Species, Backgrounds, Classes, Subclasses, Feats, Weapons, Armors, Gears, Monsters, Glossary) — Phase 2
-- ❌ UI components (`@open20/rulebook-ui`) — Phase 4
+- ❌ UI components (`@open20/rulebook`) — Phase 4
 - ❌ FileSystemStorage adapter — Phase 5
 - ❌ Search for non-spell types — Phase 3
 - ❌ Full-text description search / Chinese tokenization — Phase 3
