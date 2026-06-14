@@ -1,9 +1,9 @@
 # Rulebook Package - UI/UX Design Document
 
 > **Document**: UI/UX Design for @open20/rulebook
-> **Version**: 2.1
+> **Version**: 2.2
 > **Status**: 📋 Draft
-> **Last Updated**: 2026-06-14 (v2.1 — post UX review)
+> **Last Updated**: 2026-06-14 (v2.2 — post second UX review)
 
 ---
 
@@ -120,12 +120,12 @@ Rulebook App
 
 ### 2.2 页面职责
 
-| 页面              | 职责                                | 交互模式             |
-| ----------------- | ----------------------------------- | -------------------- |
-| **PackList**      | 管理所有内容包，创建/删除/导入/导出 | CRUD + Modal         |
-| **PackDetail**    | 单包内容管理，搜索/过滤/批量操作    | 可编辑，按标签页组织 |
-| **Browse**        | 跨包浏览和对比所有内容              | 只读，发现模式       |
-| **ContentEditor** | 单个内容的创建/编辑表单             | 全屏或右侧表单       |
+| 页面              | 职责                                | 交互模式                 | 与 Browse 的区分    |
+| ----------------- | ----------------------------------- | ------------------------ | ------------------- |
+| **PackList**      | 管理所有内容包，创建/删除/导入/导出 | CRUD + Modal             | —                   |
+| **PackDetail**    | 单包内容管理，搜索/过滤/批量操作    | **可编辑**，按标签页组织 | 编辑工作台          |
+| **Browse**        | 跨包浏览和对比所有内容              | **只读**，发现模式       | 浏览发现 + 快捷添加 |
+| **ContentEditor** | 单个内容的创建/编辑表单             | 全屏或右侧表单           | —                   |
 
 ### 2.3 Navigation Structure (issue 1 — sidebar enriched)
 
@@ -241,16 +241,16 @@ App
 
 **页面用途**: 引导用户创建新内容包
 
-**布局**: Modal 对话框，3 步骤
+**布局**: Modal 对话框，2 步骤（原 Step 2 "选择初始内容类型" 已移除，见 P1-7 fix）
 
 ```
 ┌───────────────────────────────────────────────────────────┐
 │  Create New Content Pack                        [✕]      │
 ├───────────────────────────────────────────────────────────┤
-│  Step 1 of 3: Basic Information                          │
-│  ├───┬───┬───┐                                          │
-│  │ 1 │ 2 │ 3 │                                          │
-│  └───┴───┴───┘                                          │
+│  Step 1 of 2: Basic Information                          │
+│  ├───┬───┐                                              │
+│  │ 1 │ 2 │                                              │
+│  └───┴───┘                                              │
 │                                                           │
 │  Pack ID *          Pack Name *                           │
 │  ┌─────────────┐    ┌─────────────────────────────┐     │
@@ -260,7 +260,7 @@ App
 │                                                           │
 │  Version             Author                               │
 │  ┌───────┐          ┌───────────────────────────┐       │
-│  │ 1.0.0 │          │ DM Awesome                │       │
+│  │ 1.0.0 │          │ DM Awesome                  │       │
 │  └───────┘          └───────────────────────────┘       │
 │                                                           │
 │  Description (optional)                                   │
@@ -274,7 +274,11 @@ App
 
 **关键交互**:
 
-- Step 1: 基本信息 | Step 2: 选择初始内容类型 | Step 3: 确认
+- Step 1: 基本信息 | Step 2: 确认并创建
+- **不再有"选择初始内容类型"步骤**（P1-7 fix）:
+  - 创建空包后可随时添加任何类型内容，不需要预先选择
+  - 空态引导（见 §3.3 Monsters Tab 空态）已足够引导用户添加首个内容
+  - 原设计增加认知负担但无实际价值
 - Pack ID 重复 → 实时错误提示
 - Modal 关闭时若已输入内容 → "You have unsaved changes. Discard?" (issue 6)
 
@@ -333,7 +337,21 @@ App
 
 **关键交互**:
 
-- 点击行 → ContentEditor (全屏，带参数)
+- **单击行** → 右侧展开 Inline Edit Panel（快速修改单字段，如描述、伤害骰）
+- **双击行** 或 行尾 [✏️ Edit] 按钮 → ContentEditor（全屏编辑器，适合复杂修改）
+- **Inline Edit Panel**: 仅展示当前行最常修改的 3-5 个字段 + [Save] [Full Editor →]
+  ```
+  ┌─── Inline Edit: Acid Rain ──────────────────┐
+  │  Description *                               │
+  │  ┌──────────────────────────────────────┐   │
+  │  │ You call down a rain of acid...       │   │
+  │  └──────────────────────────────────────┘   │
+  │  Level  [3▼]    School  [Evocation▼]       │
+  │  Casting Time  [1 action    ]              │
+  │                                              │
+  │  [Save]  [Open Full Editor →]               │
+  └──────────────────────────────────────────────┘
+  ```
 - **[Delete Selected]** → 确认对话框: "Delete 3 spells? This cannot be undone." (issue 9)
 - 表格排序：点击列头
 
@@ -378,7 +396,7 @@ App
 │      │  │ └─────────────────────────────────────────────────┘ │ │
 │      │  └──────────────────────────────────────────────────────┘ │
 │      │                                                            │
-│      │  [Save] [Save & New] [Cancel] [Delete]                    │
+│      │  [Save] [Save & New] [Save & Close] [Delete]               │
 └──────┴────────────────────────────────────────────────────────────┘
 ```
 
@@ -408,6 +426,18 @@ App
 - **Unsaved changes**: 点击 Back/Tab/关闭 → "You have unsaved changes. Save before leaving?" (issue 6)
 - 手风琴区块：已完成 = 绿色 ✓，未完成 = 灰色 ○ (issue 4)
 - 保存成功后 → Toast 提示 "Spell saved" + 可撤销 "Undo" (3s 内)
+
+**保存按钮行为定义 (P0-2 fix)**:
+
+| 按钮               | 行为                                    | 使用场景             |
+| ------------------ | --------------------------------------- | -------------------- |
+| **[Save]**         | 保存并留在编辑器（继续微调）            | 正在编辑，阶段性保存 |
+| **[Save & New]**   | 保存 → 清空表单 → 继续创建同类型新内容  | 批量创建相似内容     |
+| **[Save & Close]** | 保存 → 返回 PackDetail 列表             | 编辑完成，返回查看   |
+| **[Delete]**       | 弹出确认对话框 → 删除 → 返回 PackDetail | 删除当前内容         |
+
+- 三种保存按钮对应三种意图，用户无需猜测"保存后去哪"
+- 键盘快捷键: `Ctrl+S` = [Save]，`Ctrl+Shift+S` = [Save & Close]
 
 ### 3.4a Wireframe 4a: Monster 编辑器 — Simple/Advanced 模式 (issue 7)
 
@@ -465,6 +495,31 @@ App
 - 切换到 Advanced 后，可随时切回 Simple（已填的高级字段保留但不显示）
 - Simple 模式下，未填的高级字段使用默认值（自动推导）
 
+**Simple → Advanced 数据迁移规则 (P1-6 fix)**:
+
+切换模式时 **不丢失任何数据**，遵循以下映射规则：
+
+| Simple 字段                  | Advanced 对应字段                          | 迁移策略                                                                                             |
+| ---------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| HP `"546 (23d20+299)"`       | `hitDice: "23d20+299"`, `hp: 546`          | **解析拆分**: 提取数字为 `hp`，括号内为 `hitDice`。格式不匹配时保留 HP 原文存入 `hp`，`hitDice` 留空 |
+| AC `"22 (Natural Armor)"`    | `ac: 22`, `acType: "Natural Armor"`        | **解析拆分**: 提取数字为 `ac`，括号内为 `acType`                                                     |
+| Speed `"fly 80, walk 40"`    | `speed: { walk: 40, fly: 80 }`             | **结构化拆分**: 按逗号分隔，每项解析为 key-value                                                     |
+| Attack `"Bite: +17, 2d10+8"` | `actions: [{ name, attackBonus, damage }]` | **结构化拆分**: 解析为动作对象数组                                                                   |
+
+**Advanced → Simple 合并规则**:
+
+- 从 Advanced 切回 Simple 时，结构化字段**合并回 Simple 的自由文本格式**
+- `hitDice` + `hp` → `"546 (23d20+299)"`
+- `ac` + `acType` → `"22 (Natural Armor)"`
+- `speed` 对象 → `"fly 80, walk 40"`
+- 已填的高级字段在 Simple 模式下不可见但保留
+
+**无法解析时的降级策略**:
+
+- Simple 模式下用户输入了无法自动拆分的值（如 HP 只填了 `"546"`，没有括号内容）
+- 切到 Advanced: `hp = 546`, `hitDice = ""` (空，用户可手动补充)
+- 不会因格式问题阻塞模式切换，仅显示 hint: "💡 Tip: Hit dice formula not set. You can add it in Advanced mode."
+
 **编辑器实现优先级 (issue 7 — simpler types first)**:
 
 1. **Phase 1**: Spell, Weapon, Armor, Gear（简单类型，字段少）— 手风琴区块
@@ -481,42 +536,70 @@ App
 ```
 ┌───────────────────────────────────────────────────────────────────┐
 │  [Logo]                                     [@User]         [⚙️] │
-├──────┬────────────────────────────────────────────────────────────┤
-│ Side │  Browse Spells                                             │
-│ bar  │  ┌────────────────────────────────────────────────────────┤
-│      │  │ 🔍 fire  │ [Level:1..3 ✕] [School:Evoc ✕] [SRD ✕]   │ ← chips
-│      │  │           │                     [Clear All Filters]    │
-│      │  └────────────────────────────────────────────────────────┤
-│      │  ┌──────────────┐  ┌──────────┐  ┌──────────┐          │
-│      │  │ ▼ Source     │  │ [List][Grid]│  │ Showing 24│        │
-│      │  │ ☑ SRD 5.2   │  └──────────┘  └──────────┘          │
-│      │  │ ☑ Homebrew  │                                         │
-│      │  │ ☐ Official  │  ┌──────┐┌──────┐┌──────┐┌──────┐       │
-│      │  │              │  │Fire  ││Fire- ││Flame ││Wall  │       │
-│      │  │ ▼ Level      │  │Bolt  ││ball  ││Strike││ofFire│       │
-│      │  │ ☑ Cantrip   │  │(evoc)││(evoc)││(evoc)││(evoc)│       │
-│      │  │ ☑ 1st       │  │SRD   ││SRD   ││SRD   ││SRD   │       │
-│      │  │ ☑ 2nd       │  └──────┘└──────┘└──────┘└──────┘       │
-│      │  │ ☑ 3rd       │  ┌──────┐                                │
-│      │  │ ☐ 4th+      │  │ ...  │                                │
-│      │  │              │  └──────┘                                │
-│      │  │ ▼ School     │                                         │
-│      │  │ ☑ Evocation │  [Load More]                            │
-│      │  │ ☐ Abjuration│                                         │
-│      │  │ ▶ Conjuration│                                         │
-│      │  └──────────────┘                                         │
-└──────┴────────────────────────────────────────────────────────────┘
+├────┬──────────────────────────────────────────────────────────────┤
+│ Icon│  Browse Spells                        🔒 Read-only mode     │  ← 侧边栏折叠 + 只读标识
+│ bar │  ┌────────────────────────────────────────────────────────┤
+│     │  │ 🔍 fire  │ [Level:1..3 ✕] [School:Evoc ✕] [SRD ✕]   │ ← chips
+│     │  │           │                     [Clear All Filters]    │
+│     │  └────────────────────────────────────────────────────────┤
+│ [📦]│  ┌──────────────┐  ┌──────────┐  ┌──────────┐          │
+│ [🔍]│  │ ▼ Source     │  │ [List][Grid]│  │ Showing 24│        │
+│     │  │ ☑ SRD 5.2   │  └──────────┘  └──────────┘          │
+│     │  │ ☑ Homebrew  │                                         │
+│     │  │ ☐ Official  │  ┌──────┐┌──────┐┌──────┐┌──────┐       │
+│     │  │              │  │Fire  ││Fire- ││Flame ││Wall  │       │
+│     │  │ ▼ Level      │  │Bolt  ││ball  ││Strike││ofFire│       │
+│     │  │ ☑ Cantrip   │  │(evoc)││(evoc)││(evoc)││(evoc)│       │
+│     │  │ ☑ 1st       │  │📦SRD ││📦SRD ││📦Home││📦SRD │       │  ← 来源包 badge
+│     │  │ ☑ 2nd       │  └──────┘└──────┘└──────┘└──────┘       │
+│     │  │ ☑ 3rd       │  ┌──────┐                                │
+│     │  │ ☐ 4th+      │  │ ...  │                                │
+│     │  │              │  └──────┘                                │
+│     │  │ ▼ School     │                                         │
+│     │  │ ☑ Evocation │  [Load More]                            │
+│     │  │ ☐ Abjuration│                                         │
+│     │  │ ▶ Conjuration│                                         │
+│     │  └──────────────┘                                         │
+└────┴──────────────────────────────────────────────────────────────┘
 ```
 
 **关键交互 (issue 10 fix)**:
 
+- 页面顶部明确标注 **🔒 Read-only mode**，与 PackDetail 的编辑模式区分
+- 每张内容卡片底部显示 **来源包 badge**（如 `📦SRD`、`📦Home`），标明内容归属
 - 过滤组可折叠 `▼` / 展开 `▶`
 - 点击卡片 → 只读详情抽屉（含 [Add to My Pack] 按钮）
 - **Active Filter Chips**: 已激活的过滤条件显示为可删除的 chip tag
 - **[Clear All Filters]**: 一键清空所有过滤条件
 - **Mobile**: 过滤器改为底部弹出面板 (Bottom Sheet)
 
-#### "Add to My Pack" 子流程 (issue 6):
+#### "Add to My Pack" 子流程 (issue 6 → 优化为两级交互):
+
+**快速路径（推荐）** — 卡片 hover 直接显示快捷下拉：
+
+```
+┌──────────────────┐
+│  Fireball         │
+│  Lv3 · Evocation  │
+│  SRD 5.2          │
+│      │            │
+│  [+ Add to ▼]─────┤  ← hover 时显示快捷按钮
+│      │            │
+└──────┼───────────┘
+       ▼
+  ┌──────────────────┐
+  │ Add "Fireball" to │
+  │ ┌──────────────┐ │
+  │ │ 📦 My Spells │ │  ← 单击即添加
+  │ │ 📦 Campaign  │ │
+  │ │ + New Pack...│ │  ← inline 创建
+  │ └──────────────┘ │
+  └──────────────────┘
+  → 添加成功: Toast "Added to My Spells" [View] [Undo]
+  → 冲突时: 自动展开冲突解决 Modal
+```
+
+**完整路径** — 点击卡片 → Detail Drawer → [Add to My Pack]:
 
 ```
 ┌─── Detail Drawer: Fireball ──────────────────────────┐
@@ -526,6 +609,8 @@ App
 │                                                       │
 │  Source: SRD 5.2 · Level 3 · Evocation               │
 │  Available in: SRD 5.2 pack                          │
+│                                                       │
+│  🔒 Read-only content from another pack              │  ← 明确只读标识
 └───────────────────────────────────────────────────────┘
                     │ 点击 [Add to My Pack]
                     ▼
@@ -552,6 +637,14 @@ App
 │                               [Cancel]  [Add to Pack]│
 └───────────────────────────────────────────────────────┘
 ```
+
+**交互分级策略**:
+
+| 场景         | 路径                                             | 步骤数 | 说明               |
+| ------------ | ------------------------------------------------ | ------ | ------------------ |
+| 已知目标包   | 快速路径: hover → [+ Add to ▼] → 选包            | 2 步   | 核心场景最短路径   |
+| 不确定目标包 | 完整路径: 点击卡片 → Drawer → [Add] → 选包 Modal | 3-4 步 | 需要查看详情后决定 |
+| 冲突         | 任一路径 → 冲突 Modal                            | +1 步  | 仅冲突时弹出       |
 
 **关键交互**:
 
@@ -891,18 +984,18 @@ PackList (空态: 0 packs)
   │
   ├─→ [Create Your First Pack] → CreatePackWizard
   │     ├─→ Step 1: Basic Info
-  │     ├─→ Step 2: Select types (check Spells)
-  │     └─→ Step 3: Confirm → [Create Pack]
+  │     └─→ Step 2: Confirm → [Create Pack]
   │
-  └─→ Redirect to PackDetail (空态: Monsters=0, Species=0, ...)
+  └─→ Redirect to PackDetail (空态: 所有类型 Tab = 0)
         │
         ├─→ [Spells] Tab → Empty state: "No spells yet"
         │     └─→ [+ Add Spell] → ContentEditor
         │           ├─→ Fill Basic Info
         │           ├─→ Fill Casting Info
         │           ├─→ Fill Description
-        │           ├─→ Preview updates in real-time (right panel)
-        │           └─→ [Save] → return to PackDetail (Spells=1)
+        │           ├─→ [Save] → Toast "Spell saved" → 留在编辑器
+        │           ├─→ [Save & New] → 清空表单继续创建
+        │           └─→ [Save & Close] → 返回 PackDetail (Spells=1)
         │
         └─→ Repeat for more spells...
 ```
@@ -931,7 +1024,9 @@ Sidebar → [🔍 Browse]
         ├─→ 勾选过滤条件 → chips 显示激活条件
         ├─→ 结果实时更新
         │
-        ├─→ 点击 SpellCard → Detail Drawer (只读)
+        ├─→ 快速路径: hover 卡片 → [+ Add to ▼] → 选包 → Toast 确认
+        │
+        ├─→ 完整路径: 点击 SpellCard → Detail Drawer (只读, 🔒标识)
         │     └─→ "Add to My Pack" → 选择目标包 → 确认 → 添加成功
         │
         ├─→ [Clear All Filters] → 回到默认视图
@@ -952,12 +1047,16 @@ Sidebar → [🔍 Browse]
 │        │                           │
 │ Sidebar│  MainContent              │
 │ w=240px│  flex-1, overflow-auto    │
-│        │                           │
-│ [📦] │                           │
-│ [🔍] │                           │
+│ (64px  │                           │
+│  when  │                           │
+│  on    │                           │
+│  Browse│                           │
+│  page) │                           │
 │        │                           │
 └────────┴───────────────────────────┘
 ```
+
+> Browse 页面侧边栏自动折叠为 64px 图标模式（见 §6.1），其他页面保持 240px 展开。
 
 ### 5.2 PackCard（含类型分布可视化 — issue 4 optimized）
 
@@ -1019,13 +1118,35 @@ Empty pack → 隐藏类型图标行，显示 "No content"
 
 ### 6.1 Desktop Layouts
 
-| 页面                    | 布局                                                   |
-| ----------------------- | ------------------------------------------------------ |
-| PackList                | 侧边栏(240px) + 卡片网格 (2-4 列)                      |
-| PackDetail              | 侧边栏(240px) + 标签页 + 表格                          |
-| ContentEditor (Spell)   | 侧边栏(240px) + 全宽单栏表单；预览为右侧抽屉(按需滑出) |
-| ContentEditor (Monster) | 侧边栏(240px) + Simple/Advanced双模式；预览为按需抽屉  |
-| Browse                  | 侧边栏(240px) + 过滤器 (左, 256px) + 结果网格 (右)     |
+| 页面                    | 布局                                                | 侧边栏宽度 |
+| ----------------------- | --------------------------------------------------- | ---------- |
+| PackList                | 侧边栏 + 卡片网格 (2-4 列)                          | 240px      |
+| PackDetail              | 侧边栏 + 标签页 + 表格                              | 240px      |
+| ContentEditor (Spell)   | 侧边栏 + 全宽单栏表单；预览为右侧抽屉(按需滑出)     | 240px      |
+| ContentEditor (Monster) | 侧边栏 + Simple/Advanced双模式；预览为按需抽屉      | 240px      |
+| **Browse**              | **侧边栏(图标模式) + 过滤器(左, 256px) + 结果网格** | **64px**   |
+
+**Browse 页面侧边栏自动折叠 (P1-5 fix)**:
+
+Browse 页面已有左侧 256px 过滤器面板，若侧边栏保持 240px 展开状态，在 1280px 屏幕上仅剩 784px 给内容区。因此 Browse 页面侧边栏**自动折叠为图标模式**（64px），仅显示图标导航，hover 显示 tooltip 文字。
+
+```
+┌──────┐     ┌──────────┐ ┌───────────────────────────────────────┐
+│ [📦] │     │ ▼ Source │ │ Content grid...                       │
+│ Packs│     │ ☑ SRD    │ │ (256px filter + full content area)    │
+│      │     │          │ │                                       │
+│ [🔍] │     │ ▼ Level  │ │                                       │
+│Browse│     │ ☑ 1st    │ │                                       │
+│      │     │          │ │                                       │
+│ [⚙️] │     │          │ │                                       │
+│      │     └──────────┘ └───────────────────────────────────────┘
+│ 64px │       256px                     ~960px
+└──────┘
+Total: 64 + 256 + ~960 = ~1280px ✓
+```
+
+- 其他页面（PackList、PackDetail、ContentEditor）侧边栏保持 240px 展开状态
+- 用户可通过侧边栏底部的折叠/展开按钮手动切换（记忆用户偏好到 localStorage）
 
 ### 6.2 ContentEditor: Desktop vs Tablet/Mobile (issue 5 revised)
 
@@ -1111,6 +1232,13 @@ Empty pack → 隐藏类型图标行，显示 "No content"
 | 18  | Monster 编辑器 Simple/Advanced 双模式                        | ✅ v2.1 |
 | 19  | 编辑器实现优先级 (简单类型优先)                              | ✅ v2.1 |
 | 20  | Loading/Skeleton 状态设计 (6 种场景)                         | ✅ v2.1 |
+| 21  | "Add to My Pack" 快捷添加: hover [+ Add to ▼] 下拉           | ✅ v2.2 |
+| 22  | 保存按钮行为: [Save] [Save & New] [Save & Close] 三种意图    | ✅ v2.2 |
+| 23  | PackDetail 表格行单击 → Inline Edit Panel 快速修改           | ✅ v2.2 |
+| 24  | Browse 页面只读标识 🔒 + 来源包 badge 📦SRD                  | ✅ v2.2 |
+| 25  | Browse 页面侧边栏自动折叠为 64px 图标模式                    | ✅ v2.2 |
+| 26  | Monster Simple↔Advanced 数据迁移规则 (字段映射表)            | ✅ v2.2 |
+| 27  | CreatePackWizard 移除 Step 2 (选择初始内容类型)              | ✅ v2.2 |
 
 ---
 
@@ -1143,4 +1271,4 @@ Empty pack → 隐藏类型图标行，显示 "No content"
 
 ---
 
-_End of Design Document v2.0_
+_End of Design Document v2.2_

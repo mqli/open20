@@ -3,10 +3,11 @@
 > **Package Name**: `@open20/rulebook`
 > **Version**: 0.1.0 (MVP)
 > **Status**: 📋 Planned
-> **Last Updated**: 2026-06-14 (v1.1 — post PRD review)
+> **Last Updated**: 2026-06-14 (v1.2 — post second review)
 >
 > **Changelog**:
 >
+> - v1.2: P0 修复 — `loadPack(path)` → `loadPack(packId)` 与 IStorage 对齐；ContentEditor 改为持有 pack 引用（去掉 packId 参数）；`_meta` 改为运行时内部状态并明确导出剥离策略；P1 补充 — 添加 Duplicate User Story；添加撤销操作能力；定义 SpellQuery 结构；定义导入冲突解决 API
 > - v1.1: 修正 API 引用（`registerContentPack()` → `loadContentPack()`/`exportContentPack()`/`importContentPack()`）；明确 Zod schema 由 rulebook 自行定义；补全 11 种内容类型；决策存储方案（抽象接口 + IndexedDB）
 > - v1.0: Initial PRD
 
@@ -57,16 +58,18 @@
 
 ### 3.1 Content Creator Stories
 
-| ID   | Story                                                                  | Priority |
-| ---- | ---------------------------------------------------------------------- | -------- |
-| US-1 | 作为内容创作者，我想创建新的内容包，设置名称、版本、作者信息           | P0       |
-| US-2 | 作为内容创作者，我想向内容包添加自定义法术，填写名称、等级、学派等字段 | P0       |
-| US-3 | 作为内容创作者，我想编辑现有内容包中的法术，修改描述或伤害骰           | P0       |
-| US-4 | 作为内容创作者，我想删除内容包中的某个法术                             | P1       |
-| US-5 | 作为内容创作者，我想预览法术卡片效果（渲染为 SpellCard）               | P1       |
-| US-6 | 作为内容创作者，我想导出内容包为 JSON 文件，分享给其他用户             | P0       |
-| US-7 | 作为内容创作者，我想从 JSON 文件导入内容包                             | P0       |
-| US-8 | 作为内容创作者，我想验证内容包数据的完整性（必填字段、类型检查）       | P0       |
+| ID    | Story                                                                                                | Priority |
+| ----- | ---------------------------------------------------------------------------------------------------- | -------- |
+| US-1  | 作为内容创作者，我想创建新的内容包，设置名称、版本、作者信息                                         | P0       |
+| US-2  | 作为内容创作者，我想向内容包添加自定义法术，填写名称、等级、学派等字段                               | P0       |
+| US-3  | 作为内容创作者，我想编辑现有内容包中的法术，修改描述或伤害骰                                         | P0       |
+| US-4  | 作为内容创作者，我想删除内容包中的某个法术                                                           | P1       |
+| US-4a | 作为内容创作者，我想复制现有法术，在此基础上快速创建相似法术（如 Fireball → Delayed Blast Fireball） | P1       |
+| US-4b | 作为内容创作者，我想撤销上次编辑操作，避免误操作丢失数据                                             | P1       |
+| US-5  | 作为内容创作者，我想预览法术卡片效果（渲染为 SpellCard）                                             | P1       |
+| US-6  | 作为内容创作者，我想导出内容包为 JSON 文件，分享给其他用户                                           | P0       |
+| US-7  | 作为内容创作者，我想从 JSON 文件导入内容包                                                           | P0       |
+| US-8  | 作为内容创作者，我想验证内容包数据的完整性（必填字段、类型检查）                                     | P0       |
 
 ### 3.2 DM Stories
 
@@ -152,14 +155,14 @@ interface ContentPackManager {
   // 创建新内容包
   createPack(meta: ContentPackMeta): ContentPack;
 
-  // 加载现有内容包
-  loadPack(path: string): Promise<ContentPack>;
+  // 加载现有内容包（通过 packId 从 IStorage 读取）
+  loadPack(packId: string): Promise<EditableContentPack | null>;
 
-  // 保存内容包
-  savePack(pack: ContentPack): Promise<void>;
+  // 保存内容包（持久化到 IStorage）
+  savePack(pack: EditableContentPack): Promise<void>;
 
   // 列出所有内容包
-  listPacks(): ContentPackMeta[];
+  listPacks(): Promise<ContentPackMeta[]>;
 
   // 启用/禁用内容包
   enablePack(id: string): void;
@@ -184,28 +187,71 @@ interface ContentBrowser {
   // 按包过滤
   getSpellsByPack(packId: string): Spell[];
 
-  // 搜索
+  // 搜索（支持模糊匹配）
   searchSpells(query: SpellQuery): Spell[];
   searchMonsters(query: MonsterQuery): Monster[];
 }
+
+// 法术搜索查询
+interface SpellQuery {
+  // 名称搜索：大小写不敏感的模糊匹配（包含子串即命中），支持中英文
+  name?: string;
+  // 精确过滤：等级等于指定值
+  level?: number;
+  // 精确过滤：等级在范围内（与 level 互斥，同时提供时 level 优先）
+  levelRange?: { min: number; max: number };
+  // 精确过滤：学派匹配（枚举值）
+  school?: SpellSchool;
+  // 精确过滤：职业列表，法术的 classes 数组与给定数组有交集
+  classes?: string[];
+  // 来源过滤：精确匹配 source 字段
+  source?: string;
+  // 排序字段（默认 'name'）
+  sortBy?: 'name' | 'level' | 'school';
+  // 排序方向（默认 'asc'）
+  sortOrder?: 'asc' | 'desc';
+}
+
+type SpellSchool =
+  | 'Abjuration'
+  | 'Conjuration'
+  | 'Divination'
+  | 'Enchantment'
+  | 'Evocation'
+  | 'Illusion'
+  | 'Necromancy'
+  | 'Transmutation';
 ```
 
+> **搜索策略说明**: `name` 字段为模糊匹配（子串包含，大小写不敏感），其余字段均为精确匹配或范围匹配。Phase 1 不做全文搜索（description 内容搜索）和中文分词，延后到 Phase 3 评估。
+
 ### 5.2 Feature 2: Content Editing (内容编辑)
+
+`ContentEditor` 持有 `EditableContentPack` 引用（构造时传入），所有方法操作该 pack 实例，无需额外传递 `packId`。
+
+```typescript
+class ContentEditor {
+  constructor(pack: EditableContentPack);
+
+  // 当前绑定的内容包（只读）
+  readonly pack: EditableContentPack;
+}
+```
 
 #### 5.2.1 Add Content (添加内容)
 
 向内容包添加新内容：
 
 ```typescript
-interface ContentEditor {
+class ContentEditor {
   // 添加法术
-  addSpell(packId: string, spell: Spell): void;
+  addSpell(spell: Spell): void;
 
   // 添加怪物
-  addMonster(packId: string, monster: Monster): void;
+  addMonster(monster: Monster): void;
 
   // 添加种族
-  addSpecies(packId: string, species: Species): void;
+  addSpecies(species: Species): void;
 
   // ... 其他内容类型
 }
@@ -216,12 +262,12 @@ interface ContentEditor {
 编辑现有内容：
 
 ```typescript
-interface ContentEditor {
+class ContentEditor {
   // 更新法术
-  updateSpell(packId: string, spellId: string, updates: Partial<Spell>): void;
+  updateSpell(spellId: string, updates: Partial<Spell>): void;
 
   // 更新怪物
-  updateMonster(packId: string, monsterId: string, updates: Partial<Monster>): void;
+  updateMonster(monsterId: string, updates: Partial<Monster>): void;
 
   // ... 其他内容类型
 }
@@ -232,14 +278,46 @@ interface ContentEditor {
 从内容包删除内容：
 
 ```typescript
-interface ContentEditor {
-  removeSpell(packId: string, spellId: string): void;
-  removeMonster(packId: string, monsterId: string): void;
+class ContentEditor {
+  removeSpell(spellId: string): void;
+  removeMonster(monsterId: string): void;
   // ...
 }
 ```
 
-#### 5.2.4 Content Templates (内容模板)
+#### 5.2.4 Duplicate Content (复制内容)
+
+复制已有内容项（生成新 ID，用于"复制再改"工作流）：
+
+```typescript
+class ContentEditor {
+  // 复制法术（新 ID 自动生成：`${originalId}-copy`）
+  duplicateSpell(spellId: string): Spell;
+
+  // 复制怪物
+  duplicateMonster(monsterId: string): Monster;
+
+  // ... 其他内容类型
+}
+```
+
+#### 5.2.5 Undo (撤销操作)
+
+支持撤销最近的编辑操作（至少一步）：
+
+```typescript
+class ContentEditor {
+  // 撤销上次操作
+  undo(): void;
+
+  // 是否可撤销
+  readonly canUndo: boolean;
+}
+```
+
+> **设计说明**: Phase 1 实现单步撤销（保存操作前的快照）。完整操作历史栈和多步撤销延后到 Phase 5。
+
+#### 5.2.6 Content Templates (内容模板)
 
 提供常用内容的模板：
 
@@ -254,6 +332,54 @@ interface ContentTemplates {
   // ... 其他内容类型
 }
 ```
+
+### 5.4 Feature 4: Import Conflict Resolution (导入冲突解决)
+
+导入内容包时可能遇到冲突，需要 API 级别的冲突检测与解决接口：
+
+```typescript
+// 冲突类型
+type ConflictType = 'same-id' | 'same-name-different-id';
+
+// 冲突条目
+interface ConflictEntry {
+  type: ConflictType;
+  contentType: ContentTypeId; // 'spells', 'monsters', etc.
+  existingId: string;
+  existingName: string;
+  incomingId: string;
+  incomingName: string;
+}
+
+// 冲突解决策略
+type ConflictResolution =
+  | { strategy: 'keep-both'; newId: string } // 保留两者，为新条目分配 newId
+  | { strategy: 'replace'; targetId: string } // 用导入条目替换已有条目
+  | { strategy: 'skip' }; // 跳过该条目
+
+// 导入结果
+interface ImportResult {
+  imported: number;
+  skipped: number;
+  replaced: number;
+  conflicts: ConflictEntry[];
+}
+
+// 导入接口（扩展 ContentPackIO）
+interface ContentPackIO {
+  // 预检查冲突（不实际导入）
+  checkImportConflicts(sourcePack: ContentPack, targetPackId: string): Promise<ConflictEntry[]>;
+
+  // 执行导入（带冲突解决策略）
+  importWithResolutions(
+    sourcePack: ContentPack,
+    targetPackId: string,
+    resolutions: Map<string, ConflictResolution>, // key: `${contentType}:${incomingId}`
+  ): Promise<ImportResult>;
+}
+```
+
+> **设计说明**: `same-id` 是严格的 ID 冲突；`same-name-different-id` 是数据质量问题（如用户改了 ID 但名字相同）。UI 层（DESIGN 中的 ImportWizard Quick/Guided 模式）负责收集用户的解决策略，然后调用此 API 执行。
 
 ### 5.3 Feature 3: Import/Export (导入/导出)
 
@@ -400,15 +526,63 @@ export interface EditableContentPack extends CoreContentPack {
     homepage?: string;
     dependencies?: string[]; // 依赖的其他内容包
   };
-
-  // 编辑元数据
-  _meta: {
-    createdAt: string;
-    updatedAt: string;
-    schemaVersion: string; // 用于迁移
-  };
 }
 ```
+
+#### 6.1.1 运行时编辑状态（不序列化）
+
+编辑元数据作为 **运行时内部状态**，不存储在 `EditableContentPack` 对象中，由 `ContentEditor` 内部维护：
+
+```typescript
+// packages/rulebook/src/editor/edit-state.ts
+
+/** 运行时编辑状态 — 不序列化到 JSON，不污染导出格式 */
+export interface EditState {
+  createdAt: string;
+  updatedAt: string;
+  schemaVersion: string;
+  undoStack: UndoEntry[]; // 撤销栈
+}
+
+// ContentEditor 内部持有 EditState
+class ContentEditor {
+  private editState: EditState;
+
+  constructor(pack: EditableContentPack) {
+    this.editState = {
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      schemaVersion: '1.0.0',
+      undoStack: [],
+    };
+  }
+}
+```
+
+#### 6.1.2 导出策略
+
+`exportPack()` 导出时 **剥离所有运行时状态**，输出纯净的 `ContentPack` 格式：
+
+```typescript
+function exportPack(pack: EditableContentPack, editState: EditState): string {
+  // 1. 深拷贝 pack，移除所有非 core 字段
+  // 2. 仅保留 ContentPack 接口定义的字段（meta, spells, monsters, ...）
+  // 3. meta 仅保留 ContentPackMeta 标准字段（id, name, version, source, author, priority）
+  // 4. 序列化为 JSON
+  const { meta, ...content } = pack;
+  const cleanMeta: ContentPackMeta = {
+    id: meta.id,
+    name: meta.name,
+    version: meta.version,
+    source: meta.source,
+    author: meta.author,
+    priority: meta.priority,
+  };
+  return JSON.stringify({ meta: cleanMeta, ...content });
+}
+```
+
+> **关键约束**: 导出的 JSON 必须可直接用于 `open20-core` 的 `importContentPack()`，不能包含任何 core 不认识的字段（满足 G3）。
 
 ### 6.2 Content Type Registry
 
@@ -500,7 +674,7 @@ const pack = manager.createPack({
   author: 'DM Awesome',
 });
 
-// 添加法术
+// 编辑内容包（ContentEditor 持有 pack 引用）
 const editor = new ContentEditor(pack);
 editor.addSpell({
   id: 'custom-spell',
@@ -510,7 +684,17 @@ editor.addSpell({
   // ...
 });
 
-// 导出
+// 复制法术（复制再改工作流）
+const copied = editor.duplicateSpell('custom-spell');
+// copied.id === 'custom-spell-copy'
+
+// 撤销上次操作
+editor.undo();
+
+// 保存到 IndexedDB
+await manager.savePack(pack);
+
+// 导出（自动剥离运行时状态，输出纯净 ContentPack JSON）
 const json = await exportPack(pack);
 console.log(json);
 ```
@@ -562,6 +746,9 @@ await importPackFromJson(JSON.stringify(pack)); // 浏览器端存储
 
 ## 9. Implementation Phases
 
+> **Agent Task Documents**: Phase 1 has been split into self-contained task docs for agent-driven development.
+> See [tasks/](./tasks/) for individual task specs with exact interfaces, file paths, and test requirements.
+
 ### Phase 1: MVP (Minimum Viable Product)
 
 **Goal**: 基本的 headless 内容包管理功能 + 法术编辑
@@ -577,10 +764,25 @@ await importPackFromJson(JSON.stringify(pack)); // 浏览器端存储
 - [ ] 定义抽象存储接口 `IStorage` + IndexedDB 实现
 - [ ] 实现 `ContentPackManager`（创建、加载、保存、启用/禁用、删除）
 - [ ] 实现 `ContentEditor`（添加、编辑、删除法术 — **仅 Spell**）
-- [ ] 实现 `exportPack()` / `importPack()`（JSON 序列化，兼容 core 的 `ContentPack` 格式）
+- [ ] 实现 `ContentEditor.duplicateSpell()` 复制法术功能
+- [ ] 实现 `ContentEditor.undo()` 单步撤销
+- [ ] 实现 `exportPack()` / `importPack()`（JSON 序列化，兼容 core 的 `ContentPack` 格式，导出时剥离运行时状态）
 - [ ] **自行定义** `SpellSchema`（Zod），core 中不存在内容类型 schema
 - [ ] 实现基本验证（基于 SpellSchema 的 `safeParse`）
 - [ ] 编写单元测试
+
+**Agent Tasks**:
+
+| Task | File                                                           | Description                                  |
+| ---- | -------------------------------------------------------------- | -------------------------------------------- |
+| A    | [tasks/A-scaffold.md](./tasks/A-scaffold.md)                   | Package scaffold & monorepo integration      |
+| B    | [tasks/B-types-storage.md](./tasks/B-types-storage.md)         | Types, IStorage, IndexedDBStorage            |
+| C    | [tasks/C-manager.md](./tasks/C-manager.md)                     | ContentPackManager                           |
+| D    | [tasks/D-validation-editor.md](./tasks/D-validation-editor.md) | SpellSchema, ContentValidator, ContentEditor |
+| E    | [tasks/E-import-export.md](./tasks/E-import-export.md)         | Export, Import, Conflict Resolution          |
+| F    | [tasks/F-browser.md](./tasks/F-browser.md)                     | ContentBrowser, SpellQuery, Search           |
+
+See [tasks/README.md](./tasks/README.md) for dependency graph and execution order.
 
 **Phase 1 不做**:
 
@@ -732,8 +934,17 @@ export class FileSystemStorage implements IStorage {
    - `open20-core` 的 `importContentPack()` / `exportContentPack()` 支持多文件格式
    - 当前方案：统一 JSON 优先（单文件），多文件格式在 Phase 2 中评估
 
-2. **内容包间冲突处理**：同 ID 内容在不同包中存在时，如何显示和解决？
-   - 当前方案：Core 级别不做去重，UI 层通过 `source` 和 `priority` 字段区分
+### 11.3 已解决问题（来自第二轮评审）
+
+| #   | 问题                                                         | 解决方案                                                                                                                                                                                   |
+| --- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | `ContentPackManager.loadPack(path: string)` 与浏览器端矛盾   | 改为 `loadPack(packId: string)`，与 `IStorage` 接口对齐；返回 `EditableContentPack \| null`                                                                                                |
+| 2   | `ContentEditor` 方法签名需要 `packId` 但用例传入 `pack` 对象 | `ContentEditor` 改为持有 `pack` 引用（构造时传入），方法签名去掉 `packId`                                                                                                                  |
+| 3   | `EditableContentPack._meta` 下划线前缀会污染导出 JSON        | `_meta` 改为运行时内部状态 `EditState`，由 `ContentEditor` 内部维护；`exportPack()` 明确剥离策略，输出纯净 `ContentPack` 格式                                                              |
+| 4   | 缺少"复制/克隆内容项" User Story                             | 添加 US-4a 及 `duplicateSpell()` API                                                                                                                                                       |
+| 5   | 缺少撤销操作能力                                             | 添加 US-4b 及 `undo()` / `canUndo` API；Phase 1 单步撤销，多步撤销延后 Phase 5                                                                                                             |
+| 6   | 搜索能力定义不具体，`SpellQuery` 未定义                      | 定义 `SpellQuery` 结构：`name` 模糊匹配，其余精确/范围匹配；Phase 1 不做全文搜索和中文分词                                                                                                 |
+| 7   | 导入冲突只处理同 ID，缺少 API 级别冲突解决接口               | 新增 §5.4 定义 `ConflictType`（`same-id` / `same-name-different-id`）、`ConflictResolution`（`keep-both` / `replace` / `skip`）、`checkImportConflicts()` 和 `importWithResolutions()` API |
 
 ---
 
