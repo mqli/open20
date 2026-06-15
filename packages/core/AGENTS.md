@@ -175,7 +175,6 @@ packages/core/                  # path inside monorepo
 │   │
 │   ├── content/                # Content pack types & utilities
 │   │   ├── types.ts           # ContentPack, ContentPackMeta interfaces
-│   │   ├── io.ts             # exportContentPack(), importContentPack()
 │   │   └── index.ts           # Barrel export
 │   │
 │   └── storage/                # Persistence (interface + implementations)

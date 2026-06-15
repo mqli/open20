@@ -159,12 +159,6 @@ static/srd/
 └── gears.json
 ```
 
-**Import/Export Support** (for distribution):
-
-- `exportContentPack(dirPath)` — Merge separate files into unified `ContentPack` object
-- `importContentPack(pack, dirPath)` — Split unified `ContentPack` into separate files
-- Enables easy sharing of content packs as single JSON files
-
 **Distribution**:
 
 - **SRD**: Included in `@open20/core` (`static/srd/`)

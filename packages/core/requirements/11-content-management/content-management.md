@@ -81,20 +81,6 @@ static/
     └── gears.json
 ```
 
-**Import/Export Functions**:
-```typescript
-// src/content/io.ts
-
-/** Export separate files to unified ContentPack object */
-export function exportContentPack(dirPath: string): ContentPack;
-
-/** Import unified ContentPack object, split into separate files */
-export function importContentPack(pack: ContentPack, dirPath: string): void;
-
-/** Load content pack from directory (separate files) or unified object */
-export function loadContentPack(source: string | ContentPack): ContentPack;
-```
-
 **Content Pack Metadata** (`meta.json`):
 ```typescript
 interface ContentPackMeta {
@@ -128,9 +114,6 @@ interface ContentPack {
 - [ ] SRD content in `static/srd/` with separate files per type
 - [ ] `meta.json` schema defined and validated
 - [ ] Loader can load from directory structure (separate files)
-- [ ] `exportContentPack()` — Merge separate files into unified `ContentPack` object
-- [ ] `importContentPack()` — Split unified `ContentPack` into separate files
-- [ ] `loadContentPack()` — Load from either separate files or unified object
 - [ ] Each content file matches existing JSON schema (species.json, classes.json, etc.)
 
 ---
@@ -239,14 +222,9 @@ export interface DataLoader {
 4. [ ] Update `default-loader.ts` to load from `static/srd/` directory
 5. [ ] Tests: Verify SRD content loads correctly
 
-### Phase 2: Import/Export Support (P1)
-1. [ ] Create `src/content/types.ts` with `ContentPackMeta` and `ContentPack` interfaces
-2. [ ] Create `src/content/io.ts` with `exportContentPack()` and `importContentPack()` functions
-3. [ ] Implement `exportContentPack()` — Merge separate files into unified `ContentPack`
-4. [ ] Implement `importContentPack()` — Split unified `ContentPack` into separate files
-5. [ ] Tests: Export then import returns identical data
+> **Note**: Import/Export functionality is now provided by `@open20/content` package (browser-compatible). See `packages/content/PRD.md` for details.
 
-### Phase 3: Content Pack Registration (P1)
+### Phase 2: Content Pack Registration (P1)
 1. [ ] Update `DataLoader` interface to support `registerContentPack()`
 2. [ ] Implement `registerContentPack()` — Accept directory path or `ContentPack` object
 3. [ ] Implement `unregisterContentPack()` — Remove content pack by ID
@@ -254,13 +232,13 @@ export interface DataLoader {
 5. [ ] Tests: Register/unregister content packs
 6. [ ] Tests: Same ID in multiple packs coexists
 
-### Phase 4: Homebrew Support (P1)
+### Phase 3: Homebrew Support (P1)
 1. [ ] Create example homebrew content pack (e.g., `examples/homebrew/`)
 2. [ ] Document content pack creation process in `docs/content-packs.md`
 3. [ ] Add validation for `meta.json` schema
 4. [ ] Tests: Load homebrew content from directory
 
-### Phase 5: Cleanup (P2)
+### Phase 4: Cleanup (P2)
 1. [ ] Remove old `static/*.json` files (after migration to `static/srd/`)
 2. [ ] Update documentation (PRD, HLD, agent.md)
 3. [ ] Add deprecation warning for old loading mechanism

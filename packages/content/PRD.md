@@ -8,7 +8,7 @@
 > **Changelog**:
 >
 > - v1.2: P0 修复 — `loadPack(path)` → `loadPack(packId)` 与 IStorage 对齐；ContentEditor 改为持有 pack 引用（去掉 packId 参数）；`_meta` 改为运行时内部状态并明确导出剥离策略；P1 补充 — 添加 Duplicate User Story；添加撤销操作能力；定义 SpellQuery 结构；定义导入冲突解决 API
-> - v1.1: 修正 API 引用（`registerContentPack()` → `loadContentPack()`/`exportContentPack()`/`importContentPack()`）；明确 Zod schema 由 rulebook 自行定义；补全 11 种内容类型；决策存储方案（抽象接口 + IndexedDB）
+> - v1.1: 修正 API 引用（`registerContentPack()` → `loadPack()`）；明确 Zod schema 由 rulebook 自行定义；补全 11 种内容类型；决策存储方案（抽象接口 + IndexedDB）
 > - v1.0: Initial PRD
 
 ---
@@ -21,11 +21,11 @@
 
 ### 1.2 Problem Statement
 
-当前 `open20-core` 提供了基础的内容包 IO 能力（`loadContentPack()` / `exportContentPack()` / `importContentPack()`，均在 `src/content/io.ts`），但缺少：
+当前 `open20-core` 提供了基础的 `ContentPack` 类型定义，但缺少：
 
 - 内容包的创建和编辑工具
 - 内容组织和浏览界面
-- 浏览器端可用的 JSON 导入/导出（core 的 IO 函数仅 Node.js）
+- 浏览器端可用的 JSON 导入/导出
 - 内容验证和预览
 
 ### 1.3 Target Users
@@ -42,7 +42,7 @@
 
 - **G1**: 提供内容包的完整 CRUD 操作
 - **G2**: 支持 `ContentPack` 定义的 11 种内容类型（species, backgrounds, classes, subclasses, feats, spells, weapons, armors, gears, monsters, glossary）
-- **G3**: JSON 导入/导出，兼容 `open20-core` 的 `ContentPack` 格式（`exportContentPack()` / `importContentPack()`）
+- **G3**: JSON 导入/导出，兼容 `open20-core` 的 `ContentPack` 格式
 - **G4**: 内容验证（rulebook 自行定义 Zod schema，因 core 仅提供 `CharacterSchema`，不含内容类型 schema）
 - **G5**: 提供 React UI 组件库（可选，类似 `@open20/ui`）
 
@@ -582,7 +582,7 @@ function exportPack(pack: EditableContentPack, editState: EditState): string {
 }
 ```
 
-> **关键约束**: 导出的 JSON 必须可直接用于 `open20-core` 的 `importContentPack()`，不能包含任何 core 不认识的字段（满足 G3）。
+> **关键约束**: 导出的 JSON 必须符合 `ContentPack` 类型定义，不能包含任何 core 不认识的字段（满足 G3）。
 
 ### 6.2 Content Type Registry
 
@@ -708,23 +708,15 @@ console.log(json);
 - 复用 `ContentPack`, `ContentPackMeta` 类型（来自 `open20-core` 的 `src/content/types.ts`）
 - 复用 `Species`, `Spell`, `Monster` 等具体内容类型
 - 自行定义所有 11 种内容类型的 Zod schema（core 中仅存在 `CharacterSchema`）
-- JSON 格式兼容 `open20-core` 的 `exportContentPack()` / `importContentPack()`（`src/content/io.ts`，Node.js only）
-- `content` 提供浏览器可用的 `loadContentPack()` 等价物（基于 IndexedDB 存储层）
+- JSON 格式严格遵循 `open20-core` 的 `ContentPack` 接口定义
+- `content` 提供浏览器可用的 `importPackFromJson()` / `exportPackToJson()` 函数
 
 ```typescript
-// rulebook 导出的 JSON 可直接用于 open20-core 的 importContentPack()
-import { importContentPack } from 'open20-core';
-import { exportPackToJson } from '@open20/content';
+// content 包提供完整的导入导出能力
+import { importPackFromJson, exportPackToJson } from '@open20/content';
 
 const json = await exportPackToJson('my-homebrew');
-importContentPack(JSON.parse(json), './output-dir/');
-
-// rulebook 也可以加载 open20-core 导出的 JSON
-import { exportContentPack } from 'open20-core';
-import { importPackFromJson } from '@open20/content';
-
-const pack = exportContentPack('./static/srd/'); // Node.js
-await importPackFromJson(JSON.stringify(pack)); // 浏览器端存储
+const pack = await importPackFromJson(json);
 ```
 
 ### 8.2 Integration with `@open20/ui` (Optional)
@@ -931,7 +923,6 @@ export class FileSystemStorage implements IStorage {
 ### 11.2 待定问题
 
 1. **内容包格式**：是否支持分包导出（一个包包含多个 JSON 文件，如 `spells.json`, `monsters.json`）？
-   - `open20-core` 的 `importContentPack()` / `exportContentPack()` 支持多文件格式
    - 当前方案：统一 JSON 优先（单文件），多文件格式在 Phase 2 中评估
 
 ### 11.3 已解决问题（来自第二轮评审）

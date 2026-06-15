@@ -459,13 +459,11 @@ rollCharacterAttack(character, attack, target, dataLoader)
 
 1. **SRD content included in core** — `static/srd/` ships with `@open20/core`
 2. **Separate files per content type** — `species.json`, `spells.json`, etc. (not unified)
-3. **Import/export support** — `exportContentPack()` and `importContentPack()` for distribution
-4. **No override** — Same ID in different sources = separate items
+3. **No override** — Same ID in different sources = separate items
 
 **Components** (implemented):
 
 - `src/content/types.ts` — ContentPack, ContentPackMeta interfaces
-- `src/content/io.ts` — `exportContentPack()`, `importContentPack()` functions
 - `src/data/default-loader.ts` — Registry for multiple content sources
 - `static/srd/` — Separate JSON files for SRD content (source: 'SRD 5.2')
 - No-override rule: same ID = separate items coexist

@@ -62,8 +62,6 @@ export type {
 
 // ── Content (R26: Content Pack Management) ─────────
 export type { ContentPack, ContentPackMeta } from './content';
-// Note: exportContentPack, importContentPack, loadContentPack are Node.js-only
-// Import directly from 'open20-core/content/io' when needed in Node.js environment
 
 // ── Engine (pure functions) ─────────────────────────────
 export { getModifier, getTotalScore } from './engine';

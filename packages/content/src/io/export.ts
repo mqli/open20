@@ -10,7 +10,7 @@ import type { ContentPack, ContentPackMeta } from 'open20-core';
  * - EditState (createdAt, updatedAt, undoStack, schemaVersion) → NOT INCLUDED
  * - Any non-core fields → DELETED
  *
- * Output must be valid input for open20-core's importContentPack().
+ * Output is a clean ContentPack JSON string compatible with `@open20/content` io functions.
  */
 const CORE_CONTENT_KEYS: (keyof ContentPack)[] = [
   'species',

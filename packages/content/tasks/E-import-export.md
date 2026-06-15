@@ -43,7 +43,7 @@ import type { ContentPack, ContentPackMeta } from 'open20-core';
  * - EditState (createdAt, updatedAt, undoStack, schemaVersion) → NOT INCLUDED
  * - Any non-core fields → DELETED
  *
- * Output must be valid input for open20-core's importContentPack().
+ * Output is a clean ContentPack JSON string.
  */
 export function exportPack(pack: EditableContentPack, editState?: EditState): string;
 ```
@@ -193,7 +193,7 @@ export type { ConflictType, ConflictEntry, ConflictResolution, ImportResult } fr
 ## Acceptance Criteria
 
 - [ ] `exportPack(pack)` produces valid JSON with only core `ContentPackMeta` fields in meta
-- [ ] `exportPack(pack)` output can be parsed by `importContentPack()` from open20-core (integration test)
+- [ ] `exportPack(pack)` output can be parsed by `importPackFromJson()` from `@open20/content` (integration test)
 - [ ] `exportPack(pack)` does NOT contain `description`, `homepage`, `dependencies` in meta
 - [ ] `exportPack(pack)` does NOT contain `_meta`, `editState`, `undoStack` anywhere
 - [ ] `importPack(json)` returns `EditableContentPack` with spells array
