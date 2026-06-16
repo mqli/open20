@@ -288,6 +288,88 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
+  packages/rulebook:
+    dependencies:
+      '@open20/content':
+        specifier: workspace:*
+        version: link:../content
+      '@open20/ui':
+        specifier: workspace:*
+        version: link:../ui
+      clsx:
+        specifier: 'catalog:'
+        version: 2.1.1
+      open20-core:
+        specifier: workspace:*
+        version: link:../core
+      react:
+        specifier: 'catalog:'
+        version: 19.2.6
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.6(react@19.2.6)
+      react-router-dom:
+        specifier: 'catalog:'
+        version: 7.15.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      tailwind-merge:
+        specifier: 'catalog:'
+        version: 3.6.0
+      zustand:
+        specifier: 'catalog:'
+        version: 5.0.13(@types/react@19.2.15)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
+    devDependencies:
+      '@eslint/js':
+        specifier: 'catalog:'
+        version: 10.0.1(eslint@10.4.0(jiti@2.7.0))
+      '@open20/config':
+        specifier: workspace:*
+        version: link:../config
+      '@tailwindcss/vite':
+        specifier: 'catalog:'
+        version: 4.3.0(vite@6.4.2(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
+      '@testing-library/jest-dom':
+        specifier: 'catalog:'
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.15
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.15)
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 4.7.0(vite@6.4.2(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
+      eslint:
+        specifier: 'catalog:'
+        version: 10.4.0(jiti@2.7.0)
+      eslint-plugin-react-hooks:
+        specifier: 'catalog:'
+        version: 7.1.1(eslint@10.4.0(jiti@2.7.0))
+      eslint-plugin-react-refresh:
+        specifier: 'catalog:'
+        version: 0.5.2(eslint@10.4.0(jiti@2.7.0))
+      globals:
+        specifier: 'catalog:'
+        version: 17.6.0
+      happy-dom:
+        specifier: 'catalog:'
+        version: 15.11.7
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      typescript-eslint:
+        specifier: 'catalog:'
+        version: 8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
+      vite:
+        specifier: 'catalog:'
+        version: 6.4.2(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(happy-dom@15.11.7)(jsdom@29.1.1)(vite@6.4.2(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0))
+
   packages/spellbook:
     dependencies:
       '@open20/content-srd':
