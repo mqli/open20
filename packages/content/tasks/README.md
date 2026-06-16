@@ -1,12 +1,27 @@
-# Rulebook Phase 1 — Agent Task Index
+# Rulebook Task Index
 
-**Source**: [PRD v1.2](../PRD.md) | [DESIGN v2.2](../DESIGN.md)  
-**Phase**: 1 (MVP — headless spell editing)  
-**Target**: `@open20/content` v0.1.0
+**Source**: [PRD v1.3](../PRD.md) | [DESIGN v2.2](../DESIGN.md)  
+**Revised Approach (2026-06-16)**: Build UI with spells first, then iteratively add more content types.
 
 ---
 
-## Task Dependency Graph
+## Phase Overview
+
+| Phase | Description                        | Target Package     | Status         |
+| ----- | ---------------------------------- | ------------------ | -------------- |
+| 1     | Headless API for Spells (COMPLETE) | `@open20/content`  | ✅ Complete    |
+| 2     | Rulebook UI for Spells (PRIORITY)  | `@open20/rulebook` | 🔄 In Progress |
+| 3     | Extended Content Types (ITERATIVE) | Both packages      | 📋 Planned     |
+| 4     | Advanced Features                  | Both packages      | 📋 Planned     |
+
+---
+
+## Phase 1 Tasks (Headless API — COMPLETE ✅)
+
+**Target**: `@open20/content` v0.1.0  
+**Task Details**: See [Phase 1 README](./phase1-README.md) (if exists) or task files A-F.
+
+### Task Dependency Graph
 
 ```
 A (scaffold)
@@ -21,6 +36,54 @@ A (scaffold)
 │     │     │
 │     │     ├──► E (import/export + conflicts)
 ```
+
+### Task Execution Order
+
+| Order | Task                        | File                                               | Est. Effort | Can Parallelize |
+| ----- | --------------------------- | -------------------------------------------------- | ----------- | --------------- |
+| 1     | **A** — Package Scaffold    | [A-scaffold.md](./A-scaffold.md)                   | Small       | —               |
+| 2     | **B** — Types & Storage     | [B-types-storage.md](./B-types-storage.md)         | Medium      | —               |
+| 3a    | **C** — ContentPackManager  | [C-manager.md](./C-manager.md)                     | Medium      | After B         |
+| 3b    | **D** — Validation & Editor | [D-validation-editor.md](./D-validation-editor.md) | Large       | Parallel with C |
+| 4a    | **E** — Import/Export       | [E-import-export.md](./E-import-export.md)         | Medium      | After C + D     |
+| 4b    | **F** — ContentBrowser      | [F-browser.md](./F-browser.md)                     | Medium      | After C         |
+
+---
+
+## Phase 2 Tasks (Rulebook UI — PRIORITY 🎯)
+
+**Target**: `@open20/rulebook` v0.1.0 (spell-focused MVP)  
+**Task Details**: See [Phase 2 README](./phase2-README.md).
+
+### Task Dependency Graph
+
+```
+G (scaffold rulebook)
+│
+├──► H (layout + routing)
+│     │
+│     ├──► I (PackList page)
+│     │     │
+│     │     └──► J (PackDetail page - spells tab)
+│     │           │
+│     │           └──► K (ContentEditor - spell editor)
+│     │
+│     └──► L (ContentBrowser page)
+│
+└──► M (import/export UI)
+```
+
+### Task Execution Order
+
+| Order | Task                      | File                                               | Est. Effort | Can Parallelize |
+| ----- | ------------------------- | -------------------------------------------------- | ----------- | --------------- |
+| 1     | **G** — Rulebook Scaffold | [G-scaffold-rulebook.md](./G-scaffold-rulebook.md) | Medium      | —               |
+| 2     | **H** — Layout & Routing  | [H-layout.md](./H-layout.md)                       | Medium      | After G         |
+| 3     | **I** — PackList Page     | [I-packlist.md](./I-packlist.md)                   | Medium      | After H         |
+| 4     | **J** — PackDetail Page   | [J-packdetail.md](./J-packdetail.md)               | Large       | After I         |
+| 5     | **K** — Spell Editor      | [K-spell-editor.md](./K-spell-editor.md)           | Large       | After J         |
+| 6     | **L** — ContentBrowser    | [L-browser.md](./L-browser.md)                     | Medium      | After H         |
+| 7     | **M** — Import/Export UI  | [M-import-export.md](./M-import-export.md)         | Medium      | After J + L     |
 
 ## Task Execution Order
 

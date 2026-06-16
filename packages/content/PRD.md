@@ -738,111 +738,80 @@ const pack = await importPackFromJson(json);
 
 ## 9. Implementation Phases
 
-> **Agent Task Documents**: Phase 1 has been split into self-contained task docs for agent-driven development.
-> See [tasks/](./tasks/) for individual task specs with exact interfaces, file paths, and test requirements.
+> **Revised Approach (2026-06-16)**: Instead of building all headless API first (Phases 1-3), then UI (Phase 4), the new plan prioritizes **UI development with spells first**, then iteratively adds more content types. This allows earlier validation of API design and faster user feedback.
 
-### Phase 1: MVP (Minimum Viable Product)
+### Phase 1: Headless API for Spells (COMPLETE ✅)
 
-**Goal**: 基本的 headless 内容包管理功能 + 法术编辑
+**Goal**: Basic headless content pack management + spell editing
 
-**存储方案决策**（必须在 Phase 1 开始时确定）:
+**Status**: Mostly complete. Remaining work:
 
-- 采用 **抽象存储接口 + IndexedDB 实现**（rulebook 为 React Web app）
-- 文件系统适配器延后到 CLI 工具阶段（Phase 5）
-
-**Scope**:
-
-- [ ] 创建 `packages/content/` 包结构
-- [ ] 定义抽象存储接口 `IStorage` + IndexedDB 实现
-- [ ] 实现 `ContentPackManager`（创建、加载、保存、启用/禁用、删除）
-- [ ] 实现 `ContentEditor`（添加、编辑、删除法术 — **仅 Spell**）
-- [ ] 实现 `ContentEditor.duplicateSpell()` 复制法术功能
-- [ ] 实现 `ContentEditor.undo()` 单步撤销
-- [ ] 实现 `exportPack()` / `importPack()`（JSON 序列化，兼容 core 的 `ContentPack` 格式，导出时剥离运行时状态）
-- [ ] **自行定义** `SpellSchema`（Zod），core 中不存在内容类型 schema
-- [ ] 实现基本验证（基于 SpellSchema 的 `safeParse`）
-- [ ] 编写单元测试
-
-**Agent Tasks**:
-
-| Task | File                                                           | Description                                  |
-| ---- | -------------------------------------------------------------- | -------------------------------------------- |
-| A    | [tasks/A-scaffold.md](./tasks/A-scaffold.md)                   | Package scaffold & monorepo integration      |
-| B    | [tasks/B-types-storage.md](./tasks/B-types-storage.md)         | Types, IStorage, IndexedDBStorage            |
-| C    | [tasks/C-manager.md](./tasks/C-manager.md)                     | ContentPackManager                           |
-| D    | [tasks/D-validation-editor.md](./tasks/D-validation-editor.md) | SpellSchema, ContentValidator, ContentEditor |
-| E    | [tasks/E-import-export.md](./tasks/E-import-export.md)         | Export, Import, Conflict Resolution          |
-| F    | [tasks/F-browser.md](./tasks/F-browser.md)                     | ContentBrowser, SpellQuery, Search           |
-
-See [tasks/README.md](./tasks/README.md) for dependency graph and execution order.
-
-**Phase 1 不做**:
-
-- ✗ 其他 10 种内容类型的编辑和 schema（延后到 Phase 2）
-- ✗ UI 组件（Phase 4）
-- ✗ 文件系统存储适配器（Phase 5）
+- [ ] Add tests for all implemented features
+- [ ] Implement `getTemplate()` for spells
+- [ ] Verify import/export with real JSON files
 
 **Deliverable**: `@open20/content` v0.1.0
 
-### Phase 2: Extended Content Types
+### Phase 2: Rulebook UI for Spells (PRIORITY 🎯)
 
-**Goal**: 支持 ContentPack 定义的全部 11 种内容类型（与 `open20-core` 的 `ContentPack` 接口对齐）
+**Goal**: Build `@open20/rulebook` React UI package with spell-focused MVP
 
-| 序号 | 内容类型    | ContentPack 字段 | Phase 1 | Phase 2 |
-| ---- | ----------- | ---------------- | ------- | ------- |
-| 1    | Spells      | `spells`         | ✅      | -       |
-| 2    | Species     | `species`        | -       | ✅      |
-| 3    | Backgrounds | `backgrounds`    | -       | ✅      |
-| 4    | Classes     | `classes`        | -       | ✅      |
-| 5    | Subclasses  | `subclasses`     | -       | ✅      |
-| 6    | Feats       | `feats`          | -       | ✅      |
-| 7    | Weapons     | `weapons`        | -       | ✅      |
-| 8    | Armors      | `armors`         | -       | ✅      |
-| 9    | Gears       | `gears`          | -       | ✅      |
-| 10   | Monsters    | `monsters`       | -       | ✅      |
-| 11   | Glossary    | `glossary`       | -       | ✅      |
+**Scope**:
 
-- [ ] 为剩余 10 种内容类型定义 Zod schema
-- [ ] 实现各类型的模板函数（`getXxxTemplate()`）
-- [ ] 扩展 `ContentEditor` 支持所有内容类型
-- [ ] 更新 `ContentTypeRegistry` 注册全部 11 种类型
-- [ ] 扩展导入/导出涵盖所有内容类型
-- [ ] 为每种类型编写验证测试
+- [ ] Create `@open20/rulebook` package (React + TypeScript + Vite + Tailwind CSS + shadcn/ui)
+- [ ] Implement RulebookLayout (sidebar + topbar + routing)
+- [ ] Implement PackList page (content pack card grid + empty state)
+- [ ] Implement PackDetail page (spells tab + table)
+- [ ] Implement ContentEditor page (spell editor + preview)
+- [ ] Implement ContentBrowser page (cross-pack spell browsing)
+- [ ] Integrate import/export (ImportWizard + ExportDialog)
+- [ ] Test complete spell workflow
 
-**Deliverable**: `@open20/content` v0.2.0
+**Deliverable**: `@open20/rulebook` v0.1.0 (spell-focused MVP)
 
-### Phase 3: Content Browser & Search
+### Phase 3: Extended Content Types (ITERATIVE 🔄)
 
-**Goal**: 提供内容浏览和搜索功能
+**Goal**: Add one content type at a time to both headless API and UI
 
-- [ ] 实现 `ContentBrowser`
-- [ ] 实现跨包搜索
-- [ ] 实现按来源过滤
-- [ ] 添加内容预览（使用 `open20-core` 的查询函数）
+**Strategy**: Each iteration = 1 content type added to `@open20/content` + corresponding UI in `@open20/rulebook`
 
-**Deliverable**: `@open20/content` v0.3.0
+**Order** (by complexity):
 
-### Phase 4: React UI Components (Optional)
+1. **Monsters** - High complexity, uses Simple/Advanced dual mode editor
+2. **Species** - Medium complexity
+3. **Backgrounds** - Medium complexity
+4. **Feats** - Medium complexity
+5. **Weapons** - Low complexity
+6. **Armors** - Low complexity
+7. **Gears** - Low complexity
+8. **Classes** - High complexity
+9. **Subclasses** - High complexity
+10. **Glossary** - Low complexity
 
-**Goal**: 提供 React UI 组件库
+Each iteration includes:
 
-- [ ] 创建 `@open20/rulebook` 包
-- [ ] 实现 `ContentPackEditor` 组件
-- [ ] 实现 `SpellEditor` 组件
-- [ ] 实现 `MonsterEditor` 组件
-- [ ] 实现导入/导出向导
-- [ ] 编写 Storybook 文档
+- [ ] Define Zod schema for content type
+- [ ] Extend `ContentEditor` with CRUD methods
+- [ ] Add template function
+- [ ] Update `ContentTypeRegistry`
+- [ ] Extend import/export
+- [ ] Add UI tab in PackDetail
+- [ ] Create content editor form
+- [ ] Add to ContentBrowser filters
 
-**Deliverable**: `@open20/rulebook` v0.1.0
+**Deliverable**: `@open20/content` v0.2.0 + `@open20/rulebook` v0.2.0
 
-### Phase 5: Advanced Features (Future)
+### Phase 4: Advanced Features (Future)
 
-- [ ] 内容包依赖管理
-- [ ] 内容版本控制（迁移旧格式）
-- [ ] 批量操作（批量导入、批量删除）
-- [ ] `FileSystemStorage` 适配器（Node.js 文件系统，CLI 使用）
-- [ ] CLI 工具（`rulebook create`, `rulebook validate`, `rulebook export`）
-- [ ] 内容包发布到 npm
+- [ ] Multi-step undo (operation history stack)
+- [ ] Content pack dependency management
+- [ ] Content version control (migrate old formats)
+- [ ] Batch operations (batch import, batch delete)
+- [ ] `FileSystemStorage` adapter (Node.js filesystem, CLI use)
+- [ ] CLI tools (`rulebook create`, `rulebook validate`, `rulebook export`)
+- [ ] Publish content packs to npm
+
+**Deliverable**: `@open20/content` v1.0.0 + `@open20/rulebook` v1.0.0
 
 ---
 
