@@ -1,16 +1,24 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import RulesPage from './pages/RulesPage';
+import { RulebookLayout } from './components/RulebookLayout';
+import { PackList } from './pages/PackList';
+import { PackDetail } from './pages/PackDetail';
+import { ContentEditor } from './pages/ContentEditor';
+import { ContentBrowser } from './pages/ContentBrowser';
 
-function App() {
+export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/rules/*" element={<RulesPage />} />
+        <Route element={<RulebookLayout />}>
+          <Route path="/rulebook" element={<PackList />} />
+          <Route path="/rulebook/packs/:id" element={<PackDetail />} />
+          <Route
+            path="/rulebook/editor/:packId/:contentType/:contentId?"
+            element={<ContentEditor />}
+          />
+          <Route path="/rulebook/browse" element={<ContentBrowser />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;

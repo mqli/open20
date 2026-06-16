@@ -19,13 +19,14 @@
   "dependencies": {
     "@open20/content": "workspace:*",
     "@open20/ui": "workspace:*",
+    "clsx": "catalog:",
+    "lucide-react": "catalog:",
     "open20-core": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-router-dom": "catalog:",
-    "zustand": "catalog:",
-    "clsx": "catalog:",
-    "tailwind-merge": "catalog:"
+    "tailwind-merge": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
