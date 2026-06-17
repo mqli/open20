@@ -1,6 +1,7 @@
 import type { ZodSchema } from 'zod';
-import { SpellSchema } from '../validator/schemas';
+import { SpellSchema, MonsterSchema } from '../validator/schemas';
 import { getSpellTemplate } from '../templates/spell-template';
+import { getMonsterTemplate } from '../templates/monster-template';
 
 export type ContentTypeId =
   | 'species'
@@ -22,7 +23,8 @@ export interface ContentTypeDescriptor {
   template: () => unknown; // Factory function for empty template
 }
 
-// Phase 1: Only Spell is registered. Other 10 are commented out for Phase 2.
+// Phase 2: Spells and Monsters are registered.
 export const contentTypes: ContentTypeDescriptor[] = [
   { id: 'spells', name: 'Spells', schema: SpellSchema, template: getSpellTemplate },
+  { id: 'monsters', name: 'Monsters', schema: MonsterSchema, template: getMonsterTemplate },
 ];

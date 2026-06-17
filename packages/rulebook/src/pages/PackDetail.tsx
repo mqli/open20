@@ -211,7 +211,20 @@ export function PackDetail() {
         </Tabs.Content>
 
         <Tabs.Content value="monsters">
-          <div className="p-4 text-center text-muted-foreground">No monsters in this pack yet.</div>
+          {monstersCount > 0 ? (
+            <ContentTable
+              monsters={pack.monsters}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelectedId}
+              onSelectAll={(ids) => selectAll(ids)}
+              isReadOnly={isBuiltIn}
+              sourceLabel={pack.meta.name}
+            />
+          ) : (
+            <div className="p-4 text-center text-muted-foreground">
+              No monsters in this pack yet.
+            </div>
+          )}
         </Tabs.Content>
 
         <Tabs.Content value="species">
