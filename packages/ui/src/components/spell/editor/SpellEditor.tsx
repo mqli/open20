@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import type { SpellEditorProps, SpellFormData } from './SpellEditor.types';
 import { spellToFormData, formDataToSpell } from './SpellEditor.types';
 import { BasicInfoSection } from './sections/BasicInfoSection';
@@ -21,15 +21,23 @@ export function SpellEditor({
   showPreview = false,
   disabled = false,
   className,
+  renderActions,
 }: SpellEditorProps) {
   const t = useTranslation();
 
   // ── State ────────────────────────────────────────
+  const initialData = useMemo(() => spellToFormData(defaultValue || undefined), [defaultValue]);
   const [formData, setFormData] = useState<SpellFormData>(() =>
     spellToFormData(value || defaultValue || undefined),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Track if form is dirty (compared to initial data)
+  const isDirty = useMemo(() => {
+    const initial = value ? spellToFormData(value) : initialData;
+    return JSON.stringify(formData) !== JSON.stringify(initial);
+  }, [formData, value, initialData]);
 
   // Sync with external value (controlled mode)
   useEffect(() => {
@@ -37,6 +45,25 @@ export function SpellEditor({
       setFormData(spellToFormData(value));
     }
   }, [value]);
+
+  // ── Validation (pure function, doesn't set state) ──
+  const getValidationErrors = (): Record<string, string> => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.id.trim()) newErrors.id = t('validation.idRequired');
+    if (!formData.name.trim()) newErrors.name = t('validation.nameRequired');
+    if (!formData.range.trim()) newErrors.range = t('validation.rangeRequired');
+    if (!formData.duration.trim()) newErrors.duration = t('validation.durationRequired');
+    if (formData.components.length === 0) newErrors.components = t('validation.componentsRequired');
+    if (formData.description.length === 0 || !formData.description[0]?.trim()) {
+      newErrors.description = t('validation.descriptionRequired');
+    }
+    return newErrors;
+  };
+
+  const isValid = useMemo(() => {
+    const validationErrors = getValidationErrors();
+    return Object.keys(validationErrors).length === 0;
+  }, [formData, t]);
 
   // ── Handlers ──────────────────────────────────────
   const handleChange = useCallback(
@@ -60,26 +87,17 @@ export function SpellEditor({
   );
 
   const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.id.trim()) newErrors.id = t('validation.idRequired');
-    if (!formData.name.trim()) newErrors.name = t('validation.nameRequired');
-    if (!formData.range.trim()) newErrors.range = t('validation.rangeRequired');
-    if (!formData.duration.trim()) newErrors.duration = t('validation.durationRequired');
-    if (formData.components.length === 0) newErrors.components = t('validation.componentsRequired');
-    if (formData.description.length === 0 || !formData.description[0]?.trim()) {
-      newErrors.description = t('validation.descriptionRequired');
-    }
+    const newErrors = getValidationErrors();
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
+  const handleSubmit = (intent?: 'stay' | 'new' | 'close') => {
     if (!validateForm()) return;
     setIsSubmitting(true);
     try {
       const spell = formDataToSpell(formData);
-      onSubmit?.(spell);
+      onSubmit?.(spell, intent);
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +110,13 @@ export function SpellEditor({
   // ── Render ───────────────────────────────────────
   return (
     <div className={className}>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        className="space-y-6"
+      >
         {/* Preview (optional) */}
         {showPreview && (
           <div className="sticky top-0 z-10 bg-bg-primary py-4 border-b border-border">
@@ -135,26 +159,30 @@ export function SpellEditor({
         )}
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-4 pt-4 border-t border-border">
-          {onCancel && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="lg"
-              onClick={handleCancel}
-              disabled={isSubmitting || disabled}
-            >
-              {t('common.cancel')}
+        {renderActions ? (
+          renderActions({ onSave: handleSubmit, isDirty, isValid, isSubmitting })
+        ) : (
+          <div className="flex justify-end gap-4 pt-4 border-t border-border">
+            {onCancel && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="lg"
+                onClick={handleCancel}
+                disabled={isSubmitting || disabled}
+              >
+                {t('common.cancel')}
+              </Button>
+            )}
+            <Button type="submit" variant="primary" size="lg" disabled={isSubmitting || disabled}>
+              {isSubmitting
+                ? t('common.saving')
+                : value
+                  ? t('spellEditor.updateSpell')
+                  : t('spellEditor.createSpell')}
             </Button>
-          )}
-          <Button type="submit" variant="primary" size="lg" disabled={isSubmitting || disabled}>
-            {isSubmitting
-              ? t('common.saving')
-              : value
-                ? t('spellEditor.updateSpell')
-                : t('spellEditor.createSpell')}
-          </Button>
-        </div>
+          </div>
+        )}
       </form>
     </div>
   );

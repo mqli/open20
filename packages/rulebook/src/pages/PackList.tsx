@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePackStore } from '../stores/packStore';
 import { PackCard } from '../components/PackCard';
 import { EmptyState } from '@open20/ui';
@@ -7,6 +8,7 @@ import { ImportWizard } from '../components/ImportWizard';
 import { Package } from 'lucide-react';
 
 export function PackList() {
+  const navigate = useNavigate();
   const { packs, loading, error, fetchPacks, isBuiltInPack } = usePackStore();
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportWizard, setShowImportWizard] = useState(false);
@@ -81,7 +83,7 @@ export function PackList() {
               pack={pack}
               spellCount={0} // TODO: fetch from ContentBrowser
               isBuiltIn={isBuiltInPack(pack.id)}
-              onOpen={() => console.log('Open', pack.id)}
+              onOpen={() => navigate(`/rulebook/packs/${pack.id}`)}
               onExport={() => console.log('Export', pack.id)}
             />
           ))}

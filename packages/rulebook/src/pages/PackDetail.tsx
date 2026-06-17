@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Spell } from 'open20-core';
 import { Tabs, Button, Input } from '@open20/ui';
 import {
@@ -20,6 +20,7 @@ import { AddContentButton } from '../components/AddContentButton';
 
 export function PackDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const {
     pack,
     loading,
@@ -44,10 +45,7 @@ export function PackDetail() {
   }, [id, loadPack]);
 
   const handleEdit = (spellId: string) => {
-    const spell = pack?.spells?.find((s: Spell) => s.id === spellId);
-    if (spell) {
-      setInlineEditSpell(spell);
-    }
+    navigate(`/rulebook/editor/${id}/spell/${spellId}`);
   };
 
   const handleDelete = (spellId: string) => {
@@ -171,7 +169,7 @@ export function PackDetail() {
               <Filter className="w-4 h-4 mr-2" />
               Filter
             </Button>
-            {!isBuiltIn && <AddContentButton />}
+            {!isBuiltIn && <AddContentButton packId={id} />}
           </div>
           <ContentTable
             spells={filteredSpells}
@@ -199,7 +197,7 @@ export function PackDetail() {
               <Filter className="w-4 h-4 mr-2" />
               Filter
             </Button>
-            {!isBuiltIn && <AddContentButton />}
+            {!isBuiltIn && <AddContentButton packId={id} />}
           </div>
           <ContentTable
             spells={filteredSpells}

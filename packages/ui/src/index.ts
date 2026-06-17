@@ -66,6 +66,29 @@ export { Tooltip, TooltipProvider } from './components/base/Tooltip/index';
 
 export * from './components/base/icons';
 
+// Spell Editor
+export { SpellEditor } from './components/spell/editor';
+export type {
+  SpellEditorProps,
+  SpellFormData,
+  SpellFormDamage,
+  SpellFormHeal,
+  SpellFormCantripUpgrade,
+} from './components/spell/editor/SpellEditor.types';
+export {
+  spellToFormData,
+  formDataToSpell,
+  DEFAULT_SPELL_FORM_DATA,
+} from './components/spell/editor/SpellEditor.types';
+export {
+  DND_CLASSES,
+  SPELL_SCHOOLS,
+  SPELL_LEVELS,
+  DAMAGE_TYPES,
+  CASTING_TIMES,
+  SPELL_COMPONENTS,
+} from './components/spell/editor/SpellEditor.types';
+
 // Shadcn-style aliases for easier incremental migration.
 export const DialogRoot = Dialog.Root;
 export const DialogTrigger = Dialog.Trigger;

@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { DropdownMenu, Button } from '@open20/ui';
 import { Plus, FileDown } from 'lucide-react';
 
 interface AddContentButtonProps {
+  packId?: string;
   onAddSpell?: () => void;
   onAddMonster?: () => void;
   onAddSpecies?: () => void;
@@ -9,11 +11,21 @@ interface AddContentButtonProps {
 }
 
 export function AddContentButton({
+  packId,
   onAddSpell,
   onAddMonster,
   onAddSpecies,
   onImport,
 }: AddContentButtonProps) {
+  const navigate = useNavigate();
+
+  const handleAddSpell = () => {
+    if (packId) {
+      navigate(`/rulebook/editor/${packId}/spell`);
+    }
+    onAddSpell?.();
+  };
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -23,13 +35,7 @@ export function AddContentButton({
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-48">
-        <DropdownMenu.Item
-          onClick={() => {
-            console.log('Add Spell');
-            onAddSpell?.();
-          }}
-          className="cursor-pointer"
-        >
+        <DropdownMenu.Item onClick={handleAddSpell} className="cursor-pointer">
           <Plus className="w-4 h-4 mr-2" />
           Add Spell
         </DropdownMenu.Item>

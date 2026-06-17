@@ -65,8 +65,8 @@ export interface SpellEditorProps {
   defaultValue?: Partial<Spell>;
   /** 表单值变化回调 */
   onChange?: (spell: Partial<Spell>) => void;
-  /** 表单提交回调 */
-  onSubmit?: (spell: Spell) => void;
+  /** 表单提交回调（可选的 intent 参数：'stay' | 'new' | 'close'） */
+  onSubmit?: (spell: Spell, intent?: 'stay' | 'new' | 'close') => void;
   /** 取消按钮回调 */
   onCancel?: () => void;
   /** 是否显示实时预览 */
@@ -75,6 +75,13 @@ export interface SpellEditorProps {
   disabled?: boolean;
   /** 自定义类名 */
   className?: string;
+  /** 自定义操作按钮（替代默认的保存/取消按钮） */
+  renderActions?: (props: {
+    onSave: (intent: 'stay' | 'new' | 'close') => void;
+    isDirty: boolean;
+    isValid: boolean;
+    isSubmitting: boolean;
+  }) => React.ReactNode;
 }
 
 // ── 字段选项常量 ─────────────────────────────────────────
