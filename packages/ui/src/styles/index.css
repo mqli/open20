@@ -70,6 +70,24 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
 
+  /* Semantic Surface Tokens (mapped to existing palette) */
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
+  --color-muted: var(--color-bg-secondary);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-card: var(--color-bg-primary);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-bg-primary);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-secondary: var(--color-bg-secondary);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-accent: var(--color-bg-tertiary);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-bg-primary);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-primary-500);
+
   /* Font Family */
   --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
@@ -95,6 +113,24 @@
   --color-danger: #f09595;
   --color-warning: #fac775;
   --color-info: #85b7eb;
+
+  /* Semantic Surface Tokens — dark */
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
+  --color-muted: var(--color-bg-secondary);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-card: var(--color-bg-primary);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-bg-primary);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-secondary: var(--color-bg-secondary);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-accent: var(--color-bg-tertiary);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-bg-primary);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-primary-500);
 }
 
 body {
