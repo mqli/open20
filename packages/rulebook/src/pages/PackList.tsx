@@ -5,6 +5,7 @@ import { PackCard } from '../components/PackCard';
 import { EmptyState } from '@open20/ui';
 import { CreatePackWizard } from '../components/CreatePackWizard';
 import { ImportWizard } from '../components/ImportWizard';
+import { ExportDialog } from '../components/ExportDialog';
 import { Package } from 'lucide-react';
 
 export function PackList() {
@@ -12,6 +13,8 @@ export function PackList() {
   const { packs, loading, error, fetchPacks, isBuiltInPack } = usePackStore();
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportWizard, setShowImportWizard] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [exportPackId, setExportPackId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPacks();
@@ -39,10 +42,14 @@ export function PackList() {
             📥 Import
           </button>
           <button
+            onClick={() => {
+              // Export button in header - need to select a pack first
+              // This is just a placeholder - actual export is done from PackCard
+            }}
             className="px-4 py-2 border border-border rounded-md text-text-primary hover:bg-bg-secondary"
             disabled
           >
-            📤 Export
+            📤 Export All
           </button>
         </div>
       </div>
@@ -84,7 +91,10 @@ export function PackList() {
               spellCount={0} // TODO: fetch from ContentBrowser
               isBuiltIn={isBuiltInPack(pack.id)}
               onOpen={() => navigate(`/rulebook/packs/${pack.id}`)}
-              onExport={() => console.log('Export', pack.id)}
+              onExport={() => {
+                setExportPackId(pack.id);
+                setShowExportDialog(true);
+              }}
             />
           ))}
           <div className="border-2 border-dashed border-border rounded-lg p-4 flex items-center justify-center min-h-[200px]">
@@ -100,6 +110,16 @@ export function PackList() {
 
       {showCreateWizard && <CreatePackWizard onClose={() => setShowCreateWizard(false)} />}
       {showImportWizard && <ImportWizard onClose={() => setShowImportWizard(false)} />}
+      {showExportDialog && exportPackId && (
+        <ExportDialog
+          packId={exportPackId}
+          packName={packs.find((p) => p.id === exportPackId)?.name || exportPackId}
+          onClose={() => {
+            setShowExportDialog(false);
+            setExportPackId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

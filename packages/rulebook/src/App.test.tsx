@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { I18nProvider } from '@open20/ui';
 import { PackList } from './pages/PackList';
 
@@ -23,18 +24,22 @@ vi.mock('./stores/packStore', () => ({
 describe('PackList', () => {
   it('renders content packs heading', () => {
     render(
-      <I18nProvider>
-        <PackList />
-      </I18nProvider>,
+      <MemoryRouter>
+        <I18nProvider>
+          <PackList />
+        </I18nProvider>
+      </MemoryRouter>,
     );
     expect(screen.getByText('Content Packs')).toBeInTheDocument();
   });
 
   it('renders empty state when no packs', () => {
     render(
-      <I18nProvider>
-        <PackList />
-      </I18nProvider>,
+      <MemoryRouter>
+        <I18nProvider>
+          <PackList />
+        </I18nProvider>
+      </MemoryRouter>,
     );
     expect(screen.getByText('Welcome to Rulebook')).toBeInTheDocument();
   });
