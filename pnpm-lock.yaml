@@ -293,6 +293,9 @@ importers:
       '@open20/content':
         specifier: workspace:*
         version: link:../content
+      '@open20/content-srd':
+        specifier: workspace:*
+        version: link:../content-srd
       '@open20/ui':
         specifier: workspace:*
         version: link:../ui

@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 import type { ContentPackMeta } from 'open20-core';
-import { ContentPackManager } from '@open20/content/manager';
-
-// Singleton ContentPackManager instance
-const manager = new ContentPackManager();
+import manager from './content-manager';
 
 interface PackStore {
   packs: ContentPackMeta[];
@@ -14,6 +11,7 @@ interface PackStore {
   deletePackAndStorage: (id: string) => Promise<void>;
   togglePackEnabled: (id: string) => void;
   isPackEnabled: (id: string) => boolean;
+  isBuiltInPack: (id: string) => boolean;
 }
 
 export const usePackStore = create<PackStore>((set, get) => ({
@@ -72,5 +70,12 @@ export const usePackStore = create<PackStore>((set, get) => ({
 
   isPackEnabled: (id) => {
     return manager.isPackEnabled(id);
+  },
+
+  /**
+   * Check if a pack is a built-in pack (read-only, cannot be edited or deleted).
+   */
+  isBuiltInPack: (id: string) => {
+    return manager.isBuiltInPack(id);
   },
 }));

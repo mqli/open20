@@ -7,7 +7,7 @@ import { ImportWizard } from '../components/ImportWizard';
 import { Package } from 'lucide-react';
 
 export function PackList() {
-  const { packs, loading, error, fetchPacks } = usePackStore();
+  const { packs, loading, error, fetchPacks, isBuiltInPack } = usePackStore();
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportWizard, setShowImportWizard] = useState(false);
 
@@ -80,6 +80,7 @@ export function PackList() {
               key={pack.id}
               pack={pack}
               spellCount={0} // TODO: fetch from ContentBrowser
+              isBuiltIn={isBuiltInPack(pack.id)}
               onOpen={() => console.log('Open', pack.id)}
               onExport={() => console.log('Export', pack.id)}
             />

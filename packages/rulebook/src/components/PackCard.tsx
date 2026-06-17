@@ -1,15 +1,17 @@
 import type { ContentPackMeta } from 'open20-core';
 import { Button } from '@open20/ui';
 import { usePackStore } from '../stores/packStore';
+import { Database } from 'lucide-react';
 
 interface PackCardProps {
   pack: ContentPackMeta;
   spellCount: number;
+  isBuiltIn?: boolean;
   onOpen: () => void;
   onExport: () => void;
 }
 
-export function PackCard({ pack, spellCount, onOpen, onExport }: PackCardProps) {
+export function PackCard({ pack, spellCount, isBuiltIn = false, onOpen, onExport }: PackCardProps) {
   const isEnabled = usePackStore((state) => state.isPackEnabled(pack.id));
   const togglePackEnabled = usePackStore((state) => state.togglePackEnabled);
   const deletePackAndStorage = usePackStore((state) => state.deletePackAndStorage);
@@ -19,6 +21,12 @@ export function PackCard({ pack, spellCount, onOpen, onExport }: PackCardProps) 
       <div className="flex items-center gap-2 mb-2">
         <span className={`w-3 h-3 rounded-full ${isEnabled ? 'bg-green-500' : 'bg-gray-400'}`} />
         <h3 className="font-semibold">{pack.name}</h3>
+        {isBuiltIn && (
+          <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full flex items-center gap-1">
+            <Database className="w-3 h-3" />
+            Built-in
+          </span>
+        )}
       </div>
       <p className="text-sm text-muted-foreground mb-1">
         v{pack.version} · {pack.source}
@@ -34,9 +42,11 @@ export function PackCard({ pack, spellCount, onOpen, onExport }: PackCardProps) 
         <Button size="sm" variant="outline" onClick={() => togglePackEnabled(pack.id)}>
           {isEnabled ? 'Disable' : 'Enable'}
         </Button>
-        <Button size="sm" variant="danger" onClick={() => deletePackAndStorage(pack.id)}>
-          Delete
-        </Button>
+        {!isBuiltIn && (
+          <Button size="sm" variant="danger" onClick={() => deletePackAndStorage(pack.id)}>
+            Delete
+          </Button>
+        )}
       </div>
     </div>
   );

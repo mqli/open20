@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@open20/content": "workspace:*",
+    "@open20/content-srd": "workspace:*",
     "@open20/ui": "workspace:*",
     "clsx": "catalog:",
     "lucide-react": "catalog:",

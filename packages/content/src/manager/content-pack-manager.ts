@@ -1,3 +1,4 @@
+import type { ContentPack } from 'open20-core';
 import type { EditableContentPack } from '../types/content-pack';
 import type { ContentPackMeta } from 'open20-core';
 import type { IStorage } from '../storage/istorage';
@@ -7,16 +8,43 @@ import { IndexedDBStorage } from '../storage/indexeddb-storage';
  * Headless class for content pack CRUD operations.
  * Wraps IStorage and provides the API for creating, loading, saving,
  * listing, enabling/disabling, and deleting content packs.
+ *
+ * Supports both user-created packs (stored in IndexedDB) and
+ * built-in packs (provided at construction time, read-only).
  */
 export class ContentPackManager {
   private storage: IStorage;
-  private packs: Map<string, EditableContentPack>; // in-memory cache
+  private packs: Map<string, EditableContentPack>; // in-memory cache for user packs
   private disabledPacks: Set<string>; // disabled pack IDs
+  private builtInPacks: Map<string, ContentPack>; // built-in packs (read-only)
 
-  constructor(storage?: IStorage) {
+  constructor(storage?: IStorage, builtInPacks?: ContentPack[]) {
     this.storage = storage ?? new IndexedDBStorage();
     this.packs = new Map();
     this.disabledPacks = new Set();
+    this.builtInPacks = new Map();
+
+    // Register built-in packs
+    if (builtInPacks) {
+      for (const pack of builtInPacks) {
+        this.builtInPacks.set(pack.meta.id, pack);
+      }
+    }
+  }
+
+  /**
+   * Register a built-in content pack (read-only, not stored in IndexedDB).
+   * Built-in packs are always available and cannot be modified or deleted.
+   */
+  registerBuiltInPack(pack: ContentPack): void {
+    this.builtInPacks.set(pack.meta.id, pack);
+  }
+
+  /**
+   * Check if a pack is a built-in pack.
+   */
+  isBuiltInPack(id: string): boolean {
+    return this.builtInPacks.has(id);
   }
 
   /**
@@ -48,11 +76,19 @@ export class ContentPackManager {
   }
 
   /**
-   * Load a pack from storage by ID.
+   * Load a pack by ID.
+   * Checks built-in packs first, then falls back to storage.
    * Returns null if not found.
-   * Also loads into in-memory cache.
+   * For user packs, also loads into in-memory cache.
    */
-  async loadPack(packId: string): Promise<EditableContentPack | null> {
+  async loadPack(packId: string): Promise<ContentPack | null> {
+    // Check built-in packs first
+    const builtInPack = this.builtInPacks.get(packId);
+    if (builtInPack) {
+      return builtInPack;
+    }
+
+    // Fall back to storage
     const pack = await this.storage.loadPack(packId);
 
     if (pack !== null) {
@@ -65,8 +101,13 @@ export class ContentPackManager {
 
   /**
    * Persist a pack to storage and update in-memory cache.
+   * Throws an error if trying to save a built-in pack.
    */
   async savePack(pack: EditableContentPack): Promise<void> {
+    if (this.isBuiltInPack(pack.meta.id)) {
+      throw new Error(`Cannot save built-in pack: ${pack.meta.id}. Built-in packs are read-only.`);
+    }
+
     await this.storage.savePack(pack);
 
     // Update cache
@@ -75,10 +116,28 @@ export class ContentPackManager {
 
   /**
    * List metadata of all known packs.
-   * Reads from storage (not just cache).
+   * Includes both built-in packs and user-created packs from storage.
    */
   async listPacks(): Promise<ContentPackMeta[]> {
-    return await this.storage.listPacks();
+    const storagePacks = await this.storage.listPacks();
+
+    // Add built-in pack metadata
+    const builtInMetas = Array.from(this.builtInPacks.values()).map((pack) => pack.meta);
+
+    // Merge, avoiding duplicates (built-in packs take precedence)
+    const metaMap = new Map<string, ContentPackMeta>();
+
+    // Add storage packs first
+    for (const meta of storagePacks) {
+      metaMap.set(meta.id, meta);
+    }
+
+    // Override with built-in packs (they might have the same ID if user imported them)
+    for (const meta of builtInMetas) {
+      metaMap.set(meta.id, meta);
+    }
+
+    return Array.from(metaMap.values());
   }
 
   /**
@@ -104,8 +163,13 @@ export class ContentPackManager {
 
   /**
    * Permanently delete a pack from storage and cache.
+   * Throws an error if trying to delete a built-in pack.
    */
   async deletePack(id: string): Promise<void> {
+    if (this.isBuiltInPack(id)) {
+      throw new Error(`Cannot delete built-in pack: ${id}. Built-in packs are read-only.`);
+    }
+
     await this.storage.deletePack(id);
 
     // Remove from cache
