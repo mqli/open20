@@ -27,7 +27,7 @@ describe('contentTypes', () => {
   });
 
   it('should have spell registered in Phase 1 (Task D)', () => {
-    expect(contentTypes).toHaveLength(1);
+    expect(contentTypes).toHaveLength(2);
     expect(contentTypes[0].id).toBe('spells');
     expect(contentTypes[0].name).toBe('Spells');
   });
