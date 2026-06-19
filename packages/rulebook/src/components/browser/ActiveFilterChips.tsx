@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useBrowserStore } from '../stores/browserStore';
+import { useBrowserStore } from '../../stores/browserStore';
 
 export function ActiveFilterChips() {
   const { filters, setFilter, clearFilters } = useBrowserStore();

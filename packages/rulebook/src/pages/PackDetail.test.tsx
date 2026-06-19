@@ -10,15 +10,15 @@ vi.mock('../stores/packDetailStore', () => ({
 }));
 
 // Mock child components
-vi.mock('../components/ContentTable', () => ({
+vi.mock('../components/content/ContentTable', () => ({
   ContentTable: () => <div data-testid="content-table">ContentTable</div>,
 }));
 
-vi.mock('../components/InlineEditPanel', () => ({
+vi.mock('../components/editor/InlineEditPanel', () => ({
   InlineEditPanel: () => <div data-testid="inline-edit-panel">InlineEditPanel</div>,
 }));
 
-vi.mock('../components/AddContentButton', () => ({
+vi.mock('../components/common/AddContentButton', () => ({
   AddContentButton: () => <div data-testid="add-content-button">AddContentButton</div>,
 }));
 

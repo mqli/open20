@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { usePackStore } from './packStore';
 
 // Mock content-manager - must use inline factory, no top-level vars
-vi.mock('./content-manager', () => ({
+vi.mock('./contentManager', () => ({
   default: {
     listPacks: vi.fn(),
     createPack: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock('./content-manager', () => ({
 
 // Dynamic import to get the mocked module
 const getManager = async () => {
-  const mod = await import('./content-manager');
+  const mod = await import('./contentManager');
   return mod.default;
 };
 

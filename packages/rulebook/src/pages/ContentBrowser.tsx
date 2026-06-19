@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Search, LayoutGrid, List } from 'lucide-react';
-import { FilterSidebar } from '../components/FilterSidebar';
-import { ActiveFilterChips } from '../components/ActiveFilterChips';
-import { ContentCard } from '../components/ContentCard';
-import { DetailDrawer } from '../components/DetailDrawer';
+import { FilterSidebar } from '../components/browser/FilterSidebar';
+import { ActiveFilterChips } from '../components/browser/ActiveFilterChips';
+import { ContentCard } from '../components/content/ContentCard';
+import { DetailDrawer } from '../components/editor/DetailDrawer';
 import { useBrowserStore } from '../stores/browserStore';
 import type { Spell } from 'open20-core';
 

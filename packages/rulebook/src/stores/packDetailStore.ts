@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ContentPack } from 'open20-core';
 import type { Spell } from 'open20-core';
-import manager from './content-manager';
+import manager from './contentManager';
 
 interface PackDetailStore {
   pack: ContentPack | null;

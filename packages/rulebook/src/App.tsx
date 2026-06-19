@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { RulebookLayout } from './components/RulebookLayout';
+import { RulebookLayout } from './components/layout/RulebookLayout';
 import { PackList } from './pages/PackList';
 import { PackDetail } from './pages/PackDetail';
 import { ContentEditor } from './pages/ContentEditor';

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { SpellQuery } from '@open20/content/types';
 import type { Spell } from 'open20-core';
 import { ContentBrowser } from '@open20/content/browser';
-import manager from './content-manager';
+import manager from './contentManager';
 
 // 初始化 ContentBrowser
 const contentBrowser = new ContentBrowser(manager);

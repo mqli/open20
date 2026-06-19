@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { ContentPackMeta } from 'open20-core';
-import manager from './content-manager';
+import manager from './contentManager';
 
 interface PackStore {
   packs: ContentPackMeta[];

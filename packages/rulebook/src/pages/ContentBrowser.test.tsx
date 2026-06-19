@@ -10,15 +10,15 @@ vi.mock('../stores/browserStore', () => ({
 }));
 
 // Mock the child components
-vi.mock('../components/FilterSidebar', () => ({
+vi.mock('../components/browser/FilterSidebar', () => ({
   FilterSidebar: () => <div data-testid="filter-sidebar">FilterSidebar</div>,
 }));
 
-vi.mock('../components/ActiveFilterChips', () => ({
+vi.mock('../components/browser/ActiveFilterChips', () => ({
   ActiveFilterChips: () => <div data-testid="active-filter-chips">ActiveFilterChips</div>,
 }));
 
-vi.mock('../components/ContentCard', () => ({
+vi.mock('../components/content/ContentCard', () => ({
   ContentCard: ({ spell, onViewDetail }: any) => (
     <div data-testid="content-card" onClick={() => onViewDetail(spell)}>
       {spell.name}
@@ -26,7 +26,7 @@ vi.mock('../components/ContentCard', () => ({
   ),
 }));
 
-vi.mock('../components/DetailDrawer', () => ({
+vi.mock('../components/editor/DetailDrawer', () => ({
   DetailDrawer: ({ spell, onClose }: any) => (
     <div data-testid="detail-drawer">
       DetailDrawer: {spell.name}

@@ -18,7 +18,7 @@ vi.mock('@open20/content/browser', () => {
   };
 });
 
-vi.mock('./content-manager', () => ({
+vi.mock('./contentManager', () => ({
   default: {},
 }));
 

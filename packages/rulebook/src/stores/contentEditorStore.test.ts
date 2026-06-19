@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useContentEditorStore } from './contentEditorStore';
 
 // Mock content-manager
-vi.mock('./content-manager', () => ({
+vi.mock('./contentManager', () => ({
   default: {
     loadPack: vi.fn(),
     savePack: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock('@open20/content/editor', () => ({
 }));
 
 const getManager = async () => {
-  const mod = await import('./content-manager');
+  const mod = await import('./contentManager');
   return mod.default;
 };
 

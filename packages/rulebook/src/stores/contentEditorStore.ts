@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Spell } from 'open20-core';
-import manager from './content-manager';
+import manager from './contentManager';
 
 interface ContentEditorStore {
   // Route params

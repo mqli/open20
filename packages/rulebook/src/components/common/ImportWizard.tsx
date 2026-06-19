@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@open20/ui';
-import manager from '../stores/content-manager';
+import manager from '../../stores/contentManager';
 import { parsePackJson, importPack, checkImportConflicts } from '@open20/content/io';
 import type { ContentPack } from 'open20-core';
 import type { ConflictEntry, ConflictResolution } from '@open20/content/io';

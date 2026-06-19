@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@open20/ui';
 import { Input } from '@open20/ui';
-import { usePackStore } from '../stores/packStore';
+import { usePackStore } from '../../stores/packStore';
 import type { ContentPackMeta } from 'open20-core';
 
 interface CreatePackWizardProps {

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { usePackStore } from '../stores/packStore';
+import { usePackStore } from '../../stores/packStore';
 import { Package, Search } from 'lucide-react';
 
 export function Sidebar() {

@@ -14,9 +14,9 @@ import {
   Database,
 } from 'lucide-react';
 import { usePackDetailStore } from '../stores/packDetailStore';
-import { ContentTable } from '../components/ContentTable';
-import { InlineEditPanel } from '../components/InlineEditPanel';
-import { AddContentButton } from '../components/AddContentButton';
+import { ContentTable } from '../components/content/ContentTable';
+import { InlineEditPanel } from '../components/editor/InlineEditPanel';
+import { AddContentButton } from '../components/common/AddContentButton';
 
 export function PackDetail() {
   const { id } = useParams<{ id: string }>();

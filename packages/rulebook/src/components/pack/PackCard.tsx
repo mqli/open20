@@ -1,6 +1,6 @@
 import type { ContentPackMeta } from 'open20-core';
 import { Button } from '@open20/ui';
-import { usePackStore } from '../stores/packStore';
+import { usePackStore } from '../../stores/packStore';
 import { Database } from 'lucide-react';
 
 interface PackCardProps {

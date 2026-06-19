@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@open20/ui';
 import { Switch } from '@open20/ui';
-import manager from '../stores/content-manager';
+import manager from '../../stores/contentManager';
 import { exportPack } from '@open20/content/io';
 import type { ContentPack } from 'open20-core';
 

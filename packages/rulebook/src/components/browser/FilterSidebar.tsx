@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useBrowserStore } from '../stores/browserStore';
+import { useBrowserStore } from '../../stores/browserStore';
 import type { SpellSchool } from '@open20/content/types';
 
 const SPELL_SCHOOLS: SpellSchool[] = [

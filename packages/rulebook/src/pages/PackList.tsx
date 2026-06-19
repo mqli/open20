@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePackStore } from '../stores/packStore';
-import { PackCard } from '../components/PackCard';
+import { PackCard } from '../components/pack/PackCard';
 import { EmptyState } from '@open20/ui';
-import { CreatePackWizard } from '../components/CreatePackWizard';
-import { ImportWizard } from '../components/ImportWizard';
-import { ExportDialog } from '../components/ExportDialog';
+import { CreatePackWizard } from '../components/pack/CreatePackWizard';
+import { ImportWizard } from '../components/common/ImportWizard';
+import { ExportDialog } from '../components/common/ExportDialog';
 import { Package } from 'lucide-react';
 
 export function PackList() {

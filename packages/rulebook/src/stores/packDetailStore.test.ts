@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { usePackDetailStore } from './packDetailStore';
 
 // Mock content-manager - must use inline factory
-vi.mock('./content-manager', () => ({
+vi.mock('./contentManager', () => ({
   default: {
     loadPack: vi.fn(),
     isBuiltInPack: vi.fn(),
@@ -10,7 +10,7 @@ vi.mock('./content-manager', () => ({
 }));
 
 const getManager = async () => {
-  const mod = await import('./content-manager');
+  const mod = await import('./contentManager');
   return mod.default;
 };
 

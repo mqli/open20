@@ -4,7 +4,7 @@ import { I18nProvider } from '@open20/ui';
 import { ExportDialog } from './ExportDialog';
 
 // Mock the content-manager module
-vi.mock('../stores/content-manager', () => ({
+vi.mock('../../stores/contentManager', () => ({
   default: {
     loadPack: vi.fn(() =>
       Promise.resolve({

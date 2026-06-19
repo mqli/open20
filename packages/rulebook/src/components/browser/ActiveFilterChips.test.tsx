@@ -7,11 +7,11 @@ const mockSetFilter = vi.fn();
 const mockClearFilters = vi.fn();
 
 // Mock the browserStore - must be before any imports that use it
-vi.mock('../stores/browserStore', () => ({
+vi.mock('../../stores/browserStore', () => ({
   useBrowserStore: vi.fn(),
 }));
 
-import { useBrowserStore } from '../stores/browserStore';
+import { useBrowserStore } from '../../stores/browserStore';
 
 describe('ActiveFilterChips', () => {
   beforeEach(() => {

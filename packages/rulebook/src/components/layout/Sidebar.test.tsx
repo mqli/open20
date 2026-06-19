@@ -5,7 +5,7 @@ import { I18nProvider } from '@open20/ui';
 import { Sidebar } from './Sidebar';
 
 // Mock the packStore
-vi.mock('../stores/packStore', () => ({
+vi.mock('../../stores/packStore', () => ({
   usePackStore: vi.fn((selector) => {
     const state = {
       packs: [
