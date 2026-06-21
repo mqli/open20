@@ -29,6 +29,9 @@ export type BaseTranslationKeys =
   | 'validation.fixErrors'
   // Spell editor
   | 'spellEditor.livePreview'
+  | 'spellEditor.tabGeneral'
+  | 'spellEditor.tabDescription'
+  | 'spellEditor.tabEffects'
   | 'spellEditor.basicInfo'
   | 'spellEditor.castingInfo'
   | 'spellEditor.description'
@@ -214,6 +217,9 @@ export const defaultTranslations: Translations = {
   'validation.fixErrors': 'Please fix the following errors:',
 
   'spellEditor.livePreview': 'Live Preview',
+  'spellEditor.tabGeneral': 'General',
+  'spellEditor.tabDescription': 'Description',
+  'spellEditor.tabEffects': 'Effects',
   'spellEditor.basicInfo': 'Basic Info',
   'spellEditor.castingInfo': 'Casting Info',
   'spellEditor.description': 'Description',
@@ -404,6 +410,9 @@ export const zhCNTranslations: Translations = {
   'validation.fixErrors': '请修复以下错误：',
 
   'spellEditor.livePreview': '实时预览',
+  'spellEditor.tabGeneral': '常规',
+  'spellEditor.tabDescription': '描述',
+  'spellEditor.tabEffects': '效果',
   'spellEditor.basicInfo': '基本信息',
   'spellEditor.castingInfo': '施法信息',
   'spellEditor.description': '描述',

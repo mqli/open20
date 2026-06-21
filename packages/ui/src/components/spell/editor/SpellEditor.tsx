@@ -6,6 +6,7 @@ import { CastingInfoSection } from './sections/CastingInfoSection';
 import { DescriptionSection } from './sections/DescriptionSection';
 import { DamageHealSection } from './sections/DamageHealSection';
 import { CantripUpgradeSection } from './sections/CantripUpgradeSection';
+import { Tabs } from '@/components/base/Tabs/Tabs';
 import { Button } from '@/components/base/Button/Button';
 import { Surface } from '@/components/base/Surface/Surface';
 import { Text } from '@/components/base/Text/Text';
@@ -18,7 +19,6 @@ export function SpellEditor({
   onChange,
   onSubmit,
   onCancel,
-  showPreview = false,
   disabled = false,
   className,
   renderActions,
@@ -109,81 +109,110 @@ export function SpellEditor({
 
   // ── Render ───────────────────────────────────────
   return (
-    <div className={className}>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-        className="space-y-6"
-      >
-        {/* Preview (optional) */}
-        {showPreview && (
-          <div className="sticky top-0 z-10 bg-bg-primary py-4 border-b border-border">
-            <Text as="h3" variant="labelSm" className="mb-2">
-              {t('spellEditor.livePreview')}
-            </Text>
-            <SpellCard spell={formDataToSpell(formData)} />
-          </div>
-        )}
+    <div className={`lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 ${className ?? ''}`}>
+      {/* ── Left Column: Editor ── */}
+      <div className="flex min-h-0 flex-col">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          className="flex flex-1 flex-col"
+        >
+          {/* Tabs Navigation */}
+          <Tabs.Root defaultValue="general" className="flex flex-1 flex-col">
+            <Tabs.List variant="pills" className="mb-4">
+              <Tabs.Trigger variant="pills" value="general">
+                {t('spellEditor.tabGeneral')}
+              </Tabs.Trigger>
+              <Tabs.Trigger variant="pills" value="description">
+                {t('spellEditor.tabDescription')}
+              </Tabs.Trigger>
+              <Tabs.Trigger variant="pills" value="effects">
+                {t('spellEditor.tabEffects')}
+              </Tabs.Trigger>
+            </Tabs.List>
 
-        {/* Basic Info */}
-        <BasicInfoSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Tab: General */}
+            <Tabs.Content value="general" className="space-y-6">
+              <BasicInfoSection formData={formData} onChange={handleChange} disabled={disabled} />
+              <CastingInfoSection formData={formData} onChange={handleChange} disabled={disabled} />
+            </Tabs.Content>
 
-        {/* Casting Info */}
-        <CastingInfoSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Tab: Description */}
+            <Tabs.Content value="description" className="space-y-6">
+              <DescriptionSection formData={formData} onChange={handleChange} disabled={disabled} />
+            </Tabs.Content>
 
-        {/* Description */}
-        <DescriptionSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Tab: Effects */}
+            <Tabs.Content value="effects" className="space-y-6">
+              <DamageHealSection formData={formData} onChange={handleChange} disabled={disabled} />
+              {formData.level === 0 && (
+                <CantripUpgradeSection
+                  formData={formData}
+                  onChange={handleChange}
+                  disabled={disabled}
+                />
+              )}
+            </Tabs.Content>
+          </Tabs.Root>
 
-        {/* Damage & Healing */}
-        <DamageHealSection formData={formData} onChange={handleChange} disabled={disabled} />
-
-        {/* Cantrip Upgrade (only for level 0) */}
-        {formData.level === 0 && (
-          <CantripUpgradeSection formData={formData} onChange={handleChange} disabled={disabled} />
-        )}
-
-        {/* Form Errors */}
-        {Object.keys(errors).length > 0 && (
-          <Surface variant="warning" padding="sm" className="space-y-1">
-            <Text as="p" variant="bodySm" className="text-danger">
-              {t('validation.fixErrors')}
-            </Text>
-            {Object.entries(errors).map(([field, msg]) => (
-              <Text key={field} as="p" variant="bodySm" className="text-danger ml-2">
-                • {msg}
+          {/* Form Errors */}
+          {Object.keys(errors).length > 0 && (
+            <Surface variant="warning" padding="sm" className="mb-4 space-y-1">
+              <Text as="p" variant="bodySm" className="text-danger">
+                {t('validation.fixErrors')}
               </Text>
-            ))}
-          </Surface>
-        )}
+              {Object.entries(errors).map(([field, msg]) => (
+                <Text key={field} as="p" variant="bodySm" className="ml-2 text-danger">
+                  • {msg}
+                </Text>
+              ))}
+            </Surface>
+          )}
 
-        {/* Action Buttons */}
-        {renderActions ? (
-          renderActions({ onSave: handleSubmit, isDirty, isValid, isSubmitting })
-        ) : (
-          <div className="flex justify-end gap-4 pt-4 border-t border-border">
-            {onCancel && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="lg"
-                onClick={handleCancel}
-                disabled={isSubmitting || disabled}
-              >
-                {t('common.cancel')}
-              </Button>
+          {/* Action Buttons (sticky at bottom) */}
+          <div className="sticky bottom-0 mt-auto border-t border-border bg-bg-primary pt-4">
+            {renderActions ? (
+              renderActions({ onSave: handleSubmit, isDirty, isValid, isSubmitting })
+            ) : (
+              <div className="flex justify-end gap-4">
+                {onCancel && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="lg"
+                    onClick={handleCancel}
+                    disabled={isSubmitting || disabled}
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={isSubmitting || disabled}
+                >
+                  {isSubmitting
+                    ? t('common.saving')
+                    : value
+                      ? t('spellEditor.updateSpell')
+                      : t('spellEditor.createSpell')}
+                </Button>
+              </div>
             )}
-            <Button type="submit" variant="primary" size="lg" disabled={isSubmitting || disabled}>
-              {isSubmitting
-                ? t('common.saving')
-                : value
-                  ? t('spellEditor.updateSpell')
-                  : t('spellEditor.createSpell')}
-            </Button>
           </div>
-        )}
-      </form>
+        </form>
+      </div>
+
+      {/* ── Right Column: Preview ── */}
+      <div className="lg:sticky lg:top-4 lg:self-start">
+        <Text as="h3" variant="labelSm" className="mb-3">
+          {t('spellEditor.livePreview')}
+        </Text>
+        <SpellCard spell={formDataToSpell(formData)} />
+      </div>
     </div>
   );
 }

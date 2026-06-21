@@ -11,16 +11,7 @@ export function ContentEditor() {
   }>();
   const navigate = useNavigate();
 
-  const {
-    isDirty,
-    isPreviewOpen,
-    isSaving,
-    setParams,
-    setSpell,
-    togglePreview,
-    saveSpell,
-    loadSpell,
-  } = useContentEditorStore();
+  const { isDirty, isSaving, setParams, setSpell, saveSpell, loadSpell } = useContentEditorStore();
   const spell = useContentEditorStore((state) => state.spell);
 
   // Initialize params and load spell if editing
@@ -79,46 +70,40 @@ export function ContentEditor() {
   // Custom action buttons for SpellEditor
   const renderActions = (props: {
     onSave: (intent: 'stay' | 'new' | 'close') => void;
-    isDirty: boolean;
     isValid: boolean;
     isSubmitting: boolean;
   }) => (
-    <div className="flex justify-between items-center pt-4 border-t border-border">
-      <Button type="button" variant="ghost" size="lg" onClick={togglePreview}>
-        {isPreviewOpen ? 'Hide Preview' : 'Show Preview'}
+    <div className="flex items-center justify-end gap-2">
+      <Button type="button" variant="ghost" size="lg" onClick={handleCancel} disabled={isSaving}>
+        Cancel
       </Button>
-      <div className="flex gap-2">
-        <Button type="button" variant="ghost" size="lg" onClick={handleCancel} disabled={isSaving}>
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          onClick={() => props.onSave('stay')}
-          disabled={!props.isValid || isSaving}
-        >
-          Save
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          onClick={() => props.onSave('new')}
-          disabled={!props.isValid || isSaving}
-        >
-          Save & New
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          onClick={() => props.onSave('close')}
-          disabled={!props.isValid || isSaving}
-        >
-          Save & Close
-        </Button>
-      </div>
+      <Button
+        type="button"
+        variant="secondary"
+        size="lg"
+        onClick={() => props.onSave('stay')}
+        disabled={!props.isValid || isSaving}
+      >
+        Save
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="lg"
+        onClick={() => props.onSave('new')}
+        disabled={!props.isValid || isSaving}
+      >
+        Save & New
+      </Button>
+      <Button
+        type="button"
+        variant="primary"
+        size="lg"
+        onClick={() => props.onSave('close')}
+        disabled={!props.isValid || isSaving}
+      >
+        Save & Close
+      </Button>
     </div>
   );
 
@@ -139,7 +124,6 @@ export function ContentEditor() {
         onChange={(updatedSpell) => setSpell(updatedSpell)}
         onSubmit={(_, intent) => handleSave(intent || 'stay')}
         onCancel={handleCancel}
-        showPreview={isPreviewOpen}
         renderActions={renderActions}
       />
     </div>

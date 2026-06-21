@@ -69,8 +69,6 @@ export interface SpellEditorProps {
   onSubmit?: (spell: Spell, intent?: 'stay' | 'new' | 'close') => void;
   /** 取消按钮回调 */
   onCancel?: () => void;
-  /** 是否显示实时预览 */
-  showPreview?: boolean;
   /** 是否禁用所有输入 */
   disabled?: boolean;
   /** 自定义类名 */

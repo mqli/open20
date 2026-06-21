@@ -168,11 +168,10 @@ export const WithPreview: StoryObj<typeof SpellEditor> = {
   name: 'With Live Preview',
   args: {
     defaultValue: SAMPLE_CAANTRIP,
-    showPreview: true,
     onSubmit: (spell) => console.log('Submit:', spell),
   },
   render: (args) => (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl">
       <SpellEditor {...args} />
     </div>
   ),
