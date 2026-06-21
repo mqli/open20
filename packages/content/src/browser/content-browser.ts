@@ -1,5 +1,11 @@
-import type { Spell, Monster } from 'open20-core';
-import type { SpellQuery, MonsterQuery } from '../types/query';
+import type { Spell, Monster, Species, Background, Feat } from 'open20-core';
+import type {
+  SpellQuery,
+  MonsterQuery,
+  SpeciesQuery,
+  BackgroundQuery,
+  FeatQuery,
+} from '../types/query';
 import type { ContentPackManager } from '../manager/content-pack-manager';
 
 export class ContentBrowser {
@@ -251,6 +257,220 @@ export class ContentBrowser {
         }
         case 'type':
           return multiplier * a.type.localeCompare(b.type);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }
+
+  // ── Species methods ─────────────────────────────────────
+
+  /**
+   * Get all species across ALL enabled packs.
+   * Disabled packs are excluded.
+   */
+  async getAllSpecies(): Promise<Species[]> {
+    const packs = await this.manager.listPacks();
+    const species: Species[] = [];
+
+    for (const pack of packs) {
+      if (!this.manager.isPackEnabled(pack.id)) {
+        continue;
+      }
+
+      const loaded = await this.manager.loadPack(pack.id);
+      if (loaded === null) {
+        continue;
+      }
+
+      const packSpecies = loaded.species ?? [];
+      species.push(...packSpecies);
+    }
+
+    return species;
+  }
+
+  /**
+   * Get species from a specific pack (regardless of enabled/disabled state).
+   */
+  async getSpeciesByPack(packId: string): Promise<Species[]> {
+    const pack = await this.manager.loadPack(packId);
+    if (pack === null) {
+      return [];
+    }
+    return pack.species ?? [];
+  }
+
+  /**
+   * Search species across all enabled packs.
+   */
+  async searchSpecies(query: SpeciesQuery): Promise<Species[]> {
+    const species = await this.getAllSpecies();
+
+    const filtered = species.filter((s) => {
+      if (query.name !== undefined && query.name !== '') {
+        if (!s.id.toLowerCase().includes(query.name.toLowerCase())) {
+          return false;
+        }
+      }
+      if (query.size !== undefined) {
+        if (s.size !== query.size) {
+          return false;
+        }
+      }
+      if (query.source !== undefined && query.source !== '') {
+        if (s.source !== query.source) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const sortBy = query.sortBy ?? 'name';
+    const sortOrder = query.sortOrder ?? 'asc';
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return multiplier * a.id.localeCompare(b.id);
+        case 'size':
+          return multiplier * a.size.localeCompare(b.size);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }
+
+  // ── Background methods ──────────────────────────────────
+
+  async getAllBackgrounds(): Promise<Background[]> {
+    const packs = await this.manager.listPacks();
+    const backgrounds: Background[] = [];
+
+    for (const pack of packs) {
+      if (!this.manager.isPackEnabled(pack.id)) {
+        continue;
+      }
+      const loaded = await this.manager.loadPack(pack.id);
+      if (loaded === null) {
+        continue;
+      }
+      const packBackgrounds = loaded.backgrounds ?? [];
+      backgrounds.push(...packBackgrounds);
+    }
+    return backgrounds;
+  }
+
+  async getBackgroundsByPack(packId: string): Promise<Background[]> {
+    const pack = await this.manager.loadPack(packId);
+    if (pack === null) return [];
+    return pack.backgrounds ?? [];
+  }
+
+  async searchBackgrounds(query: BackgroundQuery): Promise<Background[]> {
+    const backgrounds = await this.getAllBackgrounds();
+
+    const filtered = backgrounds.filter((b) => {
+      if (query.name !== undefined && query.name !== '') {
+        const searchName = (b.name || b.id).toLowerCase();
+        if (!searchName.includes(query.name.toLowerCase())) {
+          return false;
+        }
+      }
+      if (query.source !== undefined && query.source !== '') {
+        if (b.source !== query.source) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const sortBy = query.sortBy ?? 'name';
+    const sortOrder = query.sortOrder ?? 'asc';
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return multiplier * (a.name || a.id).localeCompare(b.name || b.id);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }
+
+  // ── Feat methods ────────────────────────────────────────
+
+  async getAllFeats(): Promise<Feat[]> {
+    const packs = await this.manager.listPacks();
+    const feats: Feat[] = [];
+
+    for (const pack of packs) {
+      if (!this.manager.isPackEnabled(pack.id)) {
+        continue;
+      }
+      const loaded = await this.manager.loadPack(pack.id);
+      if (loaded === null) {
+        continue;
+      }
+      const packFeats = loaded.feats ?? [];
+      feats.push(...packFeats);
+    }
+    return feats;
+  }
+
+  async getFeatsByPack(packId: string): Promise<Feat[]> {
+    const pack = await this.manager.loadPack(packId);
+    if (pack === null) return [];
+    return pack.feats ?? [];
+  }
+
+  async searchFeats(query: FeatQuery): Promise<Feat[]> {
+    const feats = await this.getAllFeats();
+
+    const filtered = feats.filter((f) => {
+      if (query.name !== undefined && query.name !== '') {
+        const searchName = (f.name || f.id).toLowerCase();
+        if (!searchName.includes(query.name.toLowerCase())) {
+          return false;
+        }
+      }
+      if (query.source !== undefined && query.source !== '') {
+        if (f.source !== query.source) {
+          return false;
+        }
+      }
+      if (query.hasPrerequisite !== undefined) {
+        const hasPrereq = !!f.prerequisites;
+        if (hasPrereq !== query.hasPrerequisite) {
+          return false;
+        }
+      }
+      if (query.category !== undefined && query.category !== '') {
+        if (f.category !== query.category) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const sortBy = query.sortBy ?? 'name';
+    const sortOrder = query.sortOrder ?? 'asc';
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return multiplier * (a.name || a.id).localeCompare(b.name || b.id);
+        case 'category':
+          return multiplier * a.category.localeCompare(b.category);
         default:
           return 0;
       }

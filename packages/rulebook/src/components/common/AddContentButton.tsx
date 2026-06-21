@@ -7,6 +7,8 @@ interface AddContentButtonProps {
   onAddSpell?: () => void;
   onAddMonster?: () => void;
   onAddSpecies?: () => void;
+  onAddBackground?: () => void;
+  onAddFeat?: () => void;
   onImport?: () => void;
 }
 
@@ -15,6 +17,8 @@ export function AddContentButton({
   onAddSpell,
   onAddMonster,
   onAddSpecies,
+  onAddBackground,
+  onAddFeat,
   onImport,
 }: AddContentButtonProps) {
   const navigate = useNavigate();
@@ -62,6 +66,30 @@ export function AddContentButton({
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Species
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={() => {
+            if (packId) {
+              navigate(`/rulebook/editor/${packId}/background`);
+            }
+            onAddBackground?.();
+          }}
+          className="cursor-pointer"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Background
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={() => {
+            if (packId) {
+              navigate(`/rulebook/editor/${packId}/feat`);
+            }
+            onAddFeat?.();
+          }}
+          className="cursor-pointer"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Feat
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item

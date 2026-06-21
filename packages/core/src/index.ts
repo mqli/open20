@@ -21,6 +21,8 @@ export type {
 export type {
   Feat,
   FeatCategory,
+  FeatPrerequisite,
+  FeatGrant,
   FeatSpellSelection,
   FeatSpellChoice,
   CharacterFeatEntry,

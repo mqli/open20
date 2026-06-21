@@ -27,7 +27,7 @@ export interface ImportResult {
 
 interface Identifiable {
   id: string;
-  name: string;
+  name?: string;
 }
 
 /**
@@ -47,22 +47,23 @@ function detectTypeConflicts(
         type: 'same-id',
         contentType,
         existingId: sameIdTarget.id,
-        existingName: sameIdTarget.name,
+        existingName: sameIdTarget.name || sameIdTarget.id,
         incomingId: source.id,
-        incomingName: source.name,
+        incomingName: source.name || source.id,
       });
       continue;
     }
 
-    const sameNameTarget = targetItems.find((t) => t.name === source.name);
+    const sourceName = source.name || source.id;
+    const sameNameTarget = targetItems.find((t) => (t.name || t.id) === sourceName);
     if (sameNameTarget) {
       conflicts.push({
         type: 'same-name-different-id',
         contentType,
         existingId: sameNameTarget.id,
-        existingName: sameNameTarget.name,
+        existingName: sameNameTarget.name || sameNameTarget.id,
         incomingId: source.id,
-        incomingName: source.name,
+        incomingName: sourceName,
       });
     }
   }
@@ -91,6 +92,21 @@ export function checkImportConflicts(
   const sourceMonsters = (sourcePack.monsters || []) as Identifiable[];
   const targetMonsters = (targetPack.monsters || []) as Identifiable[];
   conflicts.push(...detectTypeConflicts(sourceMonsters, targetMonsters, 'monsters'));
+
+  // Species
+  const sourceSpecies = (sourcePack.species || []) as Identifiable[];
+  const targetSpecies = (targetPack.species || []) as Identifiable[];
+  conflicts.push(...detectTypeConflicts(sourceSpecies, targetSpecies, 'species'));
+
+  // Backgrounds
+  const sourceBackgrounds = (sourcePack.backgrounds || []) as Identifiable[];
+  const targetBackgrounds = (targetPack.backgrounds || []) as Identifiable[];
+  conflicts.push(...detectTypeConflicts(sourceBackgrounds, targetBackgrounds, 'backgrounds'));
+
+  // Feats
+  const sourceFeats = (sourcePack.feats || []) as Identifiable[];
+  const targetFeats = (targetPack.feats || []) as Identifiable[];
+  conflicts.push(...detectTypeConflicts(sourceFeats, targetFeats, 'feats'));
 
   return conflicts;
 }
@@ -173,6 +189,38 @@ export function importWithResolutions(
   imported += monsterResult.imported;
   skipped += monsterResult.skipped;
   replaced += monsterResult.replaced;
+
+  // Species
+  const sourceSpecies = (sourcePack.species || []) as Identifiable[];
+  if (!targetPack.species) targetPack.species = [];
+  const targetSpecies = targetPack.species as unknown as Identifiable[];
+  const speciesResult = resolveTypeImport(sourceSpecies, targetSpecies, 'species', resolutions);
+  imported += speciesResult.imported;
+  skipped += speciesResult.skipped;
+  replaced += speciesResult.replaced;
+
+  // Backgrounds
+  const sourceBackgrounds = (sourcePack.backgrounds || []) as Identifiable[];
+  if (!targetPack.backgrounds) targetPack.backgrounds = [];
+  const targetBackgrounds = targetPack.backgrounds as unknown as Identifiable[];
+  const backgroundResult = resolveTypeImport(
+    sourceBackgrounds,
+    targetBackgrounds,
+    'backgrounds',
+    resolutions,
+  );
+  imported += backgroundResult.imported;
+  skipped += backgroundResult.skipped;
+  replaced += backgroundResult.replaced;
+
+  // Feats
+  const sourceFeats = (sourcePack.feats || []) as Identifiable[];
+  if (!targetPack.feats) targetPack.feats = [];
+  const targetFeats = targetPack.feats as unknown as Identifiable[];
+  const featResult = resolveTypeImport(sourceFeats, targetFeats, 'feats', resolutions);
+  imported += featResult.imported;
+  skipped += featResult.skipped;
+  replaced += featResult.replaced;
 
   return { imported, skipped, replaced, conflicts };
 }

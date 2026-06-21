@@ -61,6 +61,7 @@ export type {
   GlossaryTermProps,
   GlossaryTermDisplay,
 } from './components/rules/glossary/index';
+
 export { Surface } from './components/base/Surface/index';
 export type { SurfaceProps } from './components/base/Surface/index';
 export { Switch } from './components/base/Switch/index';
@@ -98,6 +99,46 @@ export {
   CASTING_TIMES,
   SPELL_COMPONENTS,
 } from './components/spell/editor/SpellEditor.types';
+
+// Species Editor
+export { SpeciesEditor } from './components/rules/species/editor';
+export type {
+  SpeciesEditorProps,
+  SpeciesFormData,
+} from './components/rules/species/editor/SpeciesEditor.types';
+export {
+  speciesToFormData,
+  formDataToSpecies,
+  DEFAULT_SPECIES_FORM_DATA,
+  SPECIES_SIZES,
+  ABILITY_LABELS,
+} from './components/rules/species/editor/SpeciesEditor.types';
+
+// Background Editor
+export { BackgroundEditor } from './components/rules/background/editor';
+export type {
+  BackgroundEditorProps,
+  BackgroundFormData,
+} from './components/rules/background/editor/BackgroundEditor.types';
+export {
+  backgroundToFormData,
+  formDataToBackground,
+  DEFAULT_BACKGROUND_FORM_DATA,
+  COMMON_SKILLS,
+} from './components/rules/background/editor/BackgroundEditor.types';
+
+// Feat Editor
+export { FeatEditor } from './components/rules/feat/editor';
+export type {
+  FeatEditorProps,
+  FeatFormData,
+} from './components/rules/feat/editor/FeatEditor.types';
+export {
+  featToFormData,
+  formDataToFeat,
+  DEFAULT_FEAT_FORM_DATA,
+  FEAT_CATEGORIES,
+} from './components/rules/feat/editor/FeatEditor.types';
 
 // Shadcn-style aliases for easier incremental migration.
 export const DialogRoot = Dialog.Root;

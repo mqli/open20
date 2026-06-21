@@ -208,4 +208,82 @@ describe('ContentValidator', () => {
     expect(report.results['monsters'].valid).toBe(false);
     expect(report.results['monsters'].errors.length).toBeGreaterThan(0);
   });
+
+  it('validatePack includes species results', () => {
+    const pack = {
+      ...makePack([]),
+      species: [
+        {
+          id: 'dwarf',
+          source: 'SRD',
+          description: '',
+          size: 'Medium',
+          speed: 30,
+          languages: [],
+          abilityBonuses: {},
+          baseTraits: [],
+        },
+      ],
+    } as unknown as EditableContentPack;
+    const report = validator.validatePack(pack);
+    expect(report.results).toHaveProperty('species');
+    expect(report.results['species'].valid).toBe(true);
+  });
+
+  it('validatePack detects invalid species', () => {
+    const pack = {
+      ...makePack([]),
+      species: [{ id: '' }],
+    } as unknown as EditableContentPack;
+    const report = validator.validatePack(pack);
+    expect(report.results['species'].valid).toBe(false);
+  });
+
+  it('validatePack includes backgrounds results', () => {
+    const pack = {
+      ...makePack([]),
+      backgrounds: [
+        {
+          id: 'acolyte',
+          source: 'SRD',
+          skillProficiencies: [],
+          toolProficiencies: [],
+          languages: [],
+          originFeatId: 'test',
+          startingGold: 0,
+        },
+      ],
+    } as unknown as EditableContentPack;
+    const report = validator.validatePack(pack);
+    expect(report.results).toHaveProperty('backgrounds');
+    expect(report.results['backgrounds'].valid).toBe(true);
+  });
+
+  it('validatePack detects invalid backgrounds', () => {
+    const pack = {
+      ...makePack([]),
+      backgrounds: [{ id: '' }],
+    } as unknown as EditableContentPack;
+    const report = validator.validatePack(pack);
+    expect(report.results['backgrounds'].valid).toBe(false);
+  });
+
+  it('validatePack includes feats results', () => {
+    const pack = {
+      ...makePack([]),
+      feats: [{ id: 'alert', source: 'SRD', description: 'Test', category: 'General' }],
+    } as unknown as EditableContentPack;
+    const report = validator.validatePack(pack);
+    expect(report.results).toHaveProperty('feats');
+    expect(report.results['feats'].valid).toBe(true);
+  });
+
+  it('validatePack detects invalid feats', () => {
+    const pack = {
+      ...makePack([]),
+      feats: [{ id: '' }],
+    } as unknown as EditableContentPack;
+    const report = validator.validatePack(pack);
+    expect(report.results['feats'].valid).toBe(false);
+  });
 });

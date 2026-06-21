@@ -35,6 +35,8 @@ describe('AddContentButton', () => {
   const mockOnAddSpell = vi.fn();
   const mockOnAddMonster = vi.fn();
   const mockOnAddSpecies = vi.fn();
+  const mockOnAddBackground = vi.fn();
+  const mockOnAddFeat = vi.fn();
   const mockOnImport = vi.fn();
 
   it('renders Add button', () => {
@@ -59,6 +61,8 @@ describe('AddContentButton', () => {
     expect(screen.getByText('Add Spell')).toBeInTheDocument();
     expect(screen.getByText('Add Monster')).toBeInTheDocument();
     expect(screen.getByText('Add Species')).toBeInTheDocument();
+    expect(screen.getByText('Add Background')).toBeInTheDocument();
+    expect(screen.getByText('Add Feat')).toBeInTheDocument();
     expect(screen.getByText('Import Content')).toBeInTheDocument();
   });
 
@@ -83,6 +87,8 @@ describe('AddContentButton', () => {
             onAddSpell={mockOnAddSpell}
             onAddMonster={mockOnAddMonster}
             onAddSpecies={mockOnAddSpecies}
+            onAddBackground={mockOnAddBackground}
+            onAddFeat={mockOnAddFeat}
             onImport={mockOnImport}
           />
         </I18nProvider>
@@ -101,6 +107,12 @@ describe('AddContentButton', () => {
     expect(mockOnAddSpecies).toHaveBeenCalled();
 
     items[3].click();
+    expect(mockOnAddBackground).toHaveBeenCalled();
+
+    items[4].click();
+    expect(mockOnAddFeat).toHaveBeenCalled();
+
+    items[5].click();
     expect(mockOnImport).toHaveBeenCalled();
   });
 

@@ -64,6 +64,39 @@ export function importPack(json: string): EditableContentPack {
     }
   }
 
+  // Validate species if present
+  if (pack.species) {
+    for (const species of pack.species) {
+      const result = validator.validateSpecies(species);
+      if (!result.valid) {
+        const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
+        throw new Error(`Invalid species "${species.id}": ${errors}`);
+      }
+    }
+  }
+
+  // Validate backgrounds if present
+  if (pack.backgrounds) {
+    for (const background of pack.backgrounds) {
+      const result = validator.validateBackground(background);
+      if (!result.valid) {
+        const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
+        throw new Error(`Invalid background "${background.name || background.id}": ${errors}`);
+      }
+    }
+  }
+
+  // Validate feats if present
+  if (pack.feats) {
+    for (const feat of pack.feats) {
+      const result = validator.validateFeat(feat);
+      if (!result.valid) {
+        const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
+        throw new Error(`Invalid feat "${feat.name || feat.id}": ${errors}`);
+      }
+    }
+  }
+
   return pack as EditableContentPack;
 }
 

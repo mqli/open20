@@ -87,6 +87,89 @@ describe('importPack', () => {
     expect(result.spells).toBeUndefined();
   });
 
+  it('validates species against SpeciesSchema, throws on invalid', () => {
+    const pack = makeValidPack({
+      spells: undefined,
+      species: [{ id: '' }],
+    });
+    const json = JSON.stringify(pack);
+    expect(() => importPack(json)).toThrow(/Invalid species/);
+  });
+
+  it('accepts valid species without throwing', () => {
+    const pack = makeValidPack({
+      spells: undefined,
+      species: [
+        {
+          id: 'dwarf',
+          source: 'SRD',
+          description: 'Dwarves.',
+          size: 'Medium',
+          speed: 30,
+          languages: [],
+          abilityBonuses: {},
+          baseTraits: [],
+        },
+      ],
+    });
+    const json = JSON.stringify(pack);
+    const result = importPack(json);
+    expect(result.species).toBeDefined();
+    expect(result.species![0].id).toBe('dwarf');
+  });
+
+  it('validates backgrounds against BackgroundSchema, throws on invalid', () => {
+    const pack = makeValidPack({
+      spells: undefined,
+      backgrounds: [{ id: '' }],
+    });
+    const json = JSON.stringify(pack);
+    expect(() => importPack(json)).toThrow(/Invalid background/);
+  });
+
+  it('validates feats against FeatSchema, throws on invalid', () => {
+    const pack = makeValidPack({
+      spells: undefined,
+      feats: [{ id: '' }],
+    });
+    const json = JSON.stringify(pack);
+    expect(() => importPack(json)).toThrow(/Invalid feat/);
+  });
+
+  it('accepts all content types together', () => {
+    const pack = makeValidPack({
+      species: [
+        {
+          id: 'dwarf',
+          source: 'SRD',
+          description: 'Dwarves.',
+          size: 'Medium',
+          speed: 30,
+          languages: [],
+          abilityBonuses: {},
+          baseTraits: [],
+        },
+      ],
+      backgrounds: [
+        {
+          id: 'acolyte',
+          source: 'SRD',
+          skillProficiencies: [],
+          toolProficiencies: [],
+          languages: [],
+          originFeatId: 'test',
+          startingGold: 0,
+        },
+      ],
+      feats: [{ id: 'alert', source: 'SRD', description: 'Test', category: 'General' }],
+    });
+    const json = JSON.stringify(pack);
+    const result = importPack(json);
+    expect(result.species).toBeDefined();
+    expect(result.backgrounds).toBeDefined();
+    expect(result.feats).toBeDefined();
+  });
+
   it('throws on invalid JSON', () => {
     expect(() => importPack('not json')).toThrow('Invalid JSON');
   });

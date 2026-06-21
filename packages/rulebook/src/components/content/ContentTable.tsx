@@ -1,10 +1,15 @@
 import { useState } from 'react';
-import type { Spell, Monster } from 'open20-core';
-import { BookOpen, Skull, Pencil, Trash2 } from 'lucide-react';
+import type { Spell, Monster, Species, Background, Feat } from 'open20-core';
+import { BookOpen, Skull, User, ScrollText, Award, Pencil, Trash2 } from 'lucide-react';
+
+type TableMode = 'spells' | 'monsters' | 'species' | 'backgrounds' | 'feats';
 
 interface ContentTableProps {
   spells?: Spell[];
   monsters?: Monster[];
+  species?: Species[];
+  backgrounds?: Background[];
+  feats?: Feat[];
   selectedIds: string[];
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -18,6 +23,9 @@ interface ContentTableProps {
 export function ContentTable({
   spells,
   monsters,
+  species,
+  backgrounds,
+  feats,
   selectedIds,
   onEdit,
   onDelete,
@@ -29,9 +37,26 @@ export function ContentTable({
   const [selectAllChecked, setSelectAllChecked] = useState(false);
 
   /** Determine mode based on which prop is provided */
-  const mode: 'spells' | 'monsters' = monsters ? 'monsters' : 'spells';
+  let mode: TableMode = 'spells';
+  if (monsters) mode = 'monsters';
+  else if (species) mode = 'species';
+  else if (backgrounds) mode = 'backgrounds';
+  else if (feats) mode = 'feats';
 
-  const items = mode === 'monsters' ? (monsters ?? []) : (spells ?? []);
+  const items = (() => {
+    switch (mode) {
+      case 'monsters':
+        return monsters ?? [];
+      case 'species':
+        return species ?? [];
+      case 'backgrounds':
+        return backgrounds ?? [];
+      case 'feats':
+        return feats ?? [];
+      default:
+        return spells ?? [];
+    }
+  })();
 
   const handleSelectAll = () => {
     if (selectAllChecked) {
@@ -178,6 +203,73 @@ export function ContentTable({
                     </div>
                   </td>
                 )}
+              </tr>
+            ))}
+          {mode === 'species' &&
+            species?.map((s) => (
+              <tr key={s.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                <td className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(s.id)}
+                    onChange={() => handleToggleSelect(s.id)}
+                    className="cursor-pointer"
+                  />
+                </td>
+                <td className="p-2">
+                  <User className="w-4 h-4 text-text-secondary" />
+                </td>
+                <td className="p-2 text-text-primary font-medium">{s.id}</td>
+                <td className="p-2 text-text-primary">{s.size}</td>
+                <td className="p-2 text-text-primary">{s.speed}ft</td>
+                <td className="p-2 text-text-primary text-xs">{s.languages?.length || 0} langs</td>
+                <td className="p-2 text-text-primary text-xs">{sourceLabel || s.source}</td>
+              </tr>
+            ))}
+          {mode === 'backgrounds' &&
+            backgrounds?.map((b) => (
+              <tr key={b.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                <td className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(b.id)}
+                    onChange={() => handleToggleSelect(b.id)}
+                    className="cursor-pointer"
+                  />
+                </td>
+                <td className="p-2">
+                  <ScrollText className="w-4 h-4 text-text-secondary" />
+                </td>
+                <td className="p-2 text-text-primary font-medium">{b.name || b.id}</td>
+                <td className="p-2 text-text-primary text-xs">
+                  {b.skillProficiencies?.join(', ') || '-'}
+                </td>
+                <td className="p-2 text-text-primary">{b.startingGold}gp</td>
+                <td className="p-2 text-text-primary text-xs">{b.originFeatId}</td>
+                <td className="p-2 text-text-primary text-xs">{sourceLabel || b.source}</td>
+              </tr>
+            ))}
+          {mode === 'feats' &&
+            feats?.map((f) => (
+              <tr key={f.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                <td className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(f.id)}
+                    onChange={() => handleToggleSelect(f.id)}
+                    className="cursor-pointer"
+                  />
+                </td>
+                <td className="p-2">
+                  <Award className="w-4 h-4 text-text-secondary" />
+                </td>
+                <td className="p-2 text-text-primary font-medium">{f.name || f.id}</td>
+                <td className="p-2 text-text-primary">{f.category}</td>
+                <td className="p-2 text-text-primary">{f.prerequisites ? 'Yes' : '-'}</td>
+                <td className="p-2 text-text-primary text-xs">
+                  {f.repeatable ? 'Repeatable' : '-'}
+                </td>
+                <td className="p-2 text-text-primary text-xs">{sourceLabel || f.source}</td>
               </tr>
             ))}
         </tbody>

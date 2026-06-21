@@ -28,3 +28,29 @@ export interface MonsterQuery {
   sortBy?: 'name' | 'cr' | 'type';
   sortOrder?: 'asc' | 'desc';
 }
+
+export type SpeciesSize = 'Small' | 'Medium';
+
+export interface SpeciesQuery {
+  name?: string; // Case-insensitive substring match
+  size?: SpeciesSize; // Exact match on size field
+  source?: string; // Exact match on source field
+  sortBy?: 'name' | 'size';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface BackgroundQuery {
+  name?: string; // Case-insensitive substring match
+  source?: string; // Exact match on source field
+  sortBy?: 'name';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface FeatQuery {
+  name?: string; // Case-insensitive substring match
+  source?: string; // Exact match on source field
+  hasPrerequisite?: boolean; // Filter by whether the feat has prerequisites
+  category?: string; // Exact match on category field
+  sortBy?: 'name' | 'category';
+  sortOrder?: 'asc' | 'desc';
+}

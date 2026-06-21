@@ -209,6 +209,156 @@ export const MonsterSchema = z
   })
   .strict();
 
+// ---- Species sub-schemas ----
+
+const SpeciesSizeSchema = z.enum(['Small', 'Medium']);
+
+const SpeciesGrantSchema = z.object({
+  skillProficiencies: z.array(z.string()).optional(),
+  toolProficiencies: z.array(z.string()).optional(),
+  languages: z.array(z.string()).optional(),
+  armorTraining: z.array(z.string()).optional(),
+  speedBonus: z.number().optional(),
+  hpPerLevel: z.number().optional(),
+  damageResistances: z.array(z.string()).optional(),
+  damageImmunities: z.array(z.string()).optional(),
+  damageVulnerabilities: z.array(z.string()).optional(),
+});
+
+const SpeciesTraitSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  grants: SpeciesGrantSchema.optional(),
+});
+
+const SpeciesSubtypeSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string(),
+  traits: z.array(SpeciesTraitSchema),
+});
+
+// ---- Background sub-schemas ----
+
+const GearSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    quantity: z.number().optional(),
+  })
+  .passthrough(); // Allow extra fields from Gear type
+
+// ---- Feat sub-schemas ----
+
+const FeatCategorySchema = z.enum(['Origin', 'General', 'Fighting Style', 'Epic Boon']);
+
+const FeatPrerequisiteSchema = z.object({
+  ability: z.record(z.string(), z.number()).optional(),
+  level: z.number().optional(),
+  classId: z.string().optional(),
+  subclassId: z.string().optional(),
+  species: z.string().optional(),
+  feature: z.string().optional(),
+});
+
+const FeatAbilityBonusChoiceSchema = z.object({
+  options: z.array(z.string()),
+  valuePerChoice: z.number(),
+  count: z.number(),
+});
+
+const FeatProficiencyChoiceSchema = z.object({
+  options: z.array(z.string()),
+  count: z.number(),
+});
+
+const FeatSpellChoiceSchema = z.object({
+  id: z.string().min(1),
+  classOptions: z.array(z.string()),
+  spellLevel: z.number(),
+  count: z.number(),
+  alwaysPrepared: z.boolean().optional(),
+  oncePerLongRest: z.boolean().optional(),
+});
+
+const FeatAttackBonusSchema = z.object({
+  ranged: z.number().optional(),
+  melee: z.number().optional(),
+  weaponProperties: z.array(z.string()).optional(),
+});
+
+const FeatACBonusSchema = z.object({
+  lightArmor: z.number().optional(),
+  mediumArmor: z.number().optional(),
+  heavyArmor: z.number().optional(),
+  whileWearing: z.array(z.string()).optional(),
+});
+
+const FeatGrantSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('abilityBonus'), bonus: z.record(z.string(), z.number()) }),
+  z.object({ type: z.literal('abilityBonusChoice'), choice: FeatAbilityBonusChoiceSchema }),
+  z.object({ type: z.literal('skillProficiencies'), skills: z.array(z.string()) }),
+  z.object({ type: z.literal('skillProficiencyChoice'), choice: FeatProficiencyChoiceSchema }),
+  z.object({ type: z.literal('toolProficiencies'), tools: z.array(z.string()) }),
+  z.object({ type: z.literal('toolProficiencyChoice'), choice: FeatProficiencyChoiceSchema }),
+  z.object({ type: z.literal('languages'), languages: z.array(z.string()) }),
+  z.object({ type: z.literal('armorTraining'), armors: z.array(z.string()) }),
+  z.object({ type: z.literal('weaponMastery'), weapons: z.array(z.string()) }),
+  z.object({ type: z.literal('attackBonus'), bonus: FeatAttackBonusSchema }),
+  z.object({ type: z.literal('acBonus'), bonus: FeatACBonusSchema }),
+  z.object({ type: z.literal('specialAbilities'), abilities: z.array(z.string()) }),
+  z.object({ type: z.literal('spellChoices'), choices: z.array(FeatSpellChoiceSchema) }),
+]);
+
+// ---- SpeciesSchema ----
+
+export const SpeciesSchema = z
+  .object({
+    id: z.string().min(1),
+    source: z.string().min(1),
+    description: z.string(),
+    size: SpeciesSizeSchema,
+    speed: z.number(),
+    languages: z.array(z.string()),
+    abilityBonuses: z.record(z.string(), z.number()),
+    baseTraits: z.array(SpeciesTraitSchema),
+    subtypes: z.array(SpeciesSubtypeSchema).optional(),
+    darkvision: z.number().optional(),
+  })
+  .strict();
+
+// ---- BackgroundSchema ----
+
+export const BackgroundSchema = z
+  .object({
+    id: z.string().min(1),
+    source: z.string().min(1),
+    name: z.string().optional(),
+    description: z.string().optional(),
+    skillProficiencies: z.array(z.string()),
+    toolProficiencies: z.array(z.string()),
+    languages: z.array(z.string()),
+    originFeatId: z.string().min(1),
+    startingEquipment: z.array(GearSchema).optional(),
+    startingGold: z.number(),
+  })
+  .strict();
+
+// ---- FeatSchema ----
+
+export const FeatSchema = z
+  .object({
+    id: z.string().min(1),
+    source: z.string().min(1),
+    name: z.string().optional(),
+    description: z.string(),
+    category: FeatCategorySchema,
+    prerequisites: FeatPrerequisiteSchema.optional(),
+    grants: z.array(FeatGrantSchema).optional(),
+    repeatable: z.boolean().optional(),
+  })
+  .strict();
+
 // ---- SpellSchema ----
 
 export const SpellSchema = z

@@ -12,6 +12,8 @@ import {
   Skull,
   User,
   Database,
+  Award,
+  ScrollText,
 } from 'lucide-react';
 import { usePackDetailStore } from '../stores/packDetailStore';
 import { ContentTable } from '../components/content/ContentTable';
@@ -171,7 +173,13 @@ export function PackDetail() {
 
   const getContentCount = () => {
     if (!pack) return 0;
-    return (pack.spells?.length || 0) + (pack.monsters?.length || 0) + (pack.species?.length || 0);
+    return (
+      (pack.spells?.length || 0) +
+      (pack.monsters?.length || 0) +
+      (pack.species?.length || 0) +
+      (pack.backgrounds?.length || 0) +
+      (pack.feats?.length || 0)
+    );
   };
 
   if (loading) {
@@ -195,6 +203,8 @@ export function PackDetail() {
   const spellsCount = pack.spells?.length || 0;
   const monstersCount = pack.monsters?.length || 0;
   const speciesCount = pack.species?.length || 0;
+  const backgroundsCount = pack.backgrounds?.length || 0;
+  const featsCount = pack.feats?.length || 0;
 
   return (
     <div>
@@ -262,6 +272,14 @@ export function PackDetail() {
           <Tabs.Trigger value="species">
             <User className="w-4 h-4 mr-2" />
             Species ({speciesCount})
+          </Tabs.Trigger>
+          <Tabs.Trigger value="backgrounds">
+            <ScrollText className="w-4 h-4 mr-2" />
+            Backgrounds ({backgroundsCount})
+          </Tabs.Trigger>
+          <Tabs.Trigger value="feats">
+            <Award className="w-4 h-4 mr-2" />
+            Feats ({featsCount})
           </Tabs.Trigger>
         </Tabs.List>
 
@@ -352,7 +370,93 @@ export function PackDetail() {
         </Tabs.Content>
 
         <Tabs.Content value="species">
-          <div className="p-4 text-center text-muted-foreground">No species in this pack yet.</div>
+          {speciesCount > 0 ? (
+            <ContentTable
+              species={pack.species}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelectedId}
+              onSelectAll={(ids) => selectAll(ids)}
+              isReadOnly={isBuiltIn}
+              sourceLabel={pack.meta.name}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="text-4xl mb-4">🧝</div>
+              <p className="text-lg font-medium mb-2">No species yet</p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                Add playable species and races to this content pack.
+              </p>
+              {!isBuiltIn && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/rulebook/editor/${id}/species`)}
+                >
+                  + Add Species
+                </Button>
+              )}
+            </div>
+          )}
+        </Tabs.Content>
+
+        <Tabs.Content value="backgrounds">
+          {backgroundsCount > 0 ? (
+            <ContentTable
+              backgrounds={pack.backgrounds}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelectedId}
+              onSelectAll={(ids) => selectAll(ids)}
+              isReadOnly={isBuiltIn}
+              sourceLabel={pack.meta.name}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="text-4xl mb-4">📜</div>
+              <p className="text-lg font-medium mb-2">No backgrounds yet</p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                Add character backgrounds to this content pack.
+              </p>
+              {!isBuiltIn && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/rulebook/editor/${id}/background`)}
+                >
+                  + Add Background
+                </Button>
+              )}
+            </div>
+          )}
+        </Tabs.Content>
+
+        <Tabs.Content value="feats">
+          {featsCount > 0 ? (
+            <ContentTable
+              feats={pack.feats}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelectedId}
+              onSelectAll={(ids) => selectAll(ids)}
+              isReadOnly={isBuiltIn}
+              sourceLabel={pack.meta.name}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="text-4xl mb-4">🏆</div>
+              <p className="text-lg font-medium mb-2">No feats yet</p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                Add feats and talents to this content pack.
+              </p>
+              {!isBuiltIn && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/rulebook/editor/${id}/feat`)}
+                >
+                  + Add Feat
+                </Button>
+              )}
+            </div>
+          )}
         </Tabs.Content>
       </Tabs.Root>
 

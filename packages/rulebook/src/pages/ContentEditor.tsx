@@ -1,9 +1,17 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { SpellEditor, MonsterEditor, Button, Text } from '@open20/ui';
+import {
+  SpellEditor,
+  MonsterEditor,
+  SpeciesEditor,
+  BackgroundEditor,
+  FeatEditor,
+  Button,
+  Text,
+} from '@open20/ui';
 import { useContentEditorStore } from '../stores/contentEditorStore';
 import { parsePlainText, transformSpell } from '@open20/content/parser';
-import { ClipboardPaste, User } from 'lucide-react';
+import { ClipboardPaste } from 'lucide-react';
 
 export function ContentEditor() {
   const { packId, contentType, contentId } = useParams<{
@@ -19,13 +27,25 @@ export function ContentEditor() {
     setParams,
     setSpell,
     setMonster,
+    setSpecies,
+    setBackground,
+    setFeat,
     saveSpell,
     saveMonster,
+    saveSpecies,
+    saveBackground,
+    saveFeat,
     loadSpell,
     loadMonster,
+    loadSpecies,
+    loadBackground,
+    loadFeat,
   } = useContentEditorStore();
   const spell = useContentEditorStore((state) => state.spell);
   const monster = useContentEditorStore((state) => state.monster);
+  const species = useContentEditorStore((state) => state.species);
+  const background = useContentEditorStore((state) => state.background);
+  const feat = useContentEditorStore((state) => state.feat);
 
   // Paste-from-text state (spells only)
   const [showPasteArea, setShowPasteArea] = useState(false);
@@ -57,12 +77,28 @@ export function ContentEditor() {
       if (contentId) {
         if (contentType === 'monster') {
           loadMonster(packId, contentId);
+        } else if (contentType === 'species') {
+          loadSpecies(packId, contentId);
+        } else if (contentType === 'background') {
+          loadBackground(packId, contentId);
+        } else if (contentType === 'feat') {
+          loadFeat(packId, contentId);
         } else {
           loadSpell(packId, contentId);
         }
       }
     }
-  }, [packId, contentType, contentId, setParams, loadSpell, loadMonster]);
+  }, [
+    packId,
+    contentType,
+    contentId,
+    setParams,
+    loadSpell,
+    loadMonster,
+    loadSpecies,
+    loadBackground,
+    loadFeat,
+  ]);
 
   // Unsaved changes protection - beforeunload event
   useEffect(() => {
@@ -98,8 +134,8 @@ export function ContentEditor() {
     }
   };
 
-  // Custom action buttons for SpellEditor
-  const renderSpellActions = (props: {
+  // Shared action buttons for all editors
+  const renderContentActions = (props: {
     onSave: (intent: 'stay' | 'new' | 'close') => void;
     isValid: boolean;
     isSubmitting: boolean;
@@ -134,63 +170,6 @@ export function ContentEditor() {
         disabled={!props.isValid || isSaving}
       >
         Save & Close
-      </Button>
-    </div>
-  );
-
-  // Custom action buttons for MonsterEditor
-  const renderMonsterActions = (props: {
-    onSave: (intent: 'stay' | 'new' | 'close') => void;
-    isValid: boolean;
-    isSubmitting: boolean;
-  }) => (
-    <div className="flex items-center justify-end gap-2">
-      <Button type="button" variant="ghost" size="lg" onClick={handleCancel} disabled={isSaving}>
-        Cancel
-      </Button>
-      <Button
-        type="button"
-        variant="secondary"
-        size="lg"
-        onClick={() => props.onSave('stay')}
-        disabled={!props.isValid || isSaving}
-      >
-        Save
-      </Button>
-      <Button
-        type="button"
-        variant="secondary"
-        size="lg"
-        onClick={() => props.onSave('new')}
-        disabled={!props.isValid || isSaving}
-      >
-        Save & New
-      </Button>
-      <Button
-        type="button"
-        variant="primary"
-        size="lg"
-        onClick={() => props.onSave('close')}
-        disabled={!props.isValid || isSaving}
-      >
-        Save & Close
-      </Button>
-    </div>
-  );
-
-  // ── Coming soon placeholder for unsupported types ──
-  const renderComingSoon = (icon: React.ReactNode, typeName: string) => (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="p-4 rounded-full bg-bg-secondary mb-4">{icon}</div>
-      <Text as="h2" variant="heading" className="mb-2">
-        {contentId ? `Edit ${typeName}` : `New ${typeName}`}
-      </Text>
-      <Text as="p" variant="body" className="text-muted-foreground mb-6 max-w-md">
-        The {typeName.toLowerCase()} editor is coming in a future update. For now, you can add{' '}
-        {typeName.toLowerCase()} data via JSON import.
-      </Text>
-      <Button variant="outline" onClick={handleCancel}>
-        Back to Pack
       </Button>
     </div>
   );
@@ -219,7 +198,7 @@ export function ContentEditor() {
             }
           }}
           onCancel={handleCancel}
-          renderActions={renderMonsterActions}
+          renderActions={renderContentActions}
           mode="simple"
           showPreview
         />
@@ -227,9 +206,91 @@ export function ContentEditor() {
     );
   }
 
-  // ── Species (coming soon) ──
+  // ── Species Editor ──
   if (contentType === 'species') {
-    return renderComingSoon(<User className="w-8 h-8 text-text-tertiary" />, 'Species');
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Text as="h1" variant="heading" className="mb-2">
+            {contentId ? 'Edit Species' : 'New Species'}
+          </Text>
+          <Text as="p" variant="body" className="text-muted-foreground">
+            {packId && `Pack: ${packId}`}
+            {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
+          </Text>
+        </div>
+        <SpeciesEditor
+          value={species}
+          onChange={(updatedSpecies) => setSpecies(updatedSpecies)}
+          onSubmit={(_, intent) => {
+            saveSpecies(intent || 'stay');
+            if (intent === 'close' && packId) {
+              navigate(`/rulebook/packs/${packId}`);
+            }
+          }}
+          onCancel={handleCancel}
+          renderActions={renderContentActions}
+        />
+      </div>
+    );
+  }
+
+  // ── Background Editor ──
+  if (contentType === 'background') {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Text as="h1" variant="heading" className="mb-2">
+            {contentId ? 'Edit Background' : 'New Background'}
+          </Text>
+          <Text as="p" variant="body" className="text-muted-foreground">
+            {packId && `Pack: ${packId}`}
+            {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
+          </Text>
+        </div>
+        <BackgroundEditor
+          value={background}
+          onChange={(updatedBg) => setBackground(updatedBg)}
+          onSubmit={(_, intent) => {
+            saveBackground(intent || 'stay');
+            if (intent === 'close' && packId) {
+              navigate(`/rulebook/packs/${packId}`);
+            }
+          }}
+          onCancel={handleCancel}
+          renderActions={renderContentActions}
+        />
+      </div>
+    );
+  }
+
+  // ── Feat Editor ──
+  if (contentType === 'feat') {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Text as="h1" variant="heading" className="mb-2">
+            {contentId ? 'Edit Feat' : 'New Feat'}
+          </Text>
+          <Text as="p" variant="body" className="text-muted-foreground">
+            {packId && `Pack: ${packId}`}
+            {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
+          </Text>
+        </div>
+        <FeatEditor
+          value={feat}
+          onChange={(updatedFeat) => setFeat(updatedFeat)}
+          onSubmit={(_, intent) => {
+            saveFeat(intent || 'stay');
+            if (intent === 'close' && packId) {
+              navigate(`/rulebook/packs/${packId}`);
+            }
+          }}
+          onCancel={handleCancel}
+          renderActions={renderContentActions}
+        />
+      </div>
+    );
   }
 
   // ── Spell Editor (default) ──
@@ -304,7 +365,7 @@ export function ContentEditor() {
           }
         }}
         onCancel={handleCancel}
-        renderActions={renderSpellActions}
+        renderActions={renderContentActions}
       />
     </div>
   );

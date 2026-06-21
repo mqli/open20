@@ -1,5 +1,5 @@
 import type { EditableContentPack } from '../types/content-pack';
-import { SpellSchema, MonsterSchema } from './schemas';
+import { SpellSchema, MonsterSchema, SpeciesSchema, BackgroundSchema, FeatSchema } from './schemas';
 
 export interface ValidationError {
   path: string;
@@ -53,66 +53,100 @@ export class ContentValidator {
   }
 
   /**
+   * Validate a single species against SpeciesSchema.
+   * Returns ValidationResult with errors array (empty if valid).
+   */
+  validateSpecies(species: unknown): ValidationResult {
+    const result = SpeciesSchema.safeParse(species);
+    if (result.success) {
+      return { valid: true, errors: [] };
+    }
+    const errors: ValidationError[] = result.error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+      severity: 'error' as const,
+    }));
+    return { valid: false, errors };
+  }
+
+  /**
+   * Validate a single background against BackgroundSchema.
+   * Returns ValidationResult with errors array (empty if valid).
+   */
+  validateBackground(background: unknown): ValidationResult {
+    const result = BackgroundSchema.safeParse(background);
+    if (result.success) {
+      return { valid: true, errors: [] };
+    }
+    const errors: ValidationError[] = result.error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+      severity: 'error' as const,
+    }));
+    return { valid: false, errors };
+  }
+
+  /**
+   * Validate a single feat against FeatSchema.
+   * Returns ValidationResult with errors array (empty if valid).
+   */
+  validateFeat(feat: unknown): ValidationResult {
+    const result = FeatSchema.safeParse(feat);
+    if (result.success) {
+      return { valid: true, errors: [] };
+    }
+    const errors: ValidationError[] = result.error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+      severity: 'error' as const,
+    }));
+    return { valid: false, errors };
+  }
+
+  /**
    * Batch-validate an entire content pack.
-   * Validates spells and monsters arrays. Returns ValidationReport with per-type results.
+   * Validates all content arrays. Returns ValidationReport with per-type results.
    */
   validatePack(pack: EditableContentPack): ValidationReport {
     const results: Record<string, ValidationResult> = {};
     let allValid = true;
 
-    // Validate spells
-    const spells = pack.spells ?? [];
-    if (spells.length > 0) {
-      const errors: ValidationError[] = [];
-      spells.forEach((spell, index) => {
-        const result = this.validateSpell(spell);
-        if (!result.valid) {
-          result.errors.forEach((e) => {
-            errors.push({
-              ...e,
-              path: `spells[${index}].${e.path}`,
+    const validateArray = (
+      key: string,
+      items: unknown[],
+      validator: (item: unknown) => ValidationResult,
+    ) => {
+      if (items.length > 0) {
+        const errors: ValidationError[] = [];
+        items.forEach((item, index) => {
+          const result = validator(item);
+          if (!result.valid) {
+            result.errors.forEach((e) => {
+              errors.push({
+                ...e,
+                path: `${key}[${index}].${e.path}`,
+              });
             });
-          });
+          }
+        });
+        const typeResult: ValidationResult = {
+          valid: errors.length === 0,
+          errors,
+        };
+        results[key] = typeResult;
+        if (!typeResult.valid) {
+          allValid = false;
         }
-      });
-      const spellResult: ValidationResult = {
-        valid: errors.length === 0,
-        errors,
-      };
-      results['spells'] = spellResult;
-      if (!spellResult.valid) {
-        allValid = false;
+      } else {
+        results[key] = { valid: true, errors: [] };
       }
-    } else {
-      results['spells'] = { valid: true, errors: [] };
-    }
+    };
 
-    // Validate monsters
-    const monsters = pack.monsters ?? [];
-    if (monsters.length > 0) {
-      const errors: ValidationError[] = [];
-      monsters.forEach((monster, index) => {
-        const result = this.validateMonster(monster);
-        if (!result.valid) {
-          result.errors.forEach((e) => {
-            errors.push({
-              ...e,
-              path: `monsters[${index}].${e.path}`,
-            });
-          });
-        }
-      });
-      const monsterResult: ValidationResult = {
-        valid: errors.length === 0,
-        errors,
-      };
-      results['monsters'] = monsterResult;
-      if (!monsterResult.valid) {
-        allValid = false;
-      }
-    } else {
-      results['monsters'] = { valid: true, errors: [] };
-    }
+    validateArray('spells', pack.spells ?? [], (item) => this.validateSpell(item));
+    validateArray('monsters', pack.monsters ?? [], (item) => this.validateMonster(item));
+    validateArray('species', pack.species ?? [], (item) => this.validateSpecies(item));
+    validateArray('backgrounds', pack.backgrounds ?? [], (item) => this.validateBackground(item));
+    validateArray('feats', pack.feats ?? [], (item) => this.validateFeat(item));
 
     return { valid: allValid, results };
   }
