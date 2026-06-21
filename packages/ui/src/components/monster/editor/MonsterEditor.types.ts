@@ -148,6 +148,10 @@ export interface MonsterEditorProps {
     isValid: boolean;
     isSubmitting: boolean;
   }) => React.ReactNode;
+  /** Editor mode: 'simple' shows essential fields, 'advanced' shows all sections. Default 'advanced'. */
+  mode?: 'simple' | 'advanced';
+  /** Called when user toggles between simple and advanced mode */
+  onModeChange?: (mode: 'simple' | 'advanced') => void;
 }
 
 // ── Constants ───────────────────────────────────────────────────

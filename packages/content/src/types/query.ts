@@ -18,3 +18,13 @@ export interface SpellQuery {
   sortBy?: 'name' | 'level' | 'school';
   sortOrder?: 'asc' | 'desc';
 }
+
+export interface MonsterQuery {
+  name?: string; // Case-insensitive substring (fuzzy) match
+  type?: string; // Exact match (e.g. 'Dragon', 'Humanoid')
+  cr?: number; // Exact challenge rating
+  crRange?: { min: number; max: number };
+  source?: string; // Exact match on source field
+  sortBy?: 'name' | 'cr' | 'type';
+  sortOrder?: 'asc' | 'desc';
+}

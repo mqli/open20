@@ -25,10 +25,27 @@ export function MonsterEditor({
   disabled = false,
   className,
   renderActions,
+  mode: modeProp,
+  onModeChange,
 }: MonsterEditorProps) {
   const t = useTranslation();
 
-  // ── State ────────────────────────────────────────
+  // ── Mode state (controlled via prop, default to 'advanced') ──
+  const [mode, setMode] = useState<'simple' | 'advanced'>(modeProp ?? 'advanced');
+
+  useEffect(() => {
+    if (modeProp !== undefined) {
+      setMode(modeProp);
+    }
+  }, [modeProp]);
+
+  const toggleMode = useCallback(() => {
+    const next = mode === 'simple' ? 'advanced' : 'simple';
+    setMode(next);
+    onModeChange?.(next);
+  }, [mode, onModeChange]);
+
+  // ── Form State ────────────────────────────────────────
   const initialData = useMemo(() => monsterToFormData(defaultValue || undefined), [defaultValue]);
   const [formData, setFormData] = useState<MonsterFormData>(() =>
     monsterToFormData(value || defaultValue || undefined),
@@ -60,12 +77,15 @@ export function MonsterEditor({
     if (formData.hitPoints.value <= 0) {
       newErrors.hitPoints = t('monsterEditor.validation.hpRequired');
     }
-    const allScoresFilled = Object.values(formData.abilityScores).every((s) => s > 0);
-    if (!allScoresFilled) {
-      newErrors.abilityScores = t('monsterEditor.validation.abilityScoresRequired');
+    // Only validate ability scores in advanced mode (simple mode may skip them)
+    if (mode === 'advanced') {
+      const allScoresFilled = Object.values(formData.abilityScores).every((s) => s > 0);
+      if (!allScoresFilled) {
+        newErrors.abilityScores = t('monsterEditor.validation.abilityScoresRequired');
+      }
     }
     return newErrors;
-  }, [formData, t]);
+  }, [formData, t, mode]);
 
   const isValid = useMemo(() => {
     const validationErrors = getValidationErrors();
@@ -77,13 +97,11 @@ export function MonsterEditor({
     (updates: Partial<MonsterFormData>) => {
       setFormData((prev) => {
         const next = { ...prev, ...updates };
-        // Notify parent
         if (onChange) {
           onChange(formDataToMonster(next));
         }
         return next;
       });
-      // Clear errors for changed fields
       setErrors((prev) => {
         const next = { ...prev };
         Object.keys(updates).forEach((key) => delete next[key]);
@@ -117,6 +135,10 @@ export function MonsterEditor({
     onCancel?.();
   }, [onCancel]);
 
+  // ── Simple mode: Core Attacks section ─────────────
+  const coreAttacks = formData.actions.filter((a) => a.attacks && a.attacks.length > 0);
+  const hasAttacks = formData.actions.length > 0;
+
   // ── Render ───────────────────────────────────────
   return (
     <div className={className}>
@@ -137,29 +159,103 @@ export function MonsterEditor({
           </div>
         )}
 
-        {/* Basic Info */}
+        {/* ── Mode Toggle Bar ───────────────────────── */}
+        <div className="flex items-center justify-between px-4 py-2 rounded-lg bg-muted/40 border border-border">
+          <div className="flex items-center gap-2">
+            <Text as="span" variant="labelSm">
+              {mode === 'simple' ? 'Simple Mode' : 'Advanced Mode'}
+            </Text>
+            {mode === 'simple' && (
+              <span className="text-xs text-muted-foreground">— Quick setup for core stats</span>
+            )}
+            {mode === 'advanced' && (
+              <span className="text-xs text-muted-foreground">— Full stat block editor</span>
+            )}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={toggleMode}
+            disabled={disabled}
+          >
+            {mode === 'simple' ? 'Switch to Advanced Mode →' : '← Switch to Simple Mode'}
+          </Button>
+        </div>
+
+        {/* Basic Info (always shown) */}
         <BasicInfoSection formData={formData} onChange={handleChange} disabled={disabled} />
 
-        {/* Combat Stats */}
+        {/* Combat Stats (always shown) */}
         <CombatSection formData={formData} onChange={handleChange} disabled={disabled} />
 
-        {/* Ability Scores */}
-        <AbilityScoresSection formData={formData} onChange={handleChange} disabled={disabled} />
+        {mode === 'simple' ? (
+          <>
+            {/* ── Simple Mode: Core Attacks only ───── */}
+            <Surface padding="md" className="space-y-4">
+              <Text as="h3" variant="headingSm" className="flex items-center gap-2">
+                ⚔️ Core Attacks
+              </Text>
+              {hasAttacks ? (
+                <div className="space-y-3">
+                  {coreAttacks.map((action, idx) => (
+                    <div key={idx} className="p-3 rounded-md border border-border bg-bg-primary">
+                      <Text as="p" variant="body" className="font-medium">
+                        {action.name}
+                      </Text>
+                      {action.attacks?.map((atk, atkIdx) => (
+                        <div key={atkIdx} className="mt-1 ml-4 text-sm text-muted-foreground">
+                          <span>{atk.name}</span>
+                          {atk.damage && <span className="ml-2">— {atk.damage}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                  {formData.actions.length > coreAttacks.length && (
+                    <Text as="p" variant="caption" className="text-muted-foreground italic">
+                      +{formData.actions.length - coreAttacks.length} more actions visible in
+                      Advanced mode
+                    </Text>
+                  )}
+                </div>
+              ) : (
+                <Text as="p" variant="bodySm" className="text-muted-foreground italic">
+                  No attacks defined. Switch to Advanced mode to add actions.
+                </Text>
+              )}
+            </Surface>
 
-        {/* Defenses */}
-        <DefensesSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Simple mode note */}
+            <Surface variant="info" padding="sm">
+              <Text as="p" variant="bodySm" className="text-info-foreground">
+                💡 Tip: Switch to Advanced mode to edit ability scores, defenses, senses,
+                spellcasting, and more detailed monster features. Your data is preserved when
+                switching modes.
+              </Text>
+            </Surface>
+          </>
+        ) : (
+          <>
+            {/* ── Advanced Mode: All sections ────────── */}
+            {/* Ability Scores */}
+            <AbilityScoresSection formData={formData} onChange={handleChange} disabled={disabled} />
 
-        {/* Senses & Languages */}
-        <SensesSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Defenses */}
+            <DefensesSection formData={formData} onChange={handleChange} disabled={disabled} />
 
-        {/* Features & Actions */}
-        <FeaturesSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Senses & Languages */}
+            <SensesSection formData={formData} onChange={handleChange} disabled={disabled} />
 
-        {/* Spellcasting */}
-        <SpellcastingSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Features & Actions */}
+            <FeaturesSection formData={formData} onChange={handleChange} disabled={disabled} />
 
-        {/* Meta */}
-        <MetaSection formData={formData} onChange={handleChange} disabled={disabled} />
+            {/* Spellcasting */}
+            <SpellcastingSection formData={formData} onChange={handleChange} disabled={disabled} />
+
+            {/* Meta */}
+            <MetaSection formData={formData} onChange={handleChange} disabled={disabled} />
+          </>
+        )}
 
         {/* Form Errors */}
         {Object.keys(errors).length > 0 && (

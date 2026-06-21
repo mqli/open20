@@ -45,7 +45,9 @@ describe('ContentBrowser', () => {
     vi.clearAllMocks();
     const useBrowserStore = await getBrowserStore();
     vi.mocked(useBrowserStore).mockReturnValue({
-      filters: {},
+      activeTab: 'spells',
+      spellFilters: {},
+      monsterFilters: {},
       results: [
         {
           id: 'spell-1',
@@ -80,9 +82,11 @@ describe('ContentBrowser', () => {
       ],
       loading: false,
       error: null,
-      setFilter: vi.fn(),
+      setActiveTab: vi.fn(),
+      setSpellFilter: vi.fn(),
+      setMonsterFilter: vi.fn(),
       clearFilters: vi.fn(),
-      searchSpells: vi.fn(),
+      search: vi.fn(),
     } as any);
   });
 

@@ -34,7 +34,7 @@ export function parsePackJson(json: string): ContentPack {
 }
 
 /**
- * Import from a JSON string. Validates spells against SpellSchema.
+ * Import from a JSON string. Validates spells and monsters against their schemas.
  * Returns a new EditableContentPack (NOT persisted yet).
  * Throws on invalid content.
  */
@@ -49,6 +49,17 @@ export function importPack(json: string): EditableContentPack {
       if (!result.valid) {
         const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
         throw new Error(`Invalid spell "${spell.name || spell.id}": ${errors}`);
+      }
+    }
+  }
+
+  // Validate monsters if present
+  if (pack.monsters) {
+    for (const monster of pack.monsters) {
+      const result = validator.validateMonster(monster);
+      if (!result.valid) {
+        const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
+        throw new Error(`Invalid monster "${monster.name || monster.id}": ${errors}`);
       }
     }
   }

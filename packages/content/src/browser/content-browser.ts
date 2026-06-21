@@ -1,5 +1,5 @@
-import type { Spell } from 'open20-core';
-import type { SpellQuery } from '../types/query';
+import type { Spell, Monster } from 'open20-core';
+import type { SpellQuery, MonsterQuery } from '../types/query';
 import type { ContentPackManager } from '../manager/content-pack-manager';
 
 export class ContentBrowser {
@@ -127,6 +127,130 @@ export class ContentBrowser {
           return multiplier * (a.level - b.level);
         case 'school':
           return multiplier * a.school.localeCompare(b.school);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }
+
+  // ── Monster methods ─────────────────────────────────────
+
+  /**
+   * Get all monsters across ALL enabled packs.
+   * Disabled packs are excluded.
+   */
+  async getAllMonsters(): Promise<Monster[]> {
+    const packs = await this.manager.listPacks();
+    const monsters: Monster[] = [];
+
+    for (const pack of packs) {
+      if (!this.manager.isPackEnabled(pack.id)) {
+        continue;
+      }
+
+      const loaded = await this.manager.loadPack(pack.id);
+      if (loaded === null) {
+        continue;
+      }
+
+      const packMonsters = loaded.monsters ?? [];
+      monsters.push(...packMonsters);
+    }
+
+    return monsters;
+  }
+
+  /**
+   * Get monsters from a specific pack (regardless of enabled/disabled state).
+   * Returns [] if pack not found.
+   */
+  async getMonstersByPack(packId: string): Promise<Monster[]> {
+    const pack = await this.manager.loadPack(packId);
+    if (pack === null) {
+      return [];
+    }
+
+    return pack.monsters ?? [];
+  }
+
+  /**
+   * Search monsters across all enabled packs.
+   *
+   * Matching rules:
+   * - name: case-insensitive substring match (fuzzy)
+   * - type: exact match on creature type (e.g. 'Dragon', 'Humanoid')
+   * - cr: exact challenge rating match (takes precedence over crRange)
+   * - crRange: cr >= min AND cr <= max
+   * - source: exact match on monster.source
+   *
+   * Combine: ALL provided filters must match (AND logic).
+   *
+   * Sort: by sortBy field (default 'name'), sortOrder (default 'asc').
+   */
+  async searchMonsters(query: MonsterQuery): Promise<Monster[]> {
+    const monsters = await this.getAllMonsters();
+
+    const filtered = monsters.filter((monster) => {
+      // name filter (fuzzy match)
+      if (query.name !== undefined && query.name !== '') {
+        const nameLower = query.name.toLowerCase();
+        const monsterNameLower = monster.name.toLowerCase();
+        if (!monsterNameLower.includes(nameLower)) {
+          return false;
+        }
+      }
+
+      // type filter (exact match)
+      if (query.type !== undefined && query.type !== '') {
+        if (monster.type !== query.type) {
+          return false;
+        }
+      }
+
+      // cr filter (takes precedence over crRange)
+      if (query.cr !== undefined) {
+        const monsterCR =
+          typeof monster.challengeRating?.rating === 'number' ? monster.challengeRating.rating : -1;
+        if (monsterCR !== query.cr) {
+          return false;
+        }
+      } else if (query.crRange !== undefined) {
+        const monsterCR =
+          typeof monster.challengeRating?.rating === 'number' ? monster.challengeRating.rating : -1;
+        const { min, max } = query.crRange;
+        if (monsterCR < min || monsterCR > max) {
+          return false;
+        }
+      }
+
+      // source filter
+      if (query.source !== undefined && query.source !== '') {
+        if (monster.source !== query.source) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // Sort
+    const sortBy = query.sortBy ?? 'name';
+    const sortOrder = query.sortOrder ?? 'asc';
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return multiplier * a.name.localeCompare(b.name);
+        case 'cr': {
+          const aCR = typeof a.challengeRating?.rating === 'number' ? a.challengeRating.rating : -1;
+          const bCR = typeof b.challengeRating?.rating === 'number' ? b.challengeRating.rating : -1;
+          return multiplier * (aCR - bCR);
+        }
+        case 'type':
+          return multiplier * a.type.localeCompare(b.type);
         default:
           return 0;
       }

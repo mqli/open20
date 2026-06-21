@@ -1,19 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useBrowserStore } from './browserStore';
 
-// The browserStore creates `new ContentBrowser(manager)` at module load time.
-// We need a mock that can be accessed both during construction and in tests.
-// Use a getter pattern to avoid hoisting issues.
-
 vi.mock('@open20/content/browser', () => {
-  // Must use vi.fn() directly here - no external vars due to hoisting
-  const searchSpy = vi.fn();
-  // Store it globally so tests can access it
-  (globalThis as any).__browserSearchSpy = searchSpy;
+  const searchSpellsSpy = vi.fn();
+  const searchMonstersSpy = vi.fn();
+  (globalThis as any).__browserSearchSpellsSpy = searchSpellsSpy;
+  (globalThis as any).__browserSearchMonstersSpy = searchMonstersSpy;
 
   return {
     ContentBrowser: vi.fn().mockImplementation(function (this: any) {
-      this.searchSpells = searchSpy;
+      this.searchSpells = searchSpellsSpy;
+      this.searchMonsters = searchMonstersSpy;
     }),
   };
 });
@@ -22,15 +19,20 @@ vi.mock('./contentManager', () => ({
   default: {},
 }));
 
-const getSearchSpy = () => (globalThis as any).__browserSearchSpy as ReturnType<typeof vi.fn>;
+const getSearchSpellsSpy = () =>
+  (globalThis as any).__browserSearchSpellsSpy as ReturnType<typeof vi.fn>;
+const getSearchMonstersSpy = () =>
+  (globalThis as any).__browserSearchMonstersSpy as ReturnType<typeof vi.fn>;
 
 describe('browserStore', () => {
   beforeEach(() => {
-    const spy = getSearchSpy();
-    spy.mockReset();
+    getSearchSpellsSpy().mockReset();
+    getSearchMonstersSpy().mockReset();
     vi.clearAllMocks();
     useBrowserStore.setState({
-      filters: {},
+      activeTab: 'spells',
+      spellFilters: {},
+      monsterFilters: {},
       results: [],
       loading: false,
       error: null,
@@ -39,46 +41,73 @@ describe('browserStore', () => {
 
   it('has correct initial state', () => {
     const state = useBrowserStore.getState();
-    expect(state.filters).toEqual({});
+    expect(state.activeTab).toBe('spells');
+    expect(state.spellFilters).toEqual({});
+    expect(state.monsterFilters).toEqual({});
     expect(state.results).toEqual([]);
     expect(state.loading).toBe(false);
     expect(state.error).toBeNull();
   });
 
-  it('setFilter updates filter and triggers search', async () => {
-    const spy = getSearchSpy();
+  it('setSpellFilter updates filter and triggers search', async () => {
+    const spy = getSearchSpellsSpy();
     spy.mockResolvedValue([{ id: 'spell-1', name: 'Fireball' }]);
 
-    await useBrowserStore.getState().setFilter('school', 'Evocation');
+    await useBrowserStore.getState().setSpellFilter('school', 'Evocation');
 
     const state = useBrowserStore.getState();
-    expect(state.filters).toEqual({ school: 'Evocation' });
+    expect(state.spellFilters).toEqual({ school: 'Evocation' });
     expect(state.results).toEqual([{ id: 'spell-1', name: 'Fireball' }]);
     expect(state.loading).toBe(false);
   });
 
   it('clearFilters resets all filters and triggers search', async () => {
-    const spy = getSearchSpy();
+    const spy = getSearchSpellsSpy();
     useBrowserStore.setState({
-      filters: { school: 'Evocation', level: 3, source: 'SRD' },
+      spellFilters: { school: 'Evocation' },
+      monsterFilters: { type: 'Dragon' },
     });
     spy.mockResolvedValue([{ id: 'spell-1', name: 'Fireball' }]);
 
     await useBrowserStore.getState().clearFilters();
 
     const state = useBrowserStore.getState();
-    expect(state.filters).toEqual({});
+    expect(state.spellFilters).toEqual({});
+    expect(state.monsterFilters).toEqual({});
     expect(state.results).toEqual([{ id: 'spell-1', name: 'Fireball' }]);
   });
 
-  it('searchSpells handles errors', async () => {
-    const spy = getSearchSpy();
+  it('search handles errors', async () => {
+    const spy = getSearchSpellsSpy();
     spy.mockRejectedValue(new Error('Search failed'));
 
-    await useBrowserStore.getState().searchSpells();
+    await useBrowserStore.getState().search();
 
     const state = useBrowserStore.getState();
     expect(state.error).toContain('Search failed');
     expect(state.loading).toBe(false);
+  });
+
+  it('setActiveTab switches tab and triggers search', async () => {
+    const monsterSpy = getSearchMonstersSpy();
+    monsterSpy.mockResolvedValue([{ id: 'goblin', name: 'Goblin' }]);
+
+    await useBrowserStore.getState().setActiveTab('monsters');
+
+    const state = useBrowserStore.getState();
+    expect(state.activeTab).toBe('monsters');
+    expect(state.results).toEqual([{ id: 'goblin', name: 'Goblin' }]);
+  });
+
+  it('setMonsterFilter updates monster filter and triggers search', async () => {
+    useBrowserStore.setState({ activeTab: 'monsters' });
+    const spy = getSearchMonstersSpy();
+    spy.mockResolvedValue([{ id: 'dragon', name: 'Red Dragon' }]);
+
+    await useBrowserStore.getState().setMonsterFilter('type', 'Dragon');
+
+    const state = useBrowserStore.getState();
+    expect(state.monsterFilters).toEqual({ type: 'Dragon' });
+    expect(state.results).toEqual([{ id: 'dragon', name: 'Red Dragon' }]);
   });
 });

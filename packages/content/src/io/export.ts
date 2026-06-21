@@ -55,3 +55,26 @@ export function exportPack(pack: EditableContentPack, _editState?: EditState): s
 
 /** Alias for exportPack — returns the same JSON string. */
 export const exportPackToJson: typeof exportPack = exportPack;
+
+/**
+ * Export only monsters from a pack as JSON string.
+ * Returns a ContentPack with only meta + monsters.
+ */
+export function exportMonsters(_packId: string, pack: EditableContentPack): string {
+  const cleanMeta = {
+    id: pack.meta.id,
+    name: pack.meta.name,
+    version: pack.meta.version,
+    source: pack.meta.source,
+    author: pack.meta.author,
+    priority: pack.meta.priority,
+    url: pack.meta.url,
+  };
+
+  const exportPack: Partial<EditableContentPack> & { meta: typeof cleanMeta } = {
+    meta: cleanMeta,
+    monsters: pack.monsters ? [...pack.monsters] : [],
+  };
+
+  return JSON.stringify(exportPack, null, 2);
+}

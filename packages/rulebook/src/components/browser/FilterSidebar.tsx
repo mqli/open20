@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useBrowserStore } from '../../stores/browserStore';
 import type { SpellSchool } from '@open20/content/types';
+import type { MonsterType } from 'open20-core';
 
 const SPELL_SCHOOLS: SpellSchool[] = [
   'Abjuration',
@@ -14,12 +15,37 @@ const SPELL_SCHOOLS: SpellSchool[] = [
   'Transmutation',
 ];
 
+const MONSTER_TYPES: MonsterType[] = [
+  'Aberration',
+  'Beast',
+  'Celestial',
+  'Construct',
+  'Dragon',
+  'Elemental',
+  'Fey',
+  'Fiend',
+  'Giant',
+  'Humanoid',
+  'Monstrosity',
+  'Ooze',
+  'Plant',
+  'Undead',
+];
+
 const LEVELS = [
   { label: 'Cantrip', value: 0 },
   { label: '1st', value: 1 },
   { label: '2nd', value: 2 },
   { label: '3rd', value: 3 },
   { label: '4th+', value: 4 },
+];
+
+const CR_RANGES = [
+  { label: '0-4', min: 0, max: 4 },
+  { label: '5-10', min: 5, max: 10 },
+  { label: '11-16', min: 11, max: 16 },
+  { label: '17-20', min: 17, max: 20 },
+  { label: '21-30', min: 21, max: 30 },
 ];
 
 interface CollapsibleSectionProps {
@@ -49,44 +75,74 @@ function CollapsibleSection({ title, children }: CollapsibleSectionProps) {
 }
 
 export function FilterSidebar() {
-  const { filters, setFilter, clearFilters } = useBrowserStore();
+  const {
+    activeTab,
+    spellFilters,
+    monsterFilters,
+    setSpellFilter,
+    setMonsterFilter,
+    clearFilters,
+  } = useBrowserStore();
+
+  const filters = activeTab === 'spells' ? spellFilters : monsterFilters;
 
   const hasActiveFilters = Object.keys(filters).some(
     (key) => filters[key as keyof typeof filters] !== undefined,
   );
 
   const handleSourceChange = (source: string) => {
-    // 切换选择：如果已选择则清除，否则设置
     const currentSource = filters.source;
-    setFilter('source', currentSource === source ? undefined : source);
+    if (activeTab === 'spells') {
+      setSpellFilter('source', currentSource === source ? undefined : source);
+    } else {
+      setMonsterFilter('source', currentSource === source ? undefined : source);
+    }
   };
 
   const handleLevelChange = (level: number) => {
-    // 如果选择 4th+，设置 levelRange
     if (level >= 4) {
-      const currentRange = filters.levelRange;
+      const currentRange = (filters as { levelRange?: { min: number; max: number } }).levelRange;
       if (currentRange && currentRange.min === 4) {
-        setFilter('levelRange', undefined);
+        setSpellFilter('levelRange', undefined);
       } else {
-        setFilter('levelRange', { min: 4, max: 9 });
+        setSpellFilter('levelRange', { min: 4, max: 9 });
+        setSpellFilter('level', undefined);
       }
     } else {
-      // 单个等级选择
-      const currentLevel = filters.level;
-      setFilter('level', currentLevel === level ? undefined : level);
+      const currentLevel = (filters as { level?: number }).level;
+      setSpellFilter('level', currentLevel === level ? undefined : level);
     }
   };
 
   const handleSchoolChange = (school: SpellSchool) => {
-    const currentSchool = filters.school;
-    setFilter('school', currentSchool === school ? undefined : school);
+    const currentSchool = (filters as { school?: SpellSchool }).school;
+    setSpellFilter('school', currentSchool === school ? undefined : school);
+  };
+
+  const handleTypeChange = (type: string) => {
+    const currentType = (monsterFilters as { type?: string }).type;
+    setMonsterFilter('type', currentType === type ? undefined : type);
+  };
+
+  const handleCRRangeChange = (min: number, max: number) => {
+    const currentRange = monsterFilters.crRange;
+    if (currentRange && currentRange.min === min) {
+      setMonsterFilter('crRange', undefined);
+    } else {
+      setMonsterFilter('crRange', { min, max });
+      setMonsterFilter('cr', undefined);
+    }
   };
 
   const isLevelSelected = (level: number) => {
     if (level >= 4) {
-      return filters.levelRange !== undefined && filters.levelRange.min === 4;
+      return spellFilters.levelRange !== undefined && spellFilters.levelRange.min === 4;
     }
-    return filters.level === level;
+    return spellFilters.level === level;
+  };
+
+  const isCRRangeSelected = (min: number) => {
+    return monsterFilters.crRange !== undefined && monsterFilters.crRange.min === min;
   };
 
   return (
@@ -100,7 +156,7 @@ export function FilterSidebar() {
         )}
       </div>
 
-      {/* Source Filter */}
+      {/* Source Filter (shared) */}
       <CollapsibleSection title="Source">
         <div className="space-y-1">
           {['SRD', 'Homebrew'].map((source) => (
@@ -121,46 +177,97 @@ export function FilterSidebar() {
         </div>
       </CollapsibleSection>
 
-      {/* Level Filter */}
-      <CollapsibleSection title="Level">
-        <div className="space-y-1">
-          {LEVELS.map(({ label, value }) => (
-            <label
-              key={label}
-              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded"
-            >
-              <input
-                type="checkbox"
-                checked={isLevelSelected(value)}
-                onChange={() => handleLevelChange(value)}
-                className="cursor-pointer"
-              />
-              <span>{label}</span>
-            </label>
-          ))}
-        </div>
-      </CollapsibleSection>
+      {/* Spell-specific filters */}
+      {activeTab === 'spells' && (
+        <>
+          {/* Level Filter */}
+          <CollapsibleSection title="Level">
+            <div className="space-y-1">
+              {LEVELS.map(({ label, value }) => (
+                <label
+                  key={label}
+                  className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded"
+                >
+                  <input
+                    type="checkbox"
+                    checked={isLevelSelected(value)}
+                    onChange={() => handleLevelChange(value)}
+                    className="cursor-pointer"
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+          </CollapsibleSection>
 
-      {/* School Filter */}
-      <CollapsibleSection title="School">
-        <div className="space-y-1">
-          {SPELL_SCHOOLS.map((school) => (
-            <label
-              key={school}
-              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded"
-            >
-              <input
-                type="radio"
-                name="school"
-                checked={filters.school === school}
-                onChange={() => handleSchoolChange(school)}
-                className="cursor-pointer"
-              />
-              <span className="truncate">{school}</span>
-            </label>
-          ))}
-        </div>
-      </CollapsibleSection>
+          {/* School Filter */}
+          <CollapsibleSection title="School">
+            <div className="space-y-1">
+              {SPELL_SCHOOLS.map((school) => (
+                <label
+                  key={school}
+                  className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded"
+                >
+                  <input
+                    type="radio"
+                    name="school"
+                    checked={spellFilters.school === school}
+                    onChange={() => handleSchoolChange(school)}
+                    className="cursor-pointer"
+                  />
+                  <span className="truncate">{school}</span>
+                </label>
+              ))}
+            </div>
+          </CollapsibleSection>
+        </>
+      )}
+
+      {/* Monster-specific filters */}
+      {activeTab === 'monsters' && (
+        <>
+          {/* Type Filter */}
+          <CollapsibleSection title="Type">
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {MONSTER_TYPES.map((type) => (
+                <label
+                  key={type}
+                  className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded"
+                >
+                  <input
+                    type="radio"
+                    name="monster-type"
+                    checked={monsterFilters.type === type}
+                    onChange={() => handleTypeChange(type)}
+                    className="cursor-pointer"
+                  />
+                  <span className="truncate">{type}</span>
+                </label>
+              ))}
+            </div>
+          </CollapsibleSection>
+
+          {/* CR Range Filter */}
+          <CollapsibleSection title="Challenge Rating">
+            <div className="space-y-1">
+              {CR_RANGES.map(({ label, min, max }) => (
+                <label
+                  key={label}
+                  className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded"
+                >
+                  <input
+                    type="checkbox"
+                    checked={isCRRangeSelected(min)}
+                    onChange={() => handleCRRangeChange(min, max)}
+                    className="cursor-pointer"
+                  />
+                  <span>CR {label}</span>
+                </label>
+              ))}
+            </div>
+          </CollapsibleSection>
+        </>
+      )}
     </div>
   );
 }

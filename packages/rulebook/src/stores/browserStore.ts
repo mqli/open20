@@ -1,45 +1,69 @@
 import { create } from 'zustand';
-import type { SpellQuery } from '@open20/content/types';
-import type { Spell } from 'open20-core';
+import type { SpellQuery, MonsterQuery } from '@open20/content/types';
+import type { Spell, Monster } from 'open20-core';
 import { ContentBrowser } from '@open20/content/browser';
 import manager from './contentManager';
 
 // 初始化 ContentBrowser
 const contentBrowser = new ContentBrowser(manager);
 
+export type ContentBrowserTab = 'spells' | 'monsters';
+
 interface BrowserStore {
-  filters: SpellQuery;
-  results: Spell[];
+  activeTab: ContentBrowserTab;
+  spellFilters: SpellQuery;
+  monsterFilters: MonsterQuery;
+  results: (Spell | Monster)[];
   loading: boolean;
   error: string | null;
-  setFilter: (key: keyof SpellQuery, value: unknown) => void;
+
+  // Actions
+  setActiveTab: (tab: ContentBrowserTab) => void;
+  setSpellFilter: (key: keyof SpellQuery, value: unknown) => void;
+  setMonsterFilter: (key: keyof MonsterQuery, value: unknown) => void;
   clearFilters: () => void;
-  searchSpells: () => Promise<void>;
+  search: () => Promise<void>;
 }
 
 export const useBrowserStore = create<BrowserStore>((set, get) => ({
-  filters: {},
+  activeTab: 'spells',
+  spellFilters: {},
+  monsterFilters: {},
   results: [],
   loading: false,
   error: null,
 
-  setFilter: (key, value) => {
-    set((state) => ({ filters: { ...state.filters, [key]: value } }));
-    // 自动触发搜索
-    get().searchSpells();
+  setActiveTab: (tab) => {
+    set({ activeTab: tab, results: [], error: null });
+    get().search();
+  },
+
+  setSpellFilter: (key, value) => {
+    set((state) => ({ spellFilters: { ...state.spellFilters, [key]: value } }));
+    get().search();
+  },
+
+  setMonsterFilter: (key, value) => {
+    set((state) => ({ monsterFilters: { ...state.monsterFilters, [key]: value } }));
+    get().search();
   },
 
   clearFilters: () => {
-    set({ filters: {} });
-    get().searchSpells();
+    set({ spellFilters: {}, monsterFilters: {} });
+    get().search();
   },
 
-  searchSpells: async () => {
+  search: async () => {
     set({ loading: true, error: null });
     try {
-      const { filters } = get();
-      const results = await contentBrowser.searchSpells(filters);
-      set({ results, loading: false });
+      const { activeTab, spellFilters, monsterFilters } = get();
+      if (activeTab === 'spells') {
+        const results = await contentBrowser.searchSpells(spellFilters);
+        set({ results, loading: false });
+      } else {
+        const results = await contentBrowser.searchMonsters(monsterFilters);
+        set({ results, loading: false });
+      }
     } catch (error) {
       set({ error: String(error), loading: false });
     }

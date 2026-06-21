@@ -1,9 +1,9 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { SpellEditor, Button, Text } from '@open20/ui';
+import { SpellEditor, MonsterEditor, Button, Text } from '@open20/ui';
 import { useContentEditorStore } from '../stores/contentEditorStore';
 import { parsePlainText, transformSpell } from '@open20/content/parser';
-import { ClipboardPaste, Skull, User } from 'lucide-react';
+import { ClipboardPaste, User } from 'lucide-react';
 
 export function ContentEditor() {
   const { packId, contentType, contentId } = useParams<{
@@ -13,10 +13,21 @@ export function ContentEditor() {
   }>();
   const navigate = useNavigate();
 
-  const { isDirty, isSaving, setParams, setSpell, saveSpell, loadSpell } = useContentEditorStore();
+  const {
+    isDirty,
+    isSaving,
+    setParams,
+    setSpell,
+    setMonster,
+    saveSpell,
+    saveMonster,
+    loadSpell,
+    loadMonster,
+  } = useContentEditorStore();
   const spell = useContentEditorStore((state) => state.spell);
+  const monster = useContentEditorStore((state) => state.monster);
 
-  // Paste-from-text state
+  // Paste-from-text state (spells only)
   const [showPasteArea, setShowPasteArea] = useState(false);
   const [pasteText, setPasteText] = useState('');
   const [parseError, setParseError] = useState<string | null>(null);
@@ -39,17 +50,21 @@ export function ContentEditor() {
     }
   }, [pasteText, setSpell]);
 
-  // Initialize params and load spell if editing
+  // Initialize params and load content if editing
   useEffect(() => {
     if (packId && contentType) {
       setParams(packId, contentType, contentId);
       if (contentId) {
-        loadSpell(packId, contentId);
+        if (contentType === 'monster') {
+          loadMonster(packId, contentId);
+        } else {
+          loadSpell(packId, contentId);
+        }
       }
     }
-  }, [packId, contentType, contentId, setParams, loadSpell]);
+  }, [packId, contentType, contentId, setParams, loadSpell, loadMonster]);
 
-  // Unsaved changes protection - beforeunload event (for page refresh/close)
+  // Unsaved changes protection - beforeunload event
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty) {
@@ -57,12 +72,11 @@ export function ContentEditor() {
         return '';
       }
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isDirty]);
 
-  // Navigation guard for in-app navigation (works with BrowserRouter)
+  // Navigation guard
   const navigateWithGuard = useCallback(
     (to: string) => {
       if (isDirty) {
@@ -75,14 +89,6 @@ export function ContentEditor() {
     [isDirty, navigate],
   );
 
-  // Handle save intents
-  const handleSave = async (intent: 'stay' | 'new' | 'close') => {
-    await saveSpell(intent);
-    if (intent === 'close' && packId) {
-      navigate(`/rulebook/packs/${packId}`);
-    }
-  };
-
   // Handle cancel
   const handleCancel = () => {
     if (packId) {
@@ -93,7 +99,7 @@ export function ContentEditor() {
   };
 
   // Custom action buttons for SpellEditor
-  const renderActions = (props: {
+  const renderSpellActions = (props: {
     onSave: (intent: 'stay' | 'new' | 'close') => void;
     isValid: boolean;
     isSubmitting: boolean;
@@ -132,7 +138,47 @@ export function ContentEditor() {
     </div>
   );
 
-  // ── Multi-type placeholder renderers ──
+  // Custom action buttons for MonsterEditor
+  const renderMonsterActions = (props: {
+    onSave: (intent: 'stay' | 'new' | 'close') => void;
+    isValid: boolean;
+    isSubmitting: boolean;
+  }) => (
+    <div className="flex items-center justify-end gap-2">
+      <Button type="button" variant="ghost" size="lg" onClick={handleCancel} disabled={isSaving}>
+        Cancel
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="lg"
+        onClick={() => props.onSave('stay')}
+        disabled={!props.isValid || isSaving}
+      >
+        Save
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="lg"
+        onClick={() => props.onSave('new')}
+        disabled={!props.isValid || isSaving}
+      >
+        Save & New
+      </Button>
+      <Button
+        type="button"
+        variant="primary"
+        size="lg"
+        onClick={() => props.onSave('close')}
+        disabled={!props.isValid || isSaving}
+      >
+        Save & Close
+      </Button>
+    </div>
+  );
+
+  // ── Coming soon placeholder for unsupported types ──
   const renderComingSoon = (icon: React.ReactNode, typeName: string) => (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <div className="p-4 rounded-full bg-bg-secondary mb-4">{icon}</div>
@@ -149,14 +195,44 @@ export function ContentEditor() {
     </div>
   );
 
+  // ── Monster Editor ──
   if (contentType === 'monster') {
-    return renderComingSoon(<Skull className="w-8 h-8 text-text-tertiary" />, 'Monster');
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Text as="h1" variant="heading" className="mb-2">
+            {contentId ? 'Edit Monster' : 'New Monster'}
+          </Text>
+          <Text as="p" variant="body" className="text-muted-foreground">
+            {packId && `Pack: ${packId}`}
+            {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
+          </Text>
+        </div>
+
+        <MonsterEditor
+          value={monster}
+          onChange={(updatedMonster) => setMonster(updatedMonster)}
+          onSubmit={(_, intent) => {
+            saveMonster(intent || 'stay');
+            if (intent === 'close' && packId) {
+              navigate(`/rulebook/packs/${packId}`);
+            }
+          }}
+          onCancel={handleCancel}
+          renderActions={renderMonsterActions}
+          mode="simple"
+          showPreview
+        />
+      </div>
+    );
   }
 
+  // ── Species (coming soon) ──
   if (contentType === 'species') {
     return renderComingSoon(<User className="w-8 h-8 text-text-tertiary" />, 'Species');
   }
 
+  // ── Spell Editor (default) ──
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
@@ -221,9 +297,14 @@ export function ContentEditor() {
       <SpellEditor
         value={spell}
         onChange={(updatedSpell) => setSpell(updatedSpell)}
-        onSubmit={(_, intent) => handleSave(intent || 'stay')}
+        onSubmit={(_, intent) => {
+          saveSpell(intent || 'stay');
+          if (intent === 'close' && packId) {
+            navigate(`/rulebook/packs/${packId}`);
+          }
+        }}
         onCancel={handleCancel}
-        renderActions={renderActions}
+        renderActions={renderSpellActions}
       />
     </div>
   );

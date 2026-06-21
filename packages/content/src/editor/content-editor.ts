@@ -1,6 +1,9 @@
-import type { Spell } from 'open20-core';
+import type { Spell, Monster } from 'open20-core';
 import type { EditableContentPack } from '../types/content-pack';
 import type { EditState, UndoEntry } from '../types/edit-state';
+
+/** Content keys that participate in snapshot/undo tracking */
+const SNAPSHOT_KEYS = ['spells', 'monsters'] as const;
 
 export class ContentEditor {
   readonly pack: EditableContentPack;
@@ -84,6 +87,71 @@ export class ContentEditor {
     return this.pack.spells ? [...this.pack.spells] : [];
   }
 
+  // ── Monster CRUD ──────────────────────────────────────────
+
+  /** Add a monster to the pack. Creates monsters array if needed. */
+  addMonster(monster: Monster): void {
+    this.snapshotBeforeOperation(`Added monster ${monster.name || monster.id}`);
+    if (!this.pack.monsters) {
+      this.pack.monsters = [];
+    }
+    const mutableMonster: Monster = JSON.parse(JSON.stringify(monster));
+    this.pack.monsters.push(mutableMonster);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Update existing monster by ID. Partial update. Throws if not found. */
+  updateMonster(monsterId: string, updates: Partial<Monster>): void {
+    const monster = this.getMonster(monsterId);
+    if (!monster) {
+      throw new Error(`Monster with id "${monsterId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Updated monster ${monsterId}`);
+    const mutable = JSON.parse(JSON.stringify(monster)) as Monster;
+    Object.assign(mutable, updates);
+    const index = this.pack.monsters!.findIndex((m) => m.id === monsterId);
+    this.pack.monsters![index] = mutable;
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Remove a monster by ID. Throws if not found. */
+  removeMonster(monsterId: string): void {
+    const index = this.pack.monsters?.findIndex((m) => m.id === monsterId) ?? -1;
+    if (index === -1) {
+      throw new Error(`Monster with id "${monsterId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Removed monster ${monsterId}`);
+    this.pack.monsters!.splice(index, 1);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Duplicate a monster with new ID (originalId + '-copy' suffix). */
+  duplicateMonster(monsterId: string): Monster {
+    const original = this.getMonster(monsterId);
+    if (!original) {
+      throw new Error(`Monster with id "${monsterId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Duplicated monster ${monsterId}`);
+    const copy: Monster = JSON.parse(JSON.stringify(original));
+    (copy as { id: string }).id = `${original.id}-copy`;
+    if (!this.pack.monsters) {
+      this.pack.monsters = [];
+    }
+    this.pack.monsters.push(copy);
+    this.editState.updatedAt = new Date().toISOString();
+    return copy;
+  }
+
+  /** Get a monster by ID. Returns undefined if not found. */
+  getMonster(monsterId: string): Monster | undefined {
+    return this.pack.monsters?.find((m) => m.id === monsterId);
+  }
+
+  /** List all monsters in the pack. */
+  listMonsters(): Monster[] {
+    return this.pack.monsters ? [...this.pack.monsters] : [];
+  }
+
   // ── Undo ───────────────────────────────────────────────────
 
   /** Undo the last operation. Restores pack to prior snapshot. */
@@ -93,13 +161,16 @@ export class ContentEditor {
       return;
     }
     const entry = this.editState.undoStack.pop()!;
-    const snapshot = JSON.parse(entry.snapshot) as { spells?: unknown; meta?: unknown };
+    const snapshot = JSON.parse(entry.snapshot) as Record<string, unknown>;
     // Restore pack fields from snapshot
-    if ('spells' in snapshot) {
-      if (snapshot.spells === null) {
-        delete this.pack.spells; // Remove spells if it was undefined before
-      } else {
-        this.pack.spells = snapshot.spells as Spell[];
+    const packRecord = this.pack as unknown as Record<string, unknown>;
+    for (const key of SNAPSHOT_KEYS) {
+      if (key in snapshot) {
+        if (snapshot[key] === null) {
+          delete packRecord[key];
+        } else {
+          packRecord[key] = snapshot[key];
+        }
       }
     }
     if (snapshot.meta !== undefined) {
@@ -116,14 +187,15 @@ export class ContentEditor {
 
   /** Snapshot the pack state before a mutation (for undo). */
   private snapshotBeforeOperation(description: string): void {
-    // Always include spells in snapshot (use null if undefined, so JSON.stringify preserves the key)
     const snapshotObj: Record<string, unknown> = {
       meta: this.pack.meta,
     };
-    if (this.pack.spells !== undefined) {
-      snapshotObj.spells = this.pack.spells;
-    } else {
-      snapshotObj.spells = null; // Use null to preserve the key
+    for (const key of SNAPSHOT_KEYS) {
+      if (this.pack[key] !== undefined) {
+        snapshotObj[key] = this.pack[key];
+      } else {
+        snapshotObj[key] = null; // Use null to preserve the key
+      }
     }
     const snapshot = JSON.stringify(snapshotObj);
     const entry: UndoEntry = {

@@ -332,8 +332,21 @@ export function PackDetail() {
               sourceLabel={pack.meta.name}
             />
           ) : (
-            <div className="p-4 text-center text-muted-foreground">
-              No monsters in this pack yet.
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="text-4xl mb-4">👹</div>
+              <p className="text-lg font-medium mb-2">No monsters yet</p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                Add creatures, NPCs, and monsters to this content pack.
+              </p>
+              {!isBuiltIn && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/rulebook/editor/${id}/monster`)}
+                >
+                  + Add Monster
+                </Button>
+              )}
             </div>
           )}
         </Tabs.Content>

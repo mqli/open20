@@ -2,31 +2,59 @@ import { X } from 'lucide-react';
 import { useBrowserStore } from '../../stores/browserStore';
 
 export function ActiveFilterChips() {
-  const { filters, setFilter, clearFilters } = useBrowserStore();
+  const {
+    activeTab,
+    spellFilters,
+    monsterFilters,
+    setSpellFilter,
+    setMonsterFilter,
+    clearFilters,
+  } = useBrowserStore();
+
+  const filters = activeTab === 'spells' ? spellFilters : monsterFilters;
+  const setFilter = activeTab === 'spells' ? setSpellFilter : setMonsterFilter;
 
   const chips: { key: string; label: string }[] = [];
 
-  // 构建筛选标签列表
+  // Build filter chip list
   if (filters.name) {
     chips.push({ key: 'name', label: `Name: ${filters.name}` });
   }
-  if (filters.level !== undefined) {
-    const levelLabel =
-      filters.level === 0 ? 'Cantrip' : `${filters.level}${getOrdinalSuffix(filters.level)}`;
-    chips.push({ key: 'level', label: `Level: ${levelLabel}` });
+
+  if (activeTab === 'spells') {
+    if (spellFilters.level !== undefined) {
+      const levelLabel =
+        spellFilters.level === 0
+          ? 'Cantrip'
+          : `${spellFilters.level}${getOrdinalSuffix(spellFilters.level)}`;
+      chips.push({ key: 'level', label: `Level: ${levelLabel}` });
+    }
+    if (spellFilters.levelRange) {
+      chips.push({
+        key: 'levelRange',
+        label: `Level: ${spellFilters.levelRange.min}+`,
+      });
+    }
+    if (spellFilters.school) {
+      chips.push({ key: 'school', label: `School: ${spellFilters.school}` });
+    }
   }
-  if (filters.levelRange) {
-    chips.push({
-      key: 'levelRange',
-      label: `Level: ${filters.levelRange.min}+`,
-    });
+
+  if (activeTab === 'monsters') {
+    if (monsterFilters.type) {
+      chips.push({ key: 'type', label: `Type: ${monsterFilters.type}` });
+    }
+    if (monsterFilters.cr) {
+      chips.push({ key: 'cr', label: `CR: ${monsterFilters.cr}` });
+    }
+    if (monsterFilters.crRange) {
+      chips.push({
+        key: 'crRange',
+        label: `CR: ${monsterFilters.crRange.min}-${monsterFilters.crRange.max}`,
+      });
+    }
   }
-  if (filters.school) {
-    chips.push({ key: 'school', label: `School: ${filters.school}` });
-  }
-  if (filters.classes && filters.classes.length > 0) {
-    chips.push({ key: 'classes', label: `Classes: ${filters.classes.join(', ')}` });
-  }
+
   if (filters.source) {
     chips.push({ key: 'source', label: `Source: ${filters.source}` });
   }
@@ -46,11 +74,7 @@ export function ActiveFilterChips() {
           {chip.label}
           <button
             onClick={() => {
-              if (chip.key === 'levelRange') {
-                setFilter('levelRange', undefined);
-              } else {
-                setFilter(chip.key as keyof typeof filters, undefined);
-              }
+              setFilter(chip.key as any, undefined);
             }}
             className="hover:bg-secondary/80 rounded p-0.5"
             aria-label={`Remove filter: ${chip.label}`}

@@ -1,65 +1,105 @@
 import { useEffect, useState } from 'react';
-import { Search, LayoutGrid, List } from 'lucide-react';
+import { Search, LayoutGrid, List, Skull, Sparkles } from 'lucide-react';
 import { FilterSidebar } from '../components/browser/FilterSidebar';
 import { ActiveFilterChips } from '../components/browser/ActiveFilterChips';
 import { ContentCard } from '../components/content/ContentCard';
 import { DetailDrawer } from '../components/editor/DetailDrawer';
 import { useBrowserStore } from '../stores/browserStore';
-import type { Spell } from 'open20-core';
+import type { ContentBrowserTab } from '../stores/browserStore';
+import type { Spell, Monster } from 'open20-core';
 
 type ViewMode = 'grid' | 'list';
 
+const TABS: { id: ContentBrowserTab; label: string; icon: React.ReactNode }[] = [
+  { id: 'spells', label: 'Spells', icon: <Sparkles className="w-4 h-4" /> },
+  { id: 'monsters', label: 'Monsters', icon: <Skull className="w-4 h-4" /> },
+];
+
 export function ContentBrowser() {
-  const { results, loading, error, searchSpells, setFilter } = useBrowserStore();
+  const {
+    activeTab,
+    results,
+    loading,
+    error,
+    search,
+    setActiveTab,
+    setSpellFilter,
+    setMonsterFilter,
+  } = useBrowserStore();
+
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedSpell, setSelectedSpell] = useState<Spell | null>(null);
   const [showDetailDrawer, setShowDetailDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 初始加载
+  // Initial load
   useEffect(() => {
-    searchSpells();
+    search();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 搜索输入处理
+  // Search input handler
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    setFilter('name', value || undefined);
+    if (activeTab === 'spells') {
+      setSpellFilter('name', value || undefined);
+    } else {
+      setMonsterFilter('name', value || undefined);
+    }
   };
 
-  // 查看详情
+  // View detail
   const handleViewDetail = (spell: Spell) => {
     setSelectedSpell(spell);
     setShowDetailDrawer(true);
   };
 
-  // 添加到包
-  const handleAddToPack = (spell: Spell) => {
-    // TODO: 实现添加到包的逻辑
-    console.log('Add to pack:', spell.name);
+  // Add to pack (for monsters this just logs)
+  const handleAddToPack = (item: Spell | Monster) => {
+    console.log('Add to pack:', item.name || (item as Spell).name);
   };
+
+  // Check if result is a Spell (has 'level' property)
+  const isSpell = (item: Spell | Monster): item is Spell => 'level' in item;
 
   return (
     <div className="flex h-full">
-      {/* 筛选侧边栏 */}
+      {/* Filter Sidebar */}
       <FilterSidebar />
 
-      {/* 主内容区 */}
+      {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
-        {/* 只读模式指示 */}
+        {/* Read-only indicator */}
         <div className="mb-4 p-2 bg-muted/50 rounded-md text-sm flex items-center gap-2">
           <span>🔒</span>
           <span>Read-only mode - Browse content from all enabled packs</span>
         </div>
 
-        {/* 搜索栏 */}
+        {/* Content Type Tabs */}
+        <div className="flex gap-1 mb-4 border-b border-border">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Search Bar */}
         <div className="mb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search spells..."
+              placeholder={activeTab === 'spells' ? 'Search spells...' : 'Search monsters...'}
               value={searchQuery}
               onChange={handleSearchChange}
               className="w-full pl-10 pr-4 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -69,7 +109,7 @@ export function ContentBrowser() {
 
         <ActiveFilterChips />
 
-        {/* 工具栏 */}
+        {/* Toolbar */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex gap-2">
             <button
@@ -94,21 +134,21 @@ export function ContentBrowser() {
           <span className="text-sm text-muted-foreground">Showing {results.length} results</span>
         </div>
 
-        {/* 加载状态 */}
+        {/* Loading */}
         {loading && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading...</p>
           </div>
         )}
 
-        {/* 错误状态 */}
+        {/* Error */}
         {error && (
           <div className="text-center py-12">
             <p className="text-destructive">Error: {error}</p>
           </div>
         )}
 
-        {/* 结果列表 */}
+        {/* Results */}
         {!loading && !error && (
           <>
             {results.length > 0 ? (
@@ -119,18 +159,41 @@ export function ContentBrowser() {
                     : 'space-y-4'
                 }
               >
-                {results.map((spell) => (
-                  <ContentCard
-                    key={spell.id}
-                    spell={spell}
-                    onViewDetail={handleViewDetail}
-                    onAddToPack={handleAddToPack}
-                  />
-                ))}
+                {results.map((item) => {
+                  if (isSpell(item)) {
+                    return (
+                      <ContentCard
+                        key={item.id}
+                        spell={item}
+                        onViewDetail={handleViewDetail}
+                        onAddToPack={handleAddToPack}
+                      />
+                    );
+                  }
+                  // Monster card (simplified)
+                  const monster = item as Monster;
+                  return (
+                    <div
+                      key={monster.id}
+                      className="border border-border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-sm">{monster.name}</h3>
+                        <span className="text-xs text-muted-foreground">{monster.source}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {monster.size} {monster.type} · CR {monster.challengeRating?.rating ?? '?'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{monster.alignment}</p>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">🔍 No spells found</p>
+                <p className="text-muted-foreground text-lg">
+                  {activeTab === 'spells' ? '🔍 No spells found' : '👹 No monsters found'}
+                </p>
                 <p className="text-sm text-muted-foreground mt-2">Try adjusting your filters</p>
                 <button
                   onClick={() => {
@@ -147,7 +210,7 @@ export function ContentBrowser() {
         )}
       </div>
 
-      {/* 详情抽屉 */}
+      {/* Detail Drawer (spells only for now) */}
       {showDetailDrawer && selectedSpell && (
         <DetailDrawer
           spell={selectedSpell}

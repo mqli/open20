@@ -3,7 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nProvider } from '@open20/ui';
 import { ActiveFilterChips } from './ActiveFilterChips';
 
-const mockSetFilter = vi.fn();
+const mockSetSpellFilter = vi.fn();
+const mockSetMonsterFilter = vi.fn();
 const mockClearFilters = vi.fn();
 
 // Mock the browserStore - must be before any imports that use it
@@ -13,17 +14,25 @@ vi.mock('../../stores/browserStore', () => ({
 
 import { useBrowserStore } from '../../stores/browserStore';
 
+function mockStore(overrides: Record<string, unknown> = {}) {
+  vi.mocked(useBrowserStore).mockReturnValue({
+    activeTab: 'spells',
+    spellFilters: {},
+    monsterFilters: {},
+    setSpellFilter: mockSetSpellFilter,
+    setMonsterFilter: mockSetMonsterFilter,
+    clearFilters: mockClearFilters,
+    ...overrides,
+  } as any);
+}
+
 describe('ActiveFilterChips', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('returns null when no filters are active', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: {},
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore();
 
     const { container } = render(
       <I18nProvider>
@@ -34,11 +43,7 @@ describe('ActiveFilterChips', () => {
   });
 
   it('shows active source filter chip', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: { source: 'SRD' },
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore({ spellFilters: { source: 'SRD' } });
 
     render(
       <I18nProvider>
@@ -50,11 +55,7 @@ describe('ActiveFilterChips', () => {
   });
 
   it('shows active school filter chip', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: { school: 'Evocation' },
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore({ spellFilters: { school: 'Evocation' } });
 
     render(
       <I18nProvider>
@@ -65,11 +66,7 @@ describe('ActiveFilterChips', () => {
   });
 
   it('shows active level filter chip for cantrip', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: { level: 0 },
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore({ spellFilters: { level: 0 } });
 
     render(
       <I18nProvider>
@@ -80,11 +77,7 @@ describe('ActiveFilterChips', () => {
   });
 
   it('shows active level filter chip with ordinal suffix', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: { level: 1 },
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore({ spellFilters: { level: 1 } });
 
     render(
       <I18nProvider>
@@ -95,11 +88,7 @@ describe('ActiveFilterChips', () => {
   });
 
   it('shows Clear All button', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: { source: 'Homebrew' },
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore({ spellFilters: { source: 'Homebrew' } });
 
     render(
       <I18nProvider>
@@ -110,11 +99,7 @@ describe('ActiveFilterChips', () => {
   });
 
   it('calls clearFilters when Clear All is clicked', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: { source: 'Homebrew' },
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore({ spellFilters: { source: 'Homebrew' } });
 
     render(
       <I18nProvider>
@@ -126,11 +111,7 @@ describe('ActiveFilterChips', () => {
   });
 
   it('shows multiple chips for multiple active filters', () => {
-    vi.mocked(useBrowserStore).mockReturnValue({
-      filters: { source: 'SRD', school: 'Evocation', level: 3 },
-      setFilter: mockSetFilter,
-      clearFilters: mockClearFilters,
-    } as any);
+    mockStore({ spellFilters: { source: 'SRD', school: 'Evocation', level: 3 } });
 
     render(
       <I18nProvider>
