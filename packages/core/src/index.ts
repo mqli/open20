@@ -316,6 +316,9 @@ export type {
   SavingThrowEffect,
   SpellcastingDetails,
   MonsterAttack,
+  MonsterAction,
+  MonsterReaction,
+  MonsterLegendaryAction,
   MonsterSpellcasting,
 } from './types/monster';
 export {

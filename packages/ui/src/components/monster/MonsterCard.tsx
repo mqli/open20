@@ -7,7 +7,13 @@ import { Text } from '@/components/base/Text';
 import { sectionDivider, chipBase } from '@/styles/component-styles';
 import { useTranslation } from '@/i18n';
 
-import type { Monster } from 'open20-core';
+import type {
+  Monster,
+  MonsterAction,
+  MonsterReaction,
+  MonsterLegendaryAction,
+  MonsterSpellcasting,
+} from 'open20-core';
 
 import {
   getAllAbilityScores,
@@ -29,6 +35,20 @@ import {
 /*  Props                                                                     */
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/*  CTA Context Types                                                         */
+/* -------------------------------------------------------------------------- */
+
+export interface MonsterSpellCTAContext {
+  readonly spellcast: MonsterSpellcasting;
+  readonly spellName: string;
+  readonly type: 'atWill' | 'daily';
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Props                                                                     */
+/* -------------------------------------------------------------------------- */
+
 export interface MonsterCardProps extends Omit<
   HTMLAttributes<HTMLDivElement>,
   'onClick' | 'color'
@@ -45,6 +65,18 @@ export interface MonsterCardProps extends Omit<
   renderActions?: () => ReactNode;
   /** Show decorative glow in the background */
   glow?: boolean;
+
+  // ── Per-item CTA render props ──────────────────────────────────────────
+  /** Render CTA buttons next to each action */
+  renderActionCTA?: (action: MonsterAction, index: number) => ReactNode;
+  /** Render CTA buttons next to each bonus action */
+  renderBonusActionCTA?: (action: MonsterAction, index: number) => ReactNode;
+  /** Render CTA buttons next to each reaction */
+  renderReactionCTA?: (reaction: MonsterReaction, index: number) => ReactNode;
+  /** Render CTA buttons next to each legendary action */
+  renderLegendaryActionCTA?: (action: MonsterLegendaryAction, index: number) => ReactNode;
+  /** Render CTA buttons next to each spell entry */
+  renderSpellCTA?: (context: MonsterSpellCTAContext, index: number) => ReactNode;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -58,6 +90,11 @@ export function MonsterCard({
   density: densityProp,
   renderActions,
   glow,
+  renderActionCTA,
+  renderBonusActionCTA,
+  renderReactionCTA,
+  renderLegendaryActionCTA,
+  renderSpellCTA,
   className,
   ...props
 }: MonsterCardProps) {
@@ -268,33 +305,48 @@ export function MonsterCard({
               <Text variant="labelSm" className="font-bold">
                 {t('monster.actions')}
               </Text>
-              {monster.actions.map((action) => (
-                <div key={action.name} className="space-y-0.5">
-                  <Text variant="bodySm" className="font-semibold">
-                    {action.name}.
-                    {action.limitedUsage && (
-                      <span className="font-normal text-text-tertiary ml-1">
-                        ({formatLimitedUsage(t, action.limitedUsage)})
-                      </span>
-                    )}
-                  </Text>
-                  {action.description && (
-                    <Text variant="bodySm" className="text-text-secondary block">
-                      {action.description}
+              {monster.actions.map((action, actionIdx) => {
+                const cta = renderActionCTA?.(action, actionIdx);
+                const content = (
+                  <>
+                    <Text variant="bodySm" className="font-semibold">
+                      {action.name}.
+                      {action.limitedUsage && (
+                        <span className="font-normal text-text-tertiary ml-1">
+                          ({formatLimitedUsage(t, action.limitedUsage)})
+                        </span>
+                      )}
                     </Text>
-                  )}
-                  {action.attacks && action.attacks.length > 0 && (
-                    <div className="pl-2 space-y-1">
-                      {action.attacks.map((attack, idx) => (
-                        <Text key={idx} variant="bodySm" className="text-text-secondary">
-                          <span className="font-medium">{attack.name}:</span>{' '}
-                          {attack.damageEntries?.map((d) => d.dice).join(' + ') ?? ''}
-                        </Text>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                    {action.description && (
+                      <Text variant="bodySm" className="text-text-secondary block">
+                        {action.description}
+                      </Text>
+                    )}
+                    {action.attacks && action.attacks.length > 0 && (
+                      <div className="pl-2 space-y-1">
+                        {action.attacks.map((attack, idx) => (
+                          <Text key={idx} variant="bodySm" className="text-text-secondary">
+                            <span className="font-medium">{attack.name}:</span>{' '}
+                            {attack.damageEntries?.map((d) => d.dice).join(' + ') ?? ''}
+                          </Text>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+                return (
+                  <div key={action.name} className="space-y-0.5">
+                    {cta ? (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">{content}</div>
+                        <div className="shrink-0">{cta}</div>
+                      </div>
+                    ) : (
+                      content
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -304,18 +356,33 @@ export function MonsterCard({
               <Text variant="labelSm" className="font-bold">
                 {t('monster.bonusActions')}
               </Text>
-              {monster.bonusActions.map((action) => (
-                <div key={action.name} className="space-y-0.5">
-                  <Text variant="bodySm" className="font-semibold">
-                    {action.name}.
-                  </Text>
-                  {action.description && (
-                    <Text variant="bodySm" className="text-text-secondary">
-                      {action.description}
+              {monster.bonusActions.map((action, actionIdx) => {
+                const cta = renderBonusActionCTA?.(action, actionIdx);
+                const content = (
+                  <>
+                    <Text variant="bodySm" className="font-semibold">
+                      {action.name}.
                     </Text>
-                  )}
-                </div>
-              ))}
+                    {action.description && (
+                      <Text variant="bodySm" className="text-text-secondary">
+                        {action.description}
+                      </Text>
+                    )}
+                  </>
+                );
+                return (
+                  <div key={action.name} className="space-y-0.5">
+                    {cta ? (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">{content}</div>
+                        <div className="shrink-0">{cta}</div>
+                      </div>
+                    ) : (
+                      content
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -325,16 +392,31 @@ export function MonsterCard({
               <Text variant="labelSm" className="font-bold">
                 {t('monster.reactions')}
               </Text>
-              {monster.reactions.map((reaction) => (
-                <div key={reaction.name} className="space-y-0.5">
-                  <Text variant="bodySm" className="font-semibold">
-                    {reaction.name}.
-                  </Text>
-                  <Text variant="bodySm" className="text-text-secondary">
-                    {reaction.description}
-                  </Text>
-                </div>
-              ))}
+              {monster.reactions.map((reaction, reactionIdx) => {
+                const cta = renderReactionCTA?.(reaction, reactionIdx);
+                const content = (
+                  <>
+                    <Text variant="bodySm" className="font-semibold">
+                      {reaction.name}.
+                    </Text>
+                    <Text variant="bodySm" className="text-text-secondary">
+                      {reaction.description}
+                    </Text>
+                  </>
+                );
+                return (
+                  <div key={reaction.name} className="space-y-0.5">
+                    {cta ? (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">{content}</div>
+                        <div className="shrink-0">{cta}</div>
+                      </div>
+                    ) : (
+                      content
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -350,53 +432,108 @@ export function MonsterCard({
                   count: monster.legendaryActions.length,
                 })}
               </Text>
-              {monster.legendaryActions.map((action) => (
-                <div key={action.name} className="space-y-0.5">
-                  <Text variant="bodySm" className="font-semibold">
-                    {action.name} (Cost {action.cost || 1}).
-                  </Text>
-                  <Text variant="bodySm" className="text-text-secondary">
-                    {action.description}
-                  </Text>
-                </div>
-              ))}
+              {monster.legendaryActions.map((action, laIdx) => {
+                const cta = renderLegendaryActionCTA?.(action, laIdx);
+                const content = (
+                  <>
+                    <Text variant="bodySm" className="font-semibold">
+                      {action.name} (Cost {action.cost || 1}).
+                    </Text>
+                    <Text variant="bodySm" className="text-text-secondary">
+                      {action.description}
+                    </Text>
+                  </>
+                );
+                return (
+                  <div key={action.name} className="space-y-0.5">
+                    {cta ? (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">{content}</div>
+                        <div className="shrink-0">{cta}</div>
+                      </div>
+                    ) : (
+                      content
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 
           {/* Spellcasting */}
           {monster.spellcasting && monster.spellcasting.length > 0 && (
-            <div className={cn(sectionDivider, 'space-y-2')}>
+            <div className={cn(sectionDivider, 'space-y-3')}>
               <Text variant="labelSm" className="font-bold">
                 {t('monster.spellcasting')}
               </Text>
-              {monster.spellcasting.map((spellcast, idx) => (
-                <div key={idx} className="space-y-0.5">
-                  <Text variant="bodySm" className="font-semibold">
-                    {t('monster.spellcasting.abilityDc', {
-                      ability: spellcast.ability,
-                      dc: spellcast.saveDC,
-                    })}
-                    {spellcast.attackBonus !== undefined &&
-                      t('monster.spellcasting.attackBonus', {
-                        bonus: spellcast.attackBonus,
+              {monster.spellcasting.map((spellcast, scIdx) => {
+                let spellCtaIndex = 0;
+                return (
+                  <div key={scIdx} className="space-y-1">
+                    <Text variant="bodySm" className="font-semibold">
+                      {t('monster.spellcasting.abilityDc', {
+                        ability: spellcast.ability,
+                        dc: spellcast.saveDC,
                       })}
-                  </Text>
-                  {spellcast.atWill && spellcast.atWill.length > 0 && (
-                    <Text variant="bodySm" className="text-text-secondary">
-                      {t('monster.spellcasting.atWill')} {spellcast.atWill.join(', ')}
+                      {spellcast.attackBonus !== undefined &&
+                        t('monster.spellcasting.attackBonus', {
+                          bonus: spellcast.attackBonus,
+                        })}
                     </Text>
-                  )}
-                  {spellcast.daily && spellcast.daily.length > 0 && (
-                    <div className="pl-2">
-                      {spellcast.daily.map((d, i) => (
-                        <Text key={i} variant="bodySm" className="text-text-secondary">
-                          {t('monster.spellcasting.daily', { times: d.times })} {d.spell}
+
+                    {/* At-will spells as individual items */}
+                    {spellcast.atWill && spellcast.atWill.length > 0 && (
+                      <div className="space-y-1">
+                        <Text variant="bodySm" className="text-text-secondary font-medium">
+                          {t('monster.spellcasting.atWill')}
                         </Text>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                        {spellcast.atWill.map((spellName) => {
+                          const idx = spellCtaIndex++;
+                          const spellCta = renderSpellCTA?.(
+                            { spellcast, spellName, type: 'atWill' },
+                            idx,
+                          );
+                          return (
+                            <div
+                              key={spellName}
+                              className="flex items-start justify-between gap-2 pl-2"
+                            >
+                              <Text variant="bodySm" className="text-text-secondary flex-1 min-w-0">
+                                {spellName}
+                              </Text>
+                              {spellCta && <div className="shrink-0">{spellCta}</div>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Daily spells as individual items */}
+                    {spellcast.daily && spellcast.daily.length > 0 && (
+                      <div className="space-y-1">
+                        {spellcast.daily.map((d) => {
+                          const idx = spellCtaIndex++;
+                          const spellCta = renderSpellCTA?.(
+                            { spellcast, spellName: d.spell, type: 'daily' },
+                            idx,
+                          );
+                          return (
+                            <div
+                              key={d.spell}
+                              className="flex items-start justify-between gap-2 pl-2"
+                            >
+                              <Text variant="bodySm" className="text-text-secondary flex-1 min-w-0">
+                                {t('monster.spellcasting.daily', { times: d.times })} {d.spell}
+                              </Text>
+                              {spellCta && <div className="shrink-0">{spellCta}</div>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 

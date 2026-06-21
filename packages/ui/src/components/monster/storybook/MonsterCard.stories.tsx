@@ -243,6 +243,34 @@ const renderActions: NonNullable<MonsterCardProps['renderActions']> = () => (
   </>
 );
 
+/** Demo CTA: a small "Roll" button for actions */
+const renderRollCTA: NonNullable<MonsterCardProps['renderActionCTA']> = (action) => (
+  <Button
+    size="sm"
+    variant="ghost"
+    onClick={(e) => {
+      e.stopPropagation();
+      alert(`Rolling for ${action.name}…`);
+    }}
+  >
+    Roll
+  </Button>
+);
+
+/** Demo CTA: a small "Cast" button for spells */
+const renderCastCTA: NonNullable<MonsterCardProps['renderSpellCTA']> = (ctx) => (
+  <Button
+    size="sm"
+    variant="ghost"
+    onClick={(e) => {
+      e.stopPropagation();
+      alert(`Casting ${ctx.spellName}…`);
+    }}
+  >
+    Cast
+  </Button>
+);
+
 export const Default: Story = {
   args: {
     monster: goblin,
@@ -294,4 +322,19 @@ export const DensityPreview: Story = {
       <MonsterCard {...args} density="default" />
     </div>
   ),
+};
+
+export const WithActionCTA: Story = {
+  args: {
+    monster: youngRedDragon,
+    renderActionCTA: renderRollCTA,
+    renderLegendaryActionCTA: renderRollCTA,
+  },
+};
+
+export const WithSpellCTA: Story = {
+  args: {
+    monster: lich,
+    renderSpellCTA: renderCastCTA,
+  },
 };
