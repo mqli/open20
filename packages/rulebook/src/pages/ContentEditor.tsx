@@ -1,7 +1,9 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SpellEditor, Button, Text } from '@open20/ui';
 import { useContentEditorStore } from '../stores/contentEditorStore';
+import { parsePlainText, transformSpell } from '@open20/content/parser';
+import { ClipboardPaste } from 'lucide-react';
 
 export function ContentEditor() {
   const { packId, contentType, contentId } = useParams<{
@@ -13,6 +15,29 @@ export function ContentEditor() {
 
   const { isDirty, isSaving, setParams, setSpell, saveSpell, loadSpell } = useContentEditorStore();
   const spell = useContentEditorStore((state) => state.spell);
+
+  // Paste-from-text state
+  const [showPasteArea, setShowPasteArea] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const [parseError, setParseError] = useState<string | null>(null);
+
+  // Parse pasted text and populate the form
+  const handleParsePastedText = useCallback(() => {
+    const trimmed = pasteText.trim();
+    if (!trimmed) {
+      setParseError('Please paste spell text first.');
+      return;
+    }
+    try {
+      const parsed = parsePlainText(trimmed);
+      const result = transformSpell(parsed);
+      setSpell(result);
+      setParseError(null);
+      setShowPasteArea(false);
+    } catch (err) {
+      setParseError(err instanceof Error ? err.message : 'Failed to parse spell text.');
+    }
+  }, [pasteText, setSpell]);
 
   // Initialize params and load spell if editing
   useEffect(() => {
@@ -117,6 +142,55 @@ export function ContentEditor() {
           {packId && `Pack: ${packId}`}
           {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
         </Text>
+      </div>
+
+      {/* Paste-from-text import area */}
+      <div className="mb-6">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setShowPasteArea(!showPasteArea);
+            setParseError(null);
+          }}
+        >
+          <ClipboardPaste className="w-4 h-4 mr-1.5" />
+          Import from Text
+        </Button>
+
+        {showPasteArea && (
+          <div className="mt-3 p-4 rounded-lg border bg-muted/30 space-y-3">
+            <Text as="p" variant="bodySm" className="text-muted-foreground">
+              Paste spell text copied from 5e tools, D&D Beyond, or Roll20.
+            </Text>
+            <textarea
+              className="w-full min-h-[200px] p-3 rounded-md border bg-background text-sm font-mono resize-y"
+              placeholder="Paste spell text here..."
+              value={pasteText}
+              onChange={(e) => {
+                setPasteText(e.target.value);
+                setParseError(null);
+              }}
+            />
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={handleParsePastedText}
+                disabled={!pasteText.trim()}
+              >
+                Parse & Fill Form
+              </Button>
+              {parseError && (
+                <Text as="p" variant="bodySm" className="text-destructive">
+                  {parseError}
+                </Text>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <SpellEditor
