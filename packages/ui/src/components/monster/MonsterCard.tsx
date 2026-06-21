@@ -274,7 +274,7 @@ export function MonsterCard({
                     {action.name}.
                     {action.limitedUsage && (
                       <span className="font-normal text-text-tertiary ml-1">
-                        ({formatLimitedUsage(action.limitedUsage)})
+                        ({formatLimitedUsage(t, action.limitedUsage)})
                       </span>
                     )}
                   </Text>
@@ -345,8 +345,10 @@ export function MonsterCard({
                 {t('monster.legendaryActions')}
               </Text>
               <Text variant="bodySm" className="text-text-secondary italic">
-                The {monster.name} can take {monster.legendaryActions.length} legendary action(s) at
-                the end of each turn.
+                {t('monster.legendaryActionsDesc', {
+                  name: monster.name,
+                  count: monster.legendaryActions.length,
+                })}
               </Text>
               {monster.legendaryActions.map((action) => (
                 <div key={action.name} className="space-y-0.5">
@@ -370,19 +372,25 @@ export function MonsterCard({
               {monster.spellcasting.map((spellcast, idx) => (
                 <div key={idx} className="space-y-0.5">
                   <Text variant="bodySm" className="font-semibold">
-                    {spellcast.ability} DC {spellcast.saveDC}
-                    {spellcast.attackBonus !== undefined && `, +${spellcast.attackBonus} to hit`}
+                    {t('monster.spellcasting.abilityDc', {
+                      ability: spellcast.ability,
+                      dc: spellcast.saveDC,
+                    })}
+                    {spellcast.attackBonus !== undefined &&
+                      t('monster.spellcasting.attackBonus', {
+                        bonus: spellcast.attackBonus,
+                      })}
                   </Text>
                   {spellcast.atWill && spellcast.atWill.length > 0 && (
                     <Text variant="bodySm" className="text-text-secondary">
-                      At will: {spellcast.atWill.join(', ')}
+                      {t('monster.spellcasting.atWill')} {spellcast.atWill.join(', ')}
                     </Text>
                   )}
                   {spellcast.daily && spellcast.daily.length > 0 && (
                     <div className="pl-2">
                       {spellcast.daily.map((d, i) => (
                         <Text key={i} variant="bodySm" className="text-text-secondary">
-                          {d.times}/day: {d.spell}
+                          {t('monster.spellcasting.daily', { times: d.times })} {d.spell}
                         </Text>
                       ))}
                     </div>

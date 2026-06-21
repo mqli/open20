@@ -150,7 +150,17 @@ export type BaseTranslationKeys =
   | 'monster.damageImmunities'
   | 'monster.limitedUsage.xPerDay'
   | 'monster.limitedUsage.recharge'
-  | 'monster.limitedUsage.rechargeAfterRest';
+  | 'monster.limitedUsage.rechargeAfterRest'
+  // Monster - Legendary Actions
+  | 'monster.legendaryActionsDesc'
+  // Monster - Spellcasting
+  | 'monster.spellcasting.abilityDc'
+  | 'monster.spellcasting.attackBonus'
+  | 'monster.spellcasting.atWill'
+  | 'monster.spellcasting.daily'
+  // Spell
+  | 'spell.saveAbbr'
+  | 'spell.attackRoll';
 
 // Translation keys are flat dot-notation strings.
 // Consuming apps extend by adding their own flat keys.
@@ -318,6 +328,20 @@ export const defaultTranslations: Translations = {
   'monster.limitedUsage.xPerDay': '{count}/Day',
   'monster.limitedUsage.recharge': 'Recharge {range}',
   'monster.limitedUsage.rechargeAfterRest': 'Recharge after {rest}',
+
+  // Monster - Legendary Actions
+  'monster.legendaryActionsDesc':
+    'The {name} can take {count} legendary action(s) at the end of each turn.',
+
+  // Monster - Spellcasting
+  'monster.spellcasting.abilityDc': '{ability} DC {dc}',
+  'monster.spellcasting.attackBonus': ', +{bonus} to hit',
+  'monster.spellcasting.atWill': 'At will:',
+  'monster.spellcasting.daily': '{times}/day:',
+
+  // Spell
+  'spell.saveAbbr': 'save',
+  'spell.attackRoll': 'Attack roll',
 };
 
 // Chinese (Simplified) translations (flat dot-notation keys)
@@ -478,6 +502,19 @@ export const zhCNTranslations: Translations = {
   'monster.limitedUsage.xPerDay': '每日{count}次',
   'monster.limitedUsage.recharge': '充能 {range}',
   'monster.limitedUsage.rechargeAfterRest': '{rest}后充能',
+
+  // Monster - Legendary Actions
+  'monster.legendaryActionsDesc': '{name} 在每回合结束时可以采取 {count} 个传奇动作。',
+
+  // Monster - Spellcasting
+  'monster.spellcasting.abilityDc': '{ability} DC {dc}',
+  'monster.spellcasting.attackBonus': '，+{bonus} 命中',
+  'monster.spellcasting.atWill': '随意：',
+  'monster.spellcasting.daily': '每日{times}次：',
+
+  // Spell
+  'spell.saveAbbr': '豁免',
+  'spell.attackRoll': '攻击检定',
 };
 
 // Context type

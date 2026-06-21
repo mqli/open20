@@ -256,13 +256,13 @@ export function SpellCard({
               {spell.save && (
                 <CardMetaItem
                   icon={<DefenseIcon size="sm" className="text-text-tertiary" />}
-                  label={`${spell.save} save`}
+                  label={`${spell.save} ${t('spell.saveAbbr')}`}
                 />
               )}
               {spell.attack && (
                 <CardMetaItem
                   icon={<AttackIcon size="sm" className="text-text-tertiary" />}
-                  label="Attack roll"
+                  label={t('spell.attackRoll')}
                 />
               )}
             </div>

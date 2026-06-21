@@ -2,6 +2,7 @@
 // Helper functions for formatting monster data
 
 import type { Monster, AbilityName, AbilityScores } from 'open20-core';
+import type { BaseTranslationKeys } from '../../i18n';
 
 // ── Ability Score Helpers ─────────────────────────────────────────
 
@@ -324,19 +325,24 @@ export function formatDamageTypes(types?: readonly string[]): string {
 /**
  * Format limited usage text
  */
-export function formatLimitedUsage(usage: {
-  type: string;
-  uses?: number;
-  rechargeRange?: readonly [number, number];
-  rechargeOn?: string;
-}): string {
+export function formatLimitedUsage(
+  t: (key: BaseTranslationKeys, params?: Record<string, string | number>) => string,
+  usage: {
+    type: string;
+    uses?: number;
+    rechargeRange?: readonly [number, number];
+    rechargeOn?: string;
+  },
+): string {
   switch (usage.type) {
     case 'x_per_day':
-      return `${usage.uses}/Day`;
+      return t('monster.limitedUsage.xPerDay', { count: usage.uses ?? 0 });
     case 'recharge':
-      return `Recharge ${usage.rechargeRange?.[0]}–${usage.rechargeRange?.[1]}`;
+      return t('monster.limitedUsage.recharge', {
+        range: `${usage.rechargeRange?.[0]}–${usage.rechargeRange?.[1]}`,
+      });
     case 'recharge_after_rest':
-      return `Recharge after ${usage.rechargeOn}`;
+      return t('monster.limitedUsage.rechargeAfterRest', { rest: usage.rechargeOn ?? '' });
     default:
       return '';
   }
