@@ -85,104 +85,44 @@ G (scaffold rulebook)
 | 6     | **L** — ContentBrowser    | [L-browser.md](./L-browser.md)                     | Medium      | After H         |
 | 7     | **M** — Import/Export UI  | [M-import-export.md](./M-import-export.md)         | Medium      | After J + L     |
 
-## Task Execution Order
+## Phase 3 Tasks (Extended Content Types — ITERATIVE 🔄)
 
-| Order | Task                        | File                                               | Est. Effort | Can Parallelize |
-| ----- | --------------------------- | -------------------------------------------------- | ----------- | --------------- |
-| 1     | **A** — Package Scaffold    | [A-scaffold.md](./A-scaffold.md)                   | Small       | —               |
-| 2     | **B** — Types & Storage     | [B-types-storage.md](./B-types-storage.md)         | Medium      | —               |
-| 3a    | **C** — ContentPackManager  | [C-manager.md](./C-manager.md)                     | Medium      | After B         |
-| 3b    | **D** — Validation & Editor | [D-validation-editor.md](./D-validation-editor.md) | Large       | Parallel with C |
-| 4a    | **E** — Import/Export       | [E-import-export.md](./E-import-export.md)         | Medium      | After C + D     |
-| 4b    | **F** — ContentBrowser      | [F-browser.md](./F-browser.md)                     | Medium      | After C         |
+**Target**: `@open20/content` v0.2.0 + `@open20/rulebook` v0.2.0  
+**Task Details**: See [Phase 3 README](./phase3-README.md).
 
-> **Parallel execution**: Tasks C and D can be done in parallel after B.  
-> Tasks E and F can be done in parallel after C+D and C respectively.
+### Task Dependency Graph
 
-## Deliverables per Task
-
-| Task | Key Deliverables                                                                                                       |
-| ---- | ---------------------------------------------------------------------------------------------------------------------- |
-| A    | `package.json`, `tsconfig.json`, `eslint.config.js`, empty `src/index.ts`                                              |
-| B    | `EditableContentPack`, `ContentTypeId`, `EditState`, `SpellQuery`, `IStorage`, `IndexedDBStorage`                      |
-| C    | `ContentPackManager` (create/load/save/list/enable/disable/delete packs)                                               |
-| D    | `SpellSchema` (Zod), `ContentValidator`, `ContentEditor` (add/edit/remove/duplicate/undo spells), `getSpellTemplate()` |
-| E    | `exportPack()` (strips runtime state), `importPack()`, `checkImportConflicts()`, `importWithResolutions()`             |
-| F    | `ContentBrowser` (getAllSpells, getSpellsByPack, searchSpells with SpellQuery)                                         |
-
-## Final Integration (after all tasks complete)
-
-Update `src/index.ts` barrel export:
-
-```typescript
-// packages/content/src/index.ts
-
-// Types
-export type { EditableContentPack } from './types/content-pack';
-export type { ContentTypeId, ContentTypeDescriptor } from './types/registry';
-export { contentTypes } from './types/registry';
-export type { EditState, UndoEntry } from './types/edit-state';
-export type { SpellQuery } from './types/query';
-
-// Storage
-export type { IStorage } from './storage/istorage';
-export { IndexedDBStorage } from './storage/indexeddb-storage';
-
-// Manager
-export { ContentPackManager } from './manager';
-
-// Editor
-export { ContentEditor } from './editor';
-
-// Validator
-export { SpellSchema, ContentValidator } from './validator';
-export type { ValidationError, ValidationResult, ValidationReport } from './validator';
-
-// IO
-export {
-  exportPack,
-  importPack,
-  mergePack,
-  checkImportConflicts,
-  importWithResolutions,
-} from './io';
-export type { ConflictType, ConflictEntry, ConflictResolution, ImportResult } from './io';
-
-// Browser
-export { ContentBrowser } from './browser';
-
-// Templates
-export { getSpellTemplate } from './templates';
+```
+N (Monsters - headless + UI)
+│
+├──► O (Species, Backgrounds, Feats)
+│     │
+│     └──► P (Weapons, Armors, Gears)
+│
+├──► Q (Classes, Subclasses)
+│
+└──► R (Glossary)
 ```
 
-## Verification Checklist (after all tasks)
+### Task Execution Order
 
-```bash
-pnpm install                          # Link workspace deps
-pnpm --filter @open20/content typecheck  # Must pass
-pnpm --filter @open20/content lint       # Must pass
-pnpm --filter @open20/content test       # Must pass all tests
-pnpm build                             # Turbo: build entire monorepo
-```
+| Order | Task                           | File                                                 | Content Types                   | Est. Effort | Can Parallelize    |
+| ----- | ------------------------------ | ---------------------------------------------------- | ------------------------------- | ----------- | ------------------ |
+| 1     | **N** — Monsters               | [N-monster.md](./N-monster.md)                       | Monsters (1 type)               | Large       | —                  |
+| 2a    | **O** — Species, Bg, Feats     | [O-species-bg-feat.md](./O-species-bg-feat.md)       | Species, Backgrounds, Feats (3) | Large       | After N            |
+| 2b    | **Q** — Classes, Subclasses    | [Q-classes-subclasses.md](./Q-classes-subclasses.md) | Classes, Subclasses (2)         | Large       | Parallel with O    |
+| 2c    | **R** — Glossary               | [R-glossary.md](./R-glossary.md)                     | Glossary (1)                    | Small       | Parallel with O, Q |
+| 3     | **P** — Weapons, Armors, Gears | [P-weapon-armor-gear.md](./P-weapon-armor-gear.md)   | Weapons, Armors, Gears (3)      | Medium      | After O            |
 
-## Implementation Checklist
+> **Parallel execution**: Tasks O, Q, R can run in parallel after N.  
+> Task P depends on O (establishes patterns before simple equipment types).
 
-- [ ] A: Package scaffold created, monorepo integrated
-- [ ] B: `EditableContentPack`, `IStorage`, `IndexedDBStorage` implemented + tested
-- [ ] C: `ContentPackManager` implemented + tested
-- [ ] D: `SpellSchema`, `ContentValidator`, `ContentEditor` implemented + tested
-- [ ] E: `exportPack`, `importPack`, conflict APIs implemented + tested
-- [ ] F: `ContentBrowser`, `searchSpells` implemented + tested
-- [ ] Final: `src/index.ts` barrel export updated
-- [ ] Final: `pnpm test` passes for entire rulebook package
-- [ ] Final: `pnpm typecheck` passes for rulebook
+### Deliverables per Task
 
-## Scope NOT in Phase 1
-
-The following are explicitly excluded from these tasks:
-
-- ❌ Other 10 content types (Species, Backgrounds, Classes, Subclasses, Feats, Weapons, Armors, Gears, Monsters, Glossary) — Phase 2
-- ❌ UI components (`@open20/rulebook`) — Phase 4
-- ❌ FileSystemStorage adapter — Phase 5
-- ❌ Search for non-spell types — Phase 3
-- ❌ Full-text description search / Chinese tokenization — Phase 3
+| Task  | Headless Deliverables                                           | UI Deliverables                                                 |
+| ----- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| **N** | Monster CRUD + validator + browser + import/export              | Simple/Advanced dual-mode editor, Monsters tab, browser filters |
+| **O** | Species/Background/Feat schemas + templates + CRUD + validators | 3 editor forms, 3 tabs, 3 filter sets                           |
+| **P** | Weapon/Armor/Gear schemas + templates + CRUD + validators       | 3 simple accordion editors, 3 tabs, 3 filter sets               |
+| **Q** | Class/Subclass schemas + templates + CRUD + validators          | Tabbed editors (progression table), 2 tabs, 2 filter sets       |
+| **R** | Glossary schema + set/remove/list entries                       | Key-value pair editor, Glossary tab, search                     |
