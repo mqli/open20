@@ -8,16 +8,19 @@ import type { Armor, Weapon } from '../../src/types/equipment';
 export const LEATHER_ARMOR: Armor = {
   id: 'Leather Armor',
   name: 'Leather Armor',
+  type: 'armor',
   category: 'Light',
   ac: 11,
   dexBonus: true,
   weight: 10,
   cost: { quantity: 10, unit: 'gp' },
+  equipped: false,
 };
 
 export const CHAIN_MAIL: Armor = {
   id: 'Chain Mail',
   name: 'Chain Mail',
+  type: 'armor',
   category: 'Heavy',
   ac: 16,
   dexBonus: false,
@@ -25,11 +28,13 @@ export const CHAIN_MAIL: Armor = {
   stealthDisadvantage: true,
   weight: 55,
   cost: { quantity: 75, unit: 'gp' },
+  equipped: false,
 };
 
 export const HALF_PLATE: Armor = {
   id: 'Half Plate',
   name: 'Half Plate',
+  type: 'armor',
   category: 'Medium',
   ac: 15,
   dexBonus: true,
@@ -37,26 +42,31 @@ export const HALF_PLATE: Armor = {
   stealthDisadvantage: true,
   weight: 40,
   cost: { quantity: 750, unit: 'gp' },
+  equipped: false,
 };
 
 export const SHIELD: Armor = {
   id: 'Shield',
   name: 'Shield',
+  type: 'armor',
   category: 'Shield',
   ac: 2,
   dexBonus: false,
   weight: 6,
   cost: { quantity: 10, unit: 'gp' },
+  equipped: false,
 };
 
 export const STUDDED_LEATHER: Armor = {
   id: 'Studded Leather',
   name: 'Studded Leather',
+  type: 'armor',
   category: 'Light',
   ac: 12,
   dexBonus: true,
   weight: 13,
   cost: { quantity: 45, unit: 'gp' },
+  equipped: false,
 };
 
 // ── Weapon Fixtures ─────────────────────────────────────
@@ -67,7 +77,7 @@ export const LONGSWORD: Weapon = {
   type: 'weapon',
   category: 'Martial',
   weight: 3,
-  cost: '15 gp',
+  cost: { quantity: 15, unit: 'gp' },
   equipped: false,
   damage: { entries: [{ dice: 'd8', type: 'Slashing' }], ability: 'Strength', bonus: 0 },
   properties: ['Versatile'],
@@ -81,7 +91,7 @@ export const DAGGER: Weapon = {
   type: 'weapon',
   category: 'Simple',
   weight: 1,
-  cost: '2 gp',
+  cost: { quantity: 2, unit: 'gp' },
   equipped: false,
   damage: { entries: [{ dice: 'd4', type: 'Piercing' }], ability: 'Strength', bonus: 0 },
   properties: ['Finesse', 'Light', 'Thrown'],
@@ -94,7 +104,7 @@ export const SHORTBOW: Weapon = {
   type: 'weapon',
   category: 'Simple',
   weight: 2,
-  cost: '25 gp',
+  cost: { quantity: 25, unit: 'gp' },
   equipped: false,
   damage: { entries: [{ dice: 'd6', type: 'Piercing' }], ability: 'Dexterity', bonus: 0 },
   properties: ['Ammunition', 'Two-Handed'],
@@ -108,7 +118,7 @@ export const QUARTERSTAFF: Weapon = {
   source: 'test',
   category: 'Simple',
   weight: 4,
-  cost: '2 sp',
+  cost: { quantity: 2, unit: 'sp' },
   equipped: false,
   damage: { entries: [{ dice: 'd6', type: 'Bludgeoning' }], ability: 'Strength', bonus: 0 },
   properties: ['Versatile'],
@@ -122,7 +132,7 @@ export const GREATAXE: Weapon = {
   type: 'weapon',
   category: 'Martial',
   weight: 7,
-  cost: '30 gp',
+  cost: { quantity: 30, unit: 'gp' },
   equipped: false,
   damage: { entries: [{ dice: 'd12', type: 'Slashing' }], ability: 'Strength', bonus: 0 },
   properties: ['Heavy', 'Two-Handed'],

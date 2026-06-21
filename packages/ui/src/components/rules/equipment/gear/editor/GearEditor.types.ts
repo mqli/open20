@@ -8,7 +8,8 @@ export interface GearFormData {
   name: string;
   type: 'gears' | 'consumable';
   weight: number;
-  cost: string;
+  costQuantity: number | '';
+  costUnit: string;
   equipped: boolean;
   quantity: number | '';
   description: string;
@@ -44,7 +45,8 @@ export const DEFAULT_GEAR_FORM_DATA: GearFormData = {
   name: '',
   type: 'gears',
   weight: 0,
-  cost: '',
+  costQuantity: '',
+  costUnit: 'gp',
   equipped: false,
   quantity: '',
   description: '',
@@ -61,7 +63,8 @@ export function gearToFormData(gear?: Partial<Gear>): GearFormData {
     name: gear.name ?? '',
     type: gear.type ?? DEFAULT_GEAR_FORM_DATA.type,
     weight: gear.weight ?? 0,
-    cost: gear.cost ?? '',
+    costQuantity: gear.cost?.quantity ?? '',
+    costUnit: gear.cost?.unit ?? 'gp',
     equipped: gear.equipped ?? false,
     quantity: gear.quantity ?? '',
     description: ((gear as Record<string, unknown>).description as string) ?? '',
@@ -69,13 +72,18 @@ export function gearToFormData(gear?: Partial<Gear>): GearFormData {
 }
 
 export function formDataToGear(formData: GearFormData): Gear {
+  const cost =
+    typeof formData.costQuantity === 'number' && formData.costQuantity > 0
+      ? { quantity: formData.costQuantity, unit: formData.costUnit || 'gp' }
+      : undefined;
+
   return {
     id: formData.id,
     name: formData.name,
     source: formData.source,
     type: formData.type,
     weight: formData.weight,
-    cost: formData.cost || undefined,
+    cost,
     equipped: formData.equipped,
     quantity:
       typeof formData.quantity === 'number' && formData.quantity > 0

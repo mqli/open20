@@ -132,17 +132,49 @@ export function GearEditor({
           <AccordionHeader section="category" title="Cost & Weight" />
           {openSections.has('category') && (
             <div className="px-4 pb-4 space-y-3">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 <div className="space-y-1.5">
                   <Text as="label" variant="bodySm" className="font-medium">
-                    Cost
+                    Cost Qty
                   </Text>
                   <Input
-                    value={value?.cost || ''}
-                    onChange={(e) => update({ cost: e.target.value })}
-                    placeholder="e.g., 2 gp"
+                    type="number"
+                    value={value?.cost?.quantity ?? ''}
+                    onChange={(e) => {
+                      const qty = e.target.value === '' ? undefined : Number(e.target.value);
+                      update({
+                        cost:
+                          qty !== undefined
+                            ? { quantity: qty, unit: value?.cost?.unit ?? 'gp' }
+                            : undefined,
+                      });
+                    }}
+                    placeholder="e.g., 2"
                     disabled={disabled}
                   />
+                </div>
+                <div className="space-y-1.5">
+                  <Text as="label" variant="bodySm" className="font-medium">
+                    Cost Unit
+                  </Text>
+                  <select
+                    className="w-full p-2 border rounded-md bg-background text-sm disabled:opacity-50"
+                    value={value?.cost?.unit ?? 'gp'}
+                    onChange={(e) =>
+                      update({
+                        cost: {
+                          quantity: value?.cost?.quantity ?? 0,
+                          unit: e.target.value,
+                        },
+                      })
+                    }
+                    disabled={disabled}
+                  >
+                    <option value="cp">cp</option>
+                    <option value="sp">sp</option>
+                    <option value="gp">gp</option>
+                    <option value="pp">pp</option>
+                  </select>
                 </div>
                 <div className="space-y-1.5">
                   <Text as="label" variant="bodySm" className="font-medium">

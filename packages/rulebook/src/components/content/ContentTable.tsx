@@ -389,7 +389,9 @@ export function ContentTable({
                 <td className="p-2 text-text-primary text-xs">
                   {g.type === 'consumable' ? 'Consumable' : 'Gear'}
                 </td>
-                <td className="p-2 text-text-primary text-xs">{g.cost || '-'}</td>
+                <td className="p-2 text-text-primary text-xs">
+                  {g.cost ? `${g.cost.quantity} ${g.cost.unit}` : '-'}
+                </td>
                 <td className="p-2 text-text-primary">{g.weight} lbs</td>
                 <td className="p-2 text-text-primary text-xs">{sourceLabel || g.source}</td>
               </tr>

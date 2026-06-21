@@ -17,7 +17,8 @@ export interface WeaponFormData {
   rangeMaximum: number | '';
   versatileDamage: string;
   weight: number;
-  cost: string;
+  costQuantity: number | '';
+  costUnit: string;
   description: string;
 }
 
@@ -110,7 +111,8 @@ export const DEFAULT_WEAPON_FORM_DATA: WeaponFormData = {
   rangeMaximum: '',
   versatileDamage: '',
   weight: 0,
-  cost: '',
+  costQuantity: '',
+  costUnit: 'gp',
   description: '',
 };
 
@@ -136,7 +138,8 @@ export function weaponToFormData(weapon?: Partial<Weapon>): WeaponFormData {
     rangeMaximum: weapon.range?.maximum ?? '',
     versatileDamage: weapon.versatileDamage ?? '',
     weight: weapon.weight ?? 0,
-    cost: weapon.cost ?? '',
+    costQuantity: weapon.cost?.quantity ?? '',
+    costUnit: weapon.cost?.unit ?? 'gp',
     description: ((weapon as Record<string, unknown>).description as string) ?? '',
   };
 }
@@ -156,6 +159,11 @@ export function formDataToWeapon(formData: WeaponFormData): Weapon {
         }
       : undefined;
 
+  const cost =
+    typeof formData.costQuantity === 'number' && formData.costQuantity > 0
+      ? { quantity: formData.costQuantity, unit: formData.costUnit || 'gp' }
+      : undefined;
+
   return {
     id: formData.id,
     name: formData.name,
@@ -172,7 +180,7 @@ export function formDataToWeapon(formData: WeaponFormData): Weapon {
     range,
     versatileDamage: formData.versatileDamage || undefined,
     weight: formData.weight,
-    cost: formData.cost || undefined,
+    cost,
     equipped: false,
   } as Weapon;
 }

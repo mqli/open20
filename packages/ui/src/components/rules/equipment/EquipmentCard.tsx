@@ -360,15 +360,7 @@ export function EquipmentCard({
 
   // Get weight and cost
   const weight = equipment.weight;
-  let cost = '';
-  if (armor) {
-    if (armor.cost) {
-      cost = `${armor.cost.quantity} ${armor.cost.unit}`;
-    }
-  } else if ('cost' in equipment && equipment.cost) {
-    // Weapon or Gear has cost as string
-    cost = equipment.cost as string;
-  }
+  const cost = equipment.cost ? `${equipment.cost.quantity} ${equipment.cost.unit}` : '';
 
   // Get equipment type for badge
   let typeKey: string = '';

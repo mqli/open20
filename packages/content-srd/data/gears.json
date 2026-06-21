@@ -8,7 +8,9 @@
       "quantity": 2,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "bedroll",
@@ -19,7 +21,9 @@
       "quantity": 1,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "rations",
@@ -30,7 +34,9 @@
       "quantity": 5,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "rope-hempen",
@@ -41,7 +47,9 @@
       "quantity": 1,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "rope-silk",
@@ -52,7 +60,9 @@
       "quantity": 10,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "torch",
@@ -63,7 +73,9 @@
       "quantity": 1,
       "unit": "cp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "waterskin",
@@ -74,7 +86,9 @@
       "quantity": 2,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "flint-and-steel",
@@ -85,7 +99,9 @@
       "quantity": 5,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "mess-kit",
@@ -96,7 +112,9 @@
       "quantity": 2,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "tinderbox",
@@ -107,7 +125,9 @@
       "quantity": 5,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "candle",
@@ -118,7 +138,9 @@
       "quantity": 1,
       "unit": "cp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "lantern-bullseye",
@@ -129,7 +151,9 @@
       "quantity": 10,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "lantern-hooded",
@@ -140,7 +164,9 @@
       "quantity": 5,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "oil-flask",
@@ -151,7 +177,9 @@
       "quantity": 1,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "iron-pot",
@@ -162,7 +190,9 @@
       "quantity": 2,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "sack",
@@ -173,7 +203,9 @@
       "quantity": 1,
       "unit": "cp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "signaling-whistle",
@@ -184,7 +216,9 @@
       "quantity": 5,
       "unit": "cp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "soap",
@@ -195,7 +229,9 @@
       "quantity": 2,
       "unit": "cp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "tent",
@@ -206,7 +242,9 @@
       "quantity": 2,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "arrow",
@@ -217,7 +255,9 @@
       "quantity": 1,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "bolt",
@@ -228,7 +268,9 @@
       "quantity": 1,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "bullet-blowgun",
@@ -239,7 +281,9 @@
       "quantity": 1,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "bullet-firearm",
@@ -250,7 +294,9 @@
       "quantity": 3,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "sling-bullet",
@@ -261,7 +307,9 @@
       "quantity": 4,
       "unit": "cp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "healers-kit",
@@ -272,7 +320,9 @@
       "quantity": 5,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "artisan-tools",
@@ -283,7 +333,9 @@
       "quantity": 1,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "disguise-kit",
@@ -294,7 +346,9 @@
       "quantity": 25,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "forgery-kit",
@@ -305,7 +359,9 @@
       "quantity": 15,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "herbalism-kit",
@@ -316,7 +372,9 @@
       "quantity": 5,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "musical-instrument",
@@ -327,7 +385,9 @@
       "quantity": 5,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "navigators-tools",
@@ -338,7 +398,9 @@
       "quantity": 25,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "poisoners-kit",
@@ -349,7 +411,9 @@
       "quantity": 25,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   },
   {
     "id": "thieves-tools",
@@ -360,6 +424,8 @@
       "quantity": 25,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "gears",
+    "equipped": false
   }
 ]

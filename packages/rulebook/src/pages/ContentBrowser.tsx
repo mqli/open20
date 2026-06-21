@@ -406,7 +406,7 @@ export function ContentBrowser() {
                         </div>
                         <p className="text-xs text-muted-foreground">
                           {item.type === 'consumable' ? 'Consumable' : 'Gear'}
-                          {item.cost ? ` · ${item.cost}` : ''}
+                          {item.cost ? ` · ${item.cost.quantity} ${item.cost.unit}` : ''}
                           {item.weight ? ` · ${item.weight} lbs` : ''}
                           {item.quantity ? ` · x${item.quantity}` : ''}
                         </p>

@@ -409,6 +409,13 @@ const WeaponPropertySchema = z.union([
   WeaponMasteryPropertySchema,
 ]);
 
+// ---- Cost Schema (shared by all equipment types) ----
+
+const CostSchema = z.object({
+  quantity: z.number(),
+  unit: z.string(),
+});
+
 // ---- WeaponSchema ----
 
 export const WeaponSchema = z
@@ -424,7 +431,7 @@ export const WeaponSchema = z
     range: WeaponRangeSchema.optional(),
     versatileDamage: z.string().optional(),
     weight: z.number().default(0),
-    cost: z.string().optional(),
+    cost: CostSchema.optional(),
     equipped: z.boolean().default(false),
   })
   .strict();
@@ -433,11 +440,6 @@ export const WeaponSchema = z
 
 const ArmorCategorySchema = z.enum(['Light', 'Medium', 'Heavy', 'Shield']);
 
-const ArmorCostSchema = z.object({
-  quantity: z.number(),
-  unit: z.string(),
-});
-
 // ---- ArmorSchema ----
 
 export const ArmorSchema = z
@@ -445,6 +447,7 @@ export const ArmorSchema = z
     id: z.string().min(1),
     name: z.string().min(1),
     source: z.string().min(1),
+    type: z.literal('armor'),
     category: ArmorCategorySchema,
     ac: z.number(),
     dexBonus: z.boolean(),
@@ -452,7 +455,8 @@ export const ArmorSchema = z
     strengthRequirement: z.number().optional(),
     stealthDisadvantage: z.boolean().optional(),
     weight: z.number().default(0),
-    cost: ArmorCostSchema.optional(),
+    cost: CostSchema.optional(),
+    equipped: z.boolean().default(false),
   })
   .strict();
 
@@ -469,7 +473,7 @@ export const GearSchema = z
     source: z.string().min(1),
     type: GearTypeSchema,
     weight: z.number().default(0),
-    cost: z.string().optional(),
+    cost: CostSchema.optional(),
     equipped: z.boolean().default(false),
     quantity: z.number().optional(),
   })

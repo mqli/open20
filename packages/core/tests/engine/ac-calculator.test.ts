@@ -38,7 +38,7 @@ describe('calculateAC', () => {
         name: 'Leather Armor',
         type: 'armor' as const,
         weight: 10,
-        cost: '10 gp',
+        cost: { quantity: 10, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -59,7 +59,7 @@ describe('calculateAC', () => {
         name: 'Chain Mail',
         type: 'armor' as const,
         weight: 55,
-        cost: '75 gp',
+        cost: { quantity: 75, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -80,7 +80,7 @@ describe('calculateAC', () => {
         name: 'Half Plate',
         type: 'armor' as const,
         weight: 40,
-        cost: '750 gp',
+        cost: { quantity: 750, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -108,7 +108,7 @@ describe('calculateAC', () => {
         name: 'Half Plate',
         type: 'armor' as const,
         weight: 40,
-        cost: '750 gp',
+        cost: { quantity: 750, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -128,7 +128,7 @@ describe('calculateAC', () => {
         name: 'Chain Mail',
         type: 'armor' as const,
         weight: 55,
-        cost: '75 gp',
+        cost: { quantity: 75, unit: 'gp' },
         equipped: true,
       },
       {
@@ -136,7 +136,7 @@ describe('calculateAC', () => {
         name: 'Shield',
         type: 'armor' as const,
         weight: 6,
-        cost: '10 gp',
+        cost: { quantity: 10, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -212,7 +212,7 @@ describe('calculateAC', () => {
         name: 'Shield',
         type: 'armor' as const,
         weight: 6,
-        cost: '10 gp',
+        cost: { quantity: 10, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -245,7 +245,7 @@ describe('calculateAC', () => {
         name: 'Shield',
         type: 'armor' as const,
         weight: 6,
-        cost: '10 gp',
+        cost: { quantity: 10, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -278,7 +278,7 @@ describe('calculateAC', () => {
         name: 'Leather Armor',
         type: 'armor' as const,
         weight: 10,
-        cost: '10 gp',
+        cost: { quantity: 10, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -299,7 +299,7 @@ describe('calculateAC', () => {
         name: 'Chain Mail',
         type: 'armor' as const,
         weight: 55,
-        cost: '75 gp',
+        cost: { quantity: 75, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -319,7 +319,7 @@ describe('calculateAC', () => {
         name: 'Chain Mail',
         type: 'armor' as const,
         weight: 55,
-        cost: '75 gp',
+        cost: { quantity: 75, unit: 'gp' },
         equipped: false,
       },
     ];
@@ -347,7 +347,7 @@ describe('calculateAC', () => {
       name: string;
       type: 'armor';
       weight: number;
-      cost: string;
+      cost?: { readonly quantity: number; readonly unit: string };
       equipped: boolean;
     }[] = [];
     const features: readonly Feature[] = [];
@@ -377,7 +377,7 @@ describe('calculateAC', () => {
         name: 'Leather Armor',
         type: 'armor' as const,
         weight: 10,
-        cost: '10 gp',
+        cost: { quantity: 10, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -407,7 +407,7 @@ describe('calculateAC', () => {
       name: string;
       type: 'armor';
       weight: number;
-      cost: string;
+      cost?: { readonly quantity: number; readonly unit: string };
       equipped: boolean;
     }[] = [];
     const features: readonly Feature[] = [];

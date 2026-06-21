@@ -11,7 +11,7 @@ export interface EquipmentItem {
   readonly type: 'weapon' | 'armor' | 'gears' | 'consumable';
   readonly source?: string; // '2024 PHB' | '2014 PHB' | 'SRD 5.2' | ...（可选，测试中可以省略）
   readonly weight: number; // 重量（磅），0=无重量
-  readonly cost?: string; // 价格（如 "15 gp"）
+  readonly cost?: { readonly quantity: number; readonly unit: string };
   readonly equipped: boolean; // 是否装备（影响AC/攻击加值）
   readonly quantity?: number; // 数量（物品堆叠）
 }
@@ -73,12 +73,12 @@ export type WeaponMasteryProperty =
   | 'Vex';
 
 // 护甲类型
-export interface Armor {
+export interface Armor extends EquipmentItem {
+  readonly type: 'armor';
   readonly id: string;
   readonly name: string;
   readonly source?: string;
   readonly weight: number;
-  readonly cost?: { readonly quantity: number; readonly unit: string };
   readonly category: 'Light' | 'Medium' | 'Heavy' | 'Shield';
   readonly ac: number;
   readonly dexBonus: boolean; // 是否加Dex调整值

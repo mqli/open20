@@ -30,7 +30,7 @@ describe('calculateAC - SRD Data', () => {
         name: 'Leather Armor',
         type: 'armor' as const,
         weight: 10,
-        cost: '10 gp',
+        cost: { quantity: 10, unit: 'gp' },
         equipped: true,
       },
     ];
@@ -53,7 +53,7 @@ describe('calculateAC - SRD Data', () => {
         name: 'Buckler',
         type: 'armor' as const,
         weight: 2,
-        cost: '5 gp',
+        cost: { quantity: 5, unit: 'gp' },
         equipped: true,
       },
     ];

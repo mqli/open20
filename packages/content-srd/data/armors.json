@@ -12,7 +12,9 @@
       "quantity": 5,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "leather-armor",
@@ -27,7 +29,9 @@
       "quantity": 10,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "studded-leather",
@@ -42,7 +46,9 @@
       "quantity": 45,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "hide-armor",
@@ -57,7 +63,9 @@
       "quantity": 10,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "chain-shirt",
@@ -72,7 +80,9 @@
       "quantity": 50,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "scale-mail",
@@ -87,7 +97,9 @@
       "quantity": 50,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "breastplate",
@@ -102,7 +114,9 @@
       "quantity": 400,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "half-plate",
@@ -117,7 +131,9 @@
       "quantity": 750,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "ring-mail",
@@ -132,7 +148,9 @@
       "quantity": 30,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "chain-mail",
@@ -147,7 +165,9 @@
       "quantity": 75,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "splint-mail",
@@ -162,7 +182,9 @@
       "quantity": 200,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "plate-mail",
@@ -177,7 +199,9 @@
       "quantity": 1500,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "shield",
@@ -192,7 +216,9 @@
       "quantity": 10,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "buckler",
@@ -207,7 +233,9 @@
       "quantity": 5,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "tower-shield",
@@ -222,7 +250,9 @@
       "quantity": 30,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "robe",
@@ -237,7 +267,9 @@
       "quantity": 5,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "travelers-clothes",
@@ -252,7 +284,9 @@
       "quantity": 2,
       "unit": "sp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "winter-clothes",
@@ -267,7 +301,9 @@
       "quantity": 5,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   },
   {
     "id": "fine-clothes",
@@ -282,6 +318,8 @@
       "quantity": 15,
       "unit": "gp"
     },
-    "source": "SRD 5.2"
+    "source": "SRD 5.2",
+    "type": "armor",
+    "equipped": false
   }
 ]

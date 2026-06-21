@@ -27,7 +27,7 @@ function makeWeapon(overrides: Partial<Weapon> = {}): Weapon {
     },
     properties: ['Versatile'],
     weight: 3,
-    cost: '15 gp',
+    cost: { quantity: 15, unit: 'gp' },
     ...overrides,
   };
 }
@@ -54,7 +54,7 @@ function makeGear(overrides: Partial<Gear> = {}): Gear {
     source: 'SRD 5.2',
     type: 'gears',
     weight: 5,
-    cost: '2 gp',
+    cost: { quantity: 2, unit: 'gp' },
     equipped: false,
     ...overrides,
   };
@@ -83,15 +83,17 @@ describe('ContentEditor — Weapon CRUD', () => {
     const pack = makePack();
     const editor = new ContentEditor(pack);
     editor.addWeapon(makeWeapon());
-    editor.updateWeapon('longsword', { cost: '20 gp' });
-    expect(editor.getWeapon('longsword')?.cost).toBe('20 gp');
+    editor.updateWeapon('longsword', { cost: { quantity: 20, unit: 'gp' } });
+    expect(editor.getWeapon('longsword')?.cost).toEqual({ quantity: 20, unit: 'gp' });
     expect(editor.getWeapon('longsword')?.category).toBe('Martial');
   });
 
   it('updateWeapon throws if not found', () => {
     const pack = makePack();
     const editor = new ContentEditor(pack);
-    expect(() => editor.updateWeapon('nonexistent', { cost: '20 gp' })).toThrow();
+    expect(() =>
+      editor.updateWeapon('nonexistent', { cost: { quantity: 20, unit: 'gp' } }),
+    ).toThrow();
   });
 
   it('removeWeapon removes weapon by ID', () => {
@@ -307,9 +309,9 @@ describe('ContentEditor — Undo for weapon/armor/gear', () => {
     const pack = makePack();
     const editor = new ContentEditor(pack);
     editor.addWeapon(makeWeapon());
-    editor.updateWeapon('longsword', { cost: '20 gp' });
+    editor.updateWeapon('longsword', { cost: { quantity: 20, unit: 'gp' } });
     editor.undo();
-    expect(editor.getWeapon('longsword')?.cost).toBe('15 gp');
+    expect(editor.getWeapon('longsword')?.cost).toEqual({ quantity: 15, unit: 'gp' });
   });
 
   it('undo restores armors to state before removeArmor', () => {
@@ -340,10 +342,10 @@ describe('ContentEditor — Undo for weapon/armor/gear', () => {
     editor.addArmor(makeArmor());
     editor.addGear(makeGear());
 
-    editor.updateWeapon('longsword', { cost: '20 gp' });
+    editor.updateWeapon('longsword', { cost: { quantity: 20, unit: 'gp' } });
 
     editor.undo();
-    expect(editor.getWeapon('longsword')?.cost).toBe('15 gp');
+    expect(editor.getWeapon('longsword')?.cost).toEqual({ quantity: 15, unit: 'gp' });
     expect(editor.listArmors()).toHaveLength(1);
     expect(editor.listGears()).toHaveLength(1);
   });

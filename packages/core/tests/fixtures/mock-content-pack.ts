@@ -268,7 +268,7 @@ const mockWeapons: Weapon[] = [
     type: 'weapon',
     source: 'Mock',
     weight: 3,
-    cost: '15 gp',
+    cost: { quantity: 15, unit: 'gp' },
     equipped: false,
     quantity: 1,
     category: 'Martial',
@@ -293,12 +293,14 @@ const mockArmors: Armor[] = [
   {
     id: 'Leather',
     name: 'Leather Armor',
+    type: 'armor',
     source: 'Mock',
     weight: 10,
     cost: { quantity: 10, unit: 'gp' },
     category: 'Light',
     ac: 11,
     dexBonus: true,
+    equipped: false,
   },
 ];
 
@@ -312,7 +314,7 @@ const mockGear: Gear[] = [
     type: 'gears',
     source: 'Mock',
     weight: 5,
-    cost: '2 gp',
+    cost: { quantity: 2, unit: 'gp' },
     equipped: false,
     quantity: 1,
   },
