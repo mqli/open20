@@ -13,7 +13,8 @@
     "./storage": "./src/storage/index.ts",
     "./manager": "./src/manager/index.ts",
     "./browser": "./src/browser/index.ts",
-    "./parser": "./src/parser/index.ts"
+    "./parser": "./src/parser/index.ts",
+    "./templates": "./src/templates/index.ts"
   },
   "files": [
     "src",

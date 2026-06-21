@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SpellEditor, Button, Text } from '@open20/ui';
 import { useContentEditorStore } from '../stores/contentEditorStore';
 import { parsePlainText, transformSpell } from '@open20/content/parser';
-import { ClipboardPaste } from 'lucide-react';
+import { ClipboardPaste, Skull, User } from 'lucide-react';
 
 export function ContentEditor() {
   const { packId, contentType, contentId } = useParams<{
@@ -131,6 +131,31 @@ export function ContentEditor() {
       </Button>
     </div>
   );
+
+  // ── Multi-type placeholder renderers ──
+  const renderComingSoon = (icon: React.ReactNode, typeName: string) => (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="p-4 rounded-full bg-bg-secondary mb-4">{icon}</div>
+      <Text as="h2" variant="heading" className="mb-2">
+        {contentId ? `Edit ${typeName}` : `New ${typeName}`}
+      </Text>
+      <Text as="p" variant="body" className="text-muted-foreground mb-6 max-w-md">
+        The {typeName.toLowerCase()} editor is coming in a future update. For now, you can add{' '}
+        {typeName.toLowerCase()} data via JSON import.
+      </Text>
+      <Button variant="outline" onClick={handleCancel}>
+        Back to Pack
+      </Button>
+    </div>
+  );
+
+  if (contentType === 'monster') {
+    return renderComingSoon(<Skull className="w-8 h-8 text-text-tertiary" />, 'Monster');
+  }
+
+  if (contentType === 'species') {
+    return renderComingSoon(<User className="w-8 h-8 text-text-tertiary" />, 'Species');
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">

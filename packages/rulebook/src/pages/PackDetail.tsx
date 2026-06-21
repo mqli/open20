@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Spell } from 'open20-core';
 import { Tabs, Button, Input } from '@open20/ui';
@@ -17,6 +17,12 @@ import { usePackDetailStore } from '../stores/packDetailStore';
 import { ContentTable } from '../components/content/ContentTable';
 import { InlineEditPanel } from '../components/editor/InlineEditPanel';
 import { AddContentButton } from '../components/common/AddContentButton';
+import { DeleteConfirmDialog } from '../components/common/DeleteConfirmDialog';
+import type { ConfirmMode } from '../components/common/DeleteConfirmDialog';
+import manager from '../stores/contentManager';
+import { exportPack } from '@open20/content/io';
+import { ContentValidator } from '@open20/content/validator';
+import { formatFileSize } from '../lib/utils';
 
 export function PackDetail() {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +44,16 @@ export function PackDetail() {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  // DeleteConfirmDialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmMode, setConfirmMode] = useState<ConfirmMode>('delete-content');
+  const [confirmItems, setConfirmItems] = useState<string[]>([]);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  // External validation state
+  const [validationResult, setValidationResult] = useState<string | null>(null);
+
   useEffect(() => {
     if (id) {
       loadPack(id);
@@ -48,18 +64,102 @@ export function PackDetail() {
     navigate(`/rulebook/editor/${id}/spell/${spellId}`);
   };
 
-  const handleDelete = (spellId: string) => {
-    if (window.confirm('Are you sure you want to delete this spell?')) {
-      console.log('Delete spell', spellId);
-      // TODO: Implement delete logic in Task K
-    }
-  };
+  const handleDelete = useCallback(
+    (spellId: string) => {
+      if (!pack) return;
+      const spell = pack.spells?.find((s: Spell) => s.id === spellId);
+      setConfirmMode('delete-content');
+      setConfirmItems(spell ? [spell.name] : [spellId]);
+      setPendingDeleteId(spellId);
+      setConfirmOpen(true);
+    },
+    [pack],
+  );
 
-  const handleSave = (spell: Spell, description: string, level: number) => {
-    console.log('Save spell', spell.id, { description, level });
-    // TODO: Implement save logic in Task K
-    setInlineEditSpell(null);
-  };
+  const confirmDeleteContent = useCallback(async () => {
+    if (!id || !pack || !pendingDeleteId) return;
+    setConfirmLoading(true);
+    try {
+      const { ContentEditor } = await import('@open20/content/editor');
+      const editor = new ContentEditor(pack as any);
+      editor.removeSpell(pendingDeleteId);
+      await manager.savePack(pack);
+      await loadPack(id);
+    } catch (err) {
+      console.error('Delete failed:', err);
+    } finally {
+      setConfirmLoading(false);
+      setConfirmOpen(false);
+      setPendingDeleteId(null);
+    }
+  }, [id, pack, pendingDeleteId, loadPack]);
+
+  const handleSave = useCallback(
+    async (spell: Spell, _description: string, _level: number) => {
+      if (!id || !pack) return;
+      try {
+        const { ContentEditor } = await import('@open20/content/editor');
+        const editor = new ContentEditor(pack as any);
+        editor.updateSpell(spell.id, spell);
+        await manager.savePack(pack);
+        await loadPack(id);
+        setInlineEditSpell(null);
+      } catch (err) {
+        console.error('Save failed:', err);
+      }
+    },
+    [id, pack, loadPack, setInlineEditSpell],
+  );
+
+  const handleExportAll = useCallback(async () => {
+    if (!pack) return;
+    try {
+      const json = exportPack(pack as any);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${pack.meta.name.replace(/\s+/g, '-').toLowerCase()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
+  }, [pack]);
+
+  const handleValidateAll = useCallback(async () => {
+    if (!pack) return;
+    try {
+      const validator = new ContentValidator();
+      const report = validator.validatePack(pack as any);
+      let totalErrors = 0;
+      let totalWarnings = 0;
+      for (const result of Object.values(report.results)) {
+        for (const error of result.errors) {
+          if (error.severity === 'error') totalErrors++;
+          else totalWarnings++;
+        }
+      }
+      setValidationResult(
+        totalErrors === 0 && totalWarnings === 0
+          ? 'Validation complete: no issues found'
+          : `Validation complete: ${totalErrors} error(s), ${totalWarnings} warning(s)`,
+      );
+    } catch (err) {
+      setValidationResult(`Validation failed: ${String(err)}`);
+    }
+  }, [pack]);
+
+  const getPackJSONSize = useCallback(() => {
+    if (!pack) return 0;
+    try {
+      return new Blob([JSON.stringify(pack)]).size;
+    } catch {
+      return 0;
+    }
+  }, [pack]);
 
   const getFilteredSpells = () => {
     if (!pack?.spells) return [];
@@ -123,19 +223,30 @@ export function PackDetail() {
 
       <div className="mb-4 flex items-center justify-between">
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => console.log('Export all')}>
+          <Button variant="outline" onClick={handleExportAll}>
             <FileDown className="w-4 h-4 mr-2" />
             Export All
           </Button>
-          <Button variant="outline" onClick={() => console.log('Validate all')}>
+          <Button variant="outline" onClick={handleValidateAll}>
             <CheckCircle2 className="w-4 h-4 mr-2" />
             Validate All
           </Button>
         </div>
         <span className="text-sm text-muted-foreground">
-          {contentCount} items · ~{/* TODO: Calculate actual size */}32 KB
+          {contentCount} items · {formatFileSize(getPackJSONSize())}
         </span>
       </div>
+      {validationResult && (
+        <div className="mb-4 p-3 bg-bg-secondary border border-border rounded-md text-sm text-text-primary">
+          {validationResult}
+          <button
+            className="ml-2 text-xs text-muted-foreground hover:text-text-primary"
+            onClick={() => setValidationResult(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
         <Tabs.List>
@@ -237,6 +348,24 @@ export function PackDetail() {
         spell={inlineEditSpell}
         onClose={() => setInlineEditSpell(null)}
         onSave={handleSave}
+        onOpenFullEditor={(spellId) => {
+          if (id) {
+            navigate(`/rulebook/editor/${id}/spell/${spellId}`);
+          }
+        }}
+      />
+
+      <DeleteConfirmDialog
+        open={confirmOpen}
+        mode={confirmMode}
+        packName={pack?.meta.name}
+        content={{ items: confirmItems }}
+        loading={confirmLoading}
+        onConfirm={confirmDeleteContent}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setPendingDeleteId(null);
+        }}
       />
     </div>
   );

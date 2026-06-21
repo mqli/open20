@@ -41,7 +41,9 @@ export function AddContentButton({
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={() => {
-            console.log('Add Monster');
+            if (packId) {
+              navigate(`/rulebook/editor/${packId}/monster`);
+            }
             onAddMonster?.();
           }}
           className="cursor-pointer"
@@ -51,7 +53,9 @@ export function AddContentButton({
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={() => {
-            console.log('Add Species');
+            if (packId) {
+              navigate(`/rulebook/editor/${packId}/species`);
+            }
             onAddSpecies?.();
           }}
           className="cursor-pointer"

@@ -8,9 +8,16 @@ interface InlineEditPanelProps {
   spell: Spell | null;
   onClose: () => void;
   onSave?: (spell: Spell, description: string, level: number) => void;
+  onOpenFullEditor?: (spellId: string) => void;
 }
 
-export function InlineEditPanel({ open, spell, onClose, onSave }: InlineEditPanelProps) {
+export function InlineEditPanel({
+  open,
+  spell,
+  onClose,
+  onSave,
+  onOpenFullEditor,
+}: InlineEditPanelProps) {
   const [description, setDescription] = useState(spell?.description.join('\n') || '');
   const [level, setLevel] = useState(spell?.level || 0);
 
@@ -96,8 +103,7 @@ export function InlineEditPanel({ open, spell, onClose, onSave }: InlineEditPane
               <Button
                 variant="outline"
                 onClick={() => {
-                  console.log('Open full editor for', spell.id);
-                  // TODO: Navigate to Task K editor route
+                  onOpenFullEditor?.(spell.id);
                 }}
               >
                 Open Full Editor →

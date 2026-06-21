@@ -6,6 +6,7 @@ interface PackStore {
   packs: ContentPackMeta[];
   loading: boolean;
   error: string | null;
+  contentCounts: Record<string, number>;
   fetchPacks: () => Promise<void>;
   createAndSavePack: (meta: ContentPackMeta) => Promise<void>;
   deletePackAndStorage: (id: string) => Promise<void>;
@@ -18,12 +19,42 @@ export const usePackStore = create<PackStore>((set, get) => ({
   packs: [],
   loading: false,
   error: null,
+  contentCounts: {},
 
   fetchPacks: async () => {
     set({ loading: true, error: null });
     try {
       const packs = await manager.listPacks();
-      set({ packs, loading: false });
+      // Load content counts for each pack
+      const counts: Record<string, number> = {};
+      for (const pack of packs) {
+        try {
+          const loaded = await manager.loadPack(pack.id);
+          if (loaded) {
+            let total = 0;
+            const contentKeys = [
+              'spells',
+              'monsters',
+              'species',
+              'backgrounds',
+              'classes',
+              'subclasses',
+              'feats',
+              'weapons',
+              'armors',
+              'gears',
+            ] as const;
+            for (const key of contentKeys) {
+              const items = (loaded as any)[key];
+              if (Array.isArray(items)) total += items.length;
+            }
+            counts[pack.id] = total;
+          }
+        } catch {
+          counts[pack.id] = 0;
+        }
+      }
+      set({ packs, contentCounts: counts, loading: false });
     } catch (error) {
       set({ error: String(error), loading: false });
     }

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@open20/ui';
 import manager from '../../stores/contentManager';
 import { parsePackJson, importPack, checkImportConflicts } from '@open20/content/io';
-import type { ContentPack } from 'open20-core';
+import type { ContentPack, ContentPackMeta } from 'open20-core';
 import type { ConflictEntry, ConflictResolution } from '@open20/content/io';
 
 interface ImportWizardProps {
@@ -26,9 +26,26 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
   const [resolutions, setResolutions] = useState<Map<string, ConflictResolution>>(new Map());
   const [importAs, setImportAs] = useState<'new' | 'merge'>('new');
   const [targetPackId, setTargetPackId] = useState<string>('');
+  const [availablePacks, setAvailablePacks] = useState<ContentPackMeta[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingPacks, setLoadingPacks] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Load available packs for merge target dropdown
+  useEffect(() => {
+    const loadPacks = async () => {
+      try {
+        const packs = await manager.listPacks();
+        setAvailablePacks(packs);
+      } catch {
+        // Silently fail — merge will just not have a populated list
+      } finally {
+        setLoadingPacks(false);
+      }
+    };
+    loadPacks();
+  }, []);
 
   // Handle file upload
   const handleFileUpload = (uploadedFile: File) => {
@@ -337,8 +354,13 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
                     className="w-full p-2 border border-border rounded-md bg-bg-primary text-text-primary"
                   >
                     <option value="">Select a pack...</option>
-                    {/* TODO: populate with available packs */}
-                    <option value="demo">Demo Pack (TODO: load from store)</option>
+                    {loadingPacks && <option disabled>Loading packs...</option>}
+                    {!loadingPacks &&
+                      availablePacks.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} (v{p.version})
+                        </option>
+                      ))}
                   </select>
                 </div>
               )}

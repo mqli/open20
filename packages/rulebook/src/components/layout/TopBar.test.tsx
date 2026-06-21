@@ -39,7 +39,7 @@ describe('TopBar', () => {
         </I18nProvider>
       </MemoryRouter>,
     );
-    expect(screen.getByTitle('Search')).toBeInTheDocument();
+    expect(screen.getByTitle('Search content')).toBeInTheDocument();
     expect(screen.getByTitle('Settings')).toBeInTheDocument();
   });
 

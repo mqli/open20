@@ -10,7 +10,7 @@ import { Package } from 'lucide-react';
 
 export function PackList() {
   const navigate = useNavigate();
-  const { packs, loading, error, fetchPacks, isBuiltInPack } = usePackStore();
+  const { packs, loading, error, contentCounts, fetchPacks, isBuiltInPack } = usePackStore();
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportWizard, setShowImportWizard] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -88,7 +88,7 @@ export function PackList() {
             <PackCard
               key={pack.id}
               pack={pack}
-              spellCount={0} // TODO: fetch from ContentBrowser
+              spellCount={contentCounts[pack.id] ?? 0}
               isBuiltIn={isBuiltInPack(pack.id)}
               onOpen={() => navigate(`/rulebook/packs/${pack.id}`)}
               onExport={() => {
