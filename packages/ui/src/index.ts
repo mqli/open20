@@ -34,6 +34,16 @@ export { FeatCard } from './components/rules/feat/index';
 export type { FeatCardProps } from './components/rules/feat/index';
 export { MonsterCard } from './components/monster/index';
 export type { MonsterCardProps } from './components/monster/index';
+export { MonsterEditor } from './components/monster/editor';
+export type {
+  MonsterEditorProps,
+  MonsterFormData,
+} from './components/monster/editor/MonsterEditor.types';
+export {
+  monsterToFormData,
+  formDataToMonster,
+  DEFAULT_MONSTER_FORM_DATA,
+} from './components/monster/editor/MonsterEditor.types';
 export {
   GlossaryEntryCard,
   GlossaryEntryContent,

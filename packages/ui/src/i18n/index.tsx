@@ -125,6 +125,21 @@ export type BaseTranslationKeys =
   | 'equipment.type.armor'
   | 'equipment.type.gears'
   | 'equipment.type.consumable'
+  // Monster Editor
+  | 'monsterEditor.livePreview'
+  | 'monsterEditor.createMonster'
+  | 'monsterEditor.updateMonster'
+  | 'monsterEditor.basicInfo'
+  | 'monsterEditor.combat'
+  | 'monsterEditor.abilityScores'
+  | 'monsterEditor.defenses'
+  | 'monsterEditor.senses'
+  | 'monsterEditor.features'
+  | 'monsterEditor.spellcasting'
+  | 'monsterEditor.meta'
+  | 'monsterEditor.validation.acRequired'
+  | 'monsterEditor.validation.hpRequired'
+  | 'monsterEditor.validation.abilityScoresRequired'
   // Monster
   | 'monster.armorClass'
   | 'monster.hitPoints'
@@ -206,6 +221,22 @@ export const defaultTranslations: Translations = {
   'spellEditor.cantripUpgrade': 'Cantrip Upgrade',
   'spellEditor.createSpell': 'Create Spell',
   'spellEditor.updateSpell': 'Update Spell',
+
+  // Monster Editor
+  'monsterEditor.livePreview': 'Live Preview',
+  'monsterEditor.createMonster': 'Create Monster',
+  'monsterEditor.updateMonster': 'Update Monster',
+  'monsterEditor.basicInfo': 'Basic Information',
+  'monsterEditor.combat': 'Combat Stats',
+  'monsterEditor.abilityScores': 'Ability Scores',
+  'monsterEditor.defenses': 'Defenses',
+  'monsterEditor.senses': 'Senses & Languages',
+  'monsterEditor.features': 'Features & Actions',
+  'monsterEditor.spellcasting': 'Spellcasting',
+  'monsterEditor.meta': 'Meta',
+  'monsterEditor.validation.acRequired': 'At least one Armor Class entry is required',
+  'monsterEditor.validation.hpRequired': 'Hit Points value is required',
+  'monsterEditor.validation.abilityScoresRequired': 'All ability scores must be set',
 
   // Spell
   'spell.classes': 'Classes',
@@ -380,6 +411,22 @@ export const zhCNTranslations: Translations = {
   'spellEditor.cantripUpgrade': '戏法升级',
   'spellEditor.createSpell': '创建法术',
   'spellEditor.updateSpell': '更新法术',
+
+  // Monster Editor
+  'monsterEditor.livePreview': '实时预览',
+  'monsterEditor.createMonster': '创建怪物',
+  'monsterEditor.updateMonster': '更新怪物',
+  'monsterEditor.basicInfo': '基本信息',
+  'monsterEditor.combat': '战斗属性',
+  'monsterEditor.abilityScores': '属性值',
+  'monsterEditor.defenses': '防御',
+  'monsterEditor.senses': '感官与语言',
+  'monsterEditor.features': '特性与动作',
+  'monsterEditor.spellcasting': '法术施展',
+  'monsterEditor.meta': '其他',
+  'monsterEditor.validation.acRequired': '至少需要一项护甲等级',
+  'monsterEditor.validation.hpRequired': '生命值是必填项',
+  'monsterEditor.validation.abilityScoresRequired': '所有属性值必须填写',
 
   // Spell
   'spell.classes': '职业',
