@@ -235,6 +235,9 @@ importers:
 
   packages/content-srd:
     dependencies:
+      '@open20/content':
+        specifier: workspace:*
+        version: link:../content
       open20-core:
         specifier: workspace:*
         version: link:../core

@@ -1,3 +1,6 @@
+// @open20/content/parser/helpers
+// Generic text parsing utilities extracted from content-srd/scripts/srd_markdown_helpers.ts
+
 export function slugify(name: string): string {
   return name
     .toLowerCase()

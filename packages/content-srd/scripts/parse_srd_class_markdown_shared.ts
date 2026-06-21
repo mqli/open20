@@ -1,4 +1,4 @@
-import type { Class, Subclass } from '../src/types/class';
+import type { Class, Subclass } from 'open20-core';
 import {
   collapseParagraphLines,
   normalizeDashValue,
@@ -8,7 +8,7 @@ import {
   slugify,
   splitFeatureList,
   stripMarkdownHeading,
-} from './srd_markdown_helpers';
+} from '@open20/content/parser';
 
 type ClassLevelEntry = {
   level: number;

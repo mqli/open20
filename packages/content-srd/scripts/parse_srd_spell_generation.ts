@@ -1,4 +1,7 @@
-import { parseMarkdown, transformSpell } from './parse_srd_markdown.ts';
+import { parseMarkdown, transformSpell } from '@open20/content/parser';
+
+export { parseMarkdown, transformSpell };
+export type { ParsedSpell } from '@open20/content/parser';
 
 type Spell = ReturnType<typeof transformSpell>;
 

@@ -35,6 +35,12 @@ export type {
   SpellSlotEntry,
   PactMagicSlots,
   FeatSpellsEntry,
+  CantripUpgradeEntry,
+  SpellDamage,
+  SpellHeal,
+  CastingTime,
+  SpellSchool,
+  SpellComponent,
 } from './types/spell';
 export { SPELL_SCHOOLS, SPELL_LEVELS } from './types/spell';
 export { ALL_DAMAGE_TYPES } from './types/damage';

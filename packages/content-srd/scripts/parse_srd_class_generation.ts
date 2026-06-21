@@ -1,4 +1,4 @@
-import type { Class, Subclass } from '../src/types/class';
+import type { Class, Subclass } from 'open20-core';
 import { buildSpellNameKeyMap, parseClassMarkdownContent } from './parse_srd_class_markdown_shared';
 
 export type ClassDocumentInput = {

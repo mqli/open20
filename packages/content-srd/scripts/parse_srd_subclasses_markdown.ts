@@ -3,7 +3,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import type { Subclass } from '../src/types/class';
+import type { Subclass } from 'open20-core';
 import { CLASS_MARKDOWN_FILE_ORDER } from './parse_srd_class_markdown_shared';
 import { generateSubclassesFromDocuments, mergeSubclasses } from './parse_srd_class_generation';
 

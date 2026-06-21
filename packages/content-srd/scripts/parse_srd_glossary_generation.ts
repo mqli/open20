@@ -4,7 +4,7 @@ import {
   slugify,
   stripBold,
   stripItalic,
-} from './srd_markdown_helpers.ts';
+} from '@open20/content/parser';
 
 import type {
   GlossaryAbbreviation,

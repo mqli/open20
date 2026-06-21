@@ -1,10 +1,15 @@
+// @open20/content/parser/spell-parser
+// Core spell text parsing and transformation logic.
+// Extracted from content-srd/scripts/parse_srd_markdown.ts.
+// Generic — does NOT depend on SRD-specific markdown layout.
+
 import {
   parseParentheticalCommaList,
   slugify,
   stripBold,
   stripItalic,
   stripMarkdownHeading,
-} from './srd_markdown_helpers.ts';
+} from './helpers';
 
 import type {
   Spell,
@@ -13,11 +18,14 @@ import type {
   CantripUpgradeEntry,
   CastingTime,
   SpellSchool,
-} from '../src/types/spell';
-import type { DamageEntry, DamageType } from '../src/types/damage';
+  SpellComponent,
+} from 'open20-core';
+import type { DamageEntry, DamageType } from 'open20-core/types';
 
-export function parseComponents(compStr: string): string[] {
-  const comps: string[] = [];
+// ── Helper Parsers ────────────────────────────────────────────
+
+export function parseComponents(compStr: string): SpellComponent[] {
+  const comps: SpellComponent[] = [];
   if (/V\b/i.test(compStr)) comps.push('V');
   if (/S\b/i.test(compStr)) comps.push('S');
   if (/M\b/i.test(compStr)) comps.push('M');
@@ -97,10 +105,6 @@ export function extractHeal(description: string): SpellHeal | undefined {
 
 export function parseCantripUpgrade(text: string): CantripUpgradeEntry[] {
   const entries: CantripUpgradeEntry[] = [];
-
-  // Pattern: "levels 5 (2d6), 11 (3d6), and 17 (4d6)" → extract dice inside parentheses
-  // Pattern: "at level 5, 2d6; at level 11, 3d6; at level 17, 4d6"
-  // Pattern: "increases by 1d6 when you reach levels 5 (2d6), 11 (3d6), and 17 (4d6)"
 
   const damageByLevel: Map<number, string> = new Map();
 
@@ -272,7 +276,7 @@ export function parseMarkdown(content: string): ParsedSpell[] {
       continue;
     }
 
-    // Check for Cantrip Upgrade section (handles both **_Cantrip Upgrade._** and **Cantrip Upgrade.** variants)
+    // Check for Cantrip Upgrade section
     if (/\*\*_?Cantrip Upgrade/i.test(line)) {
       currentSpell.cantripUpgradeText = line
         .replace(/\*\*/g, '')
@@ -332,7 +336,68 @@ export function transformSpell(parsed: ParsedSpell): Spell {
   const durationInfo = parseDuration(parsed.duration || '');
   const fullDesc = descLines.join(' ');
 
-  const spell: Spell = {
+  // ── Compute derived values upfront (no mutation) ──────────────
+
+  let damage = extractDamage(fullDesc);
+  const heal = extractHeal(fullDesc);
+  const save = extractSave(fullDesc);
+  const attack = checkAttack(fullDesc);
+
+  // Cantrip upgrade
+  let cantripUpgrade: readonly CantripUpgradeEntry[] | undefined;
+  if (cantripUpgradeText) {
+    const entries = parseCantripUpgrade(cantripUpgradeText);
+    if (entries.length > 0) cantripUpgrade = entries;
+  }
+
+  // Fix unknown types in cantrip upgrade from base damage
+  if (damage && cantripUpgrade) {
+    const knownType = damage.entries.find(
+      (d): d is typeof d => (d.type as string) !== 'Unknown',
+    )?.type;
+    if (knownType && knownType !== ('Unknown' as unknown as DamageType)) {
+      cantripUpgrade = cantripUpgrade.map((entry: CantripUpgradeEntry) => {
+        if (!entry.damage) return entry;
+        const fixedDamage = entry.damage.map((d: DamageEntry) => {
+          if ((d.type as string) === 'Unknown') {
+            return { ...d, type: knownType } as unknown as DamageEntry;
+          }
+          return d;
+        });
+        return { ...entry, damage: fixedDamage } as unknown as CantripUpgradeEntry;
+      });
+    }
+  }
+
+  // Parse usingAHigherLevelSpellSlot
+  let usingAHigherLevelSpellSlot: readonly string[] | undefined;
+  if (usingAHigherLevelSpellSlotText) {
+    usingAHigherLevelSpellSlot = [usingAHigherLevelSpellSlotText];
+  }
+
+  // Parse per-slot damage increase
+  if (damage && usingAHigherLevelSpellSlotText) {
+    const perSlot = parsePerSlotDamage(
+      usingAHigherLevelSpellSlotText,
+      (damage.entries[0]?.type as string) || 'Unknown',
+    );
+    if (perSlot) {
+      damage = { ...damage, perSlot: perSlot as unknown as readonly DamageEntry[] };
+    }
+  }
+
+  // Check usingAHigherLevelSpellSlot for healing upcast
+  let resolvedHeal = heal;
+  if (heal && usingAHigherLevelSpellSlot) {
+    const upcastText = usingAHigherLevelSpellSlot.join(' ');
+    const perSlotMatch = /healing increases by (\d+d\d+)/i.exec(upcastText);
+    if (perSlotMatch) {
+      resolvedHeal = { ...heal, perSlot: perSlotMatch[1]! };
+    }
+  }
+
+  // ── Build final Spell (single expression, no readonly mutations) ──
+  return {
     id: slugify(parsed.name || ''),
     name: parsed.name || '',
     level: (parsed.level ?? 0) as Spell['level'],
@@ -340,83 +405,38 @@ export function transformSpell(parsed: ParsedSpell): Spell {
       (parsed.school || 'Unknown').slice(1).toLowerCase()) as SpellSchool,
     castingTime: parseCastingTime(castingTime) as CastingTime,
     range: parsed.range || 'Self',
-    components: parseComponents(parsed.components || '') as readonly string[],
+    components: parseComponents(parsed.components || ''),
     duration: durationInfo.duration,
     concentration: durationInfo.concentration,
     ritual: descLines.some((desc) => checkRitual(castingTime, desc)),
     description: descLines,
     source: 'SRD 5.2' as const,
-  };
+    ...(parsed.classes ? { classes: parsed.classes as readonly string[] } : {}),
+    ...(cantripUpgradeText ? { cantripUpgradeText } : {}),
+    ...(cantripUpgrade ? { cantripUpgrade } : {}),
+    ...(usingAHigherLevelSpellSlot ? { usingAHigherLevelSpellSlot } : {}),
+    ...(damage ? { damage } : {}),
+    ...(resolvedHeal ? { heal: resolvedHeal } : {}),
+    ...(save ? { save: save as Spell['save'] } : {}),
+    ...(attack ? { attack } : {}),
+  } as Spell;
+}
 
-  if (parsed.classes) spell.classes = parsed.classes;
+// ── Spell Generation & Merge ───────────────────────────────────
 
-  // Cantrip upgrade: always preserve the raw text when present (some upgrades scale beams or
-  // range rather than damage and can't be structured). Layer the parsed damage table on top
-  // when parseCantripUpgrade can extract one.
-  if (cantripUpgradeText) {
-    spell.cantripUpgradeText = cantripUpgradeText;
-    const entries = parseCantripUpgrade(cantripUpgradeText);
-    if (entries.length > 0) spell.cantripUpgrade = entries;
+export function generateSpellsFromMarkdown(content: string): Spell[] {
+  const parsed = parseMarkdown(content);
+  return parsed.map((p) => transformSpell(p));
+}
+
+export function mergeSpells(existing: Spell[], generated: Spell[]): Spell[] {
+  const merged = new Map<string, Spell>();
+  for (const s of generated) merged.set(s.id, s);
+  for (const s of existing) {
+    if (!merged.has(s.id)) merged.set(s.id, s);
   }
-
-  // Parse using a higher level spell slot
-  if (usingAHigherLevelSpellSlotText) {
-    spell.usingAHigherLevelSpellSlot = [usingAHigherLevelSpellSlotText];
-  }
-
-  // Extract damage/heal/save/attack from description
-  let damage = extractDamage(fullDesc);
-  const heal = extractHeal(fullDesc);
-  const save = extractSave(fullDesc);
-  const attack = checkAttack(fullDesc);
-
-  if (damage) {
-    // If cantripUpgrade has "Unknown" type, try to get it from damage entries
-    if (spell.cantripUpgrade) {
-      const knownType = damage.entries.find(
-        (d): d is typeof d => (d.type as string) !== 'Unknown',
-      )?.type;
-      if (knownType && knownType !== ('Unknown' as unknown as DamageType)) {
-        const upgradedEntries = spell.cantripUpgrade.map((entry: CantripUpgradeEntry) => {
-          if (!entry.damage) return entry;
-          const fixedDamage = entry.damage.map((d: DamageEntry) => {
-            if ((d.type as string) === 'Unknown') {
-              return { ...d, type: knownType } as unknown as DamageEntry;
-            }
-            return d;
-          });
-          return { ...entry, damage: fixedDamage } as unknown as CantripUpgradeEntry;
-        });
-        spell.cantripUpgrade = upgradedEntries;
-      }
-    }
-
-    // Parse usingAHigherLevelSpellSlot to get per-slot damage increase
-    if (usingAHigherLevelSpellSlotText) {
-      const perSlot = parsePerSlotDamage(
-        usingAHigherLevelSpellSlotText,
-        (damage.entries[0]?.type as string) || 'Unknown',
-      );
-      if (perSlot) {
-        damage = { ...damage, perSlot: perSlot as unknown as readonly DamageEntry[] };
-      }
-    }
-
-    spell.damage = damage;
-  }
-  if (heal) {
-    spell.heal = heal;
-    // Check usingAHigherLevelSpellSlot for healing upcast (e.g., Cure Wounds)
-    if (spell.usingAHigherLevelSpellSlot) {
-      const upcastText = spell.usingAHigherLevelSpellSlot.join(' ');
-      const perSlotMatch = /healing increases by (\d+d\d+)/i.exec(upcastText);
-      if (perSlotMatch) {
-        spell.heal = { ...spell.heal, perSlot: perSlotMatch[1] };
-      }
-    }
-  }
-  if (save) spell.save = save as Spell['save'];
-  if (attack) spell.attack = attack;
-
-  return spell as unknown as Spell;
+  return Array.from(merged.values()).sort((a, b) => {
+    if (a.level !== b.level) return a.level - b.level;
+    return a.name.localeCompare(b.name);
+  });
 }

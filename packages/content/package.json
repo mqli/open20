@@ -12,7 +12,8 @@
     "./io": "./src/io/index.ts",
     "./storage": "./src/storage/index.ts",
     "./manager": "./src/manager/index.ts",
-    "./browser": "./src/browser/index.ts"
+    "./browser": "./src/browser/index.ts",
+    "./parser": "./src/parser/index.ts"
   },
   "files": [
     "src",

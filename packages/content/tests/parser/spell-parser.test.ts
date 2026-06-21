@@ -8,8 +8,8 @@ import {
   parseCastingTime,
   extractHeal,
   parseDuration,
-} from '@open20/content/parser';
-import type { ParsedSpell } from '@open20/content/parser';
+} from '../../src/parser/spell-parser';
+import type { ParsedSpell } from '../../src/parser/spell-parser';
 
 // ── parseComponents Tests ───────────────────────────────
 
@@ -108,6 +108,7 @@ describe('parseDuration', () => {
 // ── checkRitual Tests ──────────────────────────────────
 
 describe('checkRitual', () => {
+  // Local inline redefinition tests the regex pattern independently
   function checkRitual(castingTime: string, description: string): boolean {
     return /ritual/i.test(castingTime) || /can be cast as a ritual/i.test(description);
   }
@@ -132,6 +133,7 @@ describe('checkRitual', () => {
 // ── extractSave Tests ──────────────────────────────────
 
 describe('extractSave', () => {
+  // Local inline redefinition tests a simplified regex pattern independently
   function extractSave(description: string): string | undefined {
     for (const save of [
       'Strength',
@@ -170,6 +172,7 @@ describe('extractSave', () => {
 // ── checkAttack Tests ──────────────────────────────────
 
 describe('checkAttack', () => {
+  // Local inline redefinition tests the regex pattern independently
   function checkAttack(description: string): boolean {
     return /spell attack/i.test(description) || /make an? .*attack/i.test(description);
   }
@@ -372,6 +375,7 @@ describe('parseCantripUpgrade', () => {
 // ── parsePerSlotDamage Tests ───────────────────────────
 
 describe('parsePerSlotDamage', () => {
+  // Local inline redefinition tests the regex pattern independently
   function parsePerSlotDamage(
     text: string,
     defaultType: string,
