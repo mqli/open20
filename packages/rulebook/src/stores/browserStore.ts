@@ -5,15 +5,26 @@ import type {
   SpeciesQuery,
   BackgroundQuery,
   FeatQuery,
+  WeaponQuery,
+  ArmorQuery,
+  GearQuery,
 } from '@open20/content/types';
-import type { Spell, Monster, Species, Background, Feat } from 'open20-core';
+import type { Spell, Monster, Species, Background, Feat, Weapon, Armor, Gear } from 'open20-core';
 import { ContentBrowser } from '@open20/content/browser';
 import manager from './contentManager';
 
 // 初始化 ContentBrowser
 const contentBrowser = new ContentBrowser(manager);
 
-export type ContentBrowserTab = 'spells' | 'monsters' | 'species' | 'backgrounds' | 'feats';
+export type ContentBrowserTab =
+  | 'spells'
+  | 'monsters'
+  | 'species'
+  | 'backgrounds'
+  | 'feats'
+  | 'weapons'
+  | 'armors'
+  | 'gears';
 
 interface BrowserStore {
   activeTab: ContentBrowserTab;
@@ -22,7 +33,10 @@ interface BrowserStore {
   speciesFilters: SpeciesQuery;
   backgroundFilters: BackgroundQuery;
   featFilters: FeatQuery;
-  results: (Spell | Monster | Species | Background | Feat)[];
+  weaponFilters: WeaponQuery;
+  armorFilters: ArmorQuery;
+  gearFilters: GearQuery;
+  results: (Spell | Monster | Species | Background | Feat | Weapon | Armor | Gear)[];
   loading: boolean;
   error: string | null;
 
@@ -33,6 +47,9 @@ interface BrowserStore {
   setSpeciesFilter: (key: keyof SpeciesQuery, value: unknown) => void;
   setBackgroundFilter: (key: keyof BackgroundQuery, value: unknown) => void;
   setFeatFilter: (key: keyof FeatQuery, value: unknown) => void;
+  setWeaponFilter: (key: keyof WeaponQuery, value: unknown) => void;
+  setArmorFilter: (key: keyof ArmorQuery, value: unknown) => void;
+  setGearFilter: (key: keyof GearQuery, value: unknown) => void;
   clearFilters: () => void;
   search: () => Promise<void>;
 }
@@ -44,6 +61,9 @@ export const useBrowserStore = create<BrowserStore>((set, get) => ({
   speciesFilters: {},
   backgroundFilters: {},
   featFilters: {},
+  weaponFilters: {},
+  armorFilters: {},
+  gearFilters: {},
   results: [],
   loading: false,
   error: null,
@@ -78,6 +98,21 @@ export const useBrowserStore = create<BrowserStore>((set, get) => ({
     get().search();
   },
 
+  setWeaponFilter: (key, value) => {
+    set((state) => ({ weaponFilters: { ...state.weaponFilters, [key]: value } }));
+    get().search();
+  },
+
+  setArmorFilter: (key, value) => {
+    set((state) => ({ armorFilters: { ...state.armorFilters, [key]: value } }));
+    get().search();
+  },
+
+  setGearFilter: (key, value) => {
+    set((state) => ({ gearFilters: { ...state.gearFilters, [key]: value } }));
+    get().search();
+  },
+
   clearFilters: () => {
     set({
       spellFilters: {},
@@ -85,6 +120,9 @@ export const useBrowserStore = create<BrowserStore>((set, get) => ({
       speciesFilters: {},
       backgroundFilters: {},
       featFilters: {},
+      weaponFilters: {},
+      armorFilters: {},
+      gearFilters: {},
     });
     get().search();
   },
@@ -99,6 +137,9 @@ export const useBrowserStore = create<BrowserStore>((set, get) => ({
         speciesFilters,
         backgroundFilters,
         featFilters,
+        weaponFilters,
+        armorFilters,
+        gearFilters,
       } = get();
       switch (activeTab) {
         case 'spells': {
@@ -123,6 +164,21 @@ export const useBrowserStore = create<BrowserStore>((set, get) => ({
         }
         case 'feats': {
           const results = await contentBrowser.searchFeats(featFilters);
+          set({ results, loading: false });
+          break;
+        }
+        case 'weapons': {
+          const results = await contentBrowser.searchWeapons(weaponFilters);
+          set({ results, loading: false });
+          break;
+        }
+        case 'armors': {
+          const results = await contentBrowser.searchArmors(armorFilters);
+          set({ results, loading: false });
+          break;
+        }
+        case 'gears': {
+          const results = await contentBrowser.searchGears(gearFilters);
           set({ results, loading: false });
           break;
         }

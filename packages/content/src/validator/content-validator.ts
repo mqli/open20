@@ -1,5 +1,14 @@
 import type { EditableContentPack } from '../types/content-pack';
-import { SpellSchema, MonsterSchema, SpeciesSchema, BackgroundSchema, FeatSchema } from './schemas';
+import {
+  SpellSchema,
+  MonsterSchema,
+  SpeciesSchema,
+  BackgroundSchema,
+  FeatSchema,
+  WeaponSchema,
+  ArmorSchema,
+  GearSchema,
+} from './schemas';
 
 export interface ValidationError {
   path: string;
@@ -104,6 +113,57 @@ export class ContentValidator {
   }
 
   /**
+   * Validate a single weapon against WeaponSchema.
+   * Returns ValidationResult with errors array (empty if valid).
+   */
+  validateWeapon(weapon: unknown): ValidationResult {
+    const result = WeaponSchema.safeParse(weapon);
+    if (result.success) {
+      return { valid: true, errors: [] };
+    }
+    const errors: ValidationError[] = result.error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+      severity: 'error' as const,
+    }));
+    return { valid: false, errors };
+  }
+
+  /**
+   * Validate a single armor against ArmorSchema.
+   * Returns ValidationResult with errors array (empty if valid).
+   */
+  validateArmor(armor: unknown): ValidationResult {
+    const result = ArmorSchema.safeParse(armor);
+    if (result.success) {
+      return { valid: true, errors: [] };
+    }
+    const errors: ValidationError[] = result.error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+      severity: 'error' as const,
+    }));
+    return { valid: false, errors };
+  }
+
+  /**
+   * Validate a single gear against GearSchema.
+   * Returns ValidationResult with errors array (empty if valid).
+   */
+  validateGear(gear: unknown): ValidationResult {
+    const result = GearSchema.safeParse(gear);
+    if (result.success) {
+      return { valid: true, errors: [] };
+    }
+    const errors: ValidationError[] = result.error.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+      severity: 'error' as const,
+    }));
+    return { valid: false, errors };
+  }
+
+  /**
    * Batch-validate an entire content pack.
    * Validates all content arrays. Returns ValidationReport with per-type results.
    */
@@ -147,6 +207,9 @@ export class ContentValidator {
     validateArray('species', pack.species ?? [], (item) => this.validateSpecies(item));
     validateArray('backgrounds', pack.backgrounds ?? [], (item) => this.validateBackground(item));
     validateArray('feats', pack.feats ?? [], (item) => this.validateFeat(item));
+    validateArray('weapons', pack.weapons ?? [], (item) => this.validateWeapon(item));
+    validateArray('armors', pack.armors ?? [], (item) => this.validateArmor(item));
+    validateArray('gears', pack.gears ?? [], (item) => this.validateGear(item));
 
     return { valid: allValid, results };
   }

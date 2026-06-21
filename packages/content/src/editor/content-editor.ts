@@ -1,9 +1,18 @@
-import type { Spell, Monster, Species, Background, Feat } from 'open20-core';
+import type { Spell, Monster, Species, Background, Feat, Weapon, Armor, Gear } from 'open20-core';
 import type { EditableContentPack } from '../types/content-pack';
 import type { EditState, UndoEntry } from '../types/edit-state';
 
 /** Content keys that participate in snapshot/undo tracking */
-const SNAPSHOT_KEYS = ['spells', 'monsters', 'species', 'backgrounds', 'feats'] as const;
+const SNAPSHOT_KEYS = [
+  'spells',
+  'monsters',
+  'species',
+  'backgrounds',
+  'feats',
+  'weapons',
+  'armors',
+  'gears',
+] as const;
 
 export class ContentEditor {
   readonly pack: EditableContentPack;
@@ -345,6 +354,201 @@ export class ContentEditor {
   /** List all feats in the pack. */
   listFeats(): Feat[] {
     return this.pack.feats ? [...this.pack.feats] : [];
+  }
+
+  // ── Weapon CRUD ──────────────────────────────────────────
+
+  /** Add a weapon to the pack. Creates weapons array if needed. */
+  addWeapon(weapon: Weapon): void {
+    this.snapshotBeforeOperation(`Added weapon ${weapon.name || weapon.id}`);
+    if (!this.pack.weapons) {
+      this.pack.weapons = [];
+    }
+    const mutable: Weapon = JSON.parse(JSON.stringify(weapon));
+    this.pack.weapons.push(mutable);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Update existing weapon by ID. Partial update. Throws if not found. */
+  updateWeapon(weaponId: string, updates: Partial<Weapon>): void {
+    const weapon = this.getWeapon(weaponId);
+    if (!weapon) {
+      throw new Error(`Weapon with id "${weaponId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Updated weapon ${weaponId}`);
+    const mutable = JSON.parse(JSON.stringify(weapon)) as Weapon;
+    Object.assign(mutable, updates);
+    const index = this.pack.weapons!.findIndex((w) => w.id === weaponId);
+    this.pack.weapons![index] = mutable;
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Remove a weapon by ID. Throws if not found. */
+  removeWeapon(weaponId: string): void {
+    const index = this.pack.weapons?.findIndex((w) => w.id === weaponId) ?? -1;
+    if (index === -1) {
+      throw new Error(`Weapon with id "${weaponId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Removed weapon ${weaponId}`);
+    this.pack.weapons!.splice(index, 1);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Duplicate a weapon with new ID (originalId + '-copy' suffix). */
+  duplicateWeapon(weaponId: string): Weapon {
+    const original = this.getWeapon(weaponId);
+    if (!original) {
+      throw new Error(`Weapon with id "${weaponId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Duplicated weapon ${weaponId}`);
+    const copy: Weapon = JSON.parse(JSON.stringify(original));
+    (copy as { id: string }).id = `${original.id}-copy`;
+    if (!this.pack.weapons) {
+      this.pack.weapons = [];
+    }
+    this.pack.weapons.push(copy);
+    this.editState.updatedAt = new Date().toISOString();
+    return copy;
+  }
+
+  /** Get a weapon by ID. Returns undefined if not found. */
+  getWeapon(weaponId: string): Weapon | undefined {
+    return this.pack.weapons?.find((w) => w.id === weaponId);
+  }
+
+  /** List all weapons in the pack. */
+  listWeapons(): Weapon[] {
+    return this.pack.weapons ? [...this.pack.weapons] : [];
+  }
+
+  // ── Armor CRUD ───────────────────────────────────────────
+
+  /** Add an armor to the pack. Creates armors array if needed. */
+  addArmor(armor: Armor): void {
+    this.snapshotBeforeOperation(`Added armor ${armor.name || armor.id}`);
+    if (!this.pack.armors) {
+      this.pack.armors = [];
+    }
+    const mutable: Armor = JSON.parse(JSON.stringify(armor));
+    this.pack.armors.push(mutable);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Update existing armor by ID. Partial update. Throws if not found. */
+  updateArmor(armorId: string, updates: Partial<Armor>): void {
+    const armor = this.getArmor(armorId);
+    if (!armor) {
+      throw new Error(`Armor with id "${armorId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Updated armor ${armorId}`);
+    const mutable = JSON.parse(JSON.stringify(armor)) as Armor;
+    Object.assign(mutable, updates);
+    const index = this.pack.armors!.findIndex((a) => a.id === armorId);
+    this.pack.armors![index] = mutable;
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Remove an armor by ID. Throws if not found. */
+  removeArmor(armorId: string): void {
+    const index = this.pack.armors?.findIndex((a) => a.id === armorId) ?? -1;
+    if (index === -1) {
+      throw new Error(`Armor with id "${armorId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Removed armor ${armorId}`);
+    this.pack.armors!.splice(index, 1);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Duplicate an armor with new ID (originalId + '-copy' suffix). */
+  duplicateArmor(armorId: string): Armor {
+    const original = this.getArmor(armorId);
+    if (!original) {
+      throw new Error(`Armor with id "${armorId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Duplicated armor ${armorId}`);
+    const copy: Armor = JSON.parse(JSON.stringify(original));
+    (copy as { id: string }).id = `${original.id}-copy`;
+    if (!this.pack.armors) {
+      this.pack.armors = [];
+    }
+    this.pack.armors.push(copy);
+    this.editState.updatedAt = new Date().toISOString();
+    return copy;
+  }
+
+  /** Get an armor by ID. Returns undefined if not found. */
+  getArmor(armorId: string): Armor | undefined {
+    return this.pack.armors?.find((a) => a.id === armorId);
+  }
+
+  /** List all armors in the pack. */
+  listArmors(): Armor[] {
+    return this.pack.armors ? [...this.pack.armors] : [];
+  }
+
+  // ── Gear CRUD ────────────────────────────────────────────
+
+  /** Add a gear to the pack. Creates gears array if needed. */
+  addGear(gear: Gear): void {
+    this.snapshotBeforeOperation(`Added gear ${gear.name || gear.id}`);
+    if (!this.pack.gears) {
+      this.pack.gears = [];
+    }
+    const mutable: Gear = JSON.parse(JSON.stringify(gear));
+    this.pack.gears.push(mutable);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Update existing gear by ID. Partial update. Throws if not found. */
+  updateGear(gearId: string, updates: Partial<Gear>): void {
+    const gear = this.getGear(gearId);
+    if (!gear) {
+      throw new Error(`Gear with id "${gearId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Updated gear ${gearId}`);
+    const mutable = JSON.parse(JSON.stringify(gear)) as Gear;
+    Object.assign(mutable, updates);
+    const index = this.pack.gears!.findIndex((g) => g.id === gearId);
+    this.pack.gears![index] = mutable;
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Remove a gear by ID. Throws if not found. */
+  removeGear(gearId: string): void {
+    const index = this.pack.gears?.findIndex((g) => g.id === gearId) ?? -1;
+    if (index === -1) {
+      throw new Error(`Gear with id "${gearId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Removed gear ${gearId}`);
+    this.pack.gears!.splice(index, 1);
+    this.editState.updatedAt = new Date().toISOString();
+  }
+
+  /** Duplicate a gear with new ID (originalId + '-copy' suffix). */
+  duplicateGear(gearId: string): Gear {
+    const original = this.getGear(gearId);
+    if (!original) {
+      throw new Error(`Gear with id "${gearId}" not found`);
+    }
+    this.snapshotBeforeOperation(`Duplicated gear ${gearId}`);
+    const copy: Gear = JSON.parse(JSON.stringify(original));
+    (copy as { id: string }).id = `${original.id}-copy`;
+    if (!this.pack.gears) {
+      this.pack.gears = [];
+    }
+    this.pack.gears.push(copy);
+    this.editState.updatedAt = new Date().toISOString();
+    return copy;
+  }
+
+  /** Get a gear by ID. Returns undefined if not found. */
+  getGear(gearId: string): Gear | undefined {
+    return this.pack.gears?.find((g) => g.id === gearId);
+  }
+
+  /** List all gears in the pack. */
+  listGears(): Gear[] {
+    return this.pack.gears ? [...this.pack.gears] : [];
   }
 
   // ── Undo ───────────────────────────────────────────────────

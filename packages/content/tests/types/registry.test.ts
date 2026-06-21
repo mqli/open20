@@ -36,6 +36,6 @@ describe('contentTypes', () => {
     expect(ids).toContain('species');
     expect(ids).toContain('backgrounds');
     expect(ids).toContain('feats');
-    expect(contentTypes).toHaveLength(5);
+    expect(contentTypes).toHaveLength(8);
   });
 });

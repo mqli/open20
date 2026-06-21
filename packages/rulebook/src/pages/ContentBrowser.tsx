@@ -1,12 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Search, LayoutGrid, List, Skull, Sparkles, User, ScrollText, Award } from 'lucide-react';
+import {
+  Search,
+  LayoutGrid,
+  List,
+  Skull,
+  Sparkles,
+  User,
+  ScrollText,
+  Award,
+  Swords,
+  Shield,
+  Backpack,
+} from 'lucide-react';
 import { FilterSidebar } from '../components/browser/FilterSidebar';
 import { ActiveFilterChips } from '../components/browser/ActiveFilterChips';
 import { ContentCard } from '../components/content/ContentCard';
 import { DetailDrawer } from '../components/editor/DetailDrawer';
 import { useBrowserStore } from '../stores/browserStore';
 import type { ContentBrowserTab } from '../stores/browserStore';
-import type { Spell, Monster, Species, Background, Feat } from 'open20-core';
+import type { Spell, Monster, Species, Background, Feat, Weapon, Armor, Gear } from 'open20-core';
 
 type ViewMode = 'grid' | 'list';
 
@@ -16,6 +28,9 @@ const TAB_EMPTY: Record<ContentBrowserTab, string> = {
   species: '🧝 No species found',
   backgrounds: '📜 No backgrounds found',
   feats: '🏆 No feats found',
+  weapons: '⚔️ No weapons found',
+  armors: '🛡️ No armors found',
+  gears: '🎒 No gear found',
 };
 
 const TAB_SEARCH_PLACEHOLDER: Record<ContentBrowserTab, string> = {
@@ -24,6 +39,9 @@ const TAB_SEARCH_PLACEHOLDER: Record<ContentBrowserTab, string> = {
   species: 'Search species...',
   backgrounds: 'Search backgrounds...',
   feats: 'Search feats...',
+  weapons: 'Search weapons...',
+  armors: 'Search armors...',
+  gears: 'Search gears...',
 };
 
 const TABS: { id: ContentBrowserTab; label: string; icon: React.ReactNode }[] = [
@@ -32,6 +50,9 @@ const TABS: { id: ContentBrowserTab; label: string; icon: React.ReactNode }[] = 
   { id: 'species', label: 'Species', icon: <User className="w-4 h-4" /> },
   { id: 'backgrounds', label: 'Backgrounds', icon: <ScrollText className="w-4 h-4" /> },
   { id: 'feats', label: 'Feats', icon: <Award className="w-4 h-4" /> },
+  { id: 'weapons', label: 'Weapons', icon: <Swords className="w-4 h-4" /> },
+  { id: 'armors', label: 'Armors', icon: <Shield className="w-4 h-4" /> },
+  { id: 'gears', label: 'Gears', icon: <Backpack className="w-4 h-4" /> },
 ];
 
 export function ContentBrowser() {
@@ -47,6 +68,9 @@ export function ContentBrowser() {
     setSpeciesFilter,
     setBackgroundFilter,
     setFeatFilter,
+    setWeaponFilter,
+    setArmorFilter,
+    setGearFilter,
   } = useBrowserStore();
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -79,6 +103,15 @@ export function ContentBrowser() {
         break;
       case 'feats':
         setFeatFilter('name', filterValue);
+        break;
+      case 'weapons':
+        setWeaponFilter('name', filterValue);
+        break;
+      case 'armors':
+        setArmorFilter('name', filterValue);
+        break;
+      case 'gears':
+        setGearFilter('name', filterValue);
         break;
     }
   };
@@ -116,6 +149,31 @@ export function ContentBrowser() {
     'originFeatId' in item;
   const isFeat = (item: unknown): item is Feat =>
     typeof item === 'object' && item !== null && 'category' in item && 'grants' in item;
+  const isWeapon = (item: unknown): item is Weapon =>
+    (typeof item === 'object' &&
+      item !== null &&
+      'damage' in item &&
+      'properties' in item &&
+      'category' in item &&
+      (item as Record<string, unknown>).category === 'Simple') ||
+    (item as Record<string, unknown>).category === 'Martial';
+  const isArmor = (item: unknown): item is Armor =>
+    typeof item === 'object' &&
+    item !== null &&
+    'ac' in item &&
+    'dexBonus' in item &&
+    'category' in item &&
+    (['Light', 'Medium', 'Heavy', 'Shield'] as string[]).includes(
+      (item as Record<string, unknown>).category as string,
+    );
+  const isGear = (item: unknown): item is Gear =>
+    typeof item === 'object' &&
+    item !== null &&
+    'equipped' in item &&
+    'type' in item &&
+    (['gears', 'consumable'] as string[]).includes(
+      (item as Record<string, unknown>).type as string,
+    );
 
   return (
     <div className="flex h-full">
@@ -296,6 +354,61 @@ export function ContentBrowser() {
                         </p>
                         <p className="text-xs text-muted-foreground line-clamp-2">
                           {item.description}
+                        </p>
+                      </div>
+                    );
+                  }
+                  if (isWeapon(item)) {
+                    return (
+                      <div
+                        key={item.id}
+                        className="border border-border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-sm">{item.name}</h3>
+                          <span className="text-xs text-muted-foreground">{item.source}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {item.category} · {item.damage.entries[0]?.dice ?? '?'}{' '}
+                          {item.damage.entries[0]?.type ?? ''}
+                          {item.properties.length > 0 && ` · ${item.properties.join(', ')}`}
+                        </p>
+                      </div>
+                    );
+                  }
+                  if (isArmor(item)) {
+                    return (
+                      <div
+                        key={item.id}
+                        className="border border-border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-sm">{item.name}</h3>
+                          <span className="text-xs text-muted-foreground">{item.source}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {item.category} · AC {item.ac}
+                          {item.strengthRequirement ? ` · Str ${item.strengthRequirement}` : ''}
+                          {item.stealthDisadvantage ? ' · Stealth Disadv.' : ''}
+                        </p>
+                      </div>
+                    );
+                  }
+                  if (isGear(item)) {
+                    return (
+                      <div
+                        key={item.id}
+                        className="border border-border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-sm">{item.name}</h3>
+                          <span className="text-xs text-muted-foreground">{item.source}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {item.type === 'consumable' ? 'Consumable' : 'Gear'}
+                          {item.cost ? ` · ${item.cost}` : ''}
+                          {item.weight ? ` · ${item.weight} lbs` : ''}
+                          {item.quantity ? ` · x${item.quantity}` : ''}
                         </p>
                       </div>
                     );

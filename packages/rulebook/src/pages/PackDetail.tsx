@@ -14,6 +14,9 @@ import {
   Database,
   Award,
   ScrollText,
+  Swords,
+  Shield,
+  Backpack,
 } from 'lucide-react';
 import { usePackDetailStore } from '../stores/packDetailStore';
 import { ContentTable } from '../components/content/ContentTable';
@@ -24,6 +27,7 @@ import type { ConfirmMode } from '../components/common/DeleteConfirmDialog';
 import manager from '../stores/contentManager';
 import { exportPack } from '@open20/content/io';
 import { ContentValidator } from '@open20/content/validator';
+import type { EditableContentPack } from '@open20/content/types';
 import { formatFileSize } from '../lib/utils';
 
 export function PackDetail() {
@@ -83,7 +87,7 @@ export function PackDetail() {
     setConfirmLoading(true);
     try {
       const { ContentEditor } = await import('@open20/content/editor');
-      const editor = new ContentEditor(pack as any);
+      const editor = new ContentEditor(pack as EditableContentPack);
       editor.removeSpell(pendingDeleteId);
       await manager.savePack(pack);
       await loadPack(id);
@@ -101,7 +105,7 @@ export function PackDetail() {
       if (!id || !pack) return;
       try {
         const { ContentEditor } = await import('@open20/content/editor');
-        const editor = new ContentEditor(pack as any);
+        const editor = new ContentEditor(pack as EditableContentPack);
         editor.updateSpell(spell.id, spell);
         await manager.savePack(pack);
         await loadPack(id);
@@ -116,7 +120,7 @@ export function PackDetail() {
   const handleExportAll = useCallback(async () => {
     if (!pack) return;
     try {
-      const json = exportPack(pack as any);
+      const json = exportPack(pack as EditableContentPack);
       const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -135,7 +139,7 @@ export function PackDetail() {
     if (!pack) return;
     try {
       const validator = new ContentValidator();
-      const report = validator.validatePack(pack as any);
+      const report = validator.validatePack(pack as EditableContentPack);
       let totalErrors = 0;
       let totalWarnings = 0;
       for (const result of Object.values(report.results)) {
@@ -178,7 +182,10 @@ export function PackDetail() {
       (pack.monsters?.length || 0) +
       (pack.species?.length || 0) +
       (pack.backgrounds?.length || 0) +
-      (pack.feats?.length || 0)
+      (pack.feats?.length || 0) +
+      (pack.weapons?.length || 0) +
+      (pack.armors?.length || 0) +
+      (pack.gears?.length || 0)
     );
   };
 
@@ -205,6 +212,9 @@ export function PackDetail() {
   const speciesCount = pack.species?.length || 0;
   const backgroundsCount = pack.backgrounds?.length || 0;
   const featsCount = pack.feats?.length || 0;
+  const weaponsCount = pack.weapons?.length || 0;
+  const armorsCount = pack.armors?.length || 0;
+  const gearsCount = pack.gears?.length || 0;
 
   return (
     <div>
@@ -280,6 +290,18 @@ export function PackDetail() {
           <Tabs.Trigger value="feats">
             <Award className="w-4 h-4 mr-2" />
             Feats ({featsCount})
+          </Tabs.Trigger>
+          <Tabs.Trigger value="weapons">
+            <Swords className="w-4 h-4 mr-2" />
+            Weapons ({weaponsCount})
+          </Tabs.Trigger>
+          <Tabs.Trigger value="armors">
+            <Shield className="w-4 h-4 mr-2" />
+            Armors ({armorsCount})
+          </Tabs.Trigger>
+          <Tabs.Trigger value="gears">
+            <Backpack className="w-4 h-4 mr-2" />
+            Gears ({gearsCount})
           </Tabs.Trigger>
         </Tabs.List>
 
@@ -453,6 +475,96 @@ export function PackDetail() {
                   onClick={() => navigate(`/rulebook/editor/${id}/feat`)}
                 >
                   + Add Feat
+                </Button>
+              )}
+            </div>
+          )}
+        </Tabs.Content>
+
+        <Tabs.Content value="weapons">
+          {weaponsCount > 0 ? (
+            <ContentTable
+              weapons={pack.weapons}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelectedId}
+              onSelectAll={(ids) => selectAll(ids)}
+              isReadOnly={isBuiltIn}
+              sourceLabel={pack.meta.name}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="text-4xl mb-4">⚔️</div>
+              <p className="text-lg font-medium mb-2">No weapons yet</p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                Add weapons to this content pack.
+              </p>
+              {!isBuiltIn && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/rulebook/editor/${id}/weapon`)}
+                >
+                  + Add Weapon
+                </Button>
+              )}
+            </div>
+          )}
+        </Tabs.Content>
+
+        <Tabs.Content value="armors">
+          {armorsCount > 0 ? (
+            <ContentTable
+              armors={pack.armors}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelectedId}
+              onSelectAll={(ids) => selectAll(ids)}
+              isReadOnly={isBuiltIn}
+              sourceLabel={pack.meta.name}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="text-4xl mb-4">🛡️</div>
+              <p className="text-lg font-medium mb-2">No armors yet</p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                Add armors and shields to this content pack.
+              </p>
+              {!isBuiltIn && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/rulebook/editor/${id}/armor`)}
+                >
+                  + Add Armor
+                </Button>
+              )}
+            </div>
+          )}
+        </Tabs.Content>
+
+        <Tabs.Content value="gears">
+          {gearsCount > 0 ? (
+            <ContentTable
+              gears={pack.gears}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelectedId}
+              onSelectAll={(ids) => selectAll(ids)}
+              isReadOnly={isBuiltIn}
+              sourceLabel={pack.meta.name}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="text-4xl mb-4">🎒</div>
+              <p className="text-lg font-medium mb-2">No gear yet</p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+                Add gear and equipment to this content pack.
+              </p>
+              {!isBuiltIn && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate(`/rulebook/editor/${id}/gear`)}
+                >
+                  + Add Gear
                 </Button>
               )}
             </div>

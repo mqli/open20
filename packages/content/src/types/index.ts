@@ -10,4 +10,9 @@ export type {
   SpeciesSize,
   BackgroundQuery,
   FeatQuery,
+  WeaponQuery,
+  WeaponCategory,
+  ArmorQuery,
+  ArmorCategory,
+  GearQuery,
 } from './query';

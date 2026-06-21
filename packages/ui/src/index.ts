@@ -140,6 +140,47 @@ export {
   FEAT_CATEGORIES,
 } from './components/rules/feat/editor/FeatEditor.types';
 
+// Weapon Editor
+export { WeaponEditor } from './components/rules/equipment/weapon/editor';
+export type {
+  WeaponEditorProps,
+  WeaponFormData,
+} from './components/rules/equipment/weapon/editor/WeaponEditor.types';
+export {
+  weaponToFormData,
+  formDataToWeapon,
+  DEFAULT_WEAPON_FORM_DATA,
+  WEAPON_CATEGORIES,
+  WEAPON_BASE_PROPERTIES,
+  WEAPON_MASTERY_PROPERTIES,
+} from './components/rules/equipment/weapon/editor/WeaponEditor.types';
+
+// Armor Editor
+export { ArmorEditor } from './components/rules/equipment/armor/editor';
+export type {
+  ArmorEditorProps,
+  ArmorFormData,
+} from './components/rules/equipment/armor/editor/ArmorEditor.types';
+export {
+  armorToFormData,
+  formDataToArmor,
+  DEFAULT_ARMOR_FORM_DATA,
+  ARMOR_CATEGORIES,
+} from './components/rules/equipment/armor/editor/ArmorEditor.types';
+
+// Gear Editor
+export { GearEditor } from './components/rules/equipment/gear/editor';
+export type {
+  GearEditorProps,
+  GearFormData,
+} from './components/rules/equipment/gear/editor/GearEditor.types';
+export {
+  gearToFormData,
+  formDataToGear,
+  DEFAULT_GEAR_FORM_DATA,
+  GEAR_TYPES,
+} from './components/rules/equipment/gear/editor/GearEditor.types';
+
 // Shadcn-style aliases for easier incremental migration.
 export const DialogRoot = Dialog.Root;
 export const DialogTrigger = Dialog.Trigger;

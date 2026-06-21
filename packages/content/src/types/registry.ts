@@ -5,12 +5,18 @@ import {
   SpeciesSchema,
   BackgroundSchema,
   FeatSchema,
+  WeaponSchema,
+  ArmorSchema,
+  GearSchema,
 } from '../validator/schemas';
 import { getSpellTemplate } from '../templates/spell-template';
 import { getMonsterTemplate } from '../templates/monster-template';
 import { getSpeciesTemplate } from '../templates/species-template';
 import { getBackgroundTemplate } from '../templates/background-template';
 import { getFeatTemplate } from '../templates/feat-template';
+import { getWeaponTemplate } from '../templates/weapon-template';
+import { getArmorTemplate } from '../templates/armor-template';
+import { getGearTemplate } from '../templates/gear-template';
 
 export type ContentTypeId =
   | 'species'
@@ -34,6 +40,7 @@ export interface ContentTypeDescriptor {
 
 // Phase 2: Spells and Monsters are registered.
 // Phase 3: Species, Backgrounds, Feats registered.
+// Phase 3 (Task P): Weapons, Armors, Gears registered.
 export const contentTypes: ContentTypeDescriptor[] = [
   { id: 'spells', name: 'Spells', schema: SpellSchema, template: getSpellTemplate },
   { id: 'monsters', name: 'Monsters', schema: MonsterSchema, template: getMonsterTemplate },
@@ -45,4 +52,7 @@ export const contentTypes: ContentTypeDescriptor[] = [
     template: getBackgroundTemplate,
   },
   { id: 'feats', name: 'Feats', schema: FeatSchema, template: getFeatTemplate },
+  { id: 'weapons', name: 'Weapons', schema: WeaponSchema, template: getWeaponTemplate },
+  { id: 'armors', name: 'Armors', schema: ArmorSchema, template: getArmorTemplate },
+  { id: 'gears', name: 'Gears', schema: GearSchema, template: getGearTemplate },
 ];

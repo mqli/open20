@@ -6,9 +6,13 @@ import {
   SpeciesEditor,
   BackgroundEditor,
   FeatEditor,
+  WeaponEditor,
+  ArmorEditor,
+  GearEditor,
   Button,
   Text,
 } from '@open20/ui';
+import type { Weapon, Armor, Gear } from 'open20-core';
 import { useContentEditorStore } from '../stores/contentEditorStore';
 import { parsePlainText, transformSpell } from '@open20/content/parser';
 import { ClipboardPaste } from 'lucide-react';
@@ -30,22 +34,34 @@ export function ContentEditor() {
     setSpecies,
     setBackground,
     setFeat,
+    setWeapon,
+    setArmor,
+    setGear,
     saveSpell,
     saveMonster,
     saveSpecies,
     saveBackground,
     saveFeat,
+    saveWeapon,
+    saveArmor,
+    saveGear,
     loadSpell,
     loadMonster,
     loadSpecies,
     loadBackground,
     loadFeat,
+    loadWeapon,
+    loadArmor,
+    loadGear,
   } = useContentEditorStore();
   const spell = useContentEditorStore((state) => state.spell);
   const monster = useContentEditorStore((state) => state.monster);
   const species = useContentEditorStore((state) => state.species);
   const background = useContentEditorStore((state) => state.background);
   const feat = useContentEditorStore((state) => state.feat);
+  const weapon = useContentEditorStore((state) => state.weapon);
+  const armor = useContentEditorStore((state) => state.armor);
+  const gear = useContentEditorStore((state) => state.gear);
 
   // Paste-from-text state (spells only)
   const [showPasteArea, setShowPasteArea] = useState(false);
@@ -83,6 +99,12 @@ export function ContentEditor() {
           loadBackground(packId, contentId);
         } else if (contentType === 'feat') {
           loadFeat(packId, contentId);
+        } else if (contentType === 'weapon') {
+          loadWeapon(packId, contentId);
+        } else if (contentType === 'armor') {
+          loadArmor(packId, contentId);
+        } else if (contentType === 'gear') {
+          loadGear(packId, contentId);
         } else {
           loadSpell(packId, contentId);
         }
@@ -98,6 +120,9 @@ export function ContentEditor() {
     loadSpecies,
     loadBackground,
     loadFeat,
+    loadWeapon,
+    loadArmor,
+    loadGear,
   ]);
 
   // Unsaved changes protection - beforeunload event
@@ -282,6 +307,93 @@ export function ContentEditor() {
           onChange={(updatedFeat) => setFeat(updatedFeat)}
           onSubmit={(_, intent) => {
             saveFeat(intent || 'stay');
+            if (intent === 'close' && packId) {
+              navigate(`/rulebook/packs/${packId}`);
+            }
+          }}
+          onCancel={handleCancel}
+          renderActions={renderContentActions}
+        />
+      </div>
+    );
+  }
+
+  // ── Weapon Editor ──
+  if (contentType === 'weapon') {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Text as="h1" variant="heading" className="mb-2">
+            {contentId ? 'Edit Weapon' : 'New Weapon'}
+          </Text>
+          <Text as="p" variant="body" className="text-muted-foreground">
+            {packId && `Pack: ${packId}`}
+            {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
+          </Text>
+        </div>
+        <WeaponEditor
+          value={weapon}
+          onChange={(updatedWeapon: Partial<Weapon>) => setWeapon(updatedWeapon)}
+          onSubmit={(_: Weapon, intent?: string) => {
+            saveWeapon((intent as 'stay' | 'new' | 'close') || 'stay');
+            if (intent === 'close' && packId) {
+              navigate(`/rulebook/packs/${packId}`);
+            }
+          }}
+          onCancel={handleCancel}
+          renderActions={renderContentActions}
+        />
+      </div>
+    );
+  }
+
+  // ── Armor Editor ──
+  if (contentType === 'armor') {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Text as="h1" variant="heading" className="mb-2">
+            {contentId ? 'Edit Armor' : 'New Armor'}
+          </Text>
+          <Text as="p" variant="body" className="text-muted-foreground">
+            {packId && `Pack: ${packId}`}
+            {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
+          </Text>
+        </div>
+        <ArmorEditor
+          value={armor}
+          onChange={(updatedArmor: Partial<Armor>) => setArmor(updatedArmor)}
+          onSubmit={(_: Armor, intent?: string) => {
+            saveArmor((intent as 'stay' | 'new' | 'close') || 'stay');
+            if (intent === 'close' && packId) {
+              navigate(`/rulebook/packs/${packId}`);
+            }
+          }}
+          onCancel={handleCancel}
+          renderActions={renderContentActions}
+        />
+      </div>
+    );
+  }
+
+  // ── Gear Editor ──
+  if (contentType === 'gear') {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Text as="h1" variant="heading" className="mb-2">
+            {contentId ? 'Edit Gear' : 'New Gear'}
+          </Text>
+          <Text as="p" variant="body" className="text-muted-foreground">
+            {packId && `Pack: ${packId}`}
+            {isDirty && <span className="ml-2 text-warning">• Unsaved changes</span>}
+          </Text>
+        </div>
+        <GearEditor
+          value={gear}
+          onChange={(updatedGear: Partial<Gear>) => setGear(updatedGear)}
+          onSubmit={(_: Gear, intent?: string) => {
+            saveGear((intent as 'stay' | 'new' | 'close') || 'stay');
             if (intent === 'close' && packId) {
               navigate(`/rulebook/packs/${packId}`);
             }

@@ -97,6 +97,39 @@ export function importPack(json: string): EditableContentPack {
     }
   }
 
+  // Validate weapons if present
+  if (pack.weapons) {
+    for (const weapon of pack.weapons) {
+      const result = validator.validateWeapon(weapon);
+      if (!result.valid) {
+        const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
+        throw new Error(`Invalid weapon "${weapon.name || weapon.id}": ${errors}`);
+      }
+    }
+  }
+
+  // Validate armors if present
+  if (pack.armors) {
+    for (const armor of pack.armors) {
+      const result = validator.validateArmor(armor);
+      if (!result.valid) {
+        const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
+        throw new Error(`Invalid armor "${armor.name || armor.id}": ${errors}`);
+      }
+    }
+  }
+
+  // Validate gears if present
+  if (pack.gears) {
+    for (const gear of pack.gears) {
+      const result = validator.validateGear(gear);
+      if (!result.valid) {
+        const errors = result.errors.map((e) => `${e.path}: ${e.message}`).join(', ');
+        throw new Error(`Invalid gear "${gear.name || gear.id}": ${errors}`);
+      }
+    }
+  }
+
   return pack as EditableContentPack;
 }
 

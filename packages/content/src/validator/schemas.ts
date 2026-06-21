@@ -240,7 +240,7 @@ const SpeciesSubtypeSchema = z.object({
 
 // ---- Background sub-schemas ----
 
-const GearSchema = z
+const BackgroundGearSchema = z
   .object({
     id: z.string().min(1),
     name: z.string().min(1),
@@ -339,7 +339,7 @@ export const BackgroundSchema = z
     toolProficiencies: z.array(z.string()),
     languages: z.array(z.string()),
     originFeatId: z.string().min(1),
-    startingEquipment: z.array(GearSchema).optional(),
+    startingEquipment: z.array(BackgroundGearSchema).optional(),
     startingGold: z.number(),
   })
   .strict();
@@ -356,6 +356,122 @@ export const FeatSchema = z
     prerequisites: FeatPrerequisiteSchema.optional(),
     grants: z.array(FeatGrantSchema).optional(),
     repeatable: z.boolean().optional(),
+  })
+  .strict();
+
+// ---- SpellSchema ----
+
+// ---- Weapon sub-schemas ----
+
+const WeaponCategorySchema = z.enum(['Simple', 'Martial']);
+
+const WeaponDamageEntrySchema = z.object({
+  dice: z.string(),
+  type: z.string(),
+});
+
+const WeaponDamageSchema = z.object({
+  entries: z.array(WeaponDamageEntrySchema).min(1),
+  ability: z.enum(['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma']),
+  bonus: z.number(),
+});
+
+const WeaponRangeSchema = z.object({
+  normal: z.number(),
+  maximum: z.number().optional(),
+});
+
+const WeaponMasteryPropertySchema = z.enum([
+  'Cleave',
+  'Graze',
+  'Nick',
+  'Push',
+  'Sap',
+  'Slow',
+  'Topple',
+  'Vex',
+]);
+
+const WeaponPropertySchema = z.union([
+  z.enum([
+    'Ammunition',
+    'Finesse',
+    'Heavy',
+    'Light',
+    'Loading',
+    'Range',
+    'Reach',
+    'Special',
+    'Thrown',
+    'Two-Handed',
+    'Versatile',
+  ]),
+  WeaponMasteryPropertySchema,
+]);
+
+// ---- WeaponSchema ----
+
+export const WeaponSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    source: z.string().min(1),
+    type: z.literal('weapon'),
+    category: WeaponCategorySchema,
+    damage: WeaponDamageSchema,
+    properties: z.array(WeaponPropertySchema),
+    mastery: z.array(WeaponMasteryPropertySchema).optional(),
+    range: WeaponRangeSchema.optional(),
+    versatileDamage: z.string().optional(),
+    weight: z.number().default(0),
+    cost: z.string().optional(),
+    equipped: z.boolean().default(false),
+  })
+  .strict();
+
+// ---- Armor sub-schemas ----
+
+const ArmorCategorySchema = z.enum(['Light', 'Medium', 'Heavy', 'Shield']);
+
+const ArmorCostSchema = z.object({
+  quantity: z.number(),
+  unit: z.string(),
+});
+
+// ---- ArmorSchema ----
+
+export const ArmorSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    source: z.string().min(1),
+    category: ArmorCategorySchema,
+    ac: z.number(),
+    dexBonus: z.boolean(),
+    maxDexBonus: z.number().nullable().optional(),
+    strengthRequirement: z.number().optional(),
+    stealthDisadvantage: z.boolean().optional(),
+    weight: z.number().default(0),
+    cost: ArmorCostSchema.optional(),
+  })
+  .strict();
+
+// ---- Gear sub-schemas ----
+
+const GearTypeSchema = z.enum(['gears', 'consumable']);
+
+// ---- GearSchema ----
+
+export const GearSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    source: z.string().min(1),
+    type: GearTypeSchema,
+    weight: z.number().default(0),
+    cost: z.string().optional(),
+    equipped: z.boolean().default(false),
+    quantity: z.number().optional(),
   })
   .strict();
 

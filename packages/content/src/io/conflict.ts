@@ -108,6 +108,21 @@ export function checkImportConflicts(
   const targetFeats = (targetPack.feats || []) as Identifiable[];
   conflicts.push(...detectTypeConflicts(sourceFeats, targetFeats, 'feats'));
 
+  // Weapons
+  const sourceWeapons = (sourcePack.weapons || []) as Identifiable[];
+  const targetWeapons = (targetPack.weapons || []) as Identifiable[];
+  conflicts.push(...detectTypeConflicts(sourceWeapons, targetWeapons, 'weapons'));
+
+  // Armors
+  const sourceArmors = (sourcePack.armors || []) as Identifiable[];
+  const targetArmors = (targetPack.armors || []) as Identifiable[];
+  conflicts.push(...detectTypeConflicts(sourceArmors, targetArmors, 'armors'));
+
+  // Gears
+  const sourceGears = (sourcePack.gears || []) as Identifiable[];
+  const targetGears = (targetPack.gears || []) as Identifiable[];
+  conflicts.push(...detectTypeConflicts(sourceGears, targetGears, 'gears'));
+
   return conflicts;
 }
 
@@ -221,6 +236,33 @@ export function importWithResolutions(
   imported += featResult.imported;
   skipped += featResult.skipped;
   replaced += featResult.replaced;
+
+  // Weapons
+  const sourceWeapons = (sourcePack.weapons || []) as Identifiable[];
+  if (!targetPack.weapons) targetPack.weapons = [];
+  const targetWeapons = targetPack.weapons as unknown as Identifiable[];
+  const weaponResult = resolveTypeImport(sourceWeapons, targetWeapons, 'weapons', resolutions);
+  imported += weaponResult.imported;
+  skipped += weaponResult.skipped;
+  replaced += weaponResult.replaced;
+
+  // Armors
+  const sourceArmors = (sourcePack.armors || []) as Identifiable[];
+  if (!targetPack.armors) targetPack.armors = [];
+  const targetArmors = targetPack.armors as unknown as Identifiable[];
+  const armorResult = resolveTypeImport(sourceArmors, targetArmors, 'armors', resolutions);
+  imported += armorResult.imported;
+  skipped += armorResult.skipped;
+  replaced += armorResult.replaced;
+
+  // Gears
+  const sourceGears = (sourcePack.gears || []) as Identifiable[];
+  if (!targetPack.gears) targetPack.gears = [];
+  const targetGears = targetPack.gears as unknown as Identifiable[];
+  const gearResult = resolveTypeImport(sourceGears, targetGears, 'gears', resolutions);
+  imported += gearResult.imported;
+  skipped += gearResult.skipped;
+  replaced += gearResult.replaced;
 
   return { imported, skipped, replaced, conflicts };
 }

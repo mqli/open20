@@ -1,10 +1,13 @@
-import type { Spell, Monster, Species, Background, Feat } from 'open20-core';
+import type { Spell, Monster, Species, Background, Feat, Weapon, Armor, Gear } from 'open20-core';
 import type {
   SpellQuery,
   MonsterQuery,
   SpeciesQuery,
   BackgroundQuery,
   FeatQuery,
+  WeaponQuery,
+  ArmorQuery,
+  GearQuery,
 } from '../types/query';
 import type { ContentPackManager } from '../manager/content-pack-manager';
 
@@ -471,6 +474,198 @@ export class ContentBrowser {
           return multiplier * (a.name || a.id).localeCompare(b.name || b.id);
         case 'category':
           return multiplier * a.category.localeCompare(b.category);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }
+
+  // ── Weapon methods ──────────────────────────────────────
+
+  async getAllWeapons(): Promise<Weapon[]> {
+    const packs = await this.manager.listPacks();
+    const weapons: Weapon[] = [];
+
+    for (const pack of packs) {
+      if (!this.manager.isPackEnabled(pack.id)) continue;
+      const loaded = await this.manager.loadPack(pack.id);
+      if (loaded === null) continue;
+      const packWeapons = loaded.weapons ?? [];
+      weapons.push(...packWeapons);
+    }
+    return weapons;
+  }
+
+  async getWeaponsByPack(packId: string): Promise<Weapon[]> {
+    const pack = await this.manager.loadPack(packId);
+    if (pack === null) return [];
+    return pack.weapons ?? [];
+  }
+
+  async searchWeapons(query: WeaponQuery): Promise<Weapon[]> {
+    const weapons = await this.getAllWeapons();
+
+    const filtered = weapons.filter((weapon) => {
+      if (query.name !== undefined && query.name !== '') {
+        if (!weapon.name.toLowerCase().includes(query.name.toLowerCase())) {
+          return false;
+        }
+      }
+      if (query.category !== undefined) {
+        if (weapon.category !== query.category) {
+          return false;
+        }
+      }
+      if (query.damageType !== undefined && query.damageType !== '') {
+        const hasDamageType = weapon.damage.entries.some((e) => e.type === query.damageType);
+        if (!hasDamageType) {
+          return false;
+        }
+      }
+      if (query.source !== undefined && query.source !== '') {
+        if (weapon.source !== query.source) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const sortBy = query.sortBy ?? 'name';
+    const sortOrder = query.sortOrder ?? 'asc';
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return multiplier * a.name.localeCompare(b.name);
+        case 'category':
+          return multiplier * a.category.localeCompare(b.category);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }
+
+  // ── Armor methods ───────────────────────────────────────
+
+  async getAllArmors(): Promise<Armor[]> {
+    const packs = await this.manager.listPacks();
+    const armors: Armor[] = [];
+
+    for (const pack of packs) {
+      if (!this.manager.isPackEnabled(pack.id)) continue;
+      const loaded = await this.manager.loadPack(pack.id);
+      if (loaded === null) continue;
+      const packArmors = loaded.armors ?? [];
+      armors.push(...packArmors);
+    }
+    return armors;
+  }
+
+  async getArmorsByPack(packId: string): Promise<Armor[]> {
+    const pack = await this.manager.loadPack(packId);
+    if (pack === null) return [];
+    return pack.armors ?? [];
+  }
+
+  async searchArmors(query: ArmorQuery): Promise<Armor[]> {
+    const armors = await this.getAllArmors();
+
+    const filtered = armors.filter((armor) => {
+      if (query.name !== undefined && query.name !== '') {
+        if (!armor.name.toLowerCase().includes(query.name.toLowerCase())) {
+          return false;
+        }
+      }
+      if (query.category !== undefined) {
+        if (armor.category !== query.category) {
+          return false;
+        }
+      }
+      if (query.source !== undefined && query.source !== '') {
+        if (armor.source !== query.source) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const sortBy = query.sortBy ?? 'name';
+    const sortOrder = query.sortOrder ?? 'asc';
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return multiplier * a.name.localeCompare(b.name);
+        case 'category':
+          return multiplier * a.category.localeCompare(b.category);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }
+
+  // ── Gear methods ────────────────────────────────────────
+
+  async getAllGears(): Promise<Gear[]> {
+    const packs = await this.manager.listPacks();
+    const gears: Gear[] = [];
+
+    for (const pack of packs) {
+      if (!this.manager.isPackEnabled(pack.id)) continue;
+      const loaded = await this.manager.loadPack(pack.id);
+      if (loaded === null) continue;
+      const packGears = loaded.gears ?? [];
+      gears.push(...packGears);
+    }
+    return gears;
+  }
+
+  async getGearsByPack(packId: string): Promise<Gear[]> {
+    const pack = await this.manager.loadPack(packId);
+    if (pack === null) return [];
+    return pack.gears ?? [];
+  }
+
+  async searchGears(query: GearQuery): Promise<Gear[]> {
+    const gears = await this.getAllGears();
+
+    const filtered = gears.filter((gear) => {
+      if (query.name !== undefined && query.name !== '') {
+        if (!gear.name.toLowerCase().includes(query.name.toLowerCase())) {
+          return false;
+        }
+      }
+      if (query.type !== undefined && query.type !== '') {
+        if (gear.type !== query.type) {
+          return false;
+        }
+      }
+      if (query.source !== undefined && query.source !== '') {
+        if (gear.source !== query.source) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const sortBy = query.sortBy ?? 'name';
+    const sortOrder = query.sortOrder ?? 'asc';
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return multiplier * a.name.localeCompare(b.name);
+        case 'type':
+          return multiplier * a.type.localeCompare(b.type);
         default:
           return 0;
       }

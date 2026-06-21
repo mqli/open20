@@ -1,8 +1,27 @@
 import { useState } from 'react';
-import type { Spell, Monster, Species, Background, Feat } from 'open20-core';
-import { BookOpen, Skull, User, ScrollText, Award, Pencil, Trash2 } from 'lucide-react';
+import type { Spell, Monster, Species, Background, Feat, Weapon, Armor, Gear } from 'open20-core';
+import {
+  BookOpen,
+  Skull,
+  User,
+  ScrollText,
+  Award,
+  Swords,
+  Shield,
+  Backpack,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 
-type TableMode = 'spells' | 'monsters' | 'species' | 'backgrounds' | 'feats';
+type TableMode =
+  | 'spells'
+  | 'monsters'
+  | 'species'
+  | 'backgrounds'
+  | 'feats'
+  | 'weapons'
+  | 'armors'
+  | 'gears';
 
 interface ContentTableProps {
   spells?: Spell[];
@@ -10,6 +29,9 @@ interface ContentTableProps {
   species?: Species[];
   backgrounds?: Background[];
   feats?: Feat[];
+  weapons?: Weapon[];
+  armors?: Armor[];
+  gears?: Gear[];
   selectedIds: string[];
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -26,6 +48,9 @@ export function ContentTable({
   species,
   backgrounds,
   feats,
+  weapons,
+  armors,
+  gears,
   selectedIds,
   onEdit,
   onDelete,
@@ -42,6 +67,9 @@ export function ContentTable({
   else if (species) mode = 'species';
   else if (backgrounds) mode = 'backgrounds';
   else if (feats) mode = 'feats';
+  else if (weapons) mode = 'weapons';
+  else if (armors) mode = 'armors';
+  else if (gears) mode = 'gears';
 
   const items = (() => {
     switch (mode) {
@@ -53,6 +81,12 @@ export function ContentTable({
         return backgrounds ?? [];
       case 'feats':
         return feats ?? [];
+      case 'weapons':
+        return weapons ?? [];
+      case 'armors':
+        return armors ?? [];
+      case 'gears':
+        return gears ?? [];
       default:
         return spells ?? [];
     }
@@ -98,6 +132,27 @@ export function ContentTable({
                 <th className="text-left p-2 text-text-secondary text-sm font-medium">Type</th>
                 <th className="text-left p-2 text-text-secondary text-sm font-medium">Size</th>
                 <th className="text-left p-2 text-text-secondary text-sm font-medium">CR</th>
+              </>
+            )}
+            {mode === 'weapons' && (
+              <>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Category</th>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Damage</th>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Weight</th>
+              </>
+            )}
+            {mode === 'armors' && (
+              <>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Category</th>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">AC</th>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Weight</th>
+              </>
+            )}
+            {mode === 'gears' && (
+              <>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Type</th>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Cost</th>
+                <th className="text-left p-2 text-text-secondary text-sm font-medium">Weight</th>
               </>
             )}
             <th className="text-left p-2 text-text-secondary text-sm font-medium">Source</th>
@@ -270,6 +325,73 @@ export function ContentTable({
                   {f.repeatable ? 'Repeatable' : '-'}
                 </td>
                 <td className="p-2 text-text-primary text-xs">{sourceLabel || f.source}</td>
+              </tr>
+            ))}
+          {mode === 'weapons' &&
+            weapons?.map((w) => (
+              <tr key={w.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                <td className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(w.id)}
+                    onChange={() => handleToggleSelect(w.id)}
+                    className="cursor-pointer"
+                  />
+                </td>
+                <td className="p-2">
+                  <Swords className="w-4 h-4 text-text-secondary" />
+                </td>
+                <td className="p-2 text-text-primary font-medium">{w.name}</td>
+                <td className="p-2 text-text-primary">{w.category}</td>
+                <td className="p-2 text-text-primary">
+                  {w.damage.entries[0]?.dice ?? '?'} {w.damage.entries[0]?.type ?? ''}
+                </td>
+                <td className="p-2 text-text-primary">{w.weight} lbs</td>
+                <td className="p-2 text-text-primary text-xs">{sourceLabel || w.source}</td>
+              </tr>
+            ))}
+          {mode === 'armors' &&
+            armors?.map((a) => (
+              <tr key={a.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                <td className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(a.id)}
+                    onChange={() => handleToggleSelect(a.id)}
+                    className="cursor-pointer"
+                  />
+                </td>
+                <td className="p-2">
+                  <Shield className="w-4 h-4 text-text-secondary" />
+                </td>
+                <td className="p-2 text-text-primary font-medium">{a.name}</td>
+                <td className="p-2 text-text-primary">{a.category}</td>
+                <td className="p-2 text-text-primary">AC {a.ac}</td>
+                <td className="p-2 text-text-primary">{a.weight} lbs</td>
+                <td className="p-2 text-text-primary text-xs">{sourceLabel || a.source}</td>
+              </tr>
+            ))}
+          {mode === 'gears' &&
+            gears?.map((g) => (
+              <tr key={g.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                <td className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(g.id)}
+                    onChange={() => handleToggleSelect(g.id)}
+                    className="cursor-pointer"
+                  />
+                </td>
+                <td className="p-2">
+                  <Backpack className="w-4 h-4 text-text-secondary" />
+                </td>
+                <td className="p-2 text-text-primary font-medium">{g.name}</td>
+                <td className="p-2 text-text-primary text-xs">
+                  {g.type === 'consumable' ? 'Consumable' : 'Gear'}
+                </td>
+                <td className="p-2 text-text-primary text-xs">{g.cost || '-'}</td>
+                <td className="p-2 text-text-primary">{g.weight} lbs</td>
+                <td className="p-2 text-text-primary text-xs">{sourceLabel || g.source}</td>
               </tr>
             ))}
         </tbody>

@@ -54,3 +54,32 @@ export interface FeatQuery {
   sortBy?: 'name' | 'category';
   sortOrder?: 'asc' | 'desc';
 }
+
+export type WeaponCategory = 'Simple' | 'Martial';
+
+export interface WeaponQuery {
+  name?: string; // Case-insensitive substring match
+  category?: WeaponCategory; // Exact match
+  damageType?: string; // Exact match on damage entries
+  source?: string; // Exact match on source field
+  sortBy?: 'name' | 'category';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export type ArmorCategory = 'Light' | 'Medium' | 'Heavy' | 'Shield';
+
+export interface ArmorQuery {
+  name?: string; // Case-insensitive substring match
+  category?: ArmorCategory; // Exact match
+  source?: string; // Exact match on source field
+  sortBy?: 'name' | 'category';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface GearQuery {
+  name?: string; // Case-insensitive substring match
+  type?: string; // Exact match: 'gears' | 'consumable'
+  source?: string; // Exact match on source field
+  sortBy?: 'name' | 'type';
+  sortOrder?: 'asc' | 'desc';
+}
