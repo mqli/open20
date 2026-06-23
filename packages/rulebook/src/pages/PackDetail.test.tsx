@@ -95,7 +95,27 @@ describe('PackDetail', () => {
     expect(screen.getByText(/Species \(0\)/)).toBeInTheDocument();
   });
 
-  it('renders content table', () => {
+  it('renders content table', async () => {
+    const usePackDetailStore = await getPackDetailStore();
+    vi.mocked(usePackDetailStore).mockReturnValue({
+      pack: {
+        meta: { id: 'test-pack', name: 'Test Pack', version: '1.0.0', source: 'Homebrew' },
+        spells: [{ id: 'fireball', name: 'Fireball' }],
+        monsters: [],
+        species: [],
+      },
+      loading: false,
+      error: null,
+      activeTab: 'all',
+      selectedIds: [],
+      inlineEditSpell: null,
+      isBuiltIn: false,
+      loadPack: vi.fn(),
+      setActiveTab: vi.fn(),
+      toggleSelectedId: vi.fn(),
+      selectAll: vi.fn(),
+      setInlineEditSpell: vi.fn(),
+    } as any);
     renderPackDetail();
     expect(screen.getByTestId('content-table')).toBeInTheDocument();
   });

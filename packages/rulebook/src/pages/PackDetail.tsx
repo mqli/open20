@@ -1,29 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Spell } from 'open20-core';
-import { Tabs, Button, Input } from '@open20/ui';
-import {
-  ArrowLeft,
-  FileDown,
-  CheckCircle2,
-  Search,
-  Filter,
-  BookOpen,
-  Skull,
-  User,
-  Database,
-  Award,
-  ScrollText,
-  Swords,
-  Shield,
-  Backpack,
-} from 'lucide-react';
+import { Tabs, Button } from '@open20/ui';
+import { ArrowLeft, FileDown, CheckCircle2, Database } from 'lucide-react';
 import { usePackDetailStore } from '../stores/packDetailStore';
-import { ContentTable } from '../components/content/ContentTable';
 import { InlineEditPanel } from '../components/editor/InlineEditPanel';
-import { AddContentButton } from '../components/common/AddContentButton';
 import { DeleteConfirmDialog } from '../components/common/DeleteConfirmDialog';
 import type { ConfirmMode } from '../components/common/DeleteConfirmDialog';
+import { ContentTabPanel } from '../components/pack/ContentTabPanel';
+import { AllTabContent } from '../components/pack/AllTabContent';
+import {
+  CONTENT_TYPES,
+  getContentCounts,
+  buildSections,
+} from '../components/pack/pack-detail-types';
 import manager from '../stores/contentManager';
 import { exportPack } from '@open20/content/io';
 import { ContentValidator } from '@open20/content/validator';
@@ -49,23 +39,19 @@ export function PackDetail() {
   } = usePackDetailStore();
 
   const [searchQuery, setSearchQuery] = useState('');
-
-  // DeleteConfirmDialog state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState<ConfirmMode>('delete-content');
   const [confirmItems, setConfirmItems] = useState<string[]>([]);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
-
-  // External validation state
   const [validationResult, setValidationResult] = useState<string | null>(null);
 
+  // ---- Data loading ----
   useEffect(() => {
-    if (id) {
-      loadPack(id);
-    }
+    if (id) loadPack(id);
   }, [id, loadPack]);
 
+  // ---- Spell event handlers ----
   const handleEdit = (spellId: string) => {
     navigate(`/rulebook/editor/${id}/spell/${spellId}`);
   };
@@ -117,6 +103,7 @@ export function PackDetail() {
     [id, pack, loadPack, setInlineEditSpell],
   );
 
+  // ---- Pack-level actions ----
   const handleExportAll = useCallback(async () => {
     if (!pack) return;
     try {
@@ -167,31 +154,31 @@ export function PackDetail() {
     }
   }, [pack]);
 
-  const getFilteredSpells = () => {
-    if (!pack?.spells) return [];
-    if (!searchQuery) return pack.spells;
-
-    const query = searchQuery.toLowerCase();
-    return pack.spells.filter((spell: Spell) => spell.name.toLowerCase().includes(query));
+  // ---- Content filtering ----
+  const getFilteredItems = <T extends { name?: string; id: string }>(
+    items: T[] | undefined,
+    query: string,
+  ): T[] => {
+    if (!items) return [];
+    if (!query) return items;
+    const q = query.toLowerCase();
+    return items.filter((item) => {
+      const name = ('name' in item && item.name) || item.id;
+      return name.toLowerCase().includes(q);
+    });
   };
 
-  const getContentCount = () => {
-    if (!pack) return 0;
-    return (
-      (pack.spells?.length || 0) +
-      (pack.monsters?.length || 0) +
-      (pack.species?.length || 0) +
-      (pack.backgrounds?.length || 0) +
-      (pack.feats?.length || 0) +
-      (pack.weapons?.length || 0) +
-      (pack.armors?.length || 0) +
-      (pack.gears?.length || 0)
-    );
-  };
+  const filteredSpells = getFilteredItems(pack?.spells, searchQuery);
+  const filteredMonsters = getFilteredItems(pack?.monsters, searchQuery);
+  const filteredSpecies = getFilteredItems(pack?.species, searchQuery);
+  const filteredBackgrounds = getFilteredItems(pack?.backgrounds, searchQuery);
+  const filteredFeats = getFilteredItems(pack?.feats, searchQuery);
+  const filteredWeapons = getFilteredItems(pack?.weapons, searchQuery);
+  const filteredArmors = getFilteredItems(pack?.armors, searchQuery);
+  const filteredGears = getFilteredItems(pack?.gears, searchQuery);
 
-  if (loading) {
-    return <div className="text-text-primary">Loading...</div>;
-  }
+  // ---- Render states ----
+  if (loading) return <div className="text-text-primary">Loading...</div>;
 
   if (error) {
     return (
@@ -201,23 +188,34 @@ export function PackDetail() {
     );
   }
 
-  if (!pack) {
-    return <div className="text-text-primary">Pack not found</div>;
+  if (!pack) return <div className="text-text-primary">Pack not found</div>;
+
+  const counts = getContentCounts(pack);
+  const contentCount = counts.total;
+
+  // Build filtered-items map for All tab
+  const filteredMap = new Map();
+  for (const ct of CONTENT_TYPES) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered = getFilteredItems(pack[ct.tabKey] as any, searchQuery);
+    filteredMap.set(ct, filtered);
   }
 
-  const filteredSpells = getFilteredSpells();
-  const contentCount = getContentCount();
-  const spellsCount = pack.spells?.length || 0;
-  const monstersCount = pack.monsters?.length || 0;
-  const speciesCount = pack.species?.length || 0;
-  const backgroundsCount = pack.backgrounds?.length || 0;
-  const featsCount = pack.feats?.length || 0;
-  const weaponsCount = pack.weapons?.length || 0;
-  const armorsCount = pack.armors?.length || 0;
-  const gearsCount = pack.gears?.length || 0;
+  // Map tab key → filtered items for ContentTabPanel
+  const filteredByType: Record<string, Record<string, unknown>[]> = {
+    spells: filteredSpells as unknown as Record<string, unknown>[],
+    monsters: filteredMonsters as unknown as Record<string, unknown>[],
+    species: filteredSpecies as unknown as Record<string, unknown>[],
+    backgrounds: filteredBackgrounds as unknown as Record<string, unknown>[],
+    feats: filteredFeats as unknown as Record<string, unknown>[],
+    weapons: filteredWeapons as unknown as Record<string, unknown>[],
+    armors: filteredArmors as unknown as Record<string, unknown>[],
+    gears: filteredGears as unknown as Record<string, unknown>[],
+  };
 
   return (
     <div>
+      {/* Header */}
       <div className="mb-6">
         <Link
           to="/rulebook"
@@ -241,6 +239,7 @@ export function PackDetail() {
         </p>
       </div>
 
+      {/* Actions bar */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportAll}>
@@ -256,6 +255,7 @@ export function PackDetail() {
           {contentCount} items · {formatFileSize(getPackJSONSize())}
         </span>
       </div>
+
       {validationResult && (
         <div className="mb-4 p-3 bg-bg-secondary border border-border rounded-md text-sm text-text-primary">
           {validationResult}
@@ -268,322 +268,70 @@ export function PackDetail() {
         </div>
       )}
 
+      {/* Tabs */}
       <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
         <Tabs.List>
           <Tabs.Trigger value="all">All ({contentCount})</Tabs.Trigger>
-          <Tabs.Trigger value="spells">
-            <BookOpen className="w-4 h-4 mr-2" />
-            Spells ({spellsCount})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="monsters">
-            <Skull className="w-4 h-4 mr-2" />
-            Monsters ({monstersCount})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="species">
-            <User className="w-4 h-4 mr-2" />
-            Species ({speciesCount})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="backgrounds">
-            <ScrollText className="w-4 h-4 mr-2" />
-            Backgrounds ({backgroundsCount})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="feats">
-            <Award className="w-4 h-4 mr-2" />
-            Feats ({featsCount})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="weapons">
-            <Swords className="w-4 h-4 mr-2" />
-            Weapons ({weaponsCount})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="armors">
-            <Shield className="w-4 h-4 mr-2" />
-            Armors ({armorsCount})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="gears">
-            <Backpack className="w-4 h-4 mr-2" />
-            Gears ({gearsCount})
-          </Tabs.Trigger>
+          {CONTENT_TYPES.map((ct) => {
+            const Icon = ct.icon;
+            return (
+              <Tabs.Trigger key={ct.tabKey} value={ct.tabKey}>
+                <Icon className="w-4 h-4 mr-2" />
+                {ct.label} ({counts[ct.tabKey]})
+              </Tabs.Trigger>
+            );
+          })}
         </Tabs.List>
 
         <Tabs.Content value="all">
-          <div className="mb-4 flex gap-2">
-            <div className="flex-1 relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            {!isBuiltIn && <AddContentButton packId={id} />}
-          </div>
-          <ContentTable
-            spells={filteredSpells}
+          <AllTabContent
+            packId={id}
+            packName={pack.meta.name}
+            contentCount={contentCount}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isBuiltIn={isBuiltIn}
             selectedIds={selectedIds}
+            onToggleSelect={toggleSelectedId}
+            onSelectAll={selectAll}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onToggleSelect={toggleSelectedId}
-            onSelectAll={(ids) => selectAll(ids)}
-            isReadOnly={isBuiltIn}
+            sections={buildSections(filteredMap)}
           />
         </Tabs.Content>
 
-        <Tabs.Content value="spells">
-          <div className="mb-4 flex gap-2">
-            <div className="flex-1 relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            {!isBuiltIn && <AddContentButton packId={id} />}
-          </div>
-          <ContentTable
-            spells={filteredSpells}
-            selectedIds={selectedIds}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggleSelect={toggleSelectedId}
-            onSelectAll={(ids) => selectAll(ids)}
-            isReadOnly={isBuiltIn}
-          />
-        </Tabs.Content>
-
-        <Tabs.Content value="monsters">
-          {monstersCount > 0 ? (
-            <ContentTable
-              monsters={pack.monsters}
+        {CONTENT_TYPES.map((ct) => (
+          <Tabs.Content key={ct.tabKey} value={ct.tabKey}>
+            <ContentTabPanel
+              packId={id}
+              contentType={ct}
+              items={filteredByType[ct.tabKey] ?? []}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              isBuiltIn={isBuiltIn}
               selectedIds={selectedIds}
               onToggleSelect={toggleSelectedId}
-              onSelectAll={(ids) => selectAll(ids)}
-              isReadOnly={isBuiltIn}
+              onSelectAll={selectAll}
               sourceLabel={pack.meta.name}
+              onEdit={ct.tabKey === 'spells' ? handleEdit : undefined}
+              onDelete={ct.tabKey === 'spells' ? handleDelete : undefined}
             />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="text-4xl mb-4">👹</div>
-              <p className="text-lg font-medium mb-2">No monsters yet</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                Add creatures, NPCs, and monsters to this content pack.
-              </p>
-              {!isBuiltIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate(`/rulebook/editor/${id}/monster`)}
-                >
-                  + Add Monster
-                </Button>
-              )}
-            </div>
-          )}
-        </Tabs.Content>
-
-        <Tabs.Content value="species">
-          {speciesCount > 0 ? (
-            <ContentTable
-              species={pack.species}
-              selectedIds={selectedIds}
-              onToggleSelect={toggleSelectedId}
-              onSelectAll={(ids) => selectAll(ids)}
-              isReadOnly={isBuiltIn}
-              sourceLabel={pack.meta.name}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="text-4xl mb-4">🧝</div>
-              <p className="text-lg font-medium mb-2">No species yet</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                Add playable species and races to this content pack.
-              </p>
-              {!isBuiltIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate(`/rulebook/editor/${id}/species`)}
-                >
-                  + Add Species
-                </Button>
-              )}
-            </div>
-          )}
-        </Tabs.Content>
-
-        <Tabs.Content value="backgrounds">
-          {backgroundsCount > 0 ? (
-            <ContentTable
-              backgrounds={pack.backgrounds}
-              selectedIds={selectedIds}
-              onToggleSelect={toggleSelectedId}
-              onSelectAll={(ids) => selectAll(ids)}
-              isReadOnly={isBuiltIn}
-              sourceLabel={pack.meta.name}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="text-4xl mb-4">📜</div>
-              <p className="text-lg font-medium mb-2">No backgrounds yet</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                Add character backgrounds to this content pack.
-              </p>
-              {!isBuiltIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate(`/rulebook/editor/${id}/background`)}
-                >
-                  + Add Background
-                </Button>
-              )}
-            </div>
-          )}
-        </Tabs.Content>
-
-        <Tabs.Content value="feats">
-          {featsCount > 0 ? (
-            <ContentTable
-              feats={pack.feats}
-              selectedIds={selectedIds}
-              onToggleSelect={toggleSelectedId}
-              onSelectAll={(ids) => selectAll(ids)}
-              isReadOnly={isBuiltIn}
-              sourceLabel={pack.meta.name}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="text-4xl mb-4">🏆</div>
-              <p className="text-lg font-medium mb-2">No feats yet</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                Add feats and talents to this content pack.
-              </p>
-              {!isBuiltIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate(`/rulebook/editor/${id}/feat`)}
-                >
-                  + Add Feat
-                </Button>
-              )}
-            </div>
-          )}
-        </Tabs.Content>
-
-        <Tabs.Content value="weapons">
-          {weaponsCount > 0 ? (
-            <ContentTable
-              weapons={pack.weapons}
-              selectedIds={selectedIds}
-              onToggleSelect={toggleSelectedId}
-              onSelectAll={(ids) => selectAll(ids)}
-              isReadOnly={isBuiltIn}
-              sourceLabel={pack.meta.name}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="text-4xl mb-4">⚔️</div>
-              <p className="text-lg font-medium mb-2">No weapons yet</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                Add weapons to this content pack.
-              </p>
-              {!isBuiltIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate(`/rulebook/editor/${id}/weapon`)}
-                >
-                  + Add Weapon
-                </Button>
-              )}
-            </div>
-          )}
-        </Tabs.Content>
-
-        <Tabs.Content value="armors">
-          {armorsCount > 0 ? (
-            <ContentTable
-              armors={pack.armors}
-              selectedIds={selectedIds}
-              onToggleSelect={toggleSelectedId}
-              onSelectAll={(ids) => selectAll(ids)}
-              isReadOnly={isBuiltIn}
-              sourceLabel={pack.meta.name}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="text-4xl mb-4">🛡️</div>
-              <p className="text-lg font-medium mb-2">No armors yet</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                Add armors and shields to this content pack.
-              </p>
-              {!isBuiltIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate(`/rulebook/editor/${id}/armor`)}
-                >
-                  + Add Armor
-                </Button>
-              )}
-            </div>
-          )}
-        </Tabs.Content>
-
-        <Tabs.Content value="gears">
-          {gearsCount > 0 ? (
-            <ContentTable
-              gears={pack.gears}
-              selectedIds={selectedIds}
-              onToggleSelect={toggleSelectedId}
-              onSelectAll={(ids) => selectAll(ids)}
-              isReadOnly={isBuiltIn}
-              sourceLabel={pack.meta.name}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="text-4xl mb-4">🎒</div>
-              <p className="text-lg font-medium mb-2">No gear yet</p>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                Add gear and equipment to this content pack.
-              </p>
-              {!isBuiltIn && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => navigate(`/rulebook/editor/${id}/gear`)}
-                >
-                  + Add Gear
-                </Button>
-              )}
-            </div>
-          )}
-        </Tabs.Content>
+          </Tabs.Content>
+        ))}
       </Tabs.Root>
 
+      {/* Inline edit panel */}
       <InlineEditPanel
         open={inlineEditSpell !== null}
         spell={inlineEditSpell}
         onClose={() => setInlineEditSpell(null)}
         onSave={handleSave}
         onOpenFullEditor={(spellId) => {
-          if (id) {
-            navigate(`/rulebook/editor/${id}/spell/${spellId}`);
-          }
+          if (id) navigate(`/rulebook/editor/${id}/spell/${spellId}`);
         }}
       />
 
+      {/* Delete confirmation */}
       <DeleteConfirmDialog
         open={confirmOpen}
         mode={confirmMode}

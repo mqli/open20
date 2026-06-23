@@ -23,7 +23,7 @@ type TableMode =
   | 'armors'
   | 'gears';
 
-interface ContentTableProps {
+export interface ContentTableProps {
   spells?: Spell[];
   monsters?: Monster[];
   species?: Species[];
