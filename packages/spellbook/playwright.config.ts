@@ -1,44 +1,38 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import { createPlaywrightConfig } from '@open20/config/playwright';
 
 const isCI = process.env.CI === 'true';
 
+const baseConfig = createPlaywrightConfig({
+  baseURL: 'http://localhost:4173',
+  testDir: './e2e',
+  webServerCommand: 'pnpm run preview -- --port 4173',
+  webServerPort: 4173,
+  webServerTimeout: 120000,
+  headless: isCI,
+  browsers: ['chromium'],
+  use: {
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    trace: 'on-first-retry',
+  },
+  timeout: 5000,
+  retries: isCI ? 2 : 0,
+});
+
 /**
- * Playwright configuration for spellbook E2E tests
- * Runs against the build artifact served by `vite preview`
+ * Spellbook E2E config with desktop + mobile projects
  */
-export default defineConfig(
-  createPlaywrightConfig({
-    // Base URL for the running server
-    baseURL: 'http://localhost:4173',
-
-    // Directory containing E2E tests
-    testDir: './e2e',
-
-    // Command to start the web server (serves dist/)
-    // Note: -- is required to pass args to the underlying script (vite preview)
-    webServerCommand: 'pnpm run preview -- --port 4173',
-    webServerPort: 4173,
-    webServerTimeout: 120000,
-
-    // Browser configuration
-    headless: isCI,
-    browsers: ['chromium'], // Add 'firefox', 'webkit' as needed
-
-    // Default test behavior
-    use: {
-      // Take screenshot on failure
-      screenshot: 'only-on-failure',
-      // Record video on failure
-      video: 'retain-on-failure',
-      // Trace on first retry
-      trace: 'on-first-retry',
+export default defineConfig({
+  ...baseConfig,
+  projects: [
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'] },
     },
-
-    // Test timeout (5 seconds)
-    timeout: 5000,
-
-    // Retries (2 in CI, 0 locally)
-    retries: isCI ? 2 : 0,
-  }),
-);
+    {
+      name: 'mobile',
+      use: { ...devices['iPhone 13'] },
+    },
+  ],
+});

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useSpellStore } from '@/stores/spellStore';
 import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
@@ -8,26 +8,31 @@ import { SpellCard } from '@/components/spell/SpellCard';
 import { SpellCardBadges } from '@/components/spell/SpellCardBadges';
 import { SpellCardActions } from '@/components/spell/SpellCardActions';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
-import { EmptyState, Surface, Toggle, Text } from '@open20/ui';
+import { CharacterPanel } from '@/components/layout/CharacterPanel';
+import { CharacterSelector } from '@/components/layout/CharacterSelector';
+import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
+import { CharacterModal } from '@/components/character/CharacterModal';
+import { FilterDrawer } from '@/components/layout/FilterDrawer';
+import { MobileTabBar, type MobileTab } from '@/components/layout/MobileTabBar';
+import { useIsLargeScreen } from '@/hooks/useBreakpoint';
+import { EmptyState, Surface, Text, ThemeToggle } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
-import { getCasterType } from 'open20-core/spells';
-import { resolveDeps } from '@/core/content-resolver';
-import { CharacterBar } from '@/components/character/CharacterBar';
+import { useUIStore } from '@/stores/uiStore';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 export function SpellLibraryLayout() {
   const t = useTranslation();
+  const isLarge = useIsLargeScreen();
   const [isLoading, setIsLoading] = useState(true);
-  const {
-    setSpells,
-    filteredSpells,
-    showPreparedOnly,
-    setShowPreparedOnly,
-    showKnownOnly,
-    setShowKnownOnly,
-    selectSpell,
-  } = useSpellStore();
+  const [mobileTab, setMobileTab] = useState<MobileTab>('spells');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | undefined>();
+
+  const { setSpells, filteredSpells, showPreparedOnly, showKnownOnly, selectSpell } =
+    useSpellStore();
   const { activeCharacter, loadCharacters } = useCharacterStore();
+  const { theme, setTheme } = useUIStore();
 
   useEffect(() => {
     async function loadSpells() {
@@ -46,7 +51,6 @@ export function SpellLibraryLayout() {
   if ((showPreparedOnly || showKnownOnly) && !activeCharacter) {
     spellsToDisplay = [];
   } else if (showPreparedOnly && activeCharacter) {
-    // Cantrips can't be "prepared" — exclude them from prepared filter
     spellsToDisplay = filteredSpells.filter(
       (s) => s.level > 0 && spellService.isSpellPrepared(activeCharacter, s.id),
     );
@@ -58,12 +62,6 @@ export function SpellLibraryLayout() {
     );
   }
 
-  const casterType = useMemo(() => {
-    if (!activeCharacter) {
-      return { canLearn: false, canPrepare: false, isSpellbookCaster: false };
-    }
-    return getCasterType(activeCharacter, resolveDeps(activeCharacter));
-  }, [activeCharacter]);
   const activeFilter = showPreparedOnly ? 'prepared' : showKnownOnly ? 'known' : null;
 
   const emptyMessage =
@@ -73,50 +71,36 @@ export function SpellLibraryLayout() {
         ? t('noKnownSpells')
         : t('noSpellsFound');
 
-  return (
-    <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
-      {!isLoading && <CharacterBar />}
-
-      {/* Compact Header */}
-      <Surface variant="default" className="rounded-none border-b px-3 md:px-4 py-2">
-        {/* Row 1: title + search + filter toggles */}
-        <div className="flex items-center gap-2 mb-1.5">
-          <Text as="h1" variant="heading">
-            {t('spells')}
-          </Text>
+  // Spell library content (reused in desktop right column and mobile spells tab)
+  const spellLibraryContent = (
+    <div className="flex flex-col h-full">
+      {/* Spell Header */}
+      <Surface variant="default" className="rounded-none border-b px-3 py-1.5">
+        <div className="flex items-center gap-2">
+          {isLarge ? (
+            <Text as="h1" variant="heading" className="shrink-0 mr-1">
+              {t('spells')}
+            </Text>
+          ) : (
+            <CharacterSelector compact />
+          )}
           <div className="flex-1 min-w-0">
             <SearchBar />
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            {casterType.canLearn && (
-              <Toggle
-                className="known-toggle"
-                variant="secondary"
-                size="sm"
-                pressed={showKnownOnly}
-                onPressedChange={() => setShowKnownOnly(!showKnownOnly)}
-              >
-                {t('known')}
-              </Toggle>
-            )}
-            {casterType.canPrepare && (
-              <Toggle
-                className="prepared-toggle"
-                variant="primary"
-                size="sm"
-                pressed={showPreparedOnly}
-                onPressedChange={() => setShowPreparedOnly(!showPreparedOnly)}
-              >
-                {t('prepared')}
-              </Toggle>
-            )}
-          </div>
+          {!isLarge && (
+            <div className="flex items-center gap-1 shrink-0">
+              <LanguageSwitcher />
+              <ThemeToggle
+                theme={theme}
+                onToggle={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              />
+            </div>
+          )}
+          <FilterDrawer />
         </div>
-        {/* Row 2: level chips */}
-        <LevelTabs />
       </Surface>
 
-      {/* Scrollable Content */}
+      {/* Spell Content */}
       <main className="flex-1 overflow-y-auto px-3 md:px-4 relative">
         {isLoading ? (
           <div className="flex items-center justify-center h-64 gap-2">
@@ -125,8 +109,17 @@ export function SpellLibraryLayout() {
           </div>
         ) : (
           <>
-            <FilterChips />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">
+            {isLarge && (
+              <div className="mt-3 space-y-3">
+                <LevelTabs />
+                <FilterChips />
+              </div>
+            )}
+            <div
+              className={`grid gap-3 pb-8 ${
+                isLarge ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              } mt-3`}
+            >
               {spellsToDisplay.map((spell) => (
                 <SpellCard
                   key={spell.id}
@@ -142,7 +135,48 @@ export function SpellLibraryLayout() {
           </>
         )}
       </main>
+    </div>
+  );
+
+  // Desktop: 2-column layout
+  if (isLarge) {
+    return (
+      <div className="flex h-screen bg-bg-primary overflow-hidden">
+        {/* Left: Character Panel */}
+        <div className="w-80 shrink-0 h-full">
+          <CharacterPanel />
+        </div>
+
+        {/* Right: Spell Library */}
+        <div className="flex-1 flex flex-col min-w-0">{spellLibraryContent}</div>
+
+        <SpellDetailFlyout />
+      </div>
+    );
+  }
+
+  // Mobile: single column with tab bar
+  return (
+    <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
+      <div className="flex-1 overflow-hidden">
+        {mobileTab === 'spells' ? (
+          spellLibraryContent
+        ) : (
+          <div className="h-full overflow-y-auto px-3 py-4">
+            <CharacterSheetContent
+              onEdit={() => {
+                if (activeCharacter) {
+                  setEditingId(activeCharacter.id);
+                  setIsModalOpen(true);
+                }
+              }}
+            />
+          </div>
+        )}
+      </div>
+      <MobileTabBar activeTab={mobileTab} onTabChange={setMobileTab} />
       <SpellDetailFlyout />
+      <CharacterModal open={isModalOpen} onOpenChange={setIsModalOpen} characterId={editingId} />
     </div>
   );
 }

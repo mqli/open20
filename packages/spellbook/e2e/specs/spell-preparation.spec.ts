@@ -24,7 +24,7 @@ test.describe('Spell Preparation', () => {
     await spellLibrary.searchSpell('Magic Missile');
     await spellLibrary.viewSpell('Magic Missile');
 
-    const prepareButton = page.locator('[role="dialog"] .prepare-spell-button');
+    const prepareButton = page.locator('.prepare-spell-button').last();
     await prepareButton.waitFor({ state: 'visible' });
     await prepareButton.click();
 
@@ -36,7 +36,7 @@ test.describe('Spell Preparation', () => {
     await spellLibrary.searchSpell('Magic Missile');
     await spellLibrary.viewSpell('Magic Missile');
 
-    const prepareButton = page.locator('[role="dialog"] .prepare-spell-button');
+    const prepareButton = page.locator('.prepare-spell-button').last();
     await prepareButton.waitFor({ state: 'visible' });
 
     // Ensure it is prepared first
@@ -49,23 +49,22 @@ test.describe('Spell Preparation', () => {
     await expect(prepareButton).toHaveAttribute('title', /prepare spell/i);
   });
 
-  test('should show prepared spells in character sheet', async ({ page }) => {
+  test('should show prepared spells in character sheet', async () => {
     await spellLibrary.goto();
     await spellLibrary.searchSpell('Shield');
     await spellLibrary.viewSpell('Shield');
 
-    const prepareButton = page.locator('[role="dialog"] .prepare-spell-button');
+    const prepareButton = spellLibrary.page.locator('.prepare-spell-button').last();
     await prepareButton.waitFor({ state: 'visible' });
     if (!/unprepare/i.test((await prepareButton.getAttribute('title')) ?? '')) {
       await prepareButton.click();
     }
 
-    await page.getByRole('button', { name: /close spell details/i }).click();
+    await spellLibrary.closeFlyout();
 
     await characterPage.goto();
 
-    const sheet = characterPage.sheet;
-    await sheet.getByRole('tab').first().click();
-    await expect(sheet.getByText('Shield', { exact: true })).toBeVisible();
+    await characterPage.classTab.first().click();
+    await expect(characterPage.sheet.getByText('Shield', { exact: true })).toBeVisible();
   });
 });

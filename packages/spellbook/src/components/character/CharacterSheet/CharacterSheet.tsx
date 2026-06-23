@@ -19,7 +19,15 @@ const SPELL_LEVEL_LABELS = [
   'ninthLevel',
 ];
 
-function CharacterSheetContent({ onEdit, onClose }: { onEdit: () => void; onClose: () => void }) {
+export function CharacterSheetContent({
+  onEdit,
+  onClose,
+  compact,
+}: {
+  onEdit: () => void;
+  onClose?: () => void;
+  compact?: boolean;
+}) {
   const t = useTranslation();
   const { activeCharacter, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
   if (!activeCharacter) return null;
@@ -37,9 +45,9 @@ function CharacterSheetContent({ onEdit, onClose }: { onEdit: () => void; onClos
   return (
     <>
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className={`flex items-start justify-between ${compact ? 'mb-3' : 'mb-6'}`}>
         <div>
-          <Text as="h2" size="2xl" weight="bold">
+          <Text as="h2" size={compact ? 'lg' : '2xl'} weight="bold">
             {activeCharacter.name}
           </Text>
           <div className="flex gap-2 mt-2 flex-wrap">
@@ -63,14 +71,16 @@ function CharacterSheetContent({ onEdit, onClose }: { onEdit: () => void; onClos
           >
             <Pencil className="w-4 h-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="p-2 text-text-tertiary hover:text-text-primary"
-          >
-            <X className="w-5 h-5" />
-          </Button>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="p-2 text-text-tertiary hover:text-text-primary"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -105,7 +115,7 @@ function CharacterSheetContent({ onEdit, onClose }: { onEdit: () => void; onClos
         )}
 
         {/* Per-Class Spellcasting Sections */}
-        {spellcastingClasses.length > 0 && (
+        {!compact && spellcastingClasses.length > 0 && (
           <section>
             <SectionHeader title={t('classSpellcastingStats')} />
             <Tabs.Root defaultValue={classTabEntries[0]?.tabValue}>
@@ -136,16 +146,18 @@ function CharacterSheetContent({ onEdit, onClose }: { onEdit: () => void; onClos
       </div>
 
       {/* Footer */}
-      <div className="mt-6 pt-4 border-t border-border">
-        <Button
-          variant="ghost"
-          onClick={onEdit}
-          className="w-full bg-bg-tertiary hover:bg-primary-50 text-text-secondary hover:text-primary-600 rounded-2xl py-3"
-        >
-          <Pencil className="w-4 h-4 mr-2" />
-          {t('editCharacterStats')}
-        </Button>
-      </div>
+      {!compact && (
+        <div className="mt-6 pt-4 border-t border-border">
+          <Button
+            variant="ghost"
+            onClick={onEdit}
+            className="w-full bg-bg-tertiary hover:bg-primary-50 text-text-secondary hover:text-primary-600 rounded-2xl py-3"
+          >
+            <Pencil className="w-4 h-4 mr-2" />
+            {t('editCharacterStats')}
+          </Button>
+        </div>
+      )}
     </>
   );
 }

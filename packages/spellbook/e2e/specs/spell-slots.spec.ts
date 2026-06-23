@@ -37,7 +37,6 @@ test.describe('Spell Slots', () => {
     const availableBefore = await sheet.locator('.slot-pip[aria-checked="false"]').count();
     expect(availableBefore).toBeGreaterThan(0);
 
-    // Click any available pip — consumes one slot (last pip flips to used)
     await sheet.locator('.slot-pip[aria-checked="false"]').first().click();
 
     const availableAfter = await sheet.locator('.slot-pip[aria-checked="false"]').count();
@@ -48,11 +47,9 @@ test.describe('Spell Slots', () => {
     const sheet = characterPage.sheet;
     await sheet.getByRole('tab').first().click();
 
-    // Consume one slot first
     await sheet.locator('.slot-pip[aria-checked="false"]').first().click();
     const availableAfterConsume = await sheet.locator('.slot-pip[aria-checked="false"]').count();
 
-    // Click a used pip to recover it
     await sheet.locator('.slot-pip[aria-checked="true"]').first().click();
 
     const availableAfterRecover = await sheet.locator('.slot-pip[aria-checked="false"]').count();

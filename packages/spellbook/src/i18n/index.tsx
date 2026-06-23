@@ -128,6 +128,10 @@ export type SpellbookTranslationKeys =
   | 'switchToEnglish'
   | 'chineseShort'
   | 'englishShort'
+  // Layout
+  | 'character'
+  | 'noCharacterSelected'
+  | 'filters'
   // Loading
   | 'loading';
 
@@ -262,6 +266,10 @@ export const enTranslations: SpellbookTranslations = {
   chineseShort: '中文',
   englishShort: 'EN',
 
+  // Layout
+  character: 'Character',
+  noCharacterSelected: 'No character selected',
+  filters: 'Filters',
   // Loading
   loading: 'Loading...',
 };
@@ -389,6 +397,11 @@ export const zhCNTranslations: SpellbookTranslations = {
   switchToEnglish: 'Switch to English',
   chineseShort: '中文',
   englishShort: 'EN',
+
+  // Layout
+  character: '角色',
+  noCharacterSelected: '未选择角色',
+  filters: '筛选',
 
   // Loading
   loading: '加载中...',

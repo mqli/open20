@@ -43,7 +43,14 @@ export class SpellLibraryPage {
 
   async filterByLevel(level: number | null) {
     const cls = level === null ? 'level-tab-all' : `level-tab-${level}`;
+    // On mobile, level tabs are inside the filter drawer Sheet
+    const viewport = this.page.viewportSize();
+    if (viewport && viewport.width < 1024) {
+      await this.page.getByTestId('filter-trigger').click();
+      await this.page.getByRole('heading', { name: 'Filters' }).waitFor({ state: 'visible' });
+    }
     await this.page.locator(`.${cls}`).click();
+    await this.page.waitForTimeout(300);
   }
 
   async viewSpell(spellName: string) {
@@ -51,10 +58,9 @@ export class SpellLibraryPage {
   }
 
   async closeFlyout() {
-    const closeButton = this.page.getByRole('button', { name: /close spell details/i });
-    if (await closeButton.isVisible()) {
-      await closeButton.click();
-    }
+    // Escape works for both Dialog and Sheet overlays
+    await this.page.keyboard.press('Escape');
+    await this.page.waitForTimeout(300);
   }
 
   async getSpellCount(): Promise<number> {
