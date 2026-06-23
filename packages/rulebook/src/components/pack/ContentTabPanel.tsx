@@ -37,26 +37,6 @@ export function ContentTabPanel({
   const navigate = useNavigate();
   const isEmpty = items.length === 0;
 
-  // Build ContentTable props dynamically based on content type
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const tableProps: any = {
-    selectedIds,
-    onToggleSelect,
-    onSelectAll,
-    isReadOnly: isBuiltIn,
-    sourceLabel,
-  };
-
-  // Only attach edit/delete for spells
-  if (contentType.tabKey === 'spells') {
-    if (onEdit) tableProps.onEdit = onEdit;
-    if (onDelete) tableProps.onDelete = onDelete;
-  }
-
-  // Attach the data array to the correct prop key
-  tableProps[contentType.tabKey] = items;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-
   return (
     <div>
       <div className="mb-4 flex gap-2">
@@ -83,7 +63,17 @@ export function ContentTabPanel({
       </div>
 
       {!isEmpty ? (
-        <ContentTable {...(tableProps as Parameters<typeof ContentTable>[0])} />
+        <ContentTable
+          mode={contentType.tabKey}
+          items={items}
+          selectedIds={selectedIds}
+          onToggleSelect={onToggleSelect}
+          onSelectAll={onSelectAll}
+          isReadOnly={isBuiltIn}
+          sourceLabel={sourceLabel}
+          onEdit={contentType.tabKey === 'spells' ? onEdit : undefined}
+          onDelete={contentType.tabKey === 'spells' ? onDelete : undefined}
+        />
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="text-4xl mb-4">{contentType.emptyEmoji}</div>

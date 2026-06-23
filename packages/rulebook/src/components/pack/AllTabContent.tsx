@@ -57,32 +57,24 @@ export function AllTabContent({
 
       {nonEmptySections.map((section) => {
         const Icon = section.meta.icon;
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        const tableProps: any = {
-          selectedIds,
-          onToggleSelect,
-          onSelectAll,
-          isReadOnly: isBuiltIn,
-          sourceLabel: packName,
-        };
-
-        // Attach edit/delete only for spells
-        if (section.meta.tabKey === 'spells') {
-          tableProps.onEdit = onEdit;
-          tableProps.onDelete = onDelete;
-        }
-
-        // Attach the data array to the correct prop key
-        tableProps[section.meta.tabKey] = section.items;
-        /* eslint-enable @typescript-eslint/no-explicit-any */
+        const isSpells = section.meta.tabKey === 'spells';
 
         return (
           <div key={section.meta.tabKey} className="mb-6">
             <h3 className="text-sm font-semibold text-text-secondary mb-2 flex items-center gap-2">
               <Icon className="w-4 h-4" /> {section.meta.label} ({section.items.length})
             </h3>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            <ContentTable {...(tableProps as any)} />
+            <ContentTable
+              mode={section.meta.tabKey}
+              items={section.items}
+              selectedIds={selectedIds}
+              onToggleSelect={onToggleSelect}
+              onSelectAll={onSelectAll}
+              isReadOnly={isBuiltIn}
+              sourceLabel={packName}
+              onEdit={isSpells ? onEdit : undefined}
+              onDelete={isSpells ? onDelete : undefined}
+            />
           </div>
         );
       })}

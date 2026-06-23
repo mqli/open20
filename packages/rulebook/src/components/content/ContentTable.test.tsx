@@ -51,6 +51,23 @@ const mockSpells = [
   },
 ];
 
+function renderTable(props: Partial<Parameters<typeof ContentTable>[0]> = {}) {
+  return render(
+    <I18nProvider>
+      <ContentTable
+        mode="spells"
+        items={mockSpells}
+        selectedIds={[]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onToggleSelect={vi.fn()}
+        onSelectAll={vi.fn()}
+        {...props}
+      />
+    </I18nProvider>,
+  );
+}
+
 describe('ContentTable', () => {
   const mockOnEdit = vi.fn();
   const mockOnDelete = vi.fn();
@@ -58,18 +75,12 @@ describe('ContentTable', () => {
   const mockOnSelectAll = vi.fn();
 
   it('renders table with column headers', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable({
+      onEdit: mockOnEdit,
+      onDelete: mockOnDelete,
+      onToggleSelect: mockOnToggleSelect,
+      onSelectAll: mockOnSelectAll,
+    });
     expect(screen.getByText('Type')).toBeInTheDocument();
     expect(screen.getByText('Name')).toBeInTheDocument();
     expect(screen.getByText('Level')).toBeInTheDocument();
@@ -80,36 +91,14 @@ describe('ContentTable', () => {
   });
 
   it('renders spell names in table', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable();
     expect(screen.getByText('Fireball')).toBeInTheDocument();
     expect(screen.getByText('Magic Missile')).toBeInTheDocument();
     expect(screen.getByText('Cure Wounds')).toBeInTheDocument();
   });
 
   it('renders spell levels and schools', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable();
     expect(screen.getByText('3')).toBeInTheDocument();
     // There should be at least 2 occurrences of "1" (level column)
     const levelOnes = screen.getAllByText('1');
@@ -117,18 +106,7 @@ describe('ContentTable', () => {
   });
 
   it('renders spell classes joined by comma', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable();
     // Wizard, Sorcerer appears twice (for spell-1 and spell-2)
     const wizardSorcererElements = screen.getAllByText('Wizard, Sorcerer');
     expect(wizardSorcererElements.length).toBe(2);
@@ -136,18 +114,7 @@ describe('ContentTable', () => {
   });
 
   it('shows edit and delete buttons when not read-only', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable({ onEdit: mockOnEdit, onDelete: mockOnDelete });
     const editButtons = screen.getAllByTitle('Edit');
     const deleteButtons = screen.getAllByTitle('Delete');
     expect(editButtons.length).toBe(3);
@@ -155,72 +122,27 @@ describe('ContentTable', () => {
   });
 
   it('hides action buttons when read-only', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-          isReadOnly={true}
-        />
-      </I18nProvider>,
-    );
+    renderTable({ onEdit: mockOnEdit, onDelete: mockOnDelete, isReadOnly: true });
     expect(screen.queryByTitle('Edit')).not.toBeInTheDocument();
     expect(screen.queryByTitle('Delete')).not.toBeInTheDocument();
   });
 
   it('calls onEdit when edit button is clicked', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable({ onEdit: mockOnEdit, onDelete: mockOnDelete });
     const editButtons = screen.getAllByTitle('Edit');
     fireEvent.click(editButtons[0]);
     expect(mockOnEdit).toHaveBeenCalledWith('spell-1');
   });
 
   it('calls onDelete when delete button is clicked', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={mockSpells}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable({ onEdit: mockOnEdit, onDelete: mockOnDelete });
     const deleteButtons = screen.getAllByTitle('Delete');
     fireEvent.click(deleteButtons[1]);
     expect(mockOnDelete).toHaveBeenCalledWith('spell-2');
   });
 
   it('renders empty table when no spells provided', () => {
-    render(
-      <I18nProvider>
-        <ContentTable
-          spells={[]}
-          selectedIds={[]}
-          onEdit={mockOnEdit}
-          onDelete={mockOnDelete}
-          onToggleSelect={mockOnToggleSelect}
-          onSelectAll={mockOnSelectAll}
-        />
-      </I18nProvider>,
-    );
+    renderTable({ items: [] });
     expect(screen.getByText('Type')).toBeInTheDocument();
     // Only header row present
     const rows = screen.getAllByRole('row');
