@@ -214,33 +214,43 @@ export function ContentEditor() {
       isSubmitting: boolean;
     }) => (
       <div className="flex items-center justify-end gap-2">
-        <Button type="button" variant="ghost" size="lg" onClick={handleCancel} disabled={isSaving}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleCancel}
+          disabled={isSaving}
+          className="shrink-0"
+        >
           Cancel
         </Button>
         <Button
           type="button"
           variant="secondary"
-          size="lg"
+          size="sm"
           onClick={() => props.onSave('stay')}
           disabled={!props.isValid || isSaving}
+          className="shrink-0"
         >
           Save
         </Button>
         <Button
           type="button"
           variant="secondary"
-          size="lg"
+          size="sm"
           onClick={() => props.onSave('new')}
           disabled={!props.isValid || isSaving}
+          className="shrink-0"
         >
           Save & New
         </Button>
         <Button
           type="button"
           variant="primary"
-          size="lg"
+          size="sm"
           onClick={() => props.onSave('close')}
           disabled={!props.isValid || isSaving}
+          className="shrink-0"
         >
           Save & Close
         </Button>

@@ -12,6 +12,11 @@ export type {
   CardSurfaceDensity,
   CardMetaItemProps,
 } from './components/base/CardSurface/index';
+export { EditorLayout } from './components/base/EditorLayout/index';
+export type {
+  EditorLayoutProps,
+  EditorLayoutActionProps,
+} from './components/base/EditorLayout/index';
 export { Button } from './components/base/Button/index';
 export type { ButtonProps } from './components/base/Button/index';
 export { Dialog };
@@ -30,6 +35,12 @@ export { Slider } from './components/base/Slider/index';
 export { SlotPips } from './components/base/SlotPips/index';
 export { SpellCard } from './components/spell/index';
 export type { SpellCardProps } from './components/spell/index';
+export { BackgroundCard } from './components/rules/background/index';
+export type { BackgroundCardProps } from './components/rules/background/index';
+export { SpeciesCard } from './components/rules/species/index';
+export type { SpeciesCardProps } from './components/rules/species/index';
+export { EquipmentCard } from './components/rules/equipment/index';
+export type { EquipmentCardProps, EquipmentData } from './components/rules/equipment/index';
 export { FeatCard } from './components/rules/feat/index';
 export type { FeatCardProps } from './components/rules/feat/index';
 export { MonsterCard } from './components/monster/index';
