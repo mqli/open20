@@ -109,16 +109,15 @@ export function SpellEditor({
 
   // ── Render ───────────────────────────────────────
   return (
-    <div className={`lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 ${className ?? ''}`}>
-      {/* ── Left Column: Editor ── */}
-      <div className="flex min-h-0 flex-col">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-          className="flex flex-1 flex-col"
-        >
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+    >
+      <div className={`lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 ${className ?? ''}`}>
+        {/* ── Left Column: Editor ── */}
+        <div className="flex min-h-0 flex-col">
           {/* Tabs Navigation */}
           <Tabs.Root defaultValue="general" className="flex flex-1 flex-col">
             <Tabs.List variant="pills" className="mb-4">
@@ -170,9 +169,17 @@ export function SpellEditor({
               ))}
             </Surface>
           )}
+        </div>
 
-          {/* Action Buttons (sticky at bottom) */}
-          <div className="sticky bottom-0 mt-auto border-t border-border bg-bg-primary pt-4">
+        {/* ── Right Column: Preview ── */}
+        <div className="lg:sticky lg:top-4 lg:self-start">
+          <Text as="h3" variant="labelSm" className="mb-3">
+            {t('spellEditor.livePreview')}
+          </Text>
+          <SpellCard spell={formDataToSpell(formData)} />
+
+          {/* Action Buttons */}
+          <div className="border-t border-border bg-bg-primary pt-4 mt-4">
             {renderActions ? (
               renderActions({ onSave: handleSubmit, isDirty, isValid, isSubmitting })
             ) : (
@@ -203,17 +210,9 @@ export function SpellEditor({
               </div>
             )}
           </div>
-        </form>
+        </div>
       </div>
-
-      {/* ── Right Column: Preview ── */}
-      <div className="lg:sticky lg:top-4 lg:self-start">
-        <Text as="h3" variant="labelSm" className="mb-3">
-          {t('spellEditor.livePreview')}
-        </Text>
-        <SpellCard spell={formDataToSpell(formData)} />
-      </div>
-    </div>
+    </form>
   );
 }
 
