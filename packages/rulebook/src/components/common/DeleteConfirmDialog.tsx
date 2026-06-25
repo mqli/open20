@@ -1,5 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@open20/ui';
+import { cva } from 'class-variance-authority';
 
 export type ConfirmMode = 'delete-pack' | 'delete-content' | 'disable-pack' | 'discard-changes';
 
@@ -20,6 +21,27 @@ interface DeleteConfirmDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
 }
+
+const severityIconBg = cva('p-2 rounded-full shrink-0', {
+  variants: {
+    destructive: {
+      true: 'bg-red-100 dark:bg-red-900/20',
+      false: 'bg-amber-100 dark:bg-amber-900/20',
+    },
+  },
+});
+
+const severityIcon = cva('w-5 h-5', {
+  variants: {
+    destructive: { true: 'text-destructive', false: 'text-amber-600 dark:text-amber-400' },
+  },
+});
+
+const severityText = cva('text-sm', {
+  variants: {
+    destructive: { true: 'text-destructive', false: 'text-amber-600 dark:text-amber-400' },
+  },
+});
 
 function getDialogConfig(mode: ConfirmMode) {
   switch (mode) {
@@ -80,12 +102,8 @@ export function DeleteConfirmDialog({
       <div className="bg-bg-primary rounded-lg p-6 w-[420px] shadow-xl">
         {/* Header */}
         <div className="flex items-start gap-3 mb-4">
-          <div
-            className={`p-2 rounded-full shrink-0 ${config.confirmDestructive ? 'bg-red-100 dark:bg-red-900/20' : 'bg-amber-100 dark:bg-amber-900/20'}`}
-          >
-            <AlertTriangle
-              className={`w-5 h-5 ${config.confirmDestructive ? 'text-destructive' : 'text-amber-600 dark:text-amber-400'}`}
-            />
+          <div className={severityIconBg({ destructive: config.confirmDestructive })}>
+            <AlertTriangle className={severityIcon({ destructive: config.confirmDestructive })} />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-text-primary">{config.title}</h2>
@@ -150,9 +168,7 @@ export function DeleteConfirmDialog({
           )}
 
           {/* Warning text */}
-          <p
-            className={`text-sm ${config.confirmDestructive ? 'text-destructive' : 'text-amber-600 dark:text-amber-400'}`}
-          >
+          <p className={severityText({ destructive: config.confirmDestructive })}>
             ⚠ {config.description}
           </p>
         </div>

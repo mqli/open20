@@ -302,6 +302,9 @@ importers:
       '@open20/ui':
         specifier: workspace:*
         version: link:../ui
+      class-variance-authority:
+        specifier: 'catalog:'
+        version: 0.7.1
       clsx:
         specifier: 'catalog:'
         version: 2.1.1

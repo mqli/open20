@@ -1,5 +1,6 @@
 import { BookOpen, User } from 'lucide-react';
 import { Button, Surface, Text } from '@open20/ui';
+import { cva } from 'class-variance-authority';
 import { useTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
 
@@ -9,6 +10,18 @@ interface MobileTabBarProps {
   activeTab: MobileTab;
   onTabChange: (tab: MobileTab) => void;
 }
+
+const tabButtonVariants = cva('flex-1 flex-col items-center gap-0.5 py-2 rounded-none', {
+  variants: {
+    isActive: {
+      true: 'text-primary-500 border-t-2 border-primary-500 -mt-px',
+      false: 'text-text-tertiary',
+    },
+  },
+  defaultVariants: {
+    isActive: false,
+  },
+});
 
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
   const t = useTranslation();
@@ -20,11 +33,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
         <Button
           variant="ghost"
           onClick={() => onTabChange('spells')}
-          className={`flex-1 flex-col items-center gap-0.5 py-2 rounded-none ${
-            activeTab === 'spells'
-              ? 'text-primary-500 border-t-2 border-primary-500 -mt-px'
-              : 'text-text-tertiary'
-          }`}
+          className={tabButtonVariants({ isActive: activeTab === 'spells' })}
           data-testid="tab-spells"
         >
           <BookOpen className="w-5 h-5" />
@@ -35,11 +44,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
         <Button
           variant="ghost"
           onClick={() => onTabChange('character')}
-          className={`flex-1 flex-col items-center gap-0.5 py-2 rounded-none ${
-            activeTab === 'character'
-              ? 'text-primary-500 border-t-2 border-primary-500 -mt-px'
-              : 'text-text-tertiary'
-          }`}
+          className={tabButtonVariants({ isActive: activeTab === 'character' })}
           data-testid="tab-character"
         >
           <User className="w-5 h-5" />

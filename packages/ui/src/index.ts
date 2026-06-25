@@ -231,6 +231,9 @@ export const TabsList: typeof Tabs.List = Tabs.List;
 export const TabsTrigger: typeof Tabs.Trigger = Tabs.Trigger;
 export const TabsContent: typeof Tabs.Content = Tabs.Content;
 
+export { cn } from './lib/cn';
+export type { ClassValue } from 'clsx';
+
 export * from './styles/design-tokens';
 
 // i18n exports - base translations for UI components
