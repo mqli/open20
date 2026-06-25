@@ -381,6 +381,9 @@ importers:
 
   packages/spellbook:
     dependencies:
+      '@open20/content':
+        specifier: workspace:*
+        version: link:../content
       '@open20/content-srd':
         specifier: workspace:*
         version: link:../content-srd

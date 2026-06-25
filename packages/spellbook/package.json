@@ -33,6 +33,7 @@
     "clsx": "catalog:",
     "lucide-react": "catalog:",
     "open20-core": "workspace:*",
+    "@open20/content": "workspace:*",
     "@open20/content-srd": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",

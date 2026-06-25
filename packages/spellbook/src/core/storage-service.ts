@@ -1,4 +1,5 @@
 import type { AppCharacter } from './types';
+import type { Spell } from 'open20-core';
 
 interface Preferences {
   theme?: 'light' | 'dark';
@@ -7,6 +8,7 @@ interface Preferences {
 
 const STORAGE_KEY = 'open20-spellbook-characters';
 const PREFERENCES_KEY = 'open20-spellbook-preferences';
+const CUSTOM_SPELLS_KEY = 'open20-spellbook-custom-spells';
 
 const DEFAULT_PREFERENCES: Preferences = {
   theme: 'light',
@@ -64,6 +66,34 @@ export class StorageService {
   clearAll(): void {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(PREFERENCES_KEY);
+  }
+
+  // ── Custom spells ───────────────────────────────────────
+
+  saveCustomSpells(spells: Spell[]): void {
+    try {
+      localStorage.setItem(CUSTOM_SPELLS_KEY, JSON.stringify(spells));
+    } catch {
+      // Ignore storage errors (quota exceeded, etc.)
+    }
+  }
+
+  loadCustomSpells(): Spell[] {
+    const data = localStorage.getItem(CUSTOM_SPELLS_KEY);
+    if (!data) return [];
+
+    try {
+      return JSON.parse(data) as Spell[];
+    } catch {
+      return [];
+    }
+  }
+
+  deleteCustomSpell(id: string): Spell[] {
+    const spells = this.loadCustomSpells();
+    const filtered = spells.filter((s) => s.id !== id);
+    this.saveCustomSpells(filtered);
+    return filtered;
   }
 }
 
