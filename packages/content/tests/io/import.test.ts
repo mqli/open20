@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { importPack, parsePackJson, mergePack } from '../../src/io/import';
+import {
+  importPack,
+  parsePackJson,
+  mergePack,
+  detectImportFormat,
+  importSingleType,
+} from '../../src/io/import';
 import type { ContentPack } from 'open20-core';
 import type { EditableContentPack } from '../../src/types/content-pack';
 
@@ -204,5 +210,340 @@ describe('mergePack', () => {
     mergePack(target, source);
     expect(target.spells).toBeDefined();
     expect(target.spells!.length).toBe(1);
+  });
+});
+
+describe('detectImportFormat', () => {
+  it('detects full-pack format', () => {
+    const pack = makeValidPack();
+    const json = JSON.stringify(pack);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('full-pack');
+    if (result.format === 'full-pack') {
+      expect(result.packName).toBe('Test Pack');
+      expect(result.version).toBe('1.0.0');
+    }
+  });
+
+  it('detects spells array as single-type', () => {
+    const json = JSON.stringify([makeValidSpell()]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('spells');
+      expect(result.itemCount).toBe(1);
+    }
+  });
+
+  it('detects armors array as single-type', () => {
+    const json = JSON.stringify([
+      {
+        id: 'leather',
+        name: 'Leather',
+        type: 'armor',
+        source: 'SRD',
+        category: 'Light',
+        ac: 11,
+        dexBonus: true,
+      },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('armors');
+    }
+  });
+
+  it('detects weapons array as single-type', () => {
+    const json = JSON.stringify([
+      {
+        id: 'longsword',
+        name: 'Longsword',
+        type: 'weapon',
+        source: 'SRD',
+        category: 'Martial',
+        damage: { entries: [{ dice: '1d8', type: 'Slashing' }], ability: 'Strength', bonus: 0 },
+        properties: ['Versatile'],
+      },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('weapons');
+    }
+  });
+
+  it('detects monsters array as single-type', () => {
+    const json = JSON.stringify([
+      {
+        id: 'goblin',
+        name: 'Goblin',
+        source: 'SRD',
+        size: 'Small',
+        type: 'Humanoid',
+        alignment: 'neutral evil',
+        armorClass: [{ value: 15, type: 'leather' }],
+        hitPoints: { value: 7 },
+        speed: { walk: 30 },
+        abilityScores: { STR: 8, DEX: 14, CON: 10, INT: 10, WIS: 8, CHA: 8 },
+        challengeRating: { rating: '1/4', xp: 50 },
+      },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('monsters');
+    }
+  });
+
+  it('detects gears array as single-type', () => {
+    const json = JSON.stringify([
+      { id: 'backpack', name: 'Backpack', type: 'gears', source: 'SRD', weight: 5 },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('gears');
+    }
+  });
+
+  it('detects species array as single-type', () => {
+    const json = JSON.stringify([
+      {
+        id: 'human',
+        source: 'SRD',
+        description: 'Test',
+        size: 'Medium',
+        speed: 30,
+        languages: [],
+        abilityBonuses: {},
+        baseTraits: [],
+      },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('species');
+    }
+  });
+
+  it('detects backgrounds array as single-type', () => {
+    const json = JSON.stringify([
+      {
+        id: 'acolyte',
+        source: 'SRD',
+        skillProficiencies: [],
+        toolProficiencies: [],
+        languages: [],
+        originFeatId: 'test',
+        startingGold: 0,
+      },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('backgrounds');
+    }
+  });
+
+  it('detects feats array as single-type', () => {
+    const json = JSON.stringify([
+      { id: 'alert', source: 'SRD', description: 'Test', category: 'General', grants: [] },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('feats');
+    }
+  });
+
+  it('throws for empty array', () => {
+    expect(() => detectImportFormat('[]')).toThrow('empty array');
+  });
+
+  it('throws for unrecognized object without meta', () => {
+    const json = JSON.stringify({ some: 'data' });
+    expect(() => detectImportFormat(json)).toThrow('Unknown JSON format');
+  });
+
+  it('spells detected before monsters when item has both', () => {
+    // An item with school+level+castingTime, but also challengeRating — spells take priority
+    const json = JSON.stringify([
+      {
+        id: 'test',
+        name: 'Test',
+        level: 3,
+        school: 'Evocation',
+        castingTime: '1 action',
+        challengeRating: { rating: 1, xp: 200 },
+        hitPoints: { value: 10 },
+        armorClass: [{ value: 10, type: 'natural' }],
+      },
+    ]);
+    const result = detectImportFormat(json);
+    expect(result.format).toBe('single-type');
+    if (result.format === 'single-type') {
+      expect(result.detectedType).toBe('spells');
+    }
+  });
+
+  it('throws on invalid JSON', () => {
+    expect(() => detectImportFormat('not json')).toThrow('Invalid JSON');
+  });
+});
+
+describe('importSingleType', () => {
+  it('imports spells array and validates', () => {
+    const json = JSON.stringify([makeValidSpell()]);
+    const result = importSingleType(json, 'spells', { name: 'My Spells', id: 'my-spells' });
+    expect(result.meta.name).toBe('My Spells');
+    expect(result.spells).toBeDefined();
+    expect(result.spells!.length).toBe(1);
+    expect(result.spells![0].id).toBe('fireball');
+  });
+
+  it('imports armors array and validates', () => {
+    const json = JSON.stringify([
+      {
+        id: 'leather',
+        name: 'Leather',
+        type: 'armor',
+        source: 'SRD',
+        category: 'Light',
+        ac: 11,
+        dexBonus: true,
+      },
+    ]);
+    const result = importSingleType(json, 'armors');
+    expect(result.armors).toBeDefined();
+    expect(result.armors!.length).toBe(1);
+  });
+
+  it('imports weapons array and validates', () => {
+    const json = JSON.stringify([
+      {
+        id: 'longsword',
+        name: 'Longsword',
+        type: 'weapon',
+        source: 'SRD',
+        category: 'Martial',
+        damage: { entries: [{ dice: '1d8', type: 'Slashing' }], ability: 'Strength', bonus: 0 },
+        properties: ['Versatile'],
+      },
+    ]);
+    const result = importSingleType(json, 'weapons');
+    expect(result.weapons).toBeDefined();
+    expect(result.weapons!.length).toBe(1);
+  });
+
+  it('imports monsters array and validates', () => {
+    const json = JSON.stringify([
+      {
+        id: 'goblin',
+        name: 'Goblin',
+        source: 'SRD',
+        size: 'Small',
+        type: 'Humanoid',
+        alignment: 'neutral evil',
+        armorClass: [{ value: 15, type: 'leather' }],
+        hitPoints: { value: 7 },
+        speed: { walk: 30 },
+        abilityScores: { STR: 8, DEX: 14, CON: 10, INT: 10, WIS: 8, CHA: 8 },
+        challengeRating: { rating: '1/4', xp: 50 },
+      },
+    ]);
+    const result = importSingleType(json, 'monsters');
+    expect(result.monsters).toBeDefined();
+    expect(result.monsters!.length).toBe(1);
+  });
+
+  it('imports gears array and validates', () => {
+    const json = JSON.stringify([
+      { id: 'backpack', name: 'Backpack', type: 'gears', source: 'SRD', weight: 5 },
+    ]);
+    const result = importSingleType(json, 'gears');
+    expect(result.gears).toBeDefined();
+    expect(result.gears!.length).toBe(1);
+  });
+
+  it('imports species array and validates', () => {
+    const json = JSON.stringify([
+      {
+        id: 'human',
+        source: 'SRD',
+        description: 'Test',
+        size: 'Medium',
+        speed: 30,
+        languages: [],
+        abilityBonuses: {},
+        baseTraits: [],
+      },
+    ]);
+    const result = importSingleType(json, 'species');
+    expect(result.species).toBeDefined();
+    expect(result.species!.length).toBe(1);
+  });
+
+  it('imports backgrounds array and validates', () => {
+    const json = JSON.stringify([
+      {
+        id: 'acolyte',
+        source: 'SRD',
+        skillProficiencies: [],
+        toolProficiencies: [],
+        languages: [],
+        originFeatId: 'test',
+        startingGold: 0,
+      },
+    ]);
+    const result = importSingleType(json, 'backgrounds');
+    expect(result.backgrounds).toBeDefined();
+    expect(result.backgrounds!.length).toBe(1);
+  });
+
+  it('imports feats array and validates', () => {
+    const json = JSON.stringify([
+      { id: 'alert', source: 'SRD', description: 'Test', category: 'General' },
+    ]);
+    const result = importSingleType(json, 'feats');
+    expect(result.feats).toBeDefined();
+    expect(result.feats!.length).toBe(1);
+  });
+
+  it('throws on invalid spell', () => {
+    const json = JSON.stringify([{ id: '', name: '' }]);
+    expect(() => importSingleType(json, 'spells')).toThrow(/Invalid spells/);
+  });
+
+  it('throws on non-array JSON for single-type import', () => {
+    const json = JSON.stringify({ not: 'array' });
+    expect(() => importSingleType(json, 'spells')).toThrow('Expected a JSON array');
+  });
+
+  it('uses default meta values when none provided', () => {
+    const json = JSON.stringify([makeValidSpell()]);
+    const result = importSingleType(json, 'spells');
+    expect(result.meta.name).toContain('Imported');
+    expect(result.meta.id).toContain('imported-spells-');
+    expect(result.meta.version).toBe('1.0.0');
+  });
+
+  it('round-trip: exportContentType → detectImportFormat → importSingleType', () => {
+    // Export single type (simulated)
+    const exportJson = JSON.stringify([makeValidSpell()]);
+
+    // Detect
+    const detected = detectImportFormat(exportJson);
+    expect(detected.format).toBe('single-type');
+
+    // Import
+    if (detected.format === 'single-type') {
+      const result = importSingleType(exportJson, detected.detectedType, {
+        name: 'Round Trip',
+        id: 'round-trip',
+      });
+      expect(result.spells).toBeDefined();
+      expect(result.spells![0].id).toBe('fireball');
+    }
   });
 });

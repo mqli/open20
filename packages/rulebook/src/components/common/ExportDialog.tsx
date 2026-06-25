@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@open20/ui';
 import { Switch } from '@open20/ui';
 import manager from '../../stores/contentManager';
-import { exportPack } from '@open20/content/io';
+import { exportPack, exportContentType, EXPORTABLE_CONTENT_KEYS } from '@open20/content/io';
+import type { ExportableContentKey } from '@open20/content/io';
 import type { ContentPack } from 'open20-core';
 
 interface ExportDialogProps {
@@ -11,10 +12,26 @@ interface ExportDialogProps {
   onClose: () => void;
 }
 
+type ExportSelection = 'full' | ExportableContentKey;
+
+const CONTENT_TYPE_LABELS: Record<ExportableContentKey, string> = {
+  spells: 'Spells',
+  monsters: 'Monsters',
+  species: 'Species',
+  backgrounds: 'Backgrounds',
+  classes: 'Classes',
+  subclasses: 'Subclasses',
+  feats: 'Feats',
+  weapons: 'Weapons',
+  armors: 'Armors',
+  gears: 'Gears',
+};
+
 export function ExportDialog({ packId, packName, onClose }: ExportDialogProps) {
   const [pack, setPack] = useState<ContentPack | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [contentType, setContentType] = useState<ExportSelection>('full');
   const [minify, setMinify] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -41,44 +58,53 @@ export function ExportDialog({ packId, packName, onClose }: ExportDialogProps) {
     loadPack();
   }, [packId]);
 
-  // Count total content items
+  // Get item count for a specific content type
+  const getTypeCount = useCallback(
+    (type: ExportableContentKey) => {
+      if (!pack) return 0;
+      const items = pack[type];
+      return Array.isArray(items) ? items.length : 0;
+    },
+    [pack],
+  );
+
+  // Count total content items for summary
   const getContentSummary = useCallback(() => {
     if (!pack) return { total: 0, types: [] as string[] };
-
-    const contentTypes = [
-      'spells',
-      'monsters',
-      'species',
-      'backgrounds',
-      'classes',
-      'subclasses',
-      'feats',
-      'weapons',
-      'armors',
-      'gears',
-    ] as const;
 
     let total = 0;
     const types: string[] = [];
 
-    for (const type of contentTypes) {
-      const items = pack[type];
-      if (Array.isArray(items) && items.length > 0) {
-        total += items.length;
-        types.push(`${items.length} ${type}`);
+    for (const type of EXPORTABLE_CONTENT_KEYS) {
+      const count = getTypeCount(type);
+      if (count > 0) {
+        total += count;
+        types.push(`${count} ${type}`);
       }
     }
 
     return { total, types };
-  }, [pack]);
+  }, [pack, getTypeCount]);
 
-  // Generate export JSON
+  // Generate export JSON based on selected type
   const generateExportJson = useCallback(() => {
     if (!pack) return '';
-    const json = exportPack(pack);
-    const parsed = JSON.parse(json);
-    return JSON.stringify(parsed, null, minify ? 0 : 2);
-  }, [pack, minify]);
+
+    if (contentType === 'full') {
+      const json = exportPack(pack);
+      const parsed = JSON.parse(json);
+      return JSON.stringify(parsed, null, minify ? 0 : 2);
+    }
+
+    return exportContentType(pack, contentType);
+  }, [pack, contentType, minify]);
+
+  // Get download filename
+  const getDownloadFilename = useCallback(() => {
+    const slug = packName.replace(/\s+/g, '-').toLowerCase();
+    if (contentType === 'full') return `${slug}.json`;
+    return `${slug}-${contentType}.json`;
+  }, [packName, contentType]);
 
   // Handle export/download
   const handleExport = useCallback(async () => {
@@ -91,7 +117,7 @@ export function ExportDialog({ packId, packName, onClose }: ExportDialogProps) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${packName.replace(/\s+/g, '-').toLowerCase()}.json`;
+      a.download = getDownloadFilename();
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -102,11 +128,12 @@ export function ExportDialog({ packId, packName, onClose }: ExportDialogProps) {
     } finally {
       setExporting(false);
     }
-  }, [pack, packName, generateExportJson, onClose]);
+  }, [pack, generateExportJson, getDownloadFilename, onClose]);
 
   const summary = getContentSummary();
   const exportJson = pack ? generateExportJson() : '';
   const fileSize = new Blob([exportJson]).size;
+  const selectedCount = contentType === 'full' ? summary.total : getTypeCount(contentType);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -136,27 +163,68 @@ export function ExportDialog({ packId, packName, onClose }: ExportDialogProps) {
 
         {!loading && !error && pack && (
           <>
-            {/* Content Summary */}
+            {/* Content Type Selection */}
+            <div className="mb-4">
+              <p className="text-sm font-medium mb-2 text-text-primary">Content Type</p>
+              <select
+                value={contentType}
+                onChange={(e) => setContentType(e.target.value as ExportSelection)}
+                className="w-full p-2 border border-border rounded-md bg-bg-primary text-text-primary"
+              >
+                <option value="full">
+                  Full Pack
+                  {summary.total > 0 ? ` (${summary.total} items)` : ''}
+                </option>
+                {EXPORTABLE_CONTENT_KEYS.map((key) => {
+                  const count = getTypeCount(key);
+                  return (
+                    <option key={key} value={key}>
+                      {CONTENT_TYPE_LABELS[key]}
+                      {count > 0 ? ` (${count})` : ' (empty)'}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Selection Summary */}
             <div className="mb-4 p-4 bg-bg-secondary rounded-lg">
-              <p className="text-sm font-medium mb-2 text-text-primary">Content Summary</p>
-              {summary.total === 0 ? (
-                <p className="text-sm text-text-tertiary">No content in this pack</p>
+              <p className="text-sm font-medium mb-2 text-text-primary">
+                {contentType === 'full'
+                  ? 'Content Summary'
+                  : `Selected: ${CONTENT_TYPE_LABELS[contentType]}`}
+              </p>
+              {contentType === 'full' ? (
+                summary.total === 0 ? (
+                  <p className="text-sm text-text-tertiary">No content in this pack</p>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap gap-2">
+                      {summary.types.map((type) => (
+                        <span
+                          key={type}
+                          className="px-2 py-1 text-xs bg-bg-primary rounded border border-border"
+                        >
+                          {type}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-text-tertiary mt-2">
+                      File Size: ~
+                      {fileSize < 1024 ? `${fileSize} B` : `${(fileSize / 1024).toFixed(1)} KB`}{' '}
+                      (JSON)
+                    </p>
+                  </>
+                )
               ) : (
                 <>
-                  <div className="flex flex-wrap gap-2">
-                    {summary.types.map((type) => (
-                      <span
-                        key={type}
-                        className="px-2 py-1 text-xs bg-bg-primary rounded border border-border"
-                      >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-text-tertiary mt-2">
+                  <p className="text-sm text-text-primary">
+                    {selectedCount} {contentType}
+                  </p>
+                  <p className="text-xs text-text-tertiary mt-1">
                     File Size: ~
-                    {fileSize < 1024 ? `${fileSize} B` : `${(fileSize / 1024).toFixed(1)} KB`}{' '}
-                    (JSON)
+                    {fileSize < 1024 ? `${fileSize} B` : `${(fileSize / 1024).toFixed(1)} KB`} (pure
+                    array)
                   </p>
                 </>
               )}
@@ -193,8 +261,15 @@ export function ExportDialog({ packId, packName, onClose }: ExportDialogProps) {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleExport} disabled={!pack || exporting || summary.total === 0}>
-            {exporting ? 'Exporting...' : 'Download JSON'}
+          <Button
+            onClick={handleExport}
+            disabled={!pack || exporting || (contentType !== 'full' && selectedCount === 0)}
+          >
+            {exporting
+              ? 'Exporting...'
+              : contentType === 'full'
+                ? 'Download JSON'
+                : `Download ${CONTENT_TYPE_LABELS[contentType as ExportableContentKey] ?? ''}.json`}
           </Button>
         </div>
       </div>
