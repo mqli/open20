@@ -1,17 +1,21 @@
+import { useMemo } from 'react';
 import { X } from 'lucide-react';
 import {
+  Badge,
   Button,
   Input,
   SelectContent,
   SelectItem,
   SelectRoot,
   SelectTrigger,
+  SelectSeparator,
   Surface,
 } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { SubclassSelect } from './SubclassSelect';
 import type { AdditionalClassEntry } from './types';
 import { getAllClasses } from '@/core/content-resolver';
+import { useCustomClassStore } from '@/stores/customClassStore';
 
 interface AdditionalClassEntryProps {
   entry: AdditionalClassEntry;
@@ -25,10 +29,21 @@ export function AdditionalClassEntryComponent({
   onRemove,
 }: AdditionalClassEntryProps) {
   const t = useTranslation();
-  const CLASSES = getAllClasses().map((c) => ({
-    id: c.id,
-    name: c.name || c.id,
-  }));
+  const { classes: customEntries } = useCustomClassStore();
+
+  const CLASSES = useMemo(() => {
+    const srdClasses = getAllClasses().map((c) => ({
+      id: c.id,
+      name: c.name || c.id,
+      source: c.source,
+    }));
+    const customClasses = customEntries.map((e) => ({
+      id: e.class.id,
+      name: e.class.name,
+      source: e.class.source,
+    }));
+    return [...srdClasses, ...customClasses];
+  }, [customEntries]);
 
   return (
     <Surface variant="ghost" padding="sm" className="space-y-2 bg-bg-primary/30">
@@ -40,11 +55,26 @@ export function AdditionalClassEntryComponent({
           >
             <SelectTrigger />
             <SelectContent>
-              {CLASSES.map((c) => (
+              {CLASSES.filter((c) => c.source !== 'Homebrew').map((c) => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.name}
                 </SelectItem>
               ))}
+              {CLASSES.some((c) => c.source === 'Homebrew') && (
+                <>
+                  <SelectSeparator />
+                  {CLASSES.filter((c) => c.source === 'Homebrew').map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      <span className="flex items-center gap-1">
+                        {c.name}
+                        <Badge variant="secondary" size="xs">
+                          {t('homebrew')}
+                        </Badge>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </>
+              )}
             </SelectContent>
           </SelectRoot>
         </div>

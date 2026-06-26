@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { X } from 'lucide-react';
 import {
   Button,
+  Badge,
   DialogClose,
   DialogContent,
   DialogRoot,
@@ -10,6 +12,7 @@ import {
   SelectItem,
   SelectRoot,
   SelectTrigger,
+  SelectSeparator,
   Text,
 } from '@open20/ui';
 import { useTranslation } from '@/i18n';
@@ -19,6 +22,7 @@ import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
 import type { AdditionalClassEntry, CharacterFormData } from './types';
 import type { AppCharacter } from '@/core/types';
 import { getAllClasses, getAllSpecies, getAllBackgrounds } from '@/core/content-resolver';
+import { useCustomClassStore } from '@/stores/customClassStore';
 
 interface CharacterModalFormProps {
   open: boolean;
@@ -41,15 +45,26 @@ export function CharacterModalForm({
   onSubmit,
   onCancel,
 }: CharacterModalFormProps) {
-  // Get dynamic data from open20-core
-  const CLASSES = getAllClasses().map((c) => ({
-    id: c.id,
-    name: c.name || c.id,
-  }));
+  const { classes: customEntries } = useCustomClassStore();
+
+  // Merge SRD classes with custom classes
+  const CLASSES = useMemo(() => {
+    const srdClasses = getAllClasses().map((c) => ({
+      id: c.id,
+      name: c.name || c.id,
+      source: c.source,
+    }));
+    const customClasses = customEntries.map((e) => ({
+      id: e.class.id,
+      name: e.class.name,
+      source: e.class.source,
+    }));
+    return [...srdClasses, ...customClasses];
+  }, [customEntries]);
 
   const SPECIES = getAllSpecies().map((s) => ({
     id: s.id,
-    name: s.id, // Species doesn't have 'name' property, use id
+    name: s.id,
   }));
 
   const BACKGROUNDS = getAllBackgrounds().map((b) => ({
@@ -134,7 +149,7 @@ export function CharacterModalForm({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Text as="label" variant="formLabel">
+                  <Text as="label" variant="formLabel" className="mb-1">
                     {t('class')}
                   </Text>
                   <SelectRoot
@@ -145,11 +160,26 @@ export function CharacterModalForm({
                   >
                     <SelectTrigger />
                     <SelectContent>
-                      {CLASSES.map((c) => (
+                      {CLASSES.filter((c) => c.source !== 'Homebrew').map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
                         </SelectItem>
                       ))}
+                      {CLASSES.some((c) => c.source === 'Homebrew') && (
+                        <>
+                          <SelectSeparator />
+                          {CLASSES.filter((c) => c.source === 'Homebrew').map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              <span className="flex items-center gap-1">
+                                {c.name}
+                                <Badge variant="secondary" size="xs">
+                                  {t('homebrew')}
+                                </Badge>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </SelectRoot>
                 </div>

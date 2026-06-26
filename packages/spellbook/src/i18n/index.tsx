@@ -146,7 +146,32 @@ export type SpellbookTranslationKeys =
   | 'pastePlaceholder'
   | 'saveSpell'
   | 'saveAndNew'
-  | 'saveAndClose';
+  | 'saveAndClose'
+  // Custom classes / subclasses
+  | 'createCustomClass'
+  | 'editCustomClass'
+  | 'deleteCustomClass'
+  | 'customClass'
+  | 'className'
+  | 'classNamePlaceholder'
+  | 'subclassName'
+  | 'subclassNamePlaceholder'
+  | 'spellcastingAbility'
+  | 'slotPreset'
+  | 'slotPresetFullCaster'
+  | 'slotPresetHalfCaster'
+  | 'slotPresetPactMagic'
+  | 'knownSource'
+  | 'knownSourceClassList'
+  | 'knownSourceSpellbook'
+  | 'preparationTiming'
+  | 'preparationTimingLongRest'
+  | 'preparationTimingLevelUp'
+  | 'alwaysPreparedSpellsLevel'
+  | 'addAlwaysPreparedLevel'
+  | 'deleteConfirmCustomClass'
+  | 'manageCustomClasses'
+  | 'customClassTitle';
 
 // Spellbook translation structure
 export type SpellbookTranslations = BaseTranslations & Record<SpellbookTranslationKeys, string>;
@@ -299,6 +324,32 @@ export const enTranslations: SpellbookTranslations = {
   saveSpell: 'Save',
   saveAndNew: 'Save & New',
   saveAndClose: 'Save & Close',
+
+  // Custom classes / subclasses
+  createCustomClass: 'Create Custom Class',
+  editCustomClass: 'Edit Custom Class',
+  deleteCustomClass: 'Delete',
+  customClass: 'Custom Class',
+  className: 'Class Name',
+  classNamePlaceholder: 'e.g. Shadow Mage',
+  subclassName: 'Subclass Name',
+  subclassNamePlaceholder: 'e.g. Shadow Domain',
+  spellcastingAbility: 'Spellcasting Ability',
+  slotPreset: 'Spell Slot Progression',
+  slotPresetFullCaster: 'Full Caster',
+  slotPresetHalfCaster: 'Half Caster',
+  slotPresetPactMagic: 'Pact Magic',
+  knownSource: 'Spell Learning',
+  knownSourceClassList: 'Knows full class list',
+  knownSourceSpellbook: 'Learn from spellbook',
+  preparationTiming: 'Preparation Timing',
+  preparationTimingLongRest: 'Long Rest',
+  preparationTimingLevelUp: 'Level Up',
+  alwaysPreparedSpellsLevel: 'Always Prepared Spells (Level {level}+)',
+  addAlwaysPreparedLevel: '+ Add Spell Level',
+  deleteConfirmCustomClass: 'Delete this custom class? This cannot be undone.',
+  manageCustomClasses: 'Manage Custom Classes',
+  customClassTitle: 'Custom Classes & Subclasses',
 };
 
 // Chinese (Simplified) translations
@@ -446,6 +497,32 @@ export const zhCNTranslations: SpellbookTranslations = {
   saveSpell: '保存',
   saveAndNew: '保存并新建',
   saveAndClose: '保存并关闭',
+
+  // Custom classes / subclasses
+  createCustomClass: '创建自定义职业',
+  editCustomClass: '编辑自定义职业',
+  deleteCustomClass: '删除',
+  customClass: '自定义职业',
+  className: '职业名称',
+  classNamePlaceholder: '例如：暗影法师',
+  subclassName: '子职业名称',
+  subclassNamePlaceholder: '例如：暗影领域',
+  spellcastingAbility: '施法关键属性',
+  slotPreset: '法术位进度',
+  slotPresetFullCaster: '全施法者',
+  slotPresetHalfCaster: '半施法者',
+  slotPresetPactMagic: '契约魔法',
+  knownSource: '法术学习方式',
+  knownSourceClassList: '知晓全部职业法术',
+  knownSourceSpellbook: '从法术书学习',
+  preparationTiming: '准备时机',
+  preparationTimingLongRest: '长休后',
+  preparationTimingLevelUp: '升级时',
+  alwaysPreparedSpellsLevel: '始终准备法术（{level}级起）',
+  addAlwaysPreparedLevel: '+ 添加法术等级',
+  deleteConfirmCustomClass: '确定删除此自定义职业？此操作不可撤销。',
+  manageCustomClasses: '管理自定义职业',
+  customClassTitle: '自定义职业与子职业',
 };
 
 export { I18nProvider } from '@open20/ui';

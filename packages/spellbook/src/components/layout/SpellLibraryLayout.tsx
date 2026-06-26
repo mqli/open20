@@ -13,6 +13,7 @@ import { CharacterSelector } from '@/components/layout/CharacterSelector';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
 import { CharacterModal } from '@/components/character/CharacterModal';
 import { CustomSpellModal } from '@/components/spell/CustomSpellModal';
+import { CustomClassModal } from '@/components/class/CustomClassModal';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { MobileTabBar, type MobileTab } from '@/components/layout/MobileTabBar';
 import { useIsLargeScreen } from '@/hooks/useBreakpoint';
@@ -20,9 +21,10 @@ import { EmptyState, Surface, Text, ThemeToggle, Badge, Button } from '@open20/u
 import { useTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useCustomSpellStore } from '@/stores/customSpellStore';
+import { useCustomClassStore } from '@/stores/customClassStore';
 import { useUIStore } from '@/stores/uiStore';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { Pencil, Trash2, Sparkles } from 'lucide-react';
+import { Pencil, Trash2, Sparkles, Settings } from 'lucide-react';
 import type { Spell } from 'open20-core';
 
 export function SpellLibraryLayout() {
@@ -37,6 +39,9 @@ export function SpellLibraryLayout() {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [editingSpell, setEditingSpell] = useState<Spell | null>(null);
 
+  // Custom class state
+  const [isClassModalOpen, setIsClassModalOpen] = useState(false);
+
   const { setSpells, filteredSpells, showPreparedOnly, showKnownOnly, selectSpell } =
     useSpellStore();
   const { activeCharacter, loadCharacters } = useCharacterStore();
@@ -46,10 +51,12 @@ export function SpellLibraryLayout() {
     loadSpells: loadCustomSpells,
     deleteSpell: deleteCustomSpell,
   } = useCustomSpellStore();
+  const { loadClasses: loadCustomClasses } = useCustomClassStore();
 
   useEffect(() => {
     async function loadSpells() {
       setIsLoading(true);
+      loadCustomClasses();
       await spellService.ensureInitialized();
       loadCharacters();
       loadCustomSpells();
@@ -58,7 +65,7 @@ export function SpellLibraryLayout() {
       setIsLoading(false);
     }
     loadSpells();
-  }, [loadCharacters, loadCustomSpells, setSpells]);
+  }, [loadCharacters, loadCustomSpells, loadCustomClasses, setSpells]);
 
   // Merge custom spells into display list whenever they change
   useEffect(() => {
@@ -138,6 +145,17 @@ export function SpellLibraryLayout() {
           >
             <Sparkles className="w-4 h-4 mr-1" />
             <span className="hidden sm:inline">{t('createCustomSpell')}</span>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsClassModalOpen(true)}
+            className="shrink-0"
+            title={t('manageCustomClasses')}
+          >
+            <Settings className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">{t('manageCustomClasses')}</span>
           </Button>
           {!isLarge && (
             <div className="flex items-center gap-1 shrink-0">
@@ -254,6 +272,7 @@ export function SpellLibraryLayout() {
           onOpenChange={setIsCustomModalOpen}
           editingSpell={editingSpell}
         />
+        <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
       </div>
     );
   }
@@ -285,6 +304,7 @@ export function SpellLibraryLayout() {
         onOpenChange={setIsCustomModalOpen}
         editingSpell={editingSpell}
       />
+      <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
     </div>
   );
 }

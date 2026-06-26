@@ -21,6 +21,7 @@ import type {
 import { mergeContentPacks } from '@open20/content-srd/merge';
 import { srdContentPack } from '@open20/content-srd';
 import { resolveCharacterDeps } from '@open20/content-srd/query/resolve';
+import { storageService } from './storage-service';
 
 // ── Singleton merged content pack ──────────────────────────
 
@@ -28,10 +29,34 @@ let mergedPack: ContentPack | null = null;
 let initPromise: Promise<ContentPack> | null = null;
 
 /**
+ * Build a custom ContentPack from user-saved classes and subclasses.
+ * Mirrors the structure of an SRD ContentPack so mergeContentPacks
+ * can handle it transparently.
+ */
+function buildCustomContentPack(): ContentPack {
+  const entries = storageService.loadCustomClasses();
+  const classes = entries.map((e) => e.class);
+  const subclasses = entries.flatMap((e) => e.subclasses);
+
+  return {
+    meta: {
+      id: 'custom-classes',
+      name: 'Custom Classes',
+      version: '1.0.0',
+      source: 'Homebrew',
+      priority: 100, // Higher than SRD so custom classes win ID conflicts
+    },
+    classes: classes.length > 0 ? classes : undefined,
+    subclasses: subclasses.length > 0 ? subclasses : undefined,
+  };
+}
+
+/**
  * Initialize the content resolver.
  * Merges all registered content packs into a single pack for lookups.
  *
- * In the future, users can register custom packs before calling this.
+ * SRD pack is merged with any user-created custom classes/subclasses.
+ * In the future, third-party content packs can also be loaded here.
  */
 export async function initContent(): Promise<void> {
   if (mergedPack) return;
@@ -41,12 +66,22 @@ export async function initContent(): Promise<void> {
   }
 
   initPromise = (async () => {
-    // Currently only SRD; future: merge user-provided packs here
-    mergedPack = mergeContentPacks([srdContentPack]);
+    const customPack = buildCustomContentPack();
+    mergedPack = mergeContentPacks([srdContentPack, customPack]);
     return mergedPack;
   })();
 
   await initPromise;
+}
+
+/**
+ * Force re-merge the content pack (e.g. after custom classes/subclasses change).
+ * Clears the cached merged pack and rebuilds it.
+ */
+export async function reinitContent(): Promise<void> {
+  mergedPack = null;
+  initPromise = null;
+  return initContent();
 }
 
 /**

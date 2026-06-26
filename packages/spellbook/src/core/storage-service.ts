@@ -1,14 +1,20 @@
 import type { AppCharacter } from './types';
-import type { Spell } from 'open20-core';
+import type { Spell, Class, Subclass } from 'open20-core';
 
 interface Preferences {
   theme?: 'light' | 'dark';
   language?: 'en' | 'zh-CN';
 }
 
+export interface CustomClassEntry {
+  class: Class;
+  subclasses: Subclass[];
+}
+
 const STORAGE_KEY = 'open20-spellbook-characters';
 const PREFERENCES_KEY = 'open20-spellbook-preferences';
 const CUSTOM_SPELLS_KEY = 'open20-spellbook-custom-spells';
+const CUSTOM_CLASSES_KEY = 'open20-spellbook-custom-classes';
 
 const DEFAULT_PREFERENCES: Preferences = {
   theme: 'light',
@@ -93,6 +99,33 @@ export class StorageService {
     const spells = this.loadCustomSpells();
     const filtered = spells.filter((s) => s.id !== id);
     this.saveCustomSpells(filtered);
+    return filtered;
+  }
+
+  // ── Custom classes / subclasses ───────────────────────────
+
+  saveCustomClasses(entries: CustomClassEntry[]): void {
+    try {
+      localStorage.setItem(CUSTOM_CLASSES_KEY, JSON.stringify(entries));
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  loadCustomClasses(): CustomClassEntry[] {
+    const data = localStorage.getItem(CUSTOM_CLASSES_KEY);
+    if (!data) return [];
+    try {
+      return JSON.parse(data) as CustomClassEntry[];
+    } catch {
+      return [];
+    }
+  }
+
+  deleteCustomClass(classId: string): CustomClassEntry[] {
+    const entries = this.loadCustomClasses();
+    const filtered = entries.filter((e) => e.class.id !== classId);
+    this.saveCustomClasses(filtered);
     return filtered;
   }
 }
