@@ -38,6 +38,7 @@
     "react-dom": "catalog:",
     "react-router-dom": "catalog:",
     "tailwind-merge": "catalog:",
+    "workbox-window": "catalog:",
     "zustand": "catalog:"
   },
   "devDependencies": {
@@ -62,6 +63,7 @@
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-pwa": "catalog:",
     "vitest": "catalog:"
   }
 }

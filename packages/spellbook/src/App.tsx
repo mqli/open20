@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useUIStore } from './stores/uiStore';
 import { SpellLibraryLayout } from './components/layout/SpellLibraryLayout';
 import { DiceRollOverlay } from './components/dice/DiceRollOverlay';
+import { PwaReloadPrompt } from './components/PwaReloadPrompt';
 import { I18nProvider } from '@open20/ui';
 import { enTranslations, zhCNTranslations } from '@/i18n';
 import { storageService } from '@/core/storage-service';
@@ -38,6 +39,7 @@ export function App() {
     >
       <SpellLibraryLayout />
       <DiceRollOverlay />
+      <PwaReloadPrompt />
     </I18nProvider>
   );
 }
