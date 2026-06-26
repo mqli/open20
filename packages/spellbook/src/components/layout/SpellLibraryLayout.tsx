@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSpellStore } from '@/stores/spellStore';
 import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
@@ -12,14 +12,18 @@ import { CharacterPanel } from '@/components/layout/CharacterPanel';
 import { CharacterSelector } from '@/components/layout/CharacterSelector';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
 import { CharacterModal } from '@/components/character/CharacterModal';
+import { CustomSpellModal } from '@/components/spell/CustomSpellModal';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { MobileTabBar, type MobileTab } from '@/components/layout/MobileTabBar';
 import { useIsLargeScreen } from '@/hooks/useBreakpoint';
-import { EmptyState, Surface, Text, ThemeToggle } from '@open20/ui';
+import { EmptyState, Surface, Text, ThemeToggle, Badge, Button } from '@open20/ui';
 import { useTranslation } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
+import { useCustomSpellStore } from '@/stores/customSpellStore';
 import { useUIStore } from '@/stores/uiStore';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { Pencil, Trash2, Sparkles } from 'lucide-react';
+import type { Spell } from 'open20-core';
 
 export function SpellLibraryLayout() {
   const t = useTranslation();
@@ -29,22 +33,40 @@ export function SpellLibraryLayout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
 
+  // Custom spell state
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [editingSpell, setEditingSpell] = useState<Spell | null>(null);
+
   const { setSpells, filteredSpells, showPreparedOnly, showKnownOnly, selectSpell } =
     useSpellStore();
   const { activeCharacter, loadCharacters } = useCharacterStore();
   const { theme, setTheme } = useUIStore();
+  const {
+    spells: customSpells,
+    loadSpells: loadCustomSpells,
+    deleteSpell: deleteCustomSpell,
+  } = useCustomSpellStore();
 
   useEffect(() => {
     async function loadSpells() {
       setIsLoading(true);
       await spellService.ensureInitialized();
       loadCharacters();
+      loadCustomSpells();
       const spells = spellService.searchSpells({});
       setSpells(spells);
       setIsLoading(false);
     }
     loadSpells();
-  }, [loadCharacters, setSpells]);
+  }, [loadCharacters, loadCustomSpells, setSpells]);
+
+  // Merge custom spells into display list whenever they change
+  useEffect(() => {
+    if (!isLoading) {
+      const srdSpells = spellService.searchSpells({});
+      setSpells([...srdSpells, ...customSpells]);
+    }
+  }, [customSpells, isLoading, setSpells]);
 
   // Cross-store filtering: apply known/prepared filters here where we have both stores
   let spellsToDisplay = filteredSpells;
@@ -71,6 +93,23 @@ export function SpellLibraryLayout() {
         ? t('noKnownSpells')
         : t('noSpellsFound');
 
+  // ── Custom spell actions ──
+  const isHomebrew = useCallback((spell: Spell) => spell.source === 'Homebrew', []);
+
+  const handleEditCustom = useCallback((spell: Spell) => {
+    setEditingSpell(spell);
+    setIsCustomModalOpen(true);
+  }, []);
+
+  const handleDeleteCustom = useCallback(
+    (spellId: string) => {
+      if (window.confirm(t('deleteConfirm'))) {
+        deleteCustomSpell(spellId);
+      }
+    },
+    [deleteCustomSpell, t],
+  );
+
   // Spell library content (reused in desktop right column and mobile spells tab)
   const spellLibraryContent = (
     <div className="flex flex-col h-full">
@@ -87,6 +126,19 @@ export function SpellLibraryLayout() {
           <div className="flex-1 min-w-0">
             <SearchBar />
           </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setEditingSpell(null);
+              setIsCustomModalOpen(true);
+            }}
+            className="shrink-0"
+          >
+            <Sparkles className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">{t('createCustomSpell')}</span>
+          </Button>
           {!isLarge && (
             <div className="flex items-center gap-1 shrink-0">
               <LanguageSwitcher />
@@ -126,8 +178,54 @@ export function SpellLibraryLayout() {
                   spell={spell}
                   showDescription={false}
                   onClick={() => selectSpell(spell)}
-                  renderBadges={() => <SpellCardBadges spell={spell} showSpellbookBadges />}
-                  renderActions={() => <SpellCardActions spell={spell} showSpellbook />}
+                  renderBadges={() => (
+                    <SpellCardBadges
+                      spell={spell}
+                      showSpellbookBadges
+                      renderBadges={
+                        isHomebrew(spell)
+                          ? () => (
+                              <Badge variant="secondary" size="xs">
+                                {t('homebrew')}
+                              </Badge>
+                            )
+                          : undefined
+                      }
+                    />
+                  )}
+                  renderActions={() => (
+                    <div className="flex items-center gap-1">
+                      {isHomebrew(spell) && (
+                        <>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-1.5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditCustom(spell);
+                            }}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-1.5 text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCustom(spell.id);
+                            }}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </>
+                      )}
+                      <SpellCardActions spell={spell} showSpellbook />
+                    </div>
+                  )}
                 />
               ))}
             </div>
@@ -151,6 +249,11 @@ export function SpellLibraryLayout() {
         <div className="flex-1 flex flex-col min-w-0">{spellLibraryContent}</div>
 
         <SpellDetailFlyout />
+        <CustomSpellModal
+          open={isCustomModalOpen}
+          onOpenChange={setIsCustomModalOpen}
+          editingSpell={editingSpell}
+        />
       </div>
     );
   }
@@ -177,6 +280,11 @@ export function SpellLibraryLayout() {
       <MobileTabBar activeTab={mobileTab} onTabChange={setMobileTab} />
       <SpellDetailFlyout />
       <CharacterModal open={isModalOpen} onOpenChange={setIsModalOpen} characterId={editingId} />
+      <CustomSpellModal
+        open={isCustomModalOpen}
+        onOpenChange={setIsCustomModalOpen}
+        editingSpell={editingSpell}
+      />
     </div>
   );
 }

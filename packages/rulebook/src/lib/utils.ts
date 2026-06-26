@@ -1,14 +1,3 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-/**
- * Merge Tailwind CSS classes with conflict resolution.
- * Combines clsx and tailwind-merge for safe class merging.
- */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 /**
  * Format byte size into a human-readable string.
  * Examples: 1234 → "1.21 KB", 1234567 → "1.18 MB"

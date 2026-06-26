@@ -133,7 +133,20 @@ export type SpellbookTranslationKeys =
   | 'noCharacterSelected'
   | 'filters'
   // Loading
-  | 'loading';
+  | 'loading'
+  // Custom spells
+  | 'createCustomSpell'
+  | 'editCustomSpell'
+  | 'deleteCustomSpell'
+  | 'deleteConfirm'
+  | 'importFromText'
+  | 'homebrew'
+  | 'parseAndFill'
+  | 'pasteSpellText'
+  | 'pastePlaceholder'
+  | 'saveSpell'
+  | 'saveAndNew'
+  | 'saveAndClose';
 
 // Spellbook translation structure
 export type SpellbookTranslations = BaseTranslations & Record<SpellbookTranslationKeys, string>;
@@ -272,6 +285,20 @@ export const enTranslations: SpellbookTranslations = {
   filters: 'Filters',
   // Loading
   loading: 'Loading...',
+
+  // Custom spells
+  createCustomSpell: 'Create Custom Spell',
+  editCustomSpell: 'Edit Custom Spell',
+  deleteCustomSpell: 'Delete',
+  deleteConfirm: 'Delete this custom spell? This cannot be undone.',
+  importFromText: 'Import from Text',
+  homebrew: 'Homebrew',
+  parseAndFill: 'Parse & Fill Form',
+  pasteSpellText: 'Paste spell text copied from 5e tools, D&D Beyond, or Roll20.',
+  pastePlaceholder: 'Paste spell text here...',
+  saveSpell: 'Save',
+  saveAndNew: 'Save & New',
+  saveAndClose: 'Save & Close',
 };
 
 // Chinese (Simplified) translations
@@ -405,6 +432,20 @@ export const zhCNTranslations: SpellbookTranslations = {
 
   // Loading
   loading: '加载中...',
+
+  // Custom spells
+  createCustomSpell: '创建自定义法术',
+  editCustomSpell: '编辑自定义法术',
+  deleteCustomSpell: '删除',
+  deleteConfirm: '确定删除此自定义法术？此操作不可撤销。',
+  importFromText: '从文本导入',
+  homebrew: '自创',
+  parseAndFill: '解析并填充表单',
+  pasteSpellText: '粘贴从 5e tools、D&D Beyond 或 Roll20 复制的法术文本。',
+  pastePlaceholder: '在此粘贴法术文本...',
+  saveSpell: '保存',
+  saveAndNew: '保存并新建',
+  saveAndClose: '保存并关闭',
 };
 
 export { I18nProvider } from '@open20/ui';

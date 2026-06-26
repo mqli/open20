@@ -20,6 +20,7 @@
     "@open20/content": "workspace:*",
     "@open20/content-srd": "workspace:*",
     "@open20/ui": "workspace:*",
+    "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "lucide-react": "catalog:",
     "open20-core": "workspace:*",

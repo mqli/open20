@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@open20/ui';
 import manager from '../../stores/contentManager';
-import { parsePackJson, importPack, checkImportConflicts } from '@open20/content/io';
+import {
+  parsePackJson,
+  importPack,
+  importSingleType,
+  detectImportFormat,
+  checkImportConflicts,
+} from '@open20/content/io';
 import type { ContentPack, ContentPackMeta } from 'open20-core';
-import type { ConflictEntry, ConflictResolution } from '@open20/content/io';
+import type {
+  ConflictEntry,
+  ConflictResolution,
+  ImportDetectResult,
+  ExportableContentKey,
+} from '@open20/content/io';
 
 interface ImportWizardProps {
   onClose: () => void;
@@ -11,9 +22,23 @@ interface ImportWizardProps {
 
 type WizardStep = 1 | 2 | 3;
 
+const CONTENT_TYPE_LABELS: Record<ExportableContentKey, string> = {
+  spells: 'Spells',
+  monsters: 'Monsters',
+  species: 'Species',
+  backgrounds: 'Backgrounds',
+  classes: 'Classes',
+  subclasses: 'Subclasses',
+  feats: 'Feats',
+  weapons: 'Weapons',
+  armors: 'Armors',
+  gears: 'Gears',
+};
+
 export function ImportWizard({ onClose }: ImportWizardProps) {
   const [step, setStep] = useState<WizardStep>(1);
   const [jsonContent, setJsonContent] = useState<string>('');
+  const [importFormat, setImportFormat] = useState<ImportDetectResult | null>(null);
   const [validatedPack, setValidatedPack] = useState<ContentPack | null>(null);
   const [importSummary, setImportSummary] = useState<{
     packName: string;
@@ -26,6 +51,7 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
   const [resolutions, setResolutions] = useState<Map<string, ConflictResolution>>(new Map());
   const [importAs, setImportAs] = useState<'new' | 'merge'>('new');
   const [targetPackId, setTargetPackId] = useState<string>('');
+  const [singleTypePackName, setSingleTypePackName] = useState<string>('');
   const [availablePacks, setAvailablePacks] = useState<ContentPackMeta[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingPacks, setLoadingPacks] = useState(true);
@@ -47,7 +73,7 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
     loadPacks();
   }, []);
 
-  // Handle file upload
+  // Handle file upload — auto-detect format
   const handleFileUpload = (uploadedFile: File) => {
     if (uploadedFile.size > 10 * 1024 * 1024) {
       setError('File too large. Maximum size is 10MB.');
@@ -61,6 +87,10 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
 
     setError(null);
     setLoading(true);
+    setConflicts([]);
+    setResolutions(new Map());
+    setImportAs('new');
+    setSingleTypePackName('');
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -68,33 +98,53 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
         const content = e.target?.result as string;
         setJsonContent(content);
 
-        // Parse and validate
-        const parsed = parsePackJson(content);
+        // Auto-detect format
+        const detected = detectImportFormat(content);
+        setImportFormat(detected);
 
-        // Count content
-        const contentTypes = [
-          'spells',
-          'monsters',
-          'species',
-          'backgrounds',
-          'classes',
-          'subclasses',
-          'feats',
-        ] as const;
-        let contentCount = 0;
-        for (const type of contentTypes) {
-          if (Array.isArray(parsed[type])) {
-            contentCount += parsed[type].length;
+        if (detected.format === 'full-pack') {
+          // Full-pack: existing behavior
+          const parsed = parsePackJson(content);
+
+          const contentTypes = [
+            'spells',
+            'monsters',
+            'species',
+            'backgrounds',
+            'classes',
+            'subclasses',
+            'feats',
+          ] as const;
+          let contentCount = 0;
+          for (const type of contentTypes) {
+            if (Array.isArray(parsed[type])) {
+              contentCount += parsed[type].length;
+            }
           }
-        }
 
-        setImportSummary({
-          packName: parsed.meta.name || 'Unknown',
-          version: parsed.meta.version || '1.0.0',
-          contentCount,
-          valid: true,
-          errors: [],
-        });
+          setImportSummary({
+            packName: detected.packName,
+            version: detected.version,
+            contentCount,
+            valid: true,
+            errors: [],
+          });
+
+          // Pre-fill single-type pack name default
+          setSingleTypePackName(`Imported ${detected.packName}`);
+        } else {
+          // Single-type import
+          setImportSummary({
+            packName: `${CONTENT_TYPE_LABELS[detected.detectedType]} (${detected.itemCount} items)`,
+            version: '1.0.0',
+            contentCount: detected.itemCount,
+            valid: true,
+            errors: [],
+          });
+
+          // Default pack name for single-type
+          setSingleTypePackName(`Imported ${CONTENT_TYPE_LABELS[detected.detectedType]}`);
+        }
 
         setStep(2);
       } catch (err) {
@@ -112,23 +162,86 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
     reader.readAsText(uploadedFile);
   };
 
-  // Execute import
-  const executeImport = async (pack: ContentPack) => {
-    try {
-      setLoading(true);
+  // Execute import for full-pack
+  const executeFullPackImport = async (pack: ContentPack) => {
+    if (importAs === 'new') {
+      const newPack = manager.createPack({
+        id: pack.meta.id || `imported-${Date.now()}`,
+        name: pack.meta.name,
+        version: pack.meta.version,
+        source: pack.meta.source || pack.meta.name,
+        author: pack.meta.author,
+      });
 
-      if (importAs === 'new') {
-        // Create new pack
-        const newPack = manager.createPack({
-          id: pack.meta.id || `imported-${Date.now()}`,
-          name: pack.meta.name,
-          version: pack.meta.version,
-          source: pack.meta.source || pack.meta.name,
-          author: pack.meta.author,
-        });
+      const contentTypes = [
+        'spells',
+        'monsters',
+        'species',
+        'backgrounds',
+        'classes',
+        'subclasses',
+        'feats',
+      ] as const;
+      for (const type of contentTypes) {
+        if (pack[type]) {
+          (newPack as unknown as Record<string, unknown>)[type] = pack[type];
+        }
+      }
 
-        // Merge content into new pack
-        const contentTypes = [
+      await manager.savePack(newPack);
+    } else {
+      const targetPack = (await manager.loadPack(targetPackId)) as unknown as ContentPack;
+      if (targetPack) {
+        if (pack.spells) {
+          if (!targetPack.spells) {
+            (targetPack as unknown as Record<string, unknown>).spells = [];
+          }
+          const targetSpells = targetPack.spells as unknown[];
+          const sourceSpells = pack.spells as unknown[];
+          targetSpells.push(...sourceSpells);
+        }
+        await manager.savePack(targetPack as unknown as ContentPack);
+      }
+    }
+  };
+
+  // Execute import for single-type
+  const executeSingleTypeImport = async (pack: ContentPack) => {
+    if (importAs === 'new') {
+      const newPack = manager.createPack({
+        id: pack.meta.id || `imported-${Date.now()}`,
+        name: pack.meta.name,
+        version: pack.meta.version,
+        source: pack.meta.source || pack.meta.name,
+        author: pack.meta.author,
+      });
+
+      // Copy all content arrays from the validated single-type pack
+      const contentTypes = [
+        'spells',
+        'monsters',
+        'species',
+        'backgrounds',
+        'classes',
+        'subclasses',
+        'feats',
+        'weapons',
+        'armors',
+        'gears',
+      ] as const;
+      for (const type of contentTypes) {
+        if (pack[type]) {
+          (newPack as unknown as Record<string, unknown>)[type] = pack[type];
+        }
+      }
+
+      await manager.savePack(newPack);
+    } else {
+      const targetPack = (await manager.loadPack(targetPackId)) as unknown as ContentPack;
+      const typedPack = pack as unknown as Record<string, unknown[] | undefined>;
+
+      if (targetPack) {
+        for (const type of [
           'spells',
           'monsters',
           'species',
@@ -136,29 +249,33 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
           'classes',
           'subclasses',
           'feats',
-        ] as const;
-        for (const type of contentTypes) {
-          if (pack[type]) {
-            (newPack as unknown as Record<string, unknown>)[type] = pack[type];
-          }
-        }
-
-        await manager.savePack(newPack);
-      } else {
-        // Merge into existing pack
-        const targetPack = (await manager.loadPack(targetPackId)) as unknown as ContentPack;
-        if (targetPack) {
-          // Merge content (simplified - just merge spells for now)
-          if (pack.spells) {
-            if (!targetPack.spells) {
-              (targetPack as unknown as Record<string, unknown>).spells = [];
+          'weapons',
+          'armors',
+          'gears',
+        ] as const) {
+          const sourceArray = typedPack[type];
+          if (sourceArray && sourceArray.length > 0) {
+            const targetRecord = targetPack as unknown as Record<string, unknown[] | undefined>;
+            if (!targetRecord[type]) {
+              targetRecord[type] = [];
             }
-            const targetSpells = targetPack.spells as unknown[];
-            const sourceSpells = pack.spells as unknown[];
-            targetSpells.push(...sourceSpells);
+            targetRecord[type]!.push(...sourceArray);
           }
-          await manager.savePack(targetPack as unknown as ContentPack);
         }
+        await manager.savePack(targetPack as unknown as ContentPack);
+      }
+    }
+  };
+
+  // Execute import (routes to full-pack or single-type)
+  const executeImport = async (pack: ContentPack) => {
+    try {
+      setLoading(true);
+
+      if (importFormat?.format === 'single-type') {
+        await executeSingleTypeImport(pack);
+      } else {
+        await executeFullPackImport(pack);
       }
 
       setSuccess(true);
@@ -174,14 +291,26 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
 
   // Handle import confirmation
   const handleConfirmImport = async () => {
-    if (!jsonContent) return;
+    if (!jsonContent || !importFormat) return;
 
     try {
       setLoading(true);
       setError(null);
 
-      // Validate content
-      const validated = importPack(jsonContent);
+      let validated: ContentPack;
+
+      if (importFormat.format === 'single-type') {
+        // Single-type import
+        const effectiveName =
+          singleTypePackName || `Imported ${CONTENT_TYPE_LABELS[importFormat.detectedType]}`;
+        validated = importSingleType(jsonContent, importFormat.detectedType, {
+          name: effectiveName,
+        }) as unknown as ContentPack;
+      } else {
+        // Full-pack import
+        validated = importPack(jsonContent);
+      }
+
       setValidatedPack(validated);
 
       // Check for conflicts if merging
@@ -216,7 +345,7 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
     strategy: 'keep-both' | 'replace' | 'skip',
     newId?: string,
   ) => {
-    const key = `spells:${conflict.incomingId}`;
+    const key = `${conflict.contentType}:${conflict.incomingId}`;
     let resolution: ConflictResolution;
 
     switch (strategy) {
@@ -233,6 +362,8 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
 
     setResolutions(new Map(resolutions.set(key, resolution)));
   };
+
+  const isSingleType = importFormat?.format === 'single-type';
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -295,8 +426,10 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
                 input.click();
               }}
             >
-              <p className="text-text-primary mb-2">📁 Drop JSON file here or click to upload</p>
-              <p className="text-sm text-text-tertiary">Supports .json files up to 10MB</p>
+              <p className="text-text-primary mb-2">📁 Drop a JSON file here or click to upload</p>
+              <p className="text-sm text-text-tertiary">
+                Supports .json files up to 10MB — auto-detects full packs or single content types
+              </p>
             </div>
             {loading && <p className="text-center text-text-tertiary">Reading file...</p>}
           </div>
@@ -307,10 +440,26 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
           <div>
             <p className="mb-4 text-text-primary">Step 2: Confirm Import</p>
             <div className="mb-4 p-4 bg-bg-secondary rounded-lg">
-              <p className="font-medium text-text-primary">{importSummary.packName}</p>
-              <p className="text-sm text-text-secondary">
-                v{importSummary.version} · {importSummary.contentCount} content items
-              </p>
+              {isSingleType && importFormat ? (
+                <>
+                  <p className="text-sm text-text-secondary">
+                    Detected format:{' '}
+                    <span className="font-medium text-text-primary">
+                      {CONTENT_TYPE_LABELS[importFormat.detectedType]} array
+                    </span>
+                  </p>
+                  <p className="font-medium text-text-primary mt-1">
+                    {importFormat.itemCount} items
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium text-text-primary">{importSummary.packName}</p>
+                  <p className="text-sm text-text-secondary">
+                    v{importSummary.version} · {importSummary.contentCount} content items
+                  </p>
+                </>
+              )}
               {importSummary.valid ? (
                 <p className="text-sm text-green-600 dark:text-green-400 mt-2">
                   ✅ All content valid
@@ -325,6 +474,20 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
               )}
             </div>
 
+            {/* Pack name input for single-type new pack */}
+            {isSingleType && importFormat && importAs === 'new' && (
+              <div className="mb-4">
+                <p className="text-sm font-medium mb-2 text-text-primary">Pack Name</p>
+                <input
+                  type="text"
+                  value={singleTypePackName}
+                  onChange={(e) => setSingleTypePackName(e.target.value)}
+                  placeholder={`Imported ${CONTENT_TYPE_LABELS[importFormat.detectedType]}`}
+                  className="w-full p-2 border border-border rounded-md bg-bg-primary text-text-primary"
+                />
+              </div>
+            )}
+
             <div className="mb-4">
               <p className="text-sm font-medium mb-2 text-text-primary">Import as</p>
               <label className="flex items-center gap-2 mb-2 text-text-primary">
@@ -334,7 +497,12 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
                   checked={importAs === 'new'}
                   onChange={() => setImportAs('new')}
                 />
-                New Pack (create &quot;{importSummary.packName}&quot;)
+                New Pack
+                {isSingleType && importFormat
+                  ? ` (create "${singleTypePackName || `Imported ${CONTENT_TYPE_LABELS[importFormat.detectedType]}`}")`
+                  : importSummary
+                    ? ` (create "${importSummary.packName}")`
+                    : ''}
               </label>
               <label className="flex items-center gap-2 text-text-primary">
                 <input
@@ -394,7 +562,9 @@ export function ImportWizard({ onClose }: ImportWizardProps) {
                   <p className="text-sm font-medium text-text-primary">
                     {conflict.existingName} (ID: {conflict.existingId})
                   </p>
-                  <p className="text-xs text-text-tertiary mb-2">Conflict type: {conflict.type}</p>
+                  <p className="text-xs text-text-tertiary mb-2">
+                    Conflict type: {conflict.type} ({conflict.contentType})
+                  </p>
                   <div className="space-y-1">
                     <label className="flex items-center gap-2 text-sm text-text-primary">
                       <input

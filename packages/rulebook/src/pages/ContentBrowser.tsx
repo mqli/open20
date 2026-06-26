@@ -12,6 +12,7 @@ import {
   Shield,
   Backpack,
 } from 'lucide-react';
+import { cva } from 'class-variance-authority';
 import { FilterSidebar } from '../components/browser/FilterSidebar';
 import { ActiveFilterChips } from '../components/browser/ActiveFilterChips';
 import { ContentCard } from '../components/content/ContentCard';
@@ -21,6 +22,45 @@ import type { ContentBrowserTab } from '../stores/browserStore';
 import type { Spell, Monster, Species, Background, Feat, Weapon, Armor, Gear } from 'open20-core';
 
 type ViewMode = 'grid' | 'list';
+
+const tabVariants = cva(
+  'flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+  {
+    variants: {
+      isActive: {
+        true: 'border-primary text-primary',
+        false: 'border-transparent text-muted-foreground hover:text-foreground',
+      },
+    },
+    defaultVariants: {
+      isActive: false,
+    },
+  },
+);
+
+const viewModeButtonVariants = cva('p-2 rounded-md transition-colors', {
+  variants: {
+    isActive: {
+      true: 'bg-primary text-primary-foreground',
+      false: 'hover:bg-muted',
+    },
+  },
+  defaultVariants: {
+    isActive: false,
+  },
+});
+
+const resultsLayoutVariants = cva('', {
+  variants: {
+    mode: {
+      grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4',
+      list: 'space-y-4',
+    },
+  },
+  defaultVariants: {
+    mode: 'grid',
+  },
+});
 
 const TAB_EMPTY: Record<ContentBrowserTab, string> = {
   spells: '🔍 No spells found',
@@ -194,11 +234,7 @@ export function ContentBrowser() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
+              className={tabVariants({ isActive: activeTab === tab.id })}
             >
               {tab.icon}
               {tab.label}
@@ -227,18 +263,14 @@ export function ContentBrowser() {
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
+              className={viewModeButtonVariants({ isActive: viewMode === 'list' })}
               title="List view"
             >
               <List className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
+              className={viewModeButtonVariants({ isActive: viewMode === 'grid' })}
               title="Grid view"
             >
               <LayoutGrid className="w-4 h-4" />
@@ -265,13 +297,7 @@ export function ContentBrowser() {
         {!loading && !error && (
           <>
             {results.length > 0 ? (
-              <div
-                className={
-                  viewMode === 'grid'
-                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
-                    : 'space-y-4'
-                }
-              >
+              <div className={resultsLayoutVariants({ mode: viewMode })}>
                 {results.map((item) => {
                   if (isSpell(item)) {
                     return (
