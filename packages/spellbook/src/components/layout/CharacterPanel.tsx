@@ -1,12 +1,10 @@
 import { useState, useMemo, Fragment } from 'react';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useSpellStore } from '@/stores/spellStore';
-import { useUIStore } from '@/stores/uiStore';
 import { getAllClasses, resolveDeps } from '@/core/content-resolver';
 import { spellService } from '@/core/spell-service';
 import { getCasterType } from 'open20-core/spells';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { Button, Divider, Surface, Text, ThemeToggle, Toggle } from '@open20/ui';
+import { Button, Divider, Surface, Text, Toggle } from '@open20/ui';
 import { CharacterSelector } from '@/components/layout/CharacterSelector';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
 import { CharacterSheet } from '@/components/character/CharacterSheet';
@@ -28,7 +26,6 @@ export function CharacterPanel() {
   } = useCharacterStore();
   const { showPreparedOnly, setShowPreparedOnly, showKnownOnly, setShowKnownOnly } =
     useSpellStore();
-  const { theme, setTheme } = useUIStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
@@ -208,17 +205,6 @@ export function CharacterPanel() {
       ) : (
         <div className="flex-1" />
       )}
-
-      {/* Settings — always visible at bottom */}
-      <div className="px-3 py-2 border-t border-border mt-auto shrink-0">
-        <div className="flex items-center justify-between">
-          <LanguageSwitcher />
-          <ThemeToggle
-            theme={theme}
-            onToggle={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          />
-        </div>
-      </div>
 
       <CharacterModal open={isModalOpen} onOpenChange={setIsModalOpen} characterId={editingId} />
       <CharacterSheet

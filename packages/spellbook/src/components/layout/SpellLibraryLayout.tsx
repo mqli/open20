@@ -17,18 +17,19 @@ import { CustomClassModal } from '@/components/class/CustomClassModal';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { MobileTabBar, type MobileTab } from '@/components/layout/MobileTabBar';
 import { useIsLargeScreen } from '@/hooks/useBreakpoint';
-import { EmptyState, Surface, Text, ThemeToggle, Badge, Button } from '@open20/ui';
-import { useTranslation } from '@/i18n';
+import { EmptyState, Surface, Text, Badge, Button, DropdownMenu } from '@open20/ui';
+import { useTranslation, useI18n } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useCustomSpellStore } from '@/stores/customSpellStore';
 import { useCustomClassStore } from '@/stores/customClassStore';
 import { useUIStore } from '@/stores/uiStore';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { Pencil, Trash2, Sparkles, Settings } from 'lucide-react';
+import { storageService } from '@/core/storage-service';
+import { Pencil, Trash2, Sparkles, Settings, MoreHorizontal, Globe, Sun, Moon } from 'lucide-react';
 import type { Spell } from 'open20-core';
 
 export function SpellLibraryLayout() {
   const t = useTranslation();
+  const { locale, setLocale } = useI18n();
   const isLarge = useIsLargeScreen();
   const [isLoading, setIsLoading] = useState(true);
   const [mobileTab, setMobileTab] = useState<MobileTab>('spells');
@@ -133,40 +134,48 @@ export function SpellLibraryLayout() {
           <div className="flex-1 min-w-0">
             <SearchBar />
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setEditingSpell(null);
-              setIsCustomModalOpen(true);
-            }}
-            className="shrink-0"
-          >
-            <Sparkles className="w-4 h-4 mr-1" />
-            <span className="hidden sm:inline">{t('createCustomSpell')}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsClassModalOpen(true)}
-            className="shrink-0"
-            title={t('manageCustomClasses')}
-          >
-            <Settings className="w-4 h-4 mr-1" />
-            <span className="hidden sm:inline">{t('manageCustomClasses')}</span>
-          </Button>
-          {!isLarge && (
-            <div className="flex items-center gap-1 shrink-0">
-              <LanguageSwitcher />
-              <ThemeToggle
-                theme={theme}
-                onToggle={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              />
-            </div>
-          )}
           <FilterDrawer />
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <Button type="button" variant="ghost" size="sm" className="shrink-0">
+                <MoreHorizontal className="w-4 h-4" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content sideOffset={4} align="end">
+              <DropdownMenu.Item
+                onSelect={() => {
+                  setEditingSpell(null);
+                  setIsCustomModalOpen(true);
+                }}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {t('createCustomSpell')}
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setIsClassModalOpen(true)}>
+                <Settings className="w-4 h-4 mr-2" />
+                {t('manageCustomClasses')}
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item
+                onSelect={() => {
+                  const next = locale === 'en' ? 'zh-CN' : 'en';
+                  setLocale(next);
+                  storageService.savePreferences({ language: next });
+                }}
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                {t('language')}: {locale === 'en' ? 'English' : '中文'}
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+                {theme === 'light' ? (
+                  <Sun className="w-4 h-4 mr-2" />
+                ) : (
+                  <Moon className="w-4 h-4 mr-2" />
+                )}
+                {t('theme')}: {theme === 'light' ? 'Light' : 'Dark'}
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </div>
       </Surface>
 

@@ -171,7 +171,10 @@ export type SpellbookTranslationKeys =
   | 'addAlwaysPreparedLevel'
   | 'deleteConfirmCustomClass'
   | 'manageCustomClasses'
-  | 'customClassTitle';
+  | 'customClassTitle'
+  // Menu
+  | 'language'
+  | 'theme';
 
 // Spellbook translation structure
 export type SpellbookTranslations = BaseTranslations & Record<SpellbookTranslationKeys, string>;
@@ -350,6 +353,10 @@ export const enTranslations: SpellbookTranslations = {
   deleteConfirmCustomClass: 'Delete this custom class? This cannot be undone.',
   manageCustomClasses: 'Manage Custom Classes',
   customClassTitle: 'Custom Classes & Subclasses',
+
+  // Menu
+  language: 'Language',
+  theme: 'Theme',
 };
 
 // Chinese (Simplified) translations
@@ -523,6 +530,10 @@ export const zhCNTranslations: SpellbookTranslations = {
   deleteConfirmCustomClass: '确定删除此自定义职业？此操作不可撤销。',
   manageCustomClasses: '管理自定义职业',
   customClassTitle: '自定义职业与子职业',
+
+  // Menu
+  language: '语言',
+  theme: '主题',
 };
 
 export { I18nProvider } from '@open20/ui';
