@@ -276,7 +276,13 @@ export function CustomClassModal({
             </div>
 
             <div className="space-y-3">
-              <Button variant="primary" size="sm" onClick={handleCreateNew} className="w-full">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleCreateNew}
+                className="w-full"
+                data-testid="create-custom-class-btn"
+              >
                 <Plus className="w-4 h-4 mr-1" />
                 {t('createCustomClass')}
               </Button>

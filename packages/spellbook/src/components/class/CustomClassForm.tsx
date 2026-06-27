@@ -180,6 +180,7 @@ export function CustomClassFormInner({
             value={newSubclassName}
             onChange={(e) => setNewSubclassName((e.target as HTMLInputElement).value)}
             placeholder={t('subclassNamePlaceholder')}
+            data-testid="subclass-name-input"
           />
         </div>
 
@@ -218,6 +219,7 @@ export function CustomClassFormInner({
             size="sm"
             onClick={handleAddSubclass}
             disabled={!newSubclassName.trim()}
+            data-testid="add-subclass-submit"
           >
             <Plus className="w-3.5 h-3.5 mr-1" />
             {t('add')}
@@ -242,6 +244,7 @@ export function CustomClassFormInner({
           value={name}
           onChange={(e) => setName((e.target as HTMLInputElement).value)}
           placeholder={t('classNamePlaceholder')}
+          data-testid="class-name-input"
         />
       </div>
 
@@ -251,7 +254,7 @@ export function CustomClassFormInner({
           {t('spellcastingAbility')}
         </Text>
         <SelectRoot value={ability} onValueChange={(v) => setAbility(v as AbilityName)}>
-          <SelectTrigger />
+          <SelectTrigger data-testid="select-spellcasting-ability" />
           <SelectContent>
             {ABILITIES.map((a) => (
               <SelectItem key={a} value={a}>
@@ -268,7 +271,7 @@ export function CustomClassFormInner({
           {t('slotPreset')}
         </Text>
         <SelectRoot value={presetId} onValueChange={setPresetId}>
-          <SelectTrigger />
+          <SelectTrigger data-testid="select-slot-preset" />
           <SelectContent>
             <SelectItem value="full-caster">{t('slotPresetFullCaster')}</SelectItem>
             <SelectItem value="half-caster">{t('slotPresetHalfCaster')}</SelectItem>
@@ -365,11 +368,17 @@ export function CustomClassFormInner({
             onChange={(e) => setNewSubclassName((e.target as HTMLInputElement).value)}
             placeholder={t('subclassNamePlaceholder')}
             className="flex-1 text-sm"
+            data-testid="subclass-name-input"
             onKeyDown={(e) => {
               if (e.key === 'Enter') addSubclass();
             }}
           />
-          <Button variant="secondary" size="sm" onClick={addSubclass}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={addSubclass}
+            data-testid="add-subclass-btn"
+          >
             <Plus className="w-3.5 h-3.5 mr-1" />
             {t('add')}
           </Button>
@@ -380,17 +389,28 @@ export function CustomClassFormInner({
       <div className="flex items-center justify-between pt-2">
         <div>
           {isEditing && (
-            <Button variant="danger" size="sm" onClick={handleDelete}>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleDelete}
+              data-testid="class-delete-btn"
+            >
               <Trash2 className="w-3.5 h-3.5 mr-1" />
               {t('deleteCustomClass')}
             </Button>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onDismiss}>
+          <Button variant="ghost" size="sm" onClick={onDismiss} data-testid="class-cancel-btn">
             {t('cancel')}
           </Button>
-          <Button variant="primary" size="sm" onClick={handleSave} disabled={!canSave}>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleSave}
+            disabled={!canSave}
+            data-testid="class-save-btn"
+          >
             {t('saveSpell')}
           </Button>
         </div>

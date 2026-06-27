@@ -9,7 +9,6 @@ export class CustomClassPage {
 
   constructor(page: Page) {
     this.page = page;
-    // The MoreHorizontal button in the toolbar
     this.moreBtn = page.getByTestId('toolbar-more-btn');
     this.manageBtn = page.getByRole('menuitem', { name: 'Manage Custom Classes' });
   }
@@ -19,7 +18,6 @@ export class CustomClassPage {
   async goto() {
     await this.page.goto('/');
     await this.page.waitForLoadState('domcontentloaded');
-    // Wait for spell library to load
     await this.page.locator('.spell-card').first().waitFor({ state: 'visible' });
   }
 
@@ -27,7 +25,8 @@ export class CustomClassPage {
     await this.moreBtn.click();
     await this.manageBtn.waitFor({ state: 'visible' });
     await this.manageBtn.click();
-    await this.page.waitForTimeout(300);
+    // Wait for the dialog to appear
+    await this.getDialog().waitFor({ state: 'visible' });
   }
 
   // ── Modal-level locators ──
@@ -39,14 +38,14 @@ export class CustomClassPage {
   // ── List view ──
 
   getCreateButton(): Locator {
-    return this.getDialog().getByRole('button', { name: 'Create Custom Class' });
+    return this.getDialog().getByTestId('create-custom-class-btn');
   }
 
   getEmptyText(): Locator {
     return this.getDialog().getByText(/No custom classes yet/i);
   }
 
-  /** Get a custom class row by class name. */
+  /** Get a custom class row by class name text. */
   getClassRow(className: string): Locator {
     return this.getDialog().locator('.border').filter({ hasText: className }).first();
   }
@@ -54,16 +53,16 @@ export class CustomClassPage {
   /** Click the "+" button on a specific class row to add a subclass. */
   async clickAddSubclassOnRow(className: string) {
     const row = this.getClassRow(className);
-    // "+" button is the first ghost button in the row actions area
+    // The "+" button is the first ghost button in the row
     await row.getByRole('button').first().click();
-    await this.page.waitForTimeout(200);
+    await this.page.waitForTimeout(300);
   }
 
   /** Click the pencil (edit) button on a class row. */
   async clickEditClass(className: string) {
     const row = this.getClassRow(className);
     await row.getByRole('button').nth(1).click();
-    await this.page.waitForTimeout(200);
+    await this.page.waitForTimeout(300);
   }
 
   /** Click the trash (delete) button on a class row. */
@@ -75,7 +74,7 @@ export class CustomClassPage {
   // ── SRD section ──
 
   getSrdSection(): Locator {
-    return this.getDialog().locator('text=SRD Classes');
+    return this.getDialog().getByText('SRD Classes');
   }
 
   /** Get an SRD class row by class name. */
@@ -86,23 +85,23 @@ export class CustomClassPage {
   // ── Form (create / edit) ──
 
   getClassNameInput(): Locator {
-    return this.getDialog().getByPlaceholder('e.g. Shadow Mage');
+    return this.getDialog().getByTestId('class-name-input');
   }
 
   getSubclassNameInput(): Locator {
-    return this.getDialog().getByPlaceholder('e.g. Shadow Domain');
+    return this.getDialog().getByTestId('subclass-name-input');
   }
 
   getSaveButton(): Locator {
-    return this.getDialog().getByRole('button', { name: 'Save' });
+    return this.getDialog().getByTestId('class-save-btn');
   }
 
   getCancelButton(): Locator {
-    return this.getDialog().getByRole('button', { name: 'Cancel' });
+    return this.getDialog().getByTestId('class-cancel-btn');
   }
 
   getDeleteButton(): Locator {
-    return this.getDialog().getByRole('button', { name: 'Delete' });
+    return this.getDialog().getByTestId('class-delete-btn');
   }
 
   getBackButton(): Locator {
@@ -116,21 +115,15 @@ export class CustomClassPage {
 
   /** Select a spellcasting ability from the select dropdown. */
   async selectSpellcastingAbility(ability: string) {
-    // Click the select trigger labeled "Spellcasting Ability"
-    const label = this.getDialog().getByText('Spellcasting Ability', { exact: true });
-    const selectTrigger = label.locator('..').locator('button');
-    await selectTrigger.click();
+    await this.getDialog().getByTestId('select-spellcasting-ability').click();
     await this.page.waitForTimeout(100);
-    // Select the option
     await this.page.getByRole('option', { name: ability }).click();
     await this.page.waitForTimeout(100);
   }
 
   /** Select a slot preset. */
   async selectSlotPreset(preset: string) {
-    const label = this.getDialog().getByText('Spell Slot Progression', { exact: true });
-    const selectTrigger = label.locator('..').locator('button');
-    await selectTrigger.click();
+    await this.getDialog().getByTestId('select-slot-preset').click();
     await this.page.waitForTimeout(100);
     await this.page.getByRole('option', { name: preset }).click();
     await this.page.waitForTimeout(100);
@@ -153,15 +146,13 @@ export class CustomClassPage {
     await this.page.waitForTimeout(200);
   }
 
-  /** Click Create New button to enter form. Falls through if form is already shown (auto-open on empty state). */
+  /** Click Create New to enter the create form. No-op if form is auto-shown (empty state). */
   async clickCreateNew() {
     const btn = this.getCreateButton();
-    const count = await btn.count();
-    if (count > 0) {
+    if ((await btn.count()) > 0) {
       await btn.click();
       await this.page.waitForTimeout(200);
     }
-    // When no classes exist, modal auto-opens create form — no button to click.
   }
 
   // ── Add-subclass view (condensed form) ──
@@ -171,9 +162,9 @@ export class CustomClassPage {
     await this.getSubclassNameInput().fill(name);
   }
 
-  /** Click the Add button in the add-subclass form. */
+  /** Click the Add button in the add-subclass condensed form. */
   async clickAddSubclassSubmit() {
-    await this.getDialog().getByRole('button', { name: 'Add' }).click();
+    await this.getDialog().getByTestId('add-subclass-submit').click();
     await this.page.waitForTimeout(300);
   }
 
@@ -181,9 +172,8 @@ export class CustomClassPage {
 
   /** Add a subclass in the create/edit form. */
   async addSubclassInForm(name: string) {
-    const formInput = this.getDialog().getByPlaceholder('e.g. Shadow Domain');
-    await formInput.fill(name);
-    await this.getDialog().getByRole('button', { name: 'Add' }).last().click();
+    await this.getSubclassNameInput().fill(name);
+    await this.getDialog().getByTestId('add-subclass-btn').click();
     await this.page.waitForTimeout(200);
   }
 
