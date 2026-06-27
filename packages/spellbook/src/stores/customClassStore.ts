@@ -32,6 +32,8 @@ async function afterMutate() {
 
 interface CustomClassState {
   classes: CustomClassEntry[];
+  /** Subclasses whose parent is an SRD class (not a custom class). */
+  standaloneSubclasses: Subclass[];
   loadClasses: () => void;
   /** Add or replace a custom class and its subclasses (matched by class.id). */
   saveClass: (entry: CustomClassEntry) => void;
@@ -39,14 +41,22 @@ interface CustomClassState {
   addSubclass: (classId: string, subclass: Subclass) => void;
   updateSubclass: (classId: string, subclass: Subclass) => void;
   deleteSubclass: (classId: string, subclassId: string) => void;
+  /** Add a subclass to an SRD class (stored standalone, no custom class wrapper). */
+  addStandaloneSubclass: (parentClassId: string, subclass: Subclass) => void;
+  /** Delete a standalone subclass by its own ID. */
+  deleteStandaloneSubclass: (parentClassId: string, subclassId: string) => void;
+  /** Re-persist & reinit content after standalone subclass changes. */
+  afterStandaloneMutate: () => void;
 }
 
 export const useCustomClassStore = create<CustomClassState>((set, get) => ({
   classes: [],
+  standaloneSubclasses: [],
 
   loadClasses: () => {
     const classes = storageService.loadCustomClasses();
-    set({ classes });
+    const standaloneSubclasses = storageService.loadStandaloneSubclasses();
+    set({ classes, standaloneSubclasses });
   },
 
   saveClass: (entry) => {
@@ -105,6 +115,38 @@ export const useCustomClassStore = create<CustomClassState>((set, get) => ({
     });
     storageService.saveCustomClasses(updated);
     set({ classes: updated });
+    afterMutate();
+  },
+
+  addStandaloneSubclass: (parentClassId, subclass) => {
+    const { standaloneSubclasses } = get();
+    // Ensure the incoming subclass has the correct parentClassId
+    const fixed: Subclass = { ...subclass, parentClass: parentClassId };
+    const exists = standaloneSubclasses.some((s) => s.id === fixed.id);
+    if (exists) {
+      // Update existing
+      const updated = standaloneSubclasses.map((s) => (s.id === fixed.id ? fixed : s));
+      storageService.saveStandaloneSubclasses(updated);
+      set({ standaloneSubclasses: updated });
+    } else {
+      const updated = [...standaloneSubclasses, fixed];
+      storageService.saveStandaloneSubclasses(updated);
+      set({ standaloneSubclasses: updated });
+    }
+    afterMutate();
+  },
+
+  deleteStandaloneSubclass: (parentClassId, subclassId) => {
+    const { standaloneSubclasses } = get();
+    const updated = standaloneSubclasses.filter(
+      (s) => !(s.parentClass === parentClassId && s.id === subclassId),
+    );
+    storageService.saveStandaloneSubclasses(updated);
+    set({ standaloneSubclasses: updated });
+    afterMutate();
+  },
+
+  afterStandaloneMutate: () => {
     afterMutate();
   },
 }));

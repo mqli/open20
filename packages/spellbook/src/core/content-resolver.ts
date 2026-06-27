@@ -36,7 +36,9 @@ let initPromise: Promise<ContentPack> | null = null;
 function buildCustomContentPack(): ContentPack {
   const entries = storageService.loadCustomClasses();
   const classes = entries.map((e) => e.class);
-  const subclasses = entries.flatMap((e) => e.subclasses);
+  const customSubclasses = entries.flatMap((e) => e.subclasses);
+  const standaloneSubclasses = storageService.loadStandaloneSubclasses();
+  const subclasses = [...customSubclasses, ...standaloneSubclasses];
 
   return {
     meta: {

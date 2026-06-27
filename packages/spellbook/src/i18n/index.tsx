@@ -173,6 +173,8 @@ export type SpellbookTranslationKeys =
   | 'manageCustomClasses'
   | 'customClassTitle'
   | 'noCustomClasses'
+  | 'addSubclassTo'
+  | 'srdClasses'
   // Menu
   | 'language'
   | 'theme';
@@ -355,6 +357,8 @@ export const enTranslations: SpellbookTranslations = {
   manageCustomClasses: 'Manage Custom Classes',
   customClassTitle: 'Custom Classes & Subclasses',
   noCustomClasses: 'No custom classes yet. Create one to get started.',
+  addSubclassTo: 'Add Subclass to {name}',
+  srdClasses: 'SRD Classes',
 
   // Menu
   language: 'Language',
@@ -533,6 +537,8 @@ export const zhCNTranslations: SpellbookTranslations = {
   manageCustomClasses: '管理自定义职业',
   customClassTitle: '自定义职业与子职业',
   noCustomClasses: '还没有自定义职业，创建一个开始吧。',
+  addSubclassTo: '添加子职业到 {name}',
+  srdClasses: 'SRD 职业',
 
   // Menu
   language: '语言',

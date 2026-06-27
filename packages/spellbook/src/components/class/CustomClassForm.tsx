@@ -12,7 +12,7 @@ import {
   Divider,
 } from '@open20/ui';
 import { X, Plus, Trash2 } from 'lucide-react';
-import type { AbilityName } from 'open20-core';
+import type { AbilityName, Subclass } from 'open20-core';
 import type { CustomClassEntry } from '@/stores/customClassStore';
 import { useTranslation } from '@/i18n';
 import { getPreset } from '@/core/slot-presets';
@@ -27,6 +27,10 @@ export interface CustomClassFormInnerProps {
   onSave: (entry: CustomClassEntry) => void;
   onDelete: (classId: string) => void;
   onDismiss: () => void;
+  /** If set, form is in "add subclass" condense mode — only subclass fields are shown. */
+  addSubclassToClassId?: string;
+  /** Callback for condense mode: saves one subclass to an existing class. */
+  onAddSubclass?: (classId: string, subclass: Subclass) => void;
 }
 
 export function CustomClassFormInner({
@@ -35,9 +39,13 @@ export function CustomClassFormInner({
   onSave,
   onDelete,
   onDismiss,
+  addSubclassToClassId,
+  onAddSubclass,
 }: CustomClassFormInnerProps) {
   const t = useTranslation();
-  const isEditing = !!editingEntry;
+
+  // ── Condense mode: add a single subclass to an existing class ──
+  const isAddSubclassMode = !!addSubclassToClassId && !!onAddSubclass;
 
   // Compute initial values from editingEntry
   const initName = editingEntry?.class.name ?? '';
@@ -134,6 +142,94 @@ export function CustomClassFormInner({
   }, []);
 
   const canSave = name.trim().length > 0 && !!preset;
+
+  // ── Condense mode: always-prepared state for a single new subclass ──
+  const [alwaysPrepared, setAlwaysPrepared] = useState<{ level: number; spells: string[] }[]>([]);
+
+  const addAlwaysPrepared = useCallback((level: number, spellsStr: string) => {
+    const spells = spellsStr
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (spells.length === 0) return;
+    setAlwaysPrepared((prev) => [...prev, { level, spells }]);
+  }, []);
+
+  const removeAlwaysPrepared = useCallback((level: number) => {
+    setAlwaysPrepared((prev) => prev.filter((e) => e.level !== level));
+  }, []);
+
+  const handleAddSubclass = useCallback(() => {
+    const trimmed = newSubclassName.trim();
+    if (!trimmed || !addSubclassToClassId || !onAddSubclass) return;
+    const subclass = buildSubclass(crypto.randomUUID(), addSubclassToClassId, alwaysPrepared);
+    onAddSubclass(addSubclassToClassId, subclass);
+  }, [newSubclassName, addSubclassToClassId, alwaysPrepared, onAddSubclass]);
+
+  // ── Condense mode: add-subclass form ──
+
+  if (isAddSubclassMode) {
+    const content = (
+      <div className="space-y-4">
+        {/* Subclass name */}
+        <div>
+          <Text as="label" variant="formLabel">
+            {t('className')}
+          </Text>
+          <Input
+            value={newSubclassName}
+            onChange={(e) => setNewSubclassName((e.target as HTMLInputElement).value)}
+            placeholder={t('subclassNamePlaceholder')}
+          />
+        </div>
+
+        {/* Always-prepared spells */}
+        {alwaysPrepared.length > 0 && (
+          <div className="space-y-1">
+            {alwaysPrepared.map((entry) => (
+              <div key={entry.level} className="flex items-center gap-1">
+                <Badge variant="info" size="xs" className="shrink-0">
+                  Lv{entry.level}
+                </Badge>
+                <Text variant="caption" className="flex-1 truncate">
+                  {entry.spells.join(', ')}
+                </Text>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 px-0.5"
+                  onClick={() => removeAlwaysPrepared(entry.level)}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+        <AddAlwaysPreparedRow onAdd={addAlwaysPrepared} />
+
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-2 pt-2">
+          <Button variant="ghost" size="sm" onClick={onDismiss}>
+            {t('cancel')}
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleAddSubclass}
+            disabled={!newSubclassName.trim()}
+          >
+            <Plus className="w-3.5 h-3.5 mr-1" />
+            {t('add')}
+          </Button>
+        </div>
+      </div>
+    );
+
+    return compact ? <>{content}</> : content;
+  }
+
+  const isEditing = !!editingEntry;
 
   const content = (
     <div className="space-y-4">

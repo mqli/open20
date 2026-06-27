@@ -8,10 +8,12 @@ import {
   Text,
   Surface,
 } from '@open20/ui';
-import { X, Plus, Trash2, Sparkles, Pencil, ArrowLeft, Settings } from 'lucide-react';
+import { X, Plus, Trash2, Sparkles, Pencil, ArrowLeft, Settings, BookOpen } from 'lucide-react';
+import type { Subclass } from 'open20-core';
 import { useCustomClassStore, type CustomClassEntry } from '@/stores/customClassStore';
 import { useTranslation } from '@/i18n';
 import { CustomClassFormInner } from './CustomClassForm';
+import { getAllClasses } from '@/core/content-resolver';
 
 // ── Outer modal wrapper (forces remount via key when form resets) ─
 
@@ -30,11 +32,18 @@ export function CustomClassModal({
   editingEntry,
   compact,
 }: CustomClassModalProps) {
-  const { classes: allEntries, saveClass, deleteClass } = useCustomClassStore();
+  const {
+    classes: allEntries,
+    standaloneSubclasses,
+    saveClass,
+    deleteClass,
+    addSubclass,
+    addStandaloneSubclass,
+  } = useCustomClassStore();
   const t = useTranslation();
 
-  // Internal selection: null = list view, 'new' = create form, classId = edit form
-  // Reset to list view when modal opens, unless external editingEntry is provided
+  // Internal selection: null = list view, 'new' = create form, classId = edit form,
+  // 'addsub:<classId>' = add subclass to existing class
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
 
   // Sync internal state when modal opens
@@ -48,6 +57,37 @@ export function CustomClassModal({
   const activeEntry = useMemo(
     () => (selectedId ? allEntries.find((e) => e.class.id === selectedId) : null),
     [selectedId, allEntries],
+  );
+
+  // Condense add-subclass: extract target classId from 'addsub:<classId>' syntax
+  const addsubTargetId = useMemo(() => {
+    if (!selectedId?.startsWith('addsub:')) return null;
+    return selectedId.slice('addsub:'.length);
+  }, [selectedId]);
+
+  const addsubTargetName = useMemo(() => {
+    if (!addsubTargetId) return '';
+    const custom = allEntries.find((e) => e.class.id === addsubTargetId)?.class.name;
+    if (custom) return custom;
+    const srd = getAllClasses().find((c) => c.id === addsubTargetId);
+    return srd?.name ?? '';
+  }, [addsubTargetId, allEntries]);
+
+  // SRD classes that have spellcasting (for quick "add subclass" access)
+  const customClassIds = useMemo(() => new Set(allEntries.map((e) => e.class.id)), [allEntries]);
+
+  const srdSpellcastingClasses = useMemo(
+    () =>
+      getAllClasses()
+        .filter((c) => c.spellcasting && !customClassIds.has(c.id))
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+    [customClassIds],
+  );
+
+  // Whether the add-subclass target is an SRD class (not in custom store)
+  const addsubTargetIsSrd = useMemo(
+    () => addsubTargetId !== null && !customClassIds.has(addsubTargetId ?? ''),
+    [addsubTargetId, customClassIds],
   );
 
   // When modal opens with no external editingEntry and no prior selection, default to list view (null).
@@ -78,6 +118,10 @@ export function CustomClassModal({
     setInternalSelectedId('new');
   }, []);
 
+  const handleAddSubclassToExisting = useCallback((classId: string) => {
+    setInternalSelectedId(`addsub:${classId}`);
+  }, []);
+
   const handleBackToList = useCallback(() => {
     setInternalSelectedId(null);
   }, []);
@@ -88,6 +132,18 @@ export function CustomClassModal({
       deleteClass(classId);
     },
     [deleteClass, t],
+  );
+
+  const handleAddSubclass = useCallback(
+    (classId: string, subclass: Subclass) => {
+      if (addsubTargetIsSrd) {
+        addStandaloneSubclass(classId, subclass);
+      } else {
+        addSubclass(classId, subclass);
+      }
+      handleBackToList();
+    },
+    [addSubclass, addStandaloneSubclass, addsubTargetIsSrd, handleBackToList],
   );
 
   // Key forces full remount when switching between create/edit
@@ -143,7 +199,11 @@ export function CustomClassModal({
   }
 
   // ── Form view ──
-  const showForm = selectedId === 'new' || (selectedId !== null && !!activeEntry) || !!editingEntry;
+  const showForm =
+    selectedId === 'new' ||
+    (selectedId !== null && !!activeEntry) ||
+    !!editingEntry ||
+    !!addsubTargetId;
 
   return (
     <DialogRoot open={open} onOpenChange={handleOpenChange}>
@@ -159,8 +219,17 @@ export function CustomClassModal({
                   </Button>
                 )}
                 <DialogTitle>
-                  <Sparkles className="w-4 h-4 mr-1 inline" />
-                  {resolvedEditingEntry ? t('editCustomClass') : t('createCustomClass')}
+                  {addsubTargetId ? (
+                    <>
+                      <Plus className="w-4 h-4 mr-1 inline" />
+                      {t('addSubclassTo', { name: addsubTargetName })}
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-1 inline" />
+                      {resolvedEditingEntry ? t('editCustomClass') : t('createCustomClass')}
+                    </>
+                  )}
                 </DialogTitle>
               </div>
               <DialogClose asChild>
@@ -181,6 +250,8 @@ export function CustomClassModal({
                   handleBackToList();
                 }
               }}
+              addSubclassToClassId={addsubTargetId ?? undefined}
+              onAddSubclass={addsubTargetId ? handleAddSubclass : undefined}
             />
           </>
         ) : (
@@ -204,6 +275,7 @@ export function CustomClassModal({
                 {t('createCustomClass')}
               </Button>
 
+              {/* ── Custom Classes ── */}
               {allEntries.length === 0 ? (
                 <Text variant="body" className="text-text-tertiary text-center py-4">
                   {t('noCustomClasses')}
@@ -224,9 +296,21 @@ export function CustomClassModal({
                         <Text variant="caption" className="text-text-tertiary">
                           {entry.class.spellcasting?.ability ?? '—'} · {entry.subclasses.length}{' '}
                           {entry.subclasses.length === 1 ? 'subclass' : 'subclasses'}
+                          {standaloneSubclasses.filter((s) => s.parentClass === entry.class.id)
+                            .length > 0 &&
+                            ` (+${standaloneSubclasses.filter((s) => s.parentClass === entry.class.id).length} standalone)`}
                         </Text>
                       </div>
                       <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-1.5"
+                          onClick={() => handleAddSubclassToExisting(entry.class.id)}
+                          title={t('addSubclassTo', { name: entry.class.name })}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -246,6 +330,56 @@ export function CustomClassModal({
                       </div>
                     </Surface>
                   ))}
+                </div>
+              )}
+
+              {/* ── SRD Classes ── */}
+              {srdSpellcastingClasses.length > 0 && (
+                <div className="space-y-2 mt-3">
+                  <Text
+                    variant="caption"
+                    weight="semibold"
+                    className="text-text-tertiary uppercase tracking-wider"
+                  >
+                    {t('srdClasses')}
+                  </Text>
+                  {srdSpellcastingClasses.map((klass) => {
+                    const standaloneCount = standaloneSubclasses.filter(
+                      (s) => s.parentClass === klass.id,
+                    ).length;
+                    return (
+                      <Surface
+                        key={klass.id}
+                        variant="default"
+                        padding="sm"
+                        className="flex items-center justify-between border border-dashed"
+                      >
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+                          <div>
+                            <Text weight="bold" size="sm">
+                              {klass.name}
+                            </Text>
+                            <Text variant="caption" className="text-text-tertiary">
+                              {klass.spellcasting?.ability ?? '—'} ·{' '}
+                              {standaloneCount > 0
+                                ? `${standaloneCount} custom ${standaloneCount === 1 ? 'subclass' : 'subclasses'}`
+                                : 'SRD only'}
+                            </Text>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-1.5"
+                          onClick={() => handleAddSubclassToExisting(klass.id)}
+                          title={t('addSubclassTo', { name: klass.name || klass.id })}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </Button>
+                      </Surface>
+                    );
+                  })}
                 </div>
               )}
             </div>

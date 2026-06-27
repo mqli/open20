@@ -15,6 +15,7 @@ const STORAGE_KEY = 'open20-spellbook-characters';
 const PREFERENCES_KEY = 'open20-spellbook-preferences';
 const CUSTOM_SPELLS_KEY = 'open20-spellbook-custom-spells';
 const CUSTOM_CLASSES_KEY = 'open20-spellbook-custom-classes';
+const STANDALONE_SUBCLASSES_KEY = 'open20-spellbook-standalone-subclasses';
 
 const DEFAULT_PREFERENCES: Preferences = {
   theme: 'light',
@@ -127,6 +128,31 @@ export class StorageService {
     const filtered = entries.filter((e) => e.class.id !== classId);
     this.saveCustomClasses(filtered);
     return filtered;
+  }
+
+  // ── Standalone subclasses (for SRD class parents) ─────────
+
+  /**
+   * Standalone subclasses are subclasses whose parent is an SRD class
+   * (not a custom class). They are stored separately from CustomClassEntry
+   * because there is no full custom Class object wrapping them.
+   */
+  saveStandaloneSubclasses(subclasses: Subclass[]): void {
+    try {
+      localStorage.setItem(STANDALONE_SUBCLASSES_KEY, JSON.stringify(subclasses));
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  loadStandaloneSubclasses(): Subclass[] {
+    const data = localStorage.getItem(STANDALONE_SUBCLASSES_KEY);
+    if (!data) return [];
+    try {
+      return JSON.parse(data) as Subclass[];
+    } catch {
+      return [];
+    }
   }
 }
 
