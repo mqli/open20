@@ -86,11 +86,11 @@ export class CustomClassPage {
   // ── Form (create / edit) ──
 
   getClassNameInput(): Locator {
-    return this.getDialog().getByRole('textbox', { name: /Class Name/i });
+    return this.getDialog().getByPlaceholder('e.g. Shadow Mage');
   }
 
   getSubclassNameInput(): Locator {
-    return this.getDialog().getByPlaceholder(/e\.g\. Shadow/);
+    return this.getDialog().getByPlaceholder('e.g. Shadow Domain');
   }
 
   getSaveButton(): Locator {
@@ -128,7 +128,7 @@ export class CustomClassPage {
 
   /** Select a slot preset. */
   async selectSlotPreset(preset: string) {
-    const label = this.getDialog().getByText('Slot Preset', { exact: true });
+    const label = this.getDialog().getByText('Spell Slot Progression', { exact: true });
     const selectTrigger = label.locator('..').locator('button');
     await selectTrigger.click();
     await this.page.waitForTimeout(100);
@@ -153,10 +153,15 @@ export class CustomClassPage {
     await this.page.waitForTimeout(200);
   }
 
-  /** Click Create New button to enter form. */
+  /** Click Create New button to enter form. Falls through if form is already shown (auto-open on empty state). */
   async clickCreateNew() {
-    await this.getCreateButton().click();
-    await this.page.waitForTimeout(200);
+    const btn = this.getCreateButton();
+    const count = await btn.count();
+    if (count > 0) {
+      await btn.click();
+      await this.page.waitForTimeout(200);
+    }
+    // When no classes exist, modal auto-opens create form — no button to click.
   }
 
   // ── Add-subclass view (condensed form) ──
@@ -176,9 +181,7 @@ export class CustomClassPage {
 
   /** Add a subclass in the create/edit form. */
   async addSubclassInForm(name: string) {
-    const formInput = this.getDialog()
-      .getByPlaceholder(/e\.g\. Shadow/)
-      .last();
+    const formInput = this.getDialog().getByPlaceholder('e.g. Shadow Domain');
     await formInput.fill(name);
     await this.getDialog().getByRole('button', { name: 'Add' }).last().click();
     await this.page.waitForTimeout(200);
