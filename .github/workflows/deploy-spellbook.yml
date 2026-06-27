@@ -49,11 +49,6 @@ jobs:
         env:
           CI: 'true'
 
-      - name: Build spellbook
-        run: pnpm turbo run build --filter=@open20/spellbook
-        env:
-          DEPLOY_TARGET: github-pages
-
       - name: Upload E2E test results (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -61,6 +56,11 @@ jobs:
           name: playwright-report
           path: packages/spellbook/playwright-report/
           retention-days: 30
+
+      - name: Build spellbook
+        run: pnpm turbo run build --filter=@open20/spellbook
+        env:
+          DEPLOY_TARGET: github-pages
 
       - name: Prepare Pages artifact under spellbook path
         run: |
