@@ -172,6 +172,7 @@ export type SpellbookTranslationKeys =
   | 'deleteConfirmCustomClass'
   | 'manageCustomClasses'
   | 'customClassTitle'
+  | 'noCustomClasses'
   // Menu
   | 'language'
   | 'theme';
@@ -353,6 +354,7 @@ export const enTranslations: SpellbookTranslations = {
   deleteConfirmCustomClass: 'Delete this custom class? This cannot be undone.',
   manageCustomClasses: 'Manage Custom Classes',
   customClassTitle: 'Custom Classes & Subclasses',
+  noCustomClasses: 'No custom classes yet. Create one to get started.',
 
   // Menu
   language: 'Language',
@@ -530,6 +532,7 @@ export const zhCNTranslations: SpellbookTranslations = {
   deleteConfirmCustomClass: '确定删除此自定义职业？此操作不可撤销。',
   manageCustomClasses: '管理自定义职业',
   customClassTitle: '自定义职业与子职业',
+  noCustomClasses: '还没有自定义职业，创建一个开始吧。',
 
   // Menu
   language: '语言',
