@@ -108,9 +108,16 @@ export class CustomClassPage {
     return this.getDialog().getByTestId('class-modal-back-btn');
   }
 
+  /** Fill a React controlled text input — uses pressSequentially for reliable onChange triggers. */
+  private async fillInput(locator: Locator, text: string) {
+    await locator.click();
+    await locator.fill('');
+    await locator.pressSequentially(text);
+  }
+
   /** Fill the class name in the form. */
   async fillClassName(name: string) {
-    await this.getClassNameInput().fill(name);
+    await this.fillInput(this.getClassNameInput(), name);
   }
 
   /** Select a spellcasting ability from the select dropdown. */
@@ -159,7 +166,7 @@ export class CustomClassPage {
 
   /** Fill the subclass name in the add-subclass form. */
   async fillSubclassName(name: string) {
-    await this.getSubclassNameInput().fill(name);
+    await this.fillInput(this.getSubclassNameInput(), name);
   }
 
   /** Click the Add button in the add-subclass condensed form. */
@@ -172,7 +179,7 @@ export class CustomClassPage {
 
   /** Add a subclass in the create/edit form. */
   async addSubclassInForm(name: string) {
-    await this.getSubclassNameInput().fill(name);
+    await this.fillInput(this.getSubclassNameInput(), name);
     await this.getDialog().getByTestId('add-subclass-btn').click();
     await this.page.waitForTimeout(200);
   }

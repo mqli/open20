@@ -25,8 +25,9 @@ export function buildClass(
   ability: AbilityName,
   knownSource: 'class_list' | 'spellbook',
   preparationTiming: 'long_rest' | 'level_up',
+  existingId?: string,
 ): Class {
-  const classId = toSlug(name) || 'custom';
+  const classId = existingId ?? (toSlug(name) || 'custom');
   const spellcasting: Spellcasting = preset.spellcasting.pactMagic
     ? {
         ability,

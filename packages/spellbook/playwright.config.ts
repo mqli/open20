@@ -6,7 +6,9 @@ const isCI = process.env.CI === 'true';
 const baseConfig = createPlaywrightConfig({
   baseURL: 'http://localhost:4173',
   testDir: './e2e',
-  webServerCommand: 'pnpm run preview -- --port 4173',
+  webServerCommand: isCI
+    ? 'pnpm run build && pnpm run preview -- --port 4173'
+    : 'pnpm run preview -- --port 4173',
   webServerPort: 4173,
   webServerTimeout: 120000,
   headless: isCI,

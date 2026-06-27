@@ -85,7 +85,14 @@ export function CustomClassFormInner({
   const handleSave = useCallback(() => {
     if (!name.trim() || !preset) return;
 
-    const cls = buildClass(name.trim(), preset, ability, knownSource, preparationTiming);
+    const cls = buildClass(
+      name.trim(),
+      preset,
+      ability,
+      knownSource,
+      preparationTiming,
+      editingEntry?.class.id,
+    );
     const subs = subclasses.map((s) => buildSubclass(s.id, cls.id, s.alwaysPrepared));
     onSave({ class: cls, subclasses: subs });
   }, [name, preset, ability, knownSource, preparationTiming, subclasses, onSave]);

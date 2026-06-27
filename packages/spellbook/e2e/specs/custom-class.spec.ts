@@ -76,7 +76,6 @@ test.describe('Custom Class Management', () => {
     await customClassPage.clickEditClass('My Wizard');
 
     // Change the name
-    await customClassPage.getClassNameInput().clear();
     await customClassPage.fillClassName('Arcane Scholar');
 
     // Save
