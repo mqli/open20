@@ -265,4 +265,222 @@ describe('StorageService', () => {
       expect(service.loadCharacters()).toEqual([]);
     });
   });
+
+  // ── Custom Classes persistence ──
+
+  describe('saveCustomClasses / loadCustomClasses', () => {
+    it('should save and load custom class entries round-trip', () => {
+      const entry = {
+        class: {
+          id: 'test-class',
+          name: 'Test Class',
+          source: 'Homebrew',
+          hitDie: 'd8' as const,
+          savingThrowProficiencies: [],
+          armorTraining: [],
+          weaponMastery: false,
+          featuresByLevel: [],
+          spellcasting: {
+            ability: 'Intelligence' as const,
+            knownSource: 'class_list' as const,
+            preparationTiming: 'long_rest' as const,
+            changesPerPreparation: 'all' as const,
+          },
+        },
+        subclasses: [
+          {
+            id: 'test-sub',
+            parentClass: 'test-class',
+            grantedAtLevel: 1,
+            featuresByLevel: [],
+            source: 'Homebrew',
+          },
+        ],
+      };
+
+      service.saveCustomClasses([entry]);
+      const loaded = service.loadCustomClasses();
+
+      expect(loaded).toHaveLength(1);
+      expect(loaded[0].class.id).toBe('test-class');
+      expect(loaded[0].class.name).toBe('Test Class');
+      expect(loaded[0].subclasses).toHaveLength(1);
+      expect(loaded[0].subclasses[0].id).toBe('test-sub');
+    });
+
+    it('should return empty array when no custom classes stored', () => {
+      const loaded = service.loadCustomClasses();
+      expect(loaded).toEqual([]);
+    });
+
+    it('should handle corrupt JSON gracefully', () => {
+      localStorageMock.setItem('open20-spellbook-custom-classes', 'not-valid-json');
+
+      const loaded = service.loadCustomClasses();
+      expect(loaded).toEqual([]);
+    });
+
+    it('should overwrite existing entries on save', () => {
+      const entry1 = {
+        class: {
+          id: 'class-1',
+          name: 'First',
+          source: 'Homebrew',
+          hitDie: 'd8' as const,
+          savingThrowProficiencies: [],
+          armorTraining: [],
+          weaponMastery: false,
+          featuresByLevel: [],
+          spellcasting: null,
+        },
+        subclasses: [],
+      };
+
+      const entry2 = {
+        class: {
+          id: 'class-2',
+          name: 'Second',
+          source: 'Homebrew',
+          hitDie: 'd8' as const,
+          savingThrowProficiencies: [],
+          armorTraining: [],
+          weaponMastery: false,
+          featuresByLevel: [],
+          spellcasting: null,
+        },
+        subclasses: [],
+      };
+
+      service.saveCustomClasses([entry1]);
+      service.saveCustomClasses([entry1, entry2]);
+
+      const loaded = service.loadCustomClasses();
+      expect(loaded).toHaveLength(2);
+    });
+  });
+
+  describe('deleteCustomClass', () => {
+    it('should delete a custom class by id', () => {
+      const entry1 = {
+        class: {
+          id: 'class-1',
+          name: 'First',
+          source: 'Homebrew',
+          hitDie: 'd8' as const,
+          savingThrowProficiencies: [],
+          armorTraining: [],
+          weaponMastery: false,
+          featuresByLevel: [],
+          spellcasting: null,
+        },
+        subclasses: [],
+      };
+      const entry2 = {
+        class: {
+          id: 'class-2',
+          name: 'Second',
+          source: 'Homebrew',
+          hitDie: 'd8' as const,
+          savingThrowProficiencies: [],
+          armorTraining: [],
+          weaponMastery: false,
+          featuresByLevel: [],
+          spellcasting: null,
+        },
+        subclasses: [],
+      };
+
+      service.saveCustomClasses([entry1, entry2]);
+      const remaining = service.deleteCustomClass('class-1');
+
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0].class.id).toBe('class-2');
+      expect(service.loadCustomClasses()).toHaveLength(1);
+    });
+
+    it('should not modify data when deleting non-existent id', () => {
+      const entry = {
+        class: {
+          id: 'class-1',
+          name: 'First',
+          source: 'Homebrew',
+          hitDie: 'd8' as const,
+          savingThrowProficiencies: [],
+          armorTraining: [],
+          weaponMastery: false,
+          featuresByLevel: [],
+          spellcasting: null,
+        },
+        subclasses: [],
+      };
+
+      service.saveCustomClasses([entry]);
+      const remaining = service.deleteCustomClass('non-existent');
+
+      expect(remaining).toHaveLength(1);
+    });
+  });
+
+  // ── Standalone Subclasses persistence ──
+
+  describe('saveStandaloneSubclasses / loadStandaloneSubclasses', () => {
+    it('should save and load standalone subclasses round-trip', () => {
+      const subclasses = [
+        {
+          id: 'bladesinger',
+          parentClass: 'wizard',
+          grantedAtLevel: 1,
+          featuresByLevel: [],
+          source: 'Homebrew',
+          alwaysPreparedSpells: [
+            { level: 1, spells: ['shield' as const, 'magic-missile' as const] },
+          ],
+        },
+      ];
+
+      service.saveStandaloneSubclasses(subclasses);
+      const loaded = service.loadStandaloneSubclasses();
+
+      expect(loaded).toHaveLength(1);
+      expect(loaded[0].id).toBe('bladesinger');
+      expect(loaded[0].parentClass).toBe('wizard');
+      expect(loaded[0].alwaysPreparedSpells).toBeDefined();
+    });
+
+    it('should return empty array when no standalone subclasses stored', () => {
+      const loaded = service.loadStandaloneSubclasses();
+      expect(loaded).toEqual([]);
+    });
+
+    it('should handle corrupt JSON gracefully', () => {
+      localStorageMock.setItem('open20-spellbook-standalone-subclasses', '{broken');
+
+      const loaded = service.loadStandaloneSubclasses();
+      expect(loaded).toEqual([]);
+    });
+
+    it('should save multiple standalone subclasses', () => {
+      const subclasses = [
+        {
+          id: 'bladesinger',
+          parentClass: 'wizard',
+          grantedAtLevel: 1,
+          featuresByLevel: [],
+          source: 'Homebrew',
+        },
+        {
+          id: 'war-magic',
+          parentClass: 'wizard',
+          grantedAtLevel: 1,
+          featuresByLevel: [],
+          source: 'Homebrew',
+        },
+      ];
+
+      service.saveStandaloneSubclasses(subclasses);
+      const loaded = service.loadStandaloneSubclasses();
+
+      expect(loaded).toHaveLength(2);
+    });
+  });
 });
