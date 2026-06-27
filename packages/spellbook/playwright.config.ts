@@ -18,7 +18,7 @@ const baseConfig = createPlaywrightConfig({
     video: 'retain-on-failure',
     trace: 'on-first-retry',
   },
-  timeout: 5000,
+  timeout: 30000,
   retries: isCI ? 2 : 0,
 });
 

@@ -81,9 +81,12 @@ test.describe('Custom Class Management', () => {
     // Save
     await customClassPage.clickSave();
 
+    // Wait for list view to update
+    await customClassPage.page.waitForTimeout(500);
+
     // Verify new name in list
-    await expect(customClassPage.getClassRow('Arcane Scholar')).toBeVisible();
-    await expect(customClassPage.getClassRow('My Wizard')).not.toBeVisible();
+    await expect(customClassPage.getClassRow('Arcane Scholar')).toBeVisible({ timeout: 10000 });
+    await expect(customClassPage.getClassRow('My Wizard')).not.toBeVisible({ timeout: 10000 });
   });
 
   // ── Delete custom class ──
@@ -156,7 +159,7 @@ test.describe('Custom Class Management', () => {
 
   // ── Add standalone subclass to SRD class ──
 
-  test('should add standalone subclass to SRD class', async ({ page }) => {
+  test('should add standalone subclass to SRD class', async () => {
     await customClassPage.goto();
     await customClassPage.openClassModal();
 
@@ -191,15 +194,15 @@ test.describe('Custom Class Management', () => {
     await expect(customClassPage.getClassRow('Persistent Mage')).toBeVisible();
 
     // Reload the page
-    await page.reload();
+    await page.reload({ timeout: 15000 });
     await page.waitForLoadState('domcontentloaded');
-    await page.locator('.spell-card').first().waitFor({ state: 'visible' });
+    await page.locator('.spell-card').first().waitFor({ state: 'visible', timeout: 10000 });
 
     // Open modal again
     await customClassPage.openClassModal();
 
     // Should still be there
-    await expect(customClassPage.getClassRow('Persistent Mage')).toBeVisible();
+    await expect(customClassPage.getClassRow('Persistent Mage')).toBeVisible({ timeout: 10000 });
   });
 
   // ── Persistence: standalone subclass ──
@@ -219,9 +222,9 @@ test.describe('Custom Class Management', () => {
     await expect(wizardRow.getByText(/1 custom subclass/i)).toBeVisible();
 
     // Reload
-    await page.reload();
+    await page.reload({ timeout: 15000 });
     await page.waitForLoadState('domcontentloaded');
-    await page.locator('.spell-card').first().waitFor({ state: 'visible' });
+    await page.locator('.spell-card').first().waitFor({ state: 'visible', timeout: 10000 });
     await customClassPage.openClassModal();
 
     // Should still be there

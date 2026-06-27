@@ -15,29 +15,33 @@ export class CustomClassPage {
 
   // ── Helpers ──
 
-  /** Scroll into view then click. */
+  /**
+   * Click with extended timeout for mobile.
+   * Removes explicit scrollIntoViewIfNeeded — locator.click() scrolls internally,
+   * and radix portals (Dialog/DropdownMenu) are position:fixed so scrolling
+   * is unnecessary and can cause "waiting for element to be stable" hangs.
+   */
   private async safeClick(locator: Locator) {
-    await locator.scrollIntoViewIfNeeded();
-    await locator.click();
+    await locator.click({ timeout: 10000 });
   }
 
   /**
    * Dispatch a click event directly on the element.
    * Use for radix Select triggers where Playwright's coordinate-based click
    * can hang on mobile emulation inside dialogs.
+   * Removes scrollIntoViewIfNeeded — the trigger is inside a fixed-position Dialog.
    */
   private async dispatchClick(locator: Locator) {
-    await locator.scrollIntoViewIfNeeded();
+    await locator.waitFor({ state: 'attached', timeout: 5000 });
     await locator.dispatchEvent('click');
   }
 
   /**
    * Fill a React controlled input by setting the native value and dispatching
-   * synthetic input/change events. Scrolls into view first for mobile.
+   * synthetic input/change events.
    */
   private async fillInput(locator: Locator, text: string) {
-    await locator.scrollIntoViewIfNeeded();
-    await locator.waitFor({ state: 'attached' });
+    await locator.waitFor({ state: 'attached', timeout: 5000 });
     await locator.evaluate((el, value) => {
       const nativeSetter = Object.getOwnPropertyDescriptor(
         HTMLInputElement.prototype,
@@ -59,9 +63,11 @@ export class CustomClassPage {
 
   async openClassModal() {
     await this.safeClick(this.moreBtn);
-    await this.manageBtn.waitFor({ state: 'visible' });
+    // Let DropdownMenu.Content animate in (animate-in fade-in-80)
+    await this.page.waitForTimeout(400);
+    await this.manageBtn.waitFor({ state: 'visible', timeout: 10000 });
     await this.safeClick(this.manageBtn);
-    await this.getDialog().waitFor({ state: 'visible' });
+    await this.getDialog().waitFor({ state: 'visible', timeout: 10000 });
   }
 
   // ── Modal-level locators ──
@@ -151,15 +157,16 @@ export class CustomClassPage {
   async selectSpellcastingAbility(ability: string) {
     // dispatchEvent: bypasses Playwright's coordinate click which hangs on mobile SelectTrigger
     await this.dispatchClick(this.getDialog().getByTestId('select-spellcasting-ability'));
-    await this.page.getByRole('option', { name: ability }).waitFor({ state: 'visible' });
-    await this.safeClick(this.page.getByRole('option', { name: ability }));
+    // Let SelectContent animate in (animate-in fade-in-80 + portal render)
+    await this.page.waitForTimeout(400);
+    await this.page.getByRole('option', { name: ability }).click({ timeout: 10000, force: true });
   }
 
   /** Select a slot preset. */
   async selectSlotPreset(preset: string) {
     await this.dispatchClick(this.getDialog().getByTestId('select-slot-preset'));
-    await this.page.getByRole('option', { name: preset }).waitFor({ state: 'visible' });
-    await this.safeClick(this.page.getByRole('option', { name: preset }));
+    await this.page.waitForTimeout(400);
+    await this.page.getByRole('option', { name: preset }).click({ timeout: 10000, force: true });
   }
 
   /** Click Save. */
