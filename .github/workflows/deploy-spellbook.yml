@@ -58,7 +58,7 @@ jobs:
           retention-days: 30
 
       - name: Build spellbook
-        run: pnpm turbo run build --filter=@open20/spellbook
+        run: pnpm turbo run build --filter=@open20/spellbook  --force
         env:
           DEPLOY_TARGET: github-pages
 
