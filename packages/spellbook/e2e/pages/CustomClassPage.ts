@@ -22,10 +22,10 @@ export class CustomClassPage {
   }
 
   async openClassModal() {
-    // On mobile, use { force: true } to avoid portal overlay interference
+    // { force: true } + { noWaitAfter: true } for portal elements
     await this.moreBtn.click({ force: true });
     await this.manageBtn.waitFor({ state: 'visible' });
-    await this.manageBtn.click({ force: true });
+    await this.manageBtn.click({ force: true, noWaitAfter: true });
     await this.getDialog().waitFor({ state: 'visible' });
   }
 
@@ -136,24 +136,22 @@ export class CustomClassPage {
   async selectSpellcastingAbility(ability: string) {
     await this.getDialog().getByTestId('select-spellcasting-ability').click({ force: true });
     await this.page.getByRole('option', { name: ability }).waitFor({ state: 'visible' });
-    await this.page.getByRole('option', { name: ability }).click({ force: true });
+    // noWaitAfter: radix Select close animation confuses Playwright into thinking a navigation started
+    await this.page
+      .getByRole('option', { name: ability })
+      .click({ force: true, noWaitAfter: true });
   }
 
   /** Select a slot preset. */
   async selectSlotPreset(preset: string) {
     await this.getDialog().getByTestId('select-slot-preset').click({ force: true });
     await this.page.getByRole('option', { name: preset }).waitFor({ state: 'visible' });
-    await this.page.getByRole('option', { name: preset }).click({ force: true });
+    await this.page.getByRole('option', { name: preset }).click({ force: true, noWaitAfter: true });
   }
 
-  /** Click Save and wait for the list view to reappear. */
+  /** Click Save. The spec assertions naturally wait for post-save UI changes. */
   async clickSave() {
-    await this.getSaveButton().click({ force: true });
-    // Wait for either the list view or dialog close
-    await this.getCreateButton()
-      .or(this.getDialog().locator('body').first())
-      .waitFor({ state: 'attached', timeout: 5000 })
-      .catch(() => {});
+    await this.getSaveButton().click({ force: true, noWaitAfter: true });
   }
 
   /** Click Delete from the form (in edit mode). */
@@ -163,10 +161,7 @@ export class CustomClassPage {
 
   /** Click the back arrow to return to list view. */
   async clickBackToList() {
-    await this.getBackButton().click({ force: true });
-    await this.getCreateButton()
-      .waitFor({ state: 'visible', timeout: 3000 })
-      .catch(() => {});
+    await this.getBackButton().click({ force: true, noWaitAfter: true });
   }
 
   /** Click Create New to enter the create form. No-op if form is auto-shown (empty state). */
@@ -187,12 +182,9 @@ export class CustomClassPage {
 
   /** Click the Add button in the add-subclass condensed form. */
   async clickAddSubclassSubmit() {
-    await this.getDialog().getByTestId('add-subclass-submit').click({ force: true });
-    // Wait for return to list view
-    await this.getCreateButton()
-      .or(this.getDialog().locator('.border').first())
-      .waitFor({ state: 'attached', timeout: 5000 })
-      .catch(() => {});
+    await this.getDialog()
+      .getByTestId('add-subclass-submit')
+      .click({ force: true, noWaitAfter: true });
   }
 
   // ── Form subclasses (in create/edit form) ──
