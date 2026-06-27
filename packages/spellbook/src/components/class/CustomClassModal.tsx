@@ -214,7 +214,13 @@ export function CustomClassModal({
               <div className="flex items-center gap-2">
                 {/* Back button (internal navigation only) */}
                 {!editingEntry && (
-                  <Button variant="ghost" size="sm" className="p-1" onClick={handleBackToList}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-1"
+                    onClick={handleBackToList}
+                    data-testid="class-modal-back-btn"
+                  >
                     <ArrowLeft className="w-4 h-4" />
                   </Button>
                 )}

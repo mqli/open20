@@ -137,7 +137,13 @@ export function SpellLibraryLayout() {
           <FilterDrawer />
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <Button type="button" variant="ghost" size="sm" className="shrink-0">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="shrink-0"
+                data-testid="toolbar-more-btn"
+              >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenu.Trigger>

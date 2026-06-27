@@ -10,7 +10,7 @@ export class CustomClassPage {
   constructor(page: Page) {
     this.page = page;
     // The MoreHorizontal button in the toolbar
-    this.moreBtn = page.locator('button').filter({ has: page.locator('.lucide-more-horizontal') });
+    this.moreBtn = page.getByTestId('toolbar-more-btn');
     this.manageBtn = page.getByRole('menuitem', { name: 'Manage Custom Classes' });
   }
 
@@ -106,9 +106,7 @@ export class CustomClassPage {
   }
 
   getBackButton(): Locator {
-    return this.getDialog()
-      .locator('button')
-      .filter({ has: this.page.locator('.lucide-arrow-left') });
+    return this.getDialog().getByTestId('class-modal-back-btn');
   }
 
   /** Fill the class name in the form. */
