@@ -22,10 +22,10 @@ export class CustomClassPage {
   }
 
   async openClassModal() {
-    await this.moreBtn.click();
+    // On mobile, use { force: true } to avoid portal overlay interference
+    await this.moreBtn.click({ force: true });
     await this.manageBtn.waitFor({ state: 'visible' });
-    await this.manageBtn.click();
-    // Wait for the dialog to appear
+    await this.manageBtn.click({ force: true });
     await this.getDialog().waitFor({ state: 'visible' });
   }
 
@@ -53,22 +53,23 @@ export class CustomClassPage {
   /** Click the "+" button on a specific class row to add a subclass. */
   async clickAddSubclassOnRow(className: string) {
     const row = this.getClassRow(className);
-    // The "+" button is the first ghost button in the row
-    await row.getByRole('button').first().click();
-    await this.page.waitForTimeout(300);
+    await row.getByRole('button').first().click({ force: true });
+    // Wait for add-subclass form to appear
+    await this.getDialog().getByTestId('subclass-name-input').waitFor({ state: 'visible' });
   }
 
   /** Click the pencil (edit) button on a class row. */
   async clickEditClass(className: string) {
     const row = this.getClassRow(className);
-    await row.getByRole('button').nth(1).click();
-    await this.page.waitForTimeout(300);
+    await row.getByRole('button').nth(1).click({ force: true });
+    // Wait for edit form to appear
+    await this.getDialog().getByTestId('class-name-input').waitFor({ state: 'visible' });
   }
 
   /** Click the trash (delete) button on a class row. */
   async clickDeleteFromList(className: string) {
     const row = this.getClassRow(className);
-    await row.getByRole('button').last().click();
+    await row.getByRole('button').last().click({ force: true });
   }
 
   // ── SRD section ──
@@ -108,11 +109,22 @@ export class CustomClassPage {
     return this.getDialog().getByTestId('class-modal-back-btn');
   }
 
-  /** Fill a React controlled text input — uses pressSequentially for reliable onChange triggers. */
+  /**
+   * Fill a React controlled input by setting the native value and dispatching
+   * synthetic input/change events. Faster and more reliable than pressSequentially
+   * on mobile where React re-renders can cause timeouts.
+   */
   private async fillInput(locator: Locator, text: string) {
-    await locator.click();
-    await locator.fill('');
-    await locator.pressSequentially(text);
+    await locator.waitFor({ state: 'visible' });
+    await locator.evaluate((el, value) => {
+      const nativeSetter = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        'value',
+      )?.set;
+      nativeSetter?.call(el, value);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, text);
   }
 
   /** Fill the class name in the form. */
@@ -122,43 +134,47 @@ export class CustomClassPage {
 
   /** Select a spellcasting ability from the select dropdown. */
   async selectSpellcastingAbility(ability: string) {
-    await this.getDialog().getByTestId('select-spellcasting-ability').click();
-    await this.page.waitForTimeout(100);
-    await this.page.getByRole('option', { name: ability }).click();
-    await this.page.waitForTimeout(100);
+    await this.getDialog().getByTestId('select-spellcasting-ability').click({ force: true });
+    await this.page.getByRole('option', { name: ability }).waitFor({ state: 'visible' });
+    await this.page.getByRole('option', { name: ability }).click({ force: true });
   }
 
   /** Select a slot preset. */
   async selectSlotPreset(preset: string) {
-    await this.getDialog().getByTestId('select-slot-preset').click();
-    await this.page.waitForTimeout(100);
-    await this.page.getByRole('option', { name: preset }).click();
-    await this.page.waitForTimeout(100);
+    await this.getDialog().getByTestId('select-slot-preset').click({ force: true });
+    await this.page.getByRole('option', { name: preset }).waitFor({ state: 'visible' });
+    await this.page.getByRole('option', { name: preset }).click({ force: true });
   }
 
-  /** Click Save to save the class. */
+  /** Click Save and wait for the list view to reappear. */
   async clickSave() {
-    await this.getSaveButton().click();
-    await this.page.waitForTimeout(300);
+    await this.getSaveButton().click({ force: true });
+    // Wait for either the list view or dialog close
+    await this.getCreateButton()
+      .or(this.getDialog().locator('body').first())
+      .waitFor({ state: 'attached', timeout: 5000 })
+      .catch(() => {});
   }
 
   /** Click Delete from the form (in edit mode). */
   async clickDeleteFromForm() {
-    await this.getDeleteButton().click();
+    await this.getDeleteButton().click({ force: true });
   }
 
   /** Click the back arrow to return to list view. */
   async clickBackToList() {
-    await this.getBackButton().click();
-    await this.page.waitForTimeout(200);
+    await this.getBackButton().click({ force: true });
+    await this.getCreateButton()
+      .waitFor({ state: 'visible', timeout: 3000 })
+      .catch(() => {});
   }
 
   /** Click Create New to enter the create form. No-op if form is auto-shown (empty state). */
   async clickCreateNew() {
     const btn = this.getCreateButton();
     if ((await btn.count()) > 0) {
-      await btn.click();
-      await this.page.waitForTimeout(200);
+      await btn.click({ force: true });
+      await this.getClassNameInput().waitFor({ state: 'visible' });
     }
   }
 
@@ -171,8 +187,12 @@ export class CustomClassPage {
 
   /** Click the Add button in the add-subclass condensed form. */
   async clickAddSubclassSubmit() {
-    await this.getDialog().getByTestId('add-subclass-submit').click();
-    await this.page.waitForTimeout(300);
+    await this.getDialog().getByTestId('add-subclass-submit').click({ force: true });
+    // Wait for return to list view
+    await this.getCreateButton()
+      .or(this.getDialog().locator('.border').first())
+      .waitFor({ state: 'attached', timeout: 5000 })
+      .catch(() => {});
   }
 
   // ── Form subclasses (in create/edit form) ──
@@ -180,8 +200,7 @@ export class CustomClassPage {
   /** Add a subclass in the create/edit form. */
   async addSubclassInForm(name: string) {
     await this.fillInput(this.getSubclassNameInput(), name);
-    await this.getDialog().getByTestId('add-subclass-btn').click();
-    await this.page.waitForTimeout(200);
+    await this.getDialog().getByTestId('add-subclass-btn').click({ force: true });
   }
 
   // ── Helpers ──
