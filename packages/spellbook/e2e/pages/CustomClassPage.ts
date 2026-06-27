@@ -15,10 +15,20 @@ export class CustomClassPage {
 
   // ── Helpers ──
 
-  /** Scroll into view then click. Essential for mobile where elements may be off-screen. */
+  /** Scroll into view then click. */
   private async safeClick(locator: Locator) {
     await locator.scrollIntoViewIfNeeded();
     await locator.click();
+  }
+
+  /**
+   * Dispatch a click event directly on the element.
+   * Use for radix Select triggers where Playwright's coordinate-based click
+   * can hang on mobile emulation inside dialogs.
+   */
+  private async dispatchClick(locator: Locator) {
+    await locator.scrollIntoViewIfNeeded();
+    await locator.dispatchEvent('click');
   }
 
   /**
@@ -139,14 +149,15 @@ export class CustomClassPage {
 
   /** Select a spellcasting ability from the select dropdown. */
   async selectSpellcastingAbility(ability: string) {
-    await this.safeClick(this.getDialog().getByTestId('select-spellcasting-ability'));
+    // dispatchEvent: bypasses Playwright's coordinate click which hangs on mobile SelectTrigger
+    await this.dispatchClick(this.getDialog().getByTestId('select-spellcasting-ability'));
     await this.page.getByRole('option', { name: ability }).waitFor({ state: 'visible' });
     await this.safeClick(this.page.getByRole('option', { name: ability }));
   }
 
   /** Select a slot preset. */
   async selectSlotPreset(preset: string) {
-    await this.safeClick(this.getDialog().getByTestId('select-slot-preset'));
+    await this.dispatchClick(this.getDialog().getByTestId('select-slot-preset'));
     await this.page.getByRole('option', { name: preset }).waitFor({ state: 'visible' });
     await this.safeClick(this.page.getByRole('option', { name: preset }));
   }
