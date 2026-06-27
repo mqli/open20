@@ -22,7 +22,6 @@ export class CustomClassPage {
   }
 
   async openClassModal() {
-    // { force: true } + { noWaitAfter: true } for portal elements
     await this.moreBtn.click({ force: true });
     await this.manageBtn.waitFor({ state: 'visible' });
     await this.manageBtn.click({ force: true, noWaitAfter: true });
@@ -54,7 +53,6 @@ export class CustomClassPage {
   async clickAddSubclassOnRow(className: string) {
     const row = this.getClassRow(className);
     await row.getByRole('button').first().click({ force: true });
-    // Wait for add-subclass form to appear
     await this.getDialog().getByTestId('subclass-name-input').waitFor({ state: 'visible' });
   }
 
@@ -62,7 +60,6 @@ export class CustomClassPage {
   async clickEditClass(className: string) {
     const row = this.getClassRow(className);
     await row.getByRole('button').nth(1).click({ force: true });
-    // Wait for edit form to appear
     await this.getDialog().getByTestId('class-name-input').waitFor({ state: 'visible' });
   }
 
@@ -111,11 +108,12 @@ export class CustomClassPage {
 
   /**
    * Fill a React controlled input by setting the native value and dispatching
-   * synthetic input/change events. Faster and more reliable than pressSequentially
-   * on mobile where React re-renders can cause timeouts.
+   * synthetic input/change events. Scrolls into view first for mobile where the
+   * input may be below the fold in a tall dialog.
    */
   private async fillInput(locator: Locator, text: string) {
-    await locator.waitFor({ state: 'visible' });
+    await locator.scrollIntoViewIfNeeded();
+    await locator.waitFor({ state: 'attached' });
     await locator.evaluate((el, value) => {
       const nativeSetter = Object.getOwnPropertyDescriptor(
         HTMLInputElement.prototype,
@@ -136,7 +134,6 @@ export class CustomClassPage {
   async selectSpellcastingAbility(ability: string) {
     await this.getDialog().getByTestId('select-spellcasting-ability').click({ force: true });
     await this.page.getByRole('option', { name: ability }).waitFor({ state: 'visible' });
-    // noWaitAfter: radix Select close animation confuses Playwright into thinking a navigation started
     await this.page
       .getByRole('option', { name: ability })
       .click({ force: true, noWaitAfter: true });
@@ -149,7 +146,7 @@ export class CustomClassPage {
     await this.page.getByRole('option', { name: preset }).click({ force: true, noWaitAfter: true });
   }
 
-  /** Click Save. The spec assertions naturally wait for post-save UI changes. */
+  /** Click Save. */
   async clickSave() {
     await this.getSaveButton().click({ force: true, noWaitAfter: true });
   }
