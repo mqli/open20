@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { type Page, type Locator, expect } from '@playwright/test';
 
 /**
  * Page object for character sheet interactions.
@@ -7,7 +7,7 @@ import { Page, Locator, expect } from '@playwright/test';
  */
 export class CharacterPage {
   readonly page: Page;
-  readonly sheet: Locator;
+  sheet: Locator;
   private _isMobile = false;
 
   constructor(page: Page) {

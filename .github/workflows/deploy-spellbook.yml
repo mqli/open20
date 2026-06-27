@@ -42,7 +42,7 @@ jobs:
         run: pnpm turbo run test --filter=@open20/spellbook
 
       - name: Install Playwright browsers
-        run: pnpm --filter @open20/spellbook exec playwright install --with-deps chromium webkit
+        run: pnpm --filter @open20/spellbook exec playwright install --with-deps chromium
 
       - name: Run E2E tests
         run: pnpm turbo run test:e2e --filter=@open20/spellbook

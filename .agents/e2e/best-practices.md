@@ -49,30 +49,37 @@ test('search test');
 test('prepare spell');
 ```
 
-## Selectors — Critical: CSS Classes, Not data-testid
+## Selectors
 
-### 4. Do NOT Use data-testid
+### 4. Use data-testid as the Primary Selector
 
-**`data-testid` attributes are stripped in Vite production builds.** Playwright runs against `vite preview` (the production build), so any `getByTestId()` call will silently fail to find the element.
+`data-testid` attributes are **not stripped** in this project's Vite production build (no stripping plugin is configured). Use `getByTestId()` as the preferred selector — it's stable, semantic, and immune to CSS class changes.
 
 ```typescript
-// ❌ BROKEN — data-testid does not exist in the built output
+// ✅ Preferred — stable and semantic
 await page.getByTestId('prepare-spell-button').click();
 ```
 
-### 5. Use Stable CSS Classes Instead
+Add the `data-testid` attribute to the component where needed:
 
-Add a stable, semantically-named CSS class directly to the component's `className`. Then locate it with `page.locator()`.
+```tsx
+// In component
+<IconButton data-testid="prepare-spell-button" ... />
+```
+
+### 5. CSS Classes as a Fallback
+
+When adding `data-testid` is impractical, use a stable CSS class:
 
 ```typescript
-// In component (e.g. SpellbookControls.tsx)
+// In component
 <IconButton className="prepare-spell-button" ... />
 
 // In test
 await page.locator('.prepare-spell-button').click();
 ```
 
-Semantic locators (`getByRole`, `getByLabel`, `getByText`) are fine for truly semantic elements — buttons by aria-name, tabs, headings — but they don't replace stable class selectors when ARIA attributes are not present.
+Semantic locators (`getByRole`, `getByLabel`, `getByText`) are fine for truly semantic elements — buttons by aria-name, tabs, headings — but they don't replace stable selectors when ARIA attributes are not present.
 
 ### 6. Use exact: true with getByText
 

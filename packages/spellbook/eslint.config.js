@@ -7,6 +7,7 @@ export default [
   browserConfig,
   {
     files: ['**/*.{ts,tsx}'],
+    ignores: ['e2e/**'],
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,

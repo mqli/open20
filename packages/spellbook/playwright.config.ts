@@ -6,13 +6,12 @@ const isCI = process.env.CI === 'true';
 const baseConfig = createPlaywrightConfig({
   baseURL: 'http://localhost:4173',
   testDir: './e2e',
-  webServerCommand: isCI
-    ? 'pnpm run build && pnpm run preview -- --port 4173'
-    : 'pnpm run preview -- --port 4173',
+  // In CI, turbo manages build (dependsOn: ["build"]), so webServerCommand only needs preview.
+  // Locally, run preview directly — ensure you've built first or use `pnpm run test:e2e` via turbo.
+  webServerCommand: 'pnpm run preview -- --port 4173',
   webServerPort: 4173,
   webServerTimeout: 120000,
   headless: isCI,
-  browsers: ['chromium'],
   use: {
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -23,7 +22,8 @@ const baseConfig = createPlaywrightConfig({
 });
 
 /**
- * Spellbook E2E config with desktop + mobile projects
+ * Spellbook E2E config with desktop + mobile projects.
+ * Both use chromium — mobile tests validate responsive layout (viewport), not cross-engine.
  */
 export default defineConfig({
   ...baseConfig,
@@ -34,7 +34,7 @@ export default defineConfig({
     },
     {
       name: 'mobile',
-      use: { ...devices['iPhone 13'] },
+      use: { ...devices['iPhone 13'], browserName: 'chromium' },
     },
   ],
 });

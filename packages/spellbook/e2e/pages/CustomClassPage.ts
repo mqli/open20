@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { type Page, type Locator } from '@playwright/test';
 
 export class CustomClassPage {
   readonly page: Page;
@@ -26,31 +26,24 @@ export class CustomClassPage {
   }
 
   /**
-   * Dispatch a click event directly on the element.
-   * Use for radix Select triggers where Playwright's coordinate-based click
-   * can hang on mobile emulation inside dialogs.
-   * Removes scrollIntoViewIfNeeded — the trigger is inside a fixed-position Dialog.
+   * Click with force:true for radix Select triggers.
+   * Skips actionability checks (the trigger is inside a fixed-position Dialog
+   * that can cause coordinate stability issues on mobile emulation) but still
+   * dispatches proper mouse events through Playwright's pipeline.
    */
-  private async dispatchClick(locator: Locator) {
+  private async forceClick(locator: Locator) {
     await locator.waitFor({ state: 'attached', timeout: 5000 });
-    await locator.dispatchEvent('click');
+    await locator.click({ timeout: 10000, force: true });
   }
 
   /**
-   * Fill a React controlled input by setting the native value and dispatching
-   * synthetic input/change events.
+   * Fill a form input using Playwright's standard fill().
+   * Playwright's fill() handles React controlled inputs correctly by clearing
+   * the field and dispatching proper input/change events.
    */
   private async fillInput(locator: Locator, text: string) {
     await locator.waitFor({ state: 'attached', timeout: 5000 });
-    await locator.evaluate((el, value) => {
-      const nativeSetter = Object.getOwnPropertyDescriptor(
-        HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeSetter?.call(el, value);
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-      el.dispatchEvent(new Event('change', { bubbles: true }));
-    }, text);
+    await locator.fill(text);
   }
 
   // ── Navigation ──
@@ -155,8 +148,7 @@ export class CustomClassPage {
 
   /** Select a spellcasting ability from the select dropdown. */
   async selectSpellcastingAbility(ability: string) {
-    // dispatchEvent: bypasses Playwright's coordinate click which hangs on mobile SelectTrigger
-    await this.dispatchClick(this.getDialog().getByTestId('select-spellcasting-ability'));
+    await this.forceClick(this.getDialog().getByTestId('select-spellcasting-ability'));
     // Let SelectContent animate in (animate-in fade-in-80 + portal render)
     await this.page.waitForTimeout(400);
     await this.page.getByRole('option', { name: ability }).click({ timeout: 10000, force: true });
@@ -164,7 +156,7 @@ export class CustomClassPage {
 
   /** Select a slot preset. */
   async selectSlotPreset(preset: string) {
-    await this.dispatchClick(this.getDialog().getByTestId('select-slot-preset'));
+    await this.forceClick(this.getDialog().getByTestId('select-slot-preset'));
     await this.page.waitForTimeout(400);
     await this.page.getByRole('option', { name: preset }).click({ timeout: 10000, force: true });
   }
