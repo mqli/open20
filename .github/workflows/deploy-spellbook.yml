@@ -44,15 +44,15 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter @open20/spellbook exec playwright install --with-deps chromium webkit
 
-      - name: Build spellbook
-        run: pnpm turbo run build --filter=@open20/spellbook
-        env:
-          DEPLOY_TARGET: github-pages
-
       - name: Run E2E tests
         run: pnpm turbo run test:e2e --filter=@open20/spellbook
         env:
           CI: 'true'
+
+      - name: Build spellbook
+        run: pnpm turbo run build --filter=@open20/spellbook
+        env:
+          DEPLOY_TARGET: github-pages
 
       - name: Upload E2E test results (on failure)
         if: failure()
