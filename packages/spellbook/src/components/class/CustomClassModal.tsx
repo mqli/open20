@@ -88,13 +88,12 @@ function buildClass(
   };
 }
 
-/** Build a Subclass from form data. */
+/** Build a Subclass from form data. Uses the existing id from form state. */
 function buildSubclass(
-  name: string,
+  id: string,
   parentClassId: string,
   alwaysPrepared: { level: number; spells: string[] }[],
 ): Subclass {
-  const id = toSlug(`${parentClassId}-${name}`) || 'custom-sub';
   return {
     id,
     parentClass: parentClassId,
@@ -167,7 +166,7 @@ function CustomClassFormInner({
     if (!name.trim() || !preset) return;
 
     const cls = buildClass(name.trim(), preset, ability, knownSource, preparationTiming);
-    const subs = subclasses.map((s) => buildSubclass(s.name || s.id, cls.id, s.alwaysPrepared));
+    const subs = subclasses.map((s) => buildSubclass(s.id, cls.id, s.alwaysPrepared));
     onSave({ class: cls, subclasses: subs });
   }, [name, preset, ability, knownSource, preparationTiming, subclasses, onSave]);
 
@@ -180,12 +179,14 @@ function CustomClassFormInner({
   const addSubclass = useCallback(() => {
     const trimmed = newSubclassName.trim();
     if (!trimmed) return;
+    // Guard against duplicate subclass names
+    if (subclasses.some((s) => s.name.toLowerCase() === trimmed.toLowerCase())) return;
     setSubclasses((prev) => [
       ...prev,
       { id: crypto.randomUUID(), name: trimmed, alwaysPrepared: [] },
     ]);
     setNewSubclassName('');
-  }, [newSubclassName]);
+  }, [newSubclassName, subclasses]);
 
   const removeSubclass = useCallback((id: string) => {
     setSubclasses((prev) => prev.filter((s) => s.id !== id));

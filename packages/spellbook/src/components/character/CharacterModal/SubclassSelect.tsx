@@ -12,10 +12,16 @@ interface SubclassSelectProps {
 
 export function SubclassSelect({ classId, value, onChange, label }: SubclassSelectProps) {
   const t = useTranslation();
-  const subclasses = useMemo(
-    () => getAllSubclasses().filter((sc) => sc.parentClass === classId),
-    [classId],
-  );
+  const subclasses = useMemo(() => {
+    const all = getAllSubclasses().filter((sc) => sc.parentClass === classId);
+    // Deduplicate by id — custom subclasses may shadow SRD ones
+    const seen = new Set<string>();
+    return all.filter((sc) => {
+      if (seen.has(sc.id)) return false;
+      seen.add(sc.id);
+      return true;
+    });
+  }, [classId]);
 
   if (subclasses.length === 0) return null;
 
