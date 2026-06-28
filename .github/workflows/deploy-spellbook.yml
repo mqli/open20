@@ -8,7 +8,9 @@ on:
       - 'packages/core/**'
       - 'packages/ui/**'
       - 'packages/config/**'
+      - 'packages/content/**'
       - 'packages/content-*/**'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/deploy-spellbook.yml'
   workflow_dispatch:
 
@@ -36,7 +38,9 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: 0
 
       - name: Test spellbook
         run: pnpm turbo run test --filter=@open20/spellbook
@@ -58,7 +62,7 @@ jobs:
           retention-days: 30
 
       - name: Build spellbook
-        run: pnpm turbo run build --filter=@open20/spellbook --force  --force
+        run: pnpm turbo run build --filter=@open20/spellbook --force
         env:
           DEPLOY_TARGET: github-pages
 
