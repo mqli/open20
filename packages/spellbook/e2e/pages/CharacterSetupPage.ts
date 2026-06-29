@@ -3,12 +3,18 @@ import { type Page, type Locator } from '@playwright/test';
 /**
  * Page object for the character creation/edit modal.
  * Uses Playwright built-in selectors (placeholder, role, text).
+ *
+ * Supports both desktop and mobile layouts via the `isMobile` parameter.
+ * Form interactions are identical (same Dialog modal); only navigation
+ * and result verification differ between platforms.
  */
 export class CharacterSetupPage {
   readonly page: Page;
+  readonly isMobile: boolean;
 
-  constructor(page: Page) {
+  constructor(page: Page, isMobile = false) {
     this.page = page;
+    this.isMobile = isMobile;
   }
 
   // ── Helpers ──
@@ -156,16 +162,50 @@ export class CharacterSetupPage {
     );
   }
 
+  // ── Mobile tab navigation ──
+
+  /**
+   * On mobile, the character sheet is hidden behind a tab.
+   * Call this after submit() to switch to the Character tab before verifying results.
+   * On desktop this is a no-op (character panel is always visible in the sidebar).
+   */
+  async switchToCharacterTab() {
+    if (!this.isMobile) return;
+    await this.safeClick(this.page.getByTestId('tab-character'));
+    await this.page.waitForTimeout(300);
+  }
+
+  /**
+   * On mobile, switches back to the Spells tab (where CharacterSelector lives in the header).
+   * Needed when you want to open a modal after verifying character content on the Character tab.
+   * On desktop this is a no-op.
+   */
+  async switchToSpellsTab() {
+    if (!this.isMobile) return;
+    await this.safeClick(this.page.getByTestId('tab-spells'));
+    await this.page.waitForTimeout(300);
+  }
+
   // ── Verification ──
 
+  /**
+   * Returns the platform-appropriate container for character content.
+   * Desktop: sidebar character-panel. Mobile: character-content tab.
+   */
+  private getCharacterContent(): Locator {
+    return this.isMobile
+      ? this.page.getByTestId('character-content')
+      : this.page.getByTestId('character-panel');
+  }
+
   async expectCharacterInPanel(name: string) {
-    await this.getCharacterPanel()
+    await this.getCharacterContent()
       .getByText(name, { exact: false })
       .first()
       .waitFor({ state: 'visible' });
   }
 
   async expectTextInPanel(text: string | RegExp) {
-    await this.getCharacterPanel().getByText(text).first().waitFor({ state: 'visible' });
+    await this.getCharacterContent().getByText(text).first().waitFor({ state: 'visible' });
   }
 }

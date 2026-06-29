@@ -299,7 +299,7 @@ export function SpellLibraryLayout() {
         {mobileTab === 'spells' ? (
           spellLibraryContent
         ) : (
-          <div className="h-full overflow-y-auto px-3 py-4">
+          <div className="h-full overflow-y-auto px-3 py-4" data-testid="character-content">
             <CharacterSheetContent
               onEdit={() => {
                 if (activeCharacter) {

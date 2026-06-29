@@ -5,8 +5,9 @@ import { TEST_WIZARD, STORAGE_KEY, ACTIVE_CHARACTER_KEY } from '../fixtures/test
 test.describe('Character Creation', () => {
   let setup: CharacterSetupPage;
 
-  test.beforeEach(async ({ page }) => {
-    setup = new CharacterSetupPage(page);
+  test.beforeEach(async ({ page }, testInfo) => {
+    const isMobile = testInfo.project.name === 'mobile';
+    setup = new CharacterSetupPage(page, isMobile);
   });
 
   test('should create a basic character', async () => {
@@ -27,6 +28,7 @@ test.describe('Character Creation', () => {
     await setup.setAbility('Charisma', 10);
 
     await setup.submit();
+    await setup.switchToCharacterTab();
 
     await setup.expectCharacterInPanel('Gandalf');
     await setup.expectTextInPanel(/Wizard/);
@@ -54,6 +56,7 @@ test.describe('Character Creation', () => {
     await setup.setAbility('Charisma', 8);
 
     await setup.submit();
+    await setup.switchToCharacterTab();
 
     await setup.expectCharacterInPanel('Eldritch Knight');
     await setup.expectTextInPanel(/Fighter/);
@@ -70,12 +73,16 @@ test.describe('Character Creation', () => {
     );
 
     await setup.goto();
+    await setup.switchToCharacterTab();
     await setup.expectCharacterInPanel(TEST_WIZARD.name);
+    // On mobile, switch back to Spells tab to access CharacterSelector in header
+    await setup.switchToSpellsTab();
     await setup.openEditModal(TEST_WIZARD.name);
 
     await setup.fillName('Merlin the Wise');
     await setup.setAbility('Intelligence', 18);
     await setup.submit();
+    await setup.switchToCharacterTab();
 
     await setup.expectCharacterInPanel('Merlin the Wise');
     await expect(page.getByText(TEST_WIZARD.name)).not.toBeVisible();
