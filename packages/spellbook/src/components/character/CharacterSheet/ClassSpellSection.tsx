@@ -9,6 +9,7 @@ import {
   Surface,
   Text,
   DefenseIcon,
+  ConcentrationIcon,
   SlotPips,
   Divider,
 } from '@open20/ui';
@@ -18,8 +19,8 @@ import { getCasterTypeForClass } from 'open20-core/spells';
 import { resolveDeps } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useSpellStore } from '@/stores/spellStore';
+import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import type { SpellLevel, Spell, SpellSlotEntry } from 'open20-core/types';
-import { SpellEntry } from './SpellEntry';
 import { useState, useMemo, type ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 
@@ -183,6 +184,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
                 spellsAtLevel={spellsAtLevel}
                 recoverSpellSlot={recoverSpellSlot}
                 consumeSpellSlot={consumeSpellSlot}
+                selectSpell={selectSpell}
               />
             );
           })}
@@ -326,6 +328,32 @@ function KnownCantrips({
   );
 }
 
+interface SpellPillProps {
+  spell: Spell;
+  alwaysPrepared: string[];
+  selectSpell: (spell: Spell) => void;
+}
+
+function SpellPill({ spell, alwaysPrepared, selectSpell }: SpellPillProps) {
+  const { isConcentratingOnThis } = useSpellCapabilities(spell);
+  const isAlwaysPrepared = alwaysPrepared.includes(spell.id);
+
+  const variant = isConcentratingOnThis ? 'warning' : isAlwaysPrepared ? 'info' : 'secondary';
+
+  return (
+    <Badge
+      variant={variant}
+      size="sm"
+      className="cursor-pointer hover:opacity-80 flex items-center gap-1"
+      onClick={() => selectSpell(spell)}
+    >
+      {isConcentratingOnThis && <ConcentrationIcon size="xs" />}
+      {isAlwaysPrepared && <DefenseIcon size="xs" />}
+      {spell.name}
+    </Badge>
+  );
+}
+
 interface CantripSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -388,6 +416,7 @@ interface SpellSectionByLevelProps {
   spellsAtLevel: Spell[];
   recoverSpellSlot: (level: SpellLevel) => void;
   consumeSpellSlot: (level: SpellLevel) => void;
+  selectSpell: (spell: Spell) => void;
 }
 
 function SpellSectionByLevel({
@@ -398,6 +427,7 @@ function SpellSectionByLevel({
   spellsAtLevel,
   recoverSpellSlot,
   consumeSpellSlot,
+  selectSpell,
 }: SpellSectionByLevelProps) {
   const t = useTranslation();
   return (
@@ -420,9 +450,14 @@ function SpellSectionByLevel({
           </Text>
         </div>
       </div>
-      <div className="grid gap-1">
+      <div className="flex flex-wrap gap-1">
         {spellsAtLevel.map((spell) => (
-          <SpellEntry key={spell.id} spell={spell} alwaysPrepared={alwaysPrepared} />
+          <SpellPill
+            key={spell.id}
+            spell={spell}
+            alwaysPrepared={alwaysPrepared}
+            selectSpell={selectSpell}
+          />
         ))}
       </div>
     </div>

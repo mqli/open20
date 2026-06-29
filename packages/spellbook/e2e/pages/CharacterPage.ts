@@ -2,7 +2,7 @@ import { type Page, type Locator, expect } from '@playwright/test';
 
 /**
  * Page object for character sheet interactions.
- * Desktop: full sheet opens as Dialog via sidebar button.
+ * Desktop: character sheet renders inline in the character panel.
  * Mobile: character sheet renders inline on the character tab.
  */
 export class CharacterPage {
@@ -34,10 +34,8 @@ export class CharacterPage {
       this.sheet = this.page.locator('body');
       await this.page.waitForTimeout(500);
     } else {
-      // Desktop: click "Open character sheet" button
-      const btn = this.page.getByText('Open character sheet');
-      await btn.click();
-      this.sheet = this.page.locator('[role="dialog"]');
+      // Desktop: character sheet content is inline in the character panel
+      this.sheet = this.page.getByTestId('character-panel');
       await this.sheet.waitFor({ state: 'visible' });
     }
   }

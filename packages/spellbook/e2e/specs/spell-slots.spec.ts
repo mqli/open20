@@ -18,41 +18,38 @@ test.describe('Spell Slots', () => {
   });
 
   test('should display spell slots for character', async () => {
-    const sheet = characterPage.sheet;
-    const tabs = sheet.getByRole('tab');
-    expect(await tabs.count()).toBeGreaterThan(0);
+    const slotsArea = characterPage.sheet.locator('.slot-pips').first();
 
-    await tabs.first().click();
+    await expect(slotsArea).toBeVisible();
 
-    await expect(sheet.locator('.slot-pips').first()).toBeVisible();
-
-    const pipCount = await sheet.locator('.slot-pip').count();
+    const pipCount = await slotsArea.locator('.slot-pip').count();
     expect(pipCount).toBeGreaterThan(0);
   });
 
   test('should use a spell slot', async () => {
-    const sheet = characterPage.sheet;
-    await sheet.getByRole('tab').first().click();
+    const slotsArea = characterPage.sheet.locator('.slot-pips').first();
+    const availablePips = slotsArea.getByRole('button', { name: 'Available slot' });
 
-    const availableBefore = await sheet.locator('.slot-pip[aria-checked="false"]').count();
+    const availableBefore = await availablePips.count();
     expect(availableBefore).toBeGreaterThan(0);
 
-    await sheet.locator('.slot-pip[aria-checked="false"]').first().click();
+    await availablePips.first().click();
 
-    const availableAfter = await sheet.locator('.slot-pip[aria-checked="false"]').count();
+    const availableAfter = await availablePips.count();
     expect(availableAfter).toBe(availableBefore - 1);
   });
 
   test('should recover a used spell slot', async () => {
-    const sheet = characterPage.sheet;
-    await sheet.getByRole('tab').first().click();
+    const slotsArea = characterPage.sheet.locator('.slot-pips').first();
+    const availablePips = slotsArea.getByRole('button', { name: 'Available slot' });
+    const usedPips = slotsArea.getByRole('button', { name: 'Used slot' });
 
-    await sheet.locator('.slot-pip[aria-checked="false"]').first().click();
-    const availableAfterConsume = await sheet.locator('.slot-pip[aria-checked="false"]').count();
+    await availablePips.first().click();
+    const availableAfterConsume = await availablePips.count();
 
-    await sheet.locator('.slot-pip[aria-checked="true"]').first().click();
+    await usedPips.first().click();
 
-    const availableAfterRecover = await sheet.locator('.slot-pip[aria-checked="false"]').count();
+    const availableAfterRecover = await availablePips.count();
     expect(availableAfterRecover).toBe(availableAfterConsume + 1);
   });
 });

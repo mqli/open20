@@ -7,10 +7,9 @@ import { getCasterType } from 'open20-core/spells';
 import { Button, Divider, Surface, Text, Toggle } from '@open20/ui';
 import { CharacterSelector } from '@/components/layout/CharacterSelector';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
-import { CharacterSheet } from '@/components/character/CharacterSheet';
 import { CharacterModal } from '@/components/character/CharacterModal';
 import { SpellSlots } from '@/components/spell-slots/SpellSlots';
-import { Moon, Sun, Maximize2 } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
 export function CharacterPanel() {
@@ -27,7 +26,6 @@ export function CharacterPanel() {
   const { showPreparedOnly, setShowPreparedOnly, showKnownOnly, setShowKnownOnly } =
     useSpellStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
 
   const classNameMap = useMemo(
@@ -64,6 +62,7 @@ export function CharacterPanel() {
     <Surface
       variant="default"
       className="flex flex-col h-full rounded-none border-r overflow-y-auto"
+      data-testid="character-panel"
     >
       {/* Character Selector */}
       <div className="px-3 py-2 border-b border-border">
@@ -75,7 +74,7 @@ export function CharacterPanel() {
         <div className="flex-1 overflow-y-auto">
           {/* Compact Character Info */}
           <div className="px-3 py-3">
-            <CharacterSheetContent onEdit={handleEditActive} compact />
+            <CharacterSheetContent onEdit={handleEditActive} />
           </div>
 
           {/* Spellcasting Stats */}
@@ -169,36 +168,25 @@ export function CharacterPanel() {
           {/* Quick Actions */}
           <div className="px-3 pb-3">
             <Divider className="mb-3" />
-            <div className="flex flex-col gap-1.5">
+            <div className="flex gap-1.5">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsSheetOpen(true)}
-                className="w-full justify-start text-text-secondary hover:text-primary-600"
+                onClick={shortRest}
+                className="flex-1 justify-center text-text-secondary hover:text-primary-600"
               >
-                <Maximize2 className="w-4 h-4 mr-2" />
-                {t('openCharacterSheet')}
+                <Sun className="w-3.5 h-3.5 mr-1" />
+                {t('shortRest')}
               </Button>
-              <div className="flex gap-1.5">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={shortRest}
-                  className="flex-1 justify-center text-text-secondary hover:text-primary-600"
-                >
-                  <Sun className="w-3.5 h-3.5 mr-1" />
-                  {t('shortRest')}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={longRest}
-                  className="flex-1 justify-center text-text-secondary hover:text-primary-600"
-                >
-                  <Moon className="w-3.5 h-3.5 mr-1" />
-                  {t('longRest')}
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={longRest}
+                className="flex-1 justify-center text-text-secondary hover:text-primary-600"
+              >
+                <Moon className="w-3.5 h-3.5 mr-1" />
+                {t('longRest')}
+              </Button>
             </div>
           </div>
         </div>
@@ -207,13 +195,6 @@ export function CharacterPanel() {
       )}
 
       <CharacterModal open={isModalOpen} onOpenChange={setIsModalOpen} characterId={editingId} />
-      <CharacterSheet
-        open={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
-        onEdit={() => {
-          if (activeCharacter) handleEdit(activeCharacter.id);
-        }}
-      />
     </Surface>
   );
 }
