@@ -144,20 +144,6 @@ export function CharacterSheetContent({
           </section>
         )}
       </div>
-
-      {/* Footer */}
-      {!compact && (
-        <div className="mt-6 pt-4 border-t border-border">
-          <Button
-            variant="ghost"
-            onClick={onEdit}
-            className="w-full bg-bg-tertiary hover:bg-primary-50 text-text-secondary hover:text-primary-600 rounded-2xl py-3"
-          >
-            <Pencil className="w-4 h-4 mr-2" />
-            {t('editCharacterStats')}
-          </Button>
-        </div>
-      )}
     </>
   );
 }
