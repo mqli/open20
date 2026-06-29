@@ -37,6 +37,7 @@ export function AbilityScoresSection({ abilities, onChange }: AbilityScoresSecti
               value={abilities[ability as keyof typeof abilities]}
               onChange={(e) => onChange(ability, e.target.value)}
               className="text-center font-bold"
+              data-testid={`ability-${ability.toLowerCase()}`}
             />
           </div>
         ))}

@@ -134,7 +134,7 @@ export function CharacterModalForm({
         <form onSubmit={onSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div>
+              <div data-testid="char-name-input">
                 <Text as="label" variant="formLabel">
                   {t('characterName')}
                 </Text>
@@ -158,7 +158,7 @@ export function CharacterModalForm({
                       setFormData((prev) => ({ ...prev, charClass: value, subclassId: '' }));
                     }}
                   >
-                    <SelectTrigger />
+                    <SelectTrigger data-testid="char-class-select" />
                     <SelectContent>
                       {CLASSES.filter((c) => c.source !== 'Homebrew').map((c) => (
                         <SelectItem key={c.id} value={c.id}>
@@ -195,6 +195,7 @@ export function CharacterModalForm({
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, level: parseInt(e.target.value) || 1 }))
                     }
+                    data-testid="char-level-input"
                   />
                 </div>
               </div>
@@ -214,7 +215,7 @@ export function CharacterModalForm({
                     value={formData.species}
                     onValueChange={(value) => setFormData((prev) => ({ ...prev, species: value }))}
                   >
-                    <SelectTrigger />
+                    <SelectTrigger data-testid="char-species-select" />
                     <SelectContent>
                       {SPECIES.map((s) => (
                         <SelectItem key={s.id} value={s.id}>
@@ -234,7 +235,7 @@ export function CharacterModalForm({
                       setFormData((prev) => ({ ...prev, background: value }))
                     }
                   >
-                    <SelectTrigger />
+                    <SelectTrigger data-testid="char-background-select" />
                     <SelectContent>
                       {BACKGROUNDS.map((b) => (
                         <SelectItem key={b.id} value={b.id}>
@@ -258,6 +259,7 @@ export function CharacterModalForm({
                     size="sm"
                     onClick={handleAddAdditionalClass}
                     className="h-7 text-[9px]"
+                    data-testid="add-class-btn"
                   >
                     {t('addClass')}
                   </Button>
@@ -292,6 +294,7 @@ export function CharacterModalForm({
               variant="primary"
               size="lg"
               disabled={!formData.name || isSubmitting}
+              data-testid="char-submit-btn"
             >
               {isSubmitting ? t('saving') : editingCharacter ? t('saveChanges') : t('summonHero')}
             </Button>

@@ -2,7 +2,7 @@ export const TEST_WIZARD = {
   id: 'e2e-test-wizard',
   schemaVersion: '2024.1',
   name: 'Test Wizard',
-  species: 'human',
+  species: 'Human',
   speciesSubtype: null,
   background: 'sage',
   classes: [

@@ -53,7 +53,7 @@ export function AdditionalClassEntryComponent({
             value={entry.classId}
             onValueChange={(value) => onUpdate(entry.id, { classId: value, subclassId: undefined })}
           >
-            <SelectTrigger />
+            <SelectTrigger data-testid="additional-class-select" />
             <SelectContent>
               {CLASSES.filter((c) => c.source !== 'Homebrew').map((c) => (
                 <SelectItem key={c.id} value={c.id}>
@@ -85,6 +85,7 @@ export function AdditionalClassEntryComponent({
             value={entry.level}
             onChange={(e) => onUpdate(entry.id, { level: parseInt(e.target.value) || 1 })}
             className="h-8 px-2 py-1 text-xs"
+            data-testid="additional-level-input"
           />
         </div>
         <div className="col-span-2">
@@ -94,6 +95,7 @@ export function AdditionalClassEntryComponent({
             size="sm"
             onClick={() => onRemove(entry.id)}
             className="h-8 w-full text-danger hover:text-danger hover:bg-danger/10"
+            data-testid="remove-additional-class-btn"
           >
             <X className="w-3.5 h-3.5" />
           </Button>

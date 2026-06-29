@@ -199,6 +199,7 @@ export function buildDepsForCreate(params: {
   backgroundId: string;
   classId: string;
   subclassId?: string | null;
+  additionalClasses?: Array<{ classId: string; level: number; subclassId?: string }>;
 }): RecomputeDerivedStatsDeps {
   const pack = getContentPack();
 
@@ -214,9 +215,24 @@ export function buildDepsForCreate(params: {
   if (background) deps.background = background;
   if (klass) deps.classes = { [klass.id]: klass };
 
+  // Resolve additional multiclass classes into deps.classes
+  for (const additional of params.additionalClasses ?? []) {
+    const additionalKlass = pack.classes?.find((c) => c.id === additional.classId);
+    if (additionalKlass) {
+      deps.classes[additionalKlass.id] = additionalKlass;
+    }
+    // Also resolve subclass for each additional class if provided
+    if (additional.subclassId && additionalKlass) {
+      const sub = pack.subclasses?.find((s) => s.id === additional.subclassId);
+      if (sub) {
+        deps.subclasses = { ...(deps.subclasses ?? {}), [sub.id]: sub };
+      }
+    }
+  }
+
   if (params.subclassId && klass) {
     const sub = pack.subclasses?.find((s) => s.id === params.subclassId);
-    if (sub) deps.subclasses = { [sub.id]: sub };
+    if (sub) deps.subclasses = { ...(deps.subclasses ?? {}), [sub.id]: sub };
   }
 
   return deps;
