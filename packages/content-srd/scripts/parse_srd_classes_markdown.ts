@@ -10,9 +10,9 @@ import { generateClassesFromDocuments, mergeClasses } from './parse_srd_class_ge
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '..');
-const classesDir = resolve(projectRoot, 'requirements', '02-character-creation', 'classes');
-const classesOutputPath = resolve(projectRoot, 'static', 'srd', 'classes.json');
-const spellsPath = resolve(projectRoot, 'static', 'srd', 'spells.json');
+const classesDir = resolve(projectRoot, 'src', 'markdown', 'classes');
+const classesOutputPath = resolve(projectRoot, 'data', 'classes.json');
+const spellsPath = resolve(projectRoot, 'data', 'spells.json');
 
 function listClassMarkdownFiles(): string[] {
   return CLASS_MARKDOWN_FILE_ORDER.map((name) => resolve(classesDir, name));

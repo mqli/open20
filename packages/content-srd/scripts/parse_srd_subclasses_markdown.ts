@@ -10,9 +10,9 @@ import { generateSubclassesFromDocuments, mergeSubclasses } from './parse_srd_cl
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '..');
-const classesDir = resolve(projectRoot, 'requirements', '02-character-creation', 'classes');
-const spellsPath = resolve(projectRoot, 'static', 'srd', 'spells.json');
-const subclassesOutputPath = resolve(projectRoot, 'static', 'srd', 'subclasses.json');
+const classesDir = resolve(projectRoot, 'src', 'markdown', 'classes');
+const spellsPath = resolve(projectRoot, 'data', 'spells.json');
+const subclassesOutputPath = resolve(projectRoot, 'data', 'subclasses.json');
 
 function listClassMarkdownFiles(): string[] {
   return CLASS_MARKDOWN_FILE_ORDER.map((name) => resolve(classesDir, name));
