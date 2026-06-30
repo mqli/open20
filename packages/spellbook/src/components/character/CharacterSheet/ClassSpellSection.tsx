@@ -1,11 +1,5 @@
-import { Plus, X } from 'lucide-react';
 import {
   Badge,
-  Button,
-  DialogClose,
-  DialogContent,
-  DialogRoot,
-  DialogTitle,
   Surface,
   Text,
   DefenseIcon,
@@ -21,7 +15,7 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { useSpellStore } from '@/stores/spellStore';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import type { SpellLevel, Spell, SpellSlotEntry } from 'open20-core/types';
-import { useState, useMemo, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 
 function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
@@ -62,18 +56,8 @@ interface ClassSpellSectionProps {
 export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
   const { activeCharacter, consumeSpellSlot, recoverSpellSlot } = useCharacterStore();
   const { selectSpell } = useSpellStore();
-  const [isCantripModalOpen, setIsCantripModalOpen] = useState(false);
-  const [cantripToReplace, setCantripToReplace] = useState<string | null>(null);
-
   // All hooks must be called before any early returns
   const classData = activeCharacter?.spells.classSpellcasting[classId];
-  const availableCantrips = useMemo(() => {
-    if (!classData) return [];
-    const knownCantrips = classData.knownCantrips;
-    return spellService
-      .searchSpells({ classes: [classId], level: 0 })
-      .filter((s) => !knownCantrips.includes(s.id));
-  }, [classId, classData]);
 
   // Early returns after all hooks
   if (!activeCharacter) return null;
@@ -109,25 +93,14 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
     {} as Record<number, Spell[]>,
   );
 
-  const handleLearnCantrip = () => {
-    setCantripToReplace(null);
-    setIsCantripModalOpen(true);
-  };
-
-  const handleReplaceCantrip = (spellId: string) => {
-    setCantripToReplace(spellId);
-    setIsCantripModalOpen(true);
-  };
-
-  const handleCantripSelect = (spellId: string) => {
-    if (cantripToReplace) {
-      useCharacterStore.getState().replaceCantrip(classId, cantripToReplace, spellId);
-    } else {
-      useCharacterStore.getState().learnCantrip(classId, spellId);
-    }
-    setIsCantripModalOpen(false);
-    setCantripToReplace(null);
-  };
+  // Merge cantrips (level 0) into spellsByLevel
+  const cantripSpells = classData.knownCantrips
+    .map((id) => spellService.getSpell(id))
+    .filter((s): s is NonNullable<typeof s> => !!s)
+    .sort((a, b) => a.name.localeCompare(b.name));
+  if (cantripSpells.length > 0) {
+    spellsByLevel[0] = cantripSpells;
+  }
 
   // Get spell slots for this class (for multiclass, slots are combined in activeCharacter.spells.spellSlots)
   const spellSlots =
@@ -154,29 +127,26 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
         {alwaysPrepared.length > 0 && (
           <AlwaysPreparedSpells alwaysPrepared={alwaysPrepared} selectSpell={selectSpell} />
         )}
-        {/* Known Cantrips */}
-        <KnownCantrips
-          knownCantrips={classData.knownCantrips}
-          maxCantripsKnown={classData.maxCantripsKnown}
-          handleLearnCantrip={handleLearnCantrip}
-          handleReplaceCantrip={handleReplaceCantrip}
-        />
-        {/* Cantrip Selection Modal */}
-        <CantripSelectionModal
-          isOpen={isCantripModalOpen}
-          onClose={() => setIsCantripModalOpen(false)}
-          onSelect={handleCantripSelect}
-          cantripToReplace={cantripToReplace}
-          availableCantrips={availableCantrips}
-        />
-
-        {/* Spell List with Inline Spell Slots */}
+        {/* Spell List with Inline Spell Slots (includes cantrips at level 0) */}
         <div className="space-y-4">
+          {/* Cantrips (level 0) */}
+          <SpellSectionByLevel
+            level={0}
+            total={0}
+            used={0}
+            alwaysPrepared={alwaysPrepared}
+            spellsAtLevel={spellsByLevel[0] ?? []}
+            recoverSpellSlot={recoverSpellSlot}
+            consumeSpellSlot={consumeSpellSlot}
+            selectSpell={selectSpell}
+            maxKnown={classData.maxCantripsKnown}
+          />
           {availableSpellSlots.map(([level, { total, used }]) => {
             const lvl = parseInt(level, 10) as SpellLevel;
             const spellsAtLevel = spellsByLevel[lvl] ?? [];
             return (
               <SpellSectionByLevel
+                key={lvl}
                 level={lvl}
                 total={total}
                 used={used}
@@ -276,57 +246,6 @@ function AlwaysPreparedSpells({ alwaysPrepared, selectSpell }: AlwaysPreparedSpe
     </div>
   );
 }
-interface KnownCantripsProps {
-  knownCantrips: readonly string[];
-  maxCantripsKnown: number;
-  handleLearnCantrip: () => void;
-  handleReplaceCantrip: (spellId: string) => void;
-}
-function KnownCantrips({
-  knownCantrips,
-  maxCantripsKnown,
-  handleLearnCantrip,
-  handleReplaceCantrip,
-}: KnownCantripsProps) {
-  const t = useTranslation();
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <Text as="div" variant="label">
-          {t('knownCantripsCount')} ({knownCantrips.length}/{maxCantripsKnown})
-        </Text>
-        {knownCantrips.length < maxCantripsKnown && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLearnCantrip}
-            className="h-5 px-1 text-[10px]"
-          >
-            <Plus className="w-3 h-3 mr-0.5" />
-            {t('add')}
-          </Button>
-        )}
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {knownCantrips.map((spellId) => {
-          const spell = spellService.getSpell(spellId);
-          if (!spell) return null;
-          return (
-            <Badge
-              key={spellId}
-              variant="secondary"
-              size="sm"
-              className="cursor-pointer hover:bg-bg-tertiary flex items-center gap-1"
-              onClick={() => handleReplaceCantrip(spellId)}
-            >
-              {spell.name}
-            </Badge>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 interface SpellPillProps {
   spell: Spell;
@@ -354,60 +273,6 @@ function SpellPill({ spell, alwaysPrepared, selectSpell }: SpellPillProps) {
   );
 }
 
-interface CantripSelectionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (spellId: string) => void;
-  cantripToReplace: string | null;
-  availableCantrips: readonly Spell[];
-}
-
-function CantripSelectionModal({
-  isOpen,
-  onClose,
-  onSelect,
-  cantripToReplace,
-  availableCantrips,
-}: CantripSelectionModalProps) {
-  const t = useTranslation();
-  return (
-    <DialogRoot open={isOpen} onOpenChange={onClose}>
-      <DialogContent size="sm">
-        <div className="flex justify-between items-center mb-4">
-          <DialogTitle className="text-lg font-bold">
-            {cantripToReplace ? t('replaceCantrip') : t('learnCantrip')}
-          </DialogTitle>
-          <DialogClose asChild>
-            <Button variant="ghost" size="sm" className="p-1">
-              <X className="w-4 h-4" />
-            </Button>
-          </DialogClose>
-        </div>
-        <div className="space-y-1 max-h-64 overflow-y-auto">
-          {availableCantrips.map((spell: Spell) => (
-            <Button
-              variant="ghost"
-              size="sm"
-              key={spell.id}
-              onClick={() => onSelect(spell.id)}
-              className="w-full text-left px-3 py-2 rounded hover:bg-bg-tertiary transition-colors"
-            >
-              <Text size="sm" weight="medium">
-                {spell.name}
-              </Text>
-            </Button>
-          ))}
-          {availableCantrips.length === 0 && (
-            <Text variant="caption" className="text-text-tertiary">
-              {t('noCantripsAvailable')}
-            </Text>
-          )}
-        </div>
-      </DialogContent>
-    </DialogRoot>
-  );
-}
-
 interface SpellSectionByLevelProps {
   level: SpellLevel;
   total: number;
@@ -417,6 +282,8 @@ interface SpellSectionByLevelProps {
   recoverSpellSlot: (level: SpellLevel) => void;
   consumeSpellSlot: (level: SpellLevel) => void;
   selectSpell: (spell: Spell) => void;
+  /** When provided (cantrips), shows "name (n/max)" label and hides slot pips */
+  maxKnown?: number;
 }
 
 function SpellSectionByLevel({
@@ -428,25 +295,31 @@ function SpellSectionByLevel({
   recoverSpellSlot,
   consumeSpellSlot,
   selectSpell,
+  maxKnown,
 }: SpellSectionByLevelProps) {
   const t = useTranslation();
+  const isCantrip = maxKnown != null;
+  const levelLabel = t(SPELL_LEVEL_LABELS[level] as keyof typeof t);
+
   return (
-    <div key={level} className="space-y-1">
+    <div className="space-y-1">
       <div className="flex items-center justify-between px-1">
         <Text as="div" variant="label" className="text-[8px]">
-          {t(SPELL_LEVEL_LABELS[level] as keyof typeof t)}
+          {levelLabel}
         </Text>
         <div className="flex items-center gap-2">
-          <SlotPips
-            total={total}
-            used={used}
-            onPipClick={(_index, isUsed) =>
-              isUsed ? recoverSpellSlot(level) : consumeSpellSlot(level)
-            }
-            size="sm"
-          />
+          {!isCantrip && (
+            <SlotPips
+              total={total}
+              used={used}
+              onPipClick={(_index, isUsed) =>
+                isUsed ? recoverSpellSlot(level) : consumeSpellSlot(level)
+              }
+              size="sm"
+            />
+          )}
           <Text variant="caption" weight="bold" className="text-right text-[10px] w-8">
-            {total - used}/{total}
+            {isCantrip ? `(${spellsAtLevel.length}/${maxKnown})` : `${total - used}/${total}`}
           </Text>
         </div>
       </div>
