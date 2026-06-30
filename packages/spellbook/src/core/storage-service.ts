@@ -6,7 +6,7 @@ interface Preferences {
   language?: 'en' | 'zh-CN';
 }
 
-export interface CustomClassEntry {
+interface CustomClassEntry {
   class: Class;
   subclasses: Subclass[];
 }

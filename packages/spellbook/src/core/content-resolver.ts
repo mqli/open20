@@ -7,17 +7,7 @@
 
 import type { ContentPack } from 'open20-core/content';
 import type { RecomputeDerivedStatsDeps, Character } from 'open20-core';
-import type {
-  Class,
-  Species,
-  Background,
-  Feat,
-  Spell,
-  Weapon,
-  Armor,
-  Gear,
-  Subclass,
-} from 'open20-core';
+import type { Class, Species, Background, Spell, Subclass } from 'open20-core';
 import { mergeContentPacks } from '@open20/content-srd/merge';
 import { srdContentPack } from '@open20/content-srd';
 import { resolveCharacterDeps } from '@open20/content-srd/query/resolve';
@@ -97,81 +87,26 @@ export function getContentPack(): ContentPack {
   return mergedPack;
 }
 
-// ── Entity getters (replaces dataLoader.getClass, dataLoader.getAllClasses, etc.) ──
+// ── Entity getters ────────────────────────────────────────
 
-/** Get all classes from the merged content pack. */
 export function getAllClasses(): Class[] {
   return getContentPack().classes ?? [];
 }
 
-/** Get a class by ID. */
-export function getClass(id: string): Class | undefined {
-  return getContentPack().classes?.find((c) => c.id === id);
-}
-
-/** Get all species from the merged content pack. */
 export function getAllSpecies(): Species[] {
   return getContentPack().species ?? [];
 }
 
-/** Get a species by ID. */
-export function getSpecies(id: string): Species | undefined {
-  return getContentPack().species?.find((s) => s.id === id);
-}
-
-/** Get all backgrounds from the merged content pack. */
 export function getAllBackgrounds(): Background[] {
   return getContentPack().backgrounds ?? [];
 }
 
-/** Get a background by ID. */
-export function getBackground(id: string): Background | undefined {
-  return getContentPack().backgrounds?.find((b) => b.id === id);
-}
-
-/** Get all feats from the merged content pack. */
-export function getAllFeats(): Feat[] {
-  return getContentPack().feats ?? [];
-}
-
-/** Get a feat by ID. */
-export function getFeat(id: string): Feat | undefined {
-  return getContentPack().feats?.find((f) => f.id === id);
-}
-
-/** Get all spells from the merged content pack. */
 export function getAllSpells(): Spell[] {
   return getContentPack().spells ?? [];
 }
 
-/** Get a spell by ID. */
-export function getSpell(id: string): Spell | undefined {
-  return getContentPack().spells?.find((s) => s.id === id);
-}
-
-/** Get all subclasses from the merged content pack. */
 export function getAllSubclasses(): Subclass[] {
   return getContentPack().subclasses ?? [];
-}
-
-/** Get a subclass by ID. */
-export function getSubclass(id: string): Subclass | undefined {
-  return getContentPack().subclasses?.find((s) => s.id === id);
-}
-
-/** Get all weapons from the merged content pack. */
-export function getAllWeapons(): Weapon[] {
-  return getContentPack().weapons ?? [];
-}
-
-/** Get all armors from the merged content pack. */
-export function getAllArmors(): Armor[] {
-  return getContentPack().armors ?? [];
-}
-
-/** Get all gears items from the merged content pack. */
-export function getAllGear(): Gear[] {
-  return getContentPack().gears ?? [];
 }
 
 // ── Deps resolution ───────────────────────────────────────

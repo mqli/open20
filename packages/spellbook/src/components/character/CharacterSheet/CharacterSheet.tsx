@@ -1,10 +1,9 @@
 import { X, Pencil } from 'lucide-react';
-import { Badge, Button, Dialog, SectionHeader, Sheet, SlotPips, Tabs, Text } from '@open20/ui';
+import { Badge, Button, SectionHeader, SlotPips, Tabs, Text } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
 import { ConcentrationBanner } from './ConcentrationBanner';
 import { ClassSpellSection } from './ClassSpellSection';
 import { useTranslation } from '@/i18n';
-import { useIsLargeScreen } from '@/hooks/useBreakpoint';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -22,11 +21,9 @@ const SPELL_LEVEL_LABELS = [
 export function CharacterSheetContent({
   onEdit,
   onClose,
-  compact,
 }: {
   onEdit: () => void;
   onClose?: () => void;
-  compact?: boolean;
 }) {
   const t = useTranslation();
   const { activeCharacter, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
@@ -45,9 +42,9 @@ export function CharacterSheetContent({
   return (
     <>
       {/* Header */}
-      <div className={`flex items-start justify-between ${compact ? 'mb-3' : 'mb-6'}`}>
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <Text as="h2" size={compact ? 'lg' : '2xl'} weight="bold">
+          <Text as="h2" size="2xl" weight="bold">
             {activeCharacter.name}
           </Text>
           <div className="flex gap-2 mt-2 flex-wrap">
@@ -115,7 +112,7 @@ export function CharacterSheetContent({
         )}
 
         {/* Per-Class Spellcasting Sections */}
-        {!compact && spellcastingClasses.length > 0 && (
+        {spellcastingClasses.length > 0 && (
           <section>
             <SectionHeader title={t('classSpellcastingStats')} />
             <Tabs.Root defaultValue={classTabEntries[0]?.tabValue}>
@@ -145,46 +142,5 @@ export function CharacterSheetContent({
         )}
       </div>
     </>
-  );
-}
-
-export function CharacterSheet({
-  open,
-  onOpenChange,
-  onEdit,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onEdit: () => void;
-}) {
-  const isLarge = useIsLargeScreen();
-
-  if (!open) return null;
-
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      onOpenChange(false);
-    }
-  };
-
-  // Mobile/Tablet: Use Sheet (slide-in from right)
-  if (!isLarge) {
-    return (
-      <Sheet open={open} onOpenChange={handleOpenChange}>
-        <Sheet.Content side="right" className="max-w-sm p-6">
-          <CharacterSheetContent onEdit={onEdit} onClose={() => onOpenChange(false)} />
-        </Sheet.Content>
-      </Sheet>
-    );
-  }
-
-  // Desktop: Use Dialog (centered modal)
-  return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Overlay />
-      <Dialog.Content size="lg" className="max-h-[85vh] overflow-y-auto">
-        <CharacterSheetContent onEdit={onEdit} onClose={() => onOpenChange(false)} />
-      </Dialog.Content>
-    </Dialog.Root>
   );
 }
