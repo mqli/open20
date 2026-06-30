@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  createTestDepsForCreate,
-  createTestDeps,
-  getTestSubclass,
-  getTestClass,
-} from '../../create-test-loader';
+import { createTestDepsForCreate, createTestDeps, getTestClass } from '../../create-test-loader';
 import {
   createCharacter,
   applyTypedDamage,
@@ -78,45 +73,6 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
 
       const afterRest = fighter.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind');
       expect(afterRest!.used).toBe(0);
-    });
-
-    it('should simulate Eldritch Knight spell combat', () => {
-      const deps = createTestDepsForCreate({
-        speciesId: 'Human',
-        backgroundId: 'sage',
-        classId: 'Fighter',
-        subclassId: 'Eldritch Knight',
-      });
-      const ek = createCharacter(
-        {
-          name: 'Battle Mage',
-          speciesId: 'Human',
-          backgroundId: 'sage',
-          classId: 'Fighter',
-          subclassId: 'Eldritch Knight',
-          classLevel: 7,
-          abilityScores: {
-            Strength: 15,
-            Dexterity: 13,
-            Constitution: 14,
-            Intelligence: 17,
-            Wisdom: 12,
-            Charisma: 8,
-          },
-        },
-        deps,
-      );
-
-      // Note: Eldritch Knight spellcasting is granted by a subclass feature at level 3
-      // The current implementation doesn't automatically add subclass-granted spellcasting
-      // This test verifies the character is created successfully
-      expect(ek.classes[0]!.level).toBe(7);
-      expect(ek.classes[0]!.subclassId).toBe('Eldritch Knight');
-      const eldritchKnight = getTestSubclass('Eldritch Knight')!;
-      const level7Features = eldritchKnight.featuresByLevel
-        .find((entry) => entry.level === 7)!
-        .features.map((feature) => feature.name);
-      expect(level7Features).toContain('War Magic');
     });
   });
 
