@@ -11,6 +11,9 @@ open20/
 ├── packages/
 │   ├── config/        # @open20/config: shared tsconfig + eslint presets
 │   ├── core/          # open20-core: headless TS game engine (npm-publishable)
+│   ├── content/       # @open20/content: headless content management engine (editor, validator, I/O)
+│   ├── content-srd/   # @open20/content-srd: SRD 5.2 data pack + query utilities
+│   ├── rulebook/      # @open20/rulebook: React SPA for content pack editing/browsing (private)
 │   ├── spellbook/     # @open20/spellbook: React web app (GitHub Pages)
 │   └── ui/            # @open20/ui: shared React component library
 ├── turbo.json                  # build pipeline
@@ -21,14 +24,16 @@ open20/
 ## Package Dependency
 
 ```
-@open20/spellbook  →  @open20/ui   (workspace:*)
-                 └→  open20-core   (workspace:*)
-@open20/ui         →  open20-core   (workspace:*)
+@open20/rulebook      →  @open20/content, @open20/content-srd, @open20/ui, open20-core
+@open20/spellbook     →  @open20/ui, open20-core
+@open20/content-srd   →  @open20/content, open20-core
+@open20/content       →  open20-core
+@open20/ui            →  open20-core
 ```
 
-`packages/spellbook/package.json` has `"@open20/ui": "workspace:*"` and `"open20-core": "workspace:*"`. `packages/ui/package.json` also depends on `"open20-core": "workspace:*"`. pnpm symlinks directly to workspace packages, so imports work like external consumers with transparent local linking.
+The workspace packages depend on each other via `workspace:*`. pnpm symlinks directly to workspace packages, so imports work like external consumers with transparent local linking.
 
-**Core must build before spellbook.** turbo handles this automatically via `"dependsOn": ["^build"]` in `turbo.json`.
+**Core must build before dependent packages.** turbo handles this automatically via `"dependsOn": ["^build"]` in `turbo.json`.
 
 ---
 
@@ -87,11 +92,11 @@ Shared ESLint preset deps (`@eslint/js`, `typescript-eslint`, `globals`) live in
 
 ## CI Workflows
 
-| File                                     | Trigger                                                                                                                                 | Notes                                                        |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `.github/workflows/ci.yml`               | push/PR to `main`                                                                                                                       | Full build + test matrix (node 22, 24) + core artifact tests |
-| `.github/workflows/deploy-spellbook.yml` | push to `main`, paths: `packages/spellbook/**`, `packages/core/**`, `packages/ui/**`, `packages/config/**`, or the workflow file itself | Deploys spellbook to GitHub Pages                            |
-| `.github/workflows/release-core.yml`     | tag `core-v*`                                                                                                                           | Full validation + GitHub Release + `.tgz`                    |
+| File                                     | Trigger                                                                                                                                                                                                   | Notes                                                      |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `.github/workflows/ci.yml`               | push/PR to `main`                                                                                                                                                                                         | Full build + test matrix (node 22, 24) across all packages |
+| `.github/workflows/deploy-spellbook.yml` | push to `main`, paths: `packages/spellbook/**`, `packages/core/**`, `packages/ui/**`, `packages/config/**`, `packages/content/**`, `packages/content-*/**`, `pnpm-lock.yaml`, or the workflow file itself | Deploys spellbook to GitHub Pages                          |
+| `.github/workflows/release-core.yml`     | tag `core-v*`                                                                                                                                                                                             | Full validation + GitHub Release + `.tgz`                  |
 
 **Tag convention for core releases**: `core-v0.2.2` (not `v0.2.2`) — monorepo uses package-scoped tags.
 
@@ -136,6 +141,7 @@ Changes affect all packages — run `pnpm build && pnpm test` from root to verif
 
 Each package has its own `AGENTS.md` with package-specific conventions. Read it before working in that package.
 
-- `packages/core/AGENTS.md` — architecture, immutable patterns, test conventions, spell data
+- `packages/core/AGENTS.md` — architecture, immutable patterns, test conventions, content pack system
+- `packages/content-srd/AGENTS.md` — SRD 5.2 content pack, query utilities, parse scripts
 - `packages/spellbook/AGENTS.md` — component structure, Zustand stores, requirements workflow
-- `packages/ui/AGENTS.md` — component, stateless
+- `packages/ui/AGENTS.md` — component patterns, stateless

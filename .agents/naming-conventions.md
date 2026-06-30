@@ -1,7 +1,7 @@
 # Open20 Monorepo — Naming Conventions
 
-> **Last updated**: 2026-06-10
-> **Applies to**: `packages/core`, `packages/ui`, `packages/spellbook`
+> **Last updated**: 2026-06-30
+> **Applies to**: all workspace packages
 
 ---
 
@@ -40,7 +40,10 @@ src/
 │   └── spell-slots.ts
 ├── character/          # Entity state (lowercase)
 │   ├── create.ts
-│   ├── mutate.ts
+│   ├── mutate/         # Mutation functions (by domain)
+│   │   ├── hp.ts
+│   │   ├── conditions.ts
+│   │   └── index.ts
 │   └── index.ts
 └── spells/             # Spell queries (lowercase)
     ├── query.ts
@@ -126,12 +129,6 @@ src/
 │   ├── spellStore.ts
 │   ├── rollStore.ts
 │   └── uiStore.ts
-├── core/                       # Service layer (lowercase directory)
-│   ├── character-service.ts
-│   ├── spell-service.ts
-│   └── storage-service.ts
-├── utils/                      # Utilities (lowercase directory)
-│   └── helpers.ts
 └── i18n/                      # Internationalization (lowercase)
     └── index.tsx
 ```
@@ -140,7 +137,6 @@ src/
 
 - Hooks: camelCase (`useBreakpoint.ts`, not `use-breakpoint.ts`)
 - Stores: camelCase (`characterStore.ts`, not `character-store.ts`)
-- Services: kebab-case (`character-service.ts`)
 - Feature directories: kebab-case for multi-word (`spell-library/`)
 - Component directories: PascalCase (`CharacterModal/`)
 
@@ -156,9 +152,6 @@ import { useBreakpoint } from '@/hooks/useBreakpoint';
 
 // Stores
 import { useCharacterStore } from '@/stores/characterStore';
-
-// Services
-import { characterService } from '@/core/character-service';
 
 // Components
 import { CharacterSheet } from '@/components/character/CharacterSheet';

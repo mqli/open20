@@ -51,27 +51,14 @@ test('prepare spell');
 
 ## Selectors
 
-### 4. Use data-testid as the Primary Selector
+### 4. CSS Classes as the Primary Selector
 
-`data-testid` attributes are **not stripped** in this project's Vite production build (no stripping plugin is configured). Use `getByTestId()` as the preferred selector — it's stable, semantic, and immune to CSS class changes.
+`data-testid` attributes are **stripped by Vite in production builds** in this project. Playwright E2E tests run against `vite preview` (the production artifact), so `getByTestId()` will never find anything.
 
-```typescript
-// ✅ Preferred — stable and semantic
-await page.getByTestId('prepare-spell-button').click();
-```
-
-Add the `data-testid` attribute to the component where needed:
-
-```tsx
-// In component
-<IconButton data-testid="prepare-spell-button" ... />
-```
-
-### 5. CSS Classes as a Fallback
-
-When adding `data-testid` is impractical, use a stable CSS class:
+Use a stable CSS class as the primary selector:
 
 ```typescript
+// ✅ Preferred — stable against code changes
 // In component
 <IconButton className="prepare-spell-button" ... />
 
@@ -79,7 +66,20 @@ When adding `data-testid` is impractical, use a stable CSS class:
 await page.locator('.prepare-spell-button').click();
 ```
 
-Semantic locators (`getByRole`, `getByLabel`, `getByText`) are fine for truly semantic elements — buttons by aria-name, tabs, headings — but they don't replace stable selectors when ARIA attributes are not present.
+### 5. Semantic Locators as a Supplement
+
+For elements with ARIA attributes, semantic locators are also appropriate:
+
+```typescript
+// ✅ Fine — role with accessible name
+await page.getByRole('tab').first().click();
+await page.getByRole('button', { name: /close/i }).click();
+
+// ✅ Fine — accessible label
+await page.getByLabel('Search').fill('Fireball');
+```
+
+Semantic locators are safe for truly semantic elements (tabs, headings, buttons by aria-name), but rely on CSS classes when ARIA attributes are not present.
 
 ### 6. Use exact: true with getByText
 

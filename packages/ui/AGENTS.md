@@ -2,7 +2,7 @@
 
 ## Monorepo Context
 
-This package lives at `packages/ui/` inside the [open20 monorepo](../../agent.md). Read `../../agent.md` for repo-wide conventions (turbo pipeline, shared configs, CI).
+This package lives at `packages/ui/` inside the [open20 monorepo](../../AGENTS.md). Read `../../AGENTS.md` for repo-wide conventions (turbo pipeline, shared configs, CI).
 
 **Dependencies**:
 
@@ -35,7 +35,6 @@ packages/ui/
 ├── package.json                     # ESM, private package
 ├── tsconfig.json                    # Dev mode (noEmit)
 ├── tsconfig.build.json              # Build config (output dist/)
-├── tailwind.config.js                # Extends @open20/config base
 ├── postcss.config.js
 ├── .storybook/                      # Storybook config
 ├── src/
@@ -51,8 +50,8 @@ packages/ui/
 │       │   ├── CardSurface/          # Shared clickable card wrapper (accessibility + glow)
 │       │   │   ├── storybook/
 │       │   │   ├── CardSurface.tsx
+│       │   │   ├── CardMetaItem.tsx   # Shared icon+label inline meta component
 │       │   │   └── index.ts
-│       │   ├── CardMetaItem/         # Shared icon+label inline meta component
 │       │   ├── Dialog/               # Radix UI wrappers (namespace exports)
 │       │   ├── Divider/
 │       │   ├── DropdownMenu/
@@ -74,6 +73,7 @@ packages/ui/
 │       │   ├── Tooltip/
 │       │   └── icons/
 │       ├── spell/                   # Spell-specific components (e.g., SpellCard)
+│       ├── monster/                 # Monster-specific components (e.g., MonsterCard)
 │       └── rules/                   # Rules-specific components (e.g., FeatCard)
 └── dist/                            # Build output
 ```
@@ -123,7 +123,7 @@ All variant class strings live in **`src/styles/design-tokens.ts`**, not inline.
 - Single class strings → `CamelCaseClasses` (`overlayClasses`)
 - Variant objects → `camelCaseVariants` (`buttonVariants`)
 
-**When to extract a token** (see [`../../.agents/ui/design-tokens.md`](../../.agents/ui/design-tokens.md)):
+**When to extract a token** (see [`../../.agents/ui/design-token.md`](../../.agents/ui/design-token.md)):
 
 - ✅ Used in 3+ places, complex classname (3+ utilities), or variant object used by cva
 - ❌ Single utility used once, or trivial 2-class combos
@@ -192,7 +192,7 @@ pnpm run typecheck && pnpm run lint && pnpm run build
 
 ---
 
-More on tokens: [`../../.agents/ui/design-tokens.md`](../../.agents/ui/design-tokens.md)
+More on tokens: [`../../.agents/ui/design-token.md`](../../.agents/ui/design-token.md)
 
 ## DO / DON'T
 

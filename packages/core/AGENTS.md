@@ -17,22 +17,20 @@ This package lives at `packages/core/` inside the [open20 monorepo](../../AGENTS
 
 **Project**: Open20 Core - Headless D&D 5e 2024 Game Engine  
 **Goal**: A TypeScript library for D&D 5e 2024 rules engine, spell management, and character management. No UI - pure logic, testable via unit tests, usable by any framework.  
-**Status**: S1-S21 complete (832 tests passing)
+**Status**: S1-S21 complete (653 tests passing)
 
 ### Key Design Decisions
 
 - **Headless**: Zero UI dependency. Pure functions, immutable state.
 - **Immutable State**: All Character fields are `readonly`. Modifications return new objects via spread operator. No Immer/Immutable.js.
-- **Dependency Injection**: `DataLoader` interface for testability and future API replacement.
 - **ESM**: Project uses `"type": "module"`. Uses native ESM JSON imports (vitest supports `import data from './file.json'`).
 - **Zod Schemas**: Runtime validation for all data structures.
-- **Content Separation**: SRD content is in `@open20/content-srd` package. Core provides `DataLoader` interface; consumers register content packs via `registerContentPack()`.
+- **Content Separation**: SRD content lives in the `@open20/content-srd` package. Core provides type interfaces and content pack utilities.
 
 ### Package Dependencies
 
 - `open20-core` (this package): Pure engine, no content data
-- `@open20/content-srd`: SRD 5.2 content pack (separate package)
-- Consumers (e.g., `spellbook`): Install both packages, create loader, register content pack
+- Consumers (e.g., `spellbook`, `rulebook`): Install core + content packs, use content pack registration from `@open20/content`
 
 ---
 
@@ -45,7 +43,7 @@ The codebase is organized into 4 layers with unidirectional dependencies:
 ```
 L1: Foundation  ←  L2: Mechanics  ←  L3: Entities  ←  L4: Application
 types/, dice/        engine/, spells/    character/,        rolls/
-                        data/          monster/
+                                       monster/
 ```
 
 **Dependency Rules**:
@@ -57,19 +55,18 @@ types/, dice/        engine/, spells/    character/,        rolls/
 
 ### 2.2 Dependency Matrix
 
-| Module       | CAN Import From                                                            | CANNOT Import From                                       |
-| ------------ | -------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `types/`     | (nothing)                                                                  | (anything)                                               |
-| `dice/`      | `types/`                                                                   | `engine/`, `spells/`, `character/`, `monster/`, `rolls/` |
-| `data/`      | `types/`                                                                   | `engine/`, `spells/`, `character/`, `monster/`, `rolls/` |
-| `engine/`    | `types/`, `dice/`, `data/`                                                 | `spells/`, `character/`, `monster/`, `rolls/`            |
-| `spells/`    | `types/`, `dice/`, `data/`                                                 | `engine/`, `character/`, `monster/`, `rolls/`            |
-| `character/` | `types/`, `dice/`, `data/`, `engine/`, `spells/`                           | `monster/`, `rolls/`                                     |
-| `monster/`   | `types/`, `dice/`, `data/`, `engine/`, `spells/`                           | `character/`, `rolls/`                                   |
-| `rolls/`     | `types/`, `dice/`, `data/`, `engine/`, `spells/`, `character/`, `monster/` | (nothing - top layer)                                    |
-| `storage/`   | `types/`, `character/`                                                     | `engine/`, `spells/`, `monster/`, `rolls/`               |
+| Module       | CAN Import From                                                   | CANNOT Import From                                       |
+| ------------ | ----------------------------------------------------------------- | -------------------------------------------------------- |
+| `types/`     | (nothing)                                                         | (anything)                                               |
+| `dice/`      | `types/`                                                          | `engine/`, `spells/`, `character/`, `monster/`, `rolls/` |
+| `engine/`    | `types/`, `dice/`                                                 | `spells/`, `character/`, `monster/`, `rolls/`            |
+| `spells/`    | `types/`, `dice/`                                                 | `engine/`, `character/`, `monster/`, `rolls/`            |
+| `character/` | `types/`, `dice/`, `engine/`, `spells/`                           | `monster/`, `rolls/`                                     |
+| `monster/`   | `types/`, `dice/`, `engine/`, `spells/`                           | `character/`, `rolls/`                                   |
+| `rolls/`     | `types/`, `dice/`, `engine/`, `spells/`, `character/`, `monster/` | (nothing - top layer)                                    |
+| `storage/`   | `types/`, `character/`                                            | `engine/`, `spells/`, `monster/`, `rolls/`               |
 
-**Import path convention**: Use relative paths (e.g., `../types`, `../../data/loader`). Do NOT use `@/` aliases in test files (Vitest doesn't resolve them reliably).
+**Import path convention**: Use relative paths (e.g., `../types`, `../../engine/ability-modifier`). Do NOT use `@/` aliases in test files (Vitest doesn't resolve them reliably).
 
 ---
 
@@ -84,28 +81,15 @@ packages/core/                  # path inside monorepo
 ├── vitest.config.ts            # Test config
 ├── scripts/
 │   ├── bundle.mjs             # Browser bundle builder (esbuild)
-│   └── import_srd_spells.py   # Import SRD spells from dnd-data repo
+│   └── release.mjs            # Release automation
 ├── spec/
 │   ├── high-level-design.md    # HLD v3.0 (Layered Architecture)
 │   ├── data-model.md           # TypeScript interfaces & JSON schema
 │   └── test-plan.md           # Test plan and coverage goals
 ├── requirements/
 │   └── README.md               # R1-R26 requirements traceability
-├── static/
-│   └── srd/                   # SRD 5.2 content (included in core)
-│       ├── meta.json           # Content pack metadata
-│       ├── species.json        # 9 species (SRD 5.2)
-│       ├── backgrounds.json    # 13 backgrounds (SRD 5.2)
-│       ├── classes.json        # 12 classes (SRD 5.2)
-│       ├── subclasses.json     # Subclasses for SRD classes
-│       ├── feats.json          # Limited feats (SRD 5.2)
-│       ├── spells.json         # 391+ spells (SRD 5.2)
-│       ├── weapons.json        # ~30 weapons (SRD 5.2)
-│       ├── armors.json          # ~15 armors (SRD 5.2)
-│       └── gears.json           # ~20 gears items (SRD 5.2)
 ├── src/
-│   ├── index.ts                # Node.js barrel export (includes storage)
-│   ├── browser-index.ts        # Browser barrel export (excludes Node.js storage)
+│   ├── index.ts                # Barrel export
 │   │
 │   ├── types/                  # L1: Foundation - Type definitions (zero dependencies)
 │   │   ├── ability.ts
@@ -125,12 +109,6 @@ packages/core/                  # path inside monorepo
 │   │
 │   ├── dice/                   # L1: Foundation - Pure dice rolling (zero dependencies)
 │   │   ├── core.ts
-│   │   └── index.ts
-│   │
-│   ├── data/                   # L1: Foundation - Rule data loading (depends on types/)
-│   │   ├── loader.ts          # DataLoader interface
-│   │   ├── browser-loader.ts  # Browser-compatible DataLoader
-│   │   ├── default-loader.ts  # Node.js JSON file implementation
 │   │   └── index.ts
 │   │
 │   ├── engine/                 # L2: Mechanics - Pure rule calculations (depends on L1)
@@ -153,24 +131,30 @@ packages/core/                  # path inside monorepo
 │   │
 │   ├── character/              # L3: Entities - Character state & mutations (depends on L1, L2)
 │   │   ├── create.ts          # createCharacter()
-│   │   ├── mutate.ts          # modifyHP(), applyDamage(), etc.
+│   │   ├── mutate/            # Mutation functions (by domain)
+│   │   │   ├── hp.ts
+│   │   │   ├── conditions.ts
+│   │   │   ├── currency.ts
+│   │   │   ├── equipment.ts
+│   │   │   ├── resources.ts
+│   │   │   ├── spells.ts
+│   │   │   └── index.ts
 │   │   ├── rest.ts            # shortRest(), longRest()
 │   │   ├── level-up.ts        # levelUp()
 │   │   ├── validate.ts        # validateCharacter()
 │   │   ├── recompute.ts       # recomputeDerivedStats()
+│   │   ├── spells-init.ts     # Spell initialization
 │   │   └── index.ts           # Barrel export
 │   │
 │   ├── monster/               # L3: Entities - Monster state & queries (depends on L1, L2)
 │   │   ├── types.ts           # Monster interface
-│   │   ├── query.ts           # getMonster(), searchMonsters(), etc.
 │   │   ├── calculator.ts      # getMonsterProficiencyBonus(), etc.
 │   │   ├── combat.ts          # applyDamage(), addCondition(), etc.
 │   │   └── index.ts           # Barrel export
 │   │
 │   ├── rolls/                  # L4: Application - Apply mechanics to entities (depends on L1+L2+L3)
-│   │   ├── character-rolls.ts  # rollCharacterSkillCheck(), etc.
-│   │   ├── monster-rolls.ts  # rollMonsterAttack(), etc.
-│   │   ├── spell-rolls.ts    # rollSpellAttack(), etc.
+│   │   ├── character.ts       # rollCharacterSkillCheck(), etc.
+│   │   ├── monster.ts         # rollMonsterAttack(), etc.
 │   │   └── index.ts
 │   │
 │   ├── content/                # Content pack types & utilities
@@ -181,13 +165,9 @@ packages/core/                  # path inside monorepo
 │       ├── interface.ts        # ICharacterStorage interface
 │       ├── serializer.ts       # JSON serialize/deserialize
 │       ├── memory.ts           # InMemoryStorage (for tests)
-│       ├── json-file.ts        # JsonFileStorage (file system)
 │       └── index.ts           # Barrel export
 │
 ├── dist/                      # Build output
-│   ├── index.js               # Node.js bundle
-│   ├── open20-core.js         # Browser UMD bundle
-│   └── open20-core.esm.js     # Browser ESM bundle
 │
 └── tests/
     ├── engine/                   # L2: Mechanics unit tests
@@ -196,7 +176,6 @@ packages/core/                  # path inside monorepo
     ├── rolls/                    # L4: Application tests
     ├── spells/                   # L2: Spell tests
     ├── storage/                  # Persistence tests
-    ├── data/                     # Data integrity tests
     └── integration/              # Integration tests
 ```
 
@@ -311,28 +290,7 @@ import data from './file.json';
 import { createRequire } from 'node:module';
 ```
 
-**Note**: `src/data/default-loader.ts` uses `createRequire` for Node.js production code where JSON imports may not be supported. Test files should use native ESM imports.
-
-### 5.2 `ReadonlyMap` Serialization
-
-**Problem**: `ReadonlyMap` can't be serialized to JSON.
-**Fix**: Store as array in JSON, convert to Map in `default-loader.ts`:
-
-```typescript
-// JSON format (array of [key, value] tuples)
-"featuresByLevel": [[1, [...]], [2, [...]]]
-
-// In default-loader.ts
-function parseFeaturesByLevel(json: any): ReadonlyMap<number, readonly Feature[]> {
-  const map = new Map<number, Feature[]>();
-  for (const [level, features] of json) {
-    map.set(level, features);
-  }
-  return map;
-}
-```
-
-### 5.3 Test File Imports
+### 5.2 Test File Imports
 
 **Problem**: `@/` path aliases don't work in test files.
 **Fix**: Use relative paths:
@@ -345,7 +303,7 @@ import { calculateModifier } from '@/src/engine/ability-modifier';
 import { calculateModifier } from '../../src/engine/ability-modifier';
 ```
 
-### 5.5 Per-Class Spell Tracking (New in v0.x)
+### 5.3 Per-Class Spell Tracking (New in v0.x)
 
 **Context**: Spell data is now tracked PER CLASS, not on the character directly.
 
@@ -462,71 +420,34 @@ pnpm run typecheck && pnpm run lint && pnpm test
 
 ### 7.2 Adding a New Mutation Function
 
-1. Add function to `src/character/mutate.ts`
+1. Add function to the appropriate file in `src/character/mutate/`
 2. Follow immutable update pattern (see §4.3)
 3. Update return type `Character`
 4. Write tests in `tests/character/mutate.test.ts`
-5. Export via `src/character/index.ts`
+5. Export via `src/character/mutate/index.ts`
 
 ### 7.3 Adding New Static Data (SRD 5.2)
 
-> **Status**: ✅ Complete. All content aligned with SRD 5.2.
+> **Note**: SRD content lives in `packages/content-srd/`. See `packages/content-srd/AGENTS.md` for instructions on adding/updating SRD data.
 
 1. Update JSON schema in `spec/data-model.md`
-2. Add data to `static/srd/*.json` (NOT `static/*.json`)
+2. Add or update data in `packages/content-srd/data/*.json`
 3. Ensure `source: 'SRD 5.2'` tag on all content
-4. Update `default-loader.ts` if new `DataLoader` methods needed
-5. Write data integrity tests in `tests/data/` (S20)
+4. Write data integrity tests in the `content-srd` package
 
 ### 7.4 Creating Content Packs (Homebrew/Official)
 
-Content packs are directories with `meta.json` + JSON files:
+Content pack creation and management is handled by the `@open20/content` package.
+See `packages/content/AGENTS.md` (if available) or `packages/content/DESIGN.md` for the content management API.
 
-```
-my-content-pack/
-├── meta.json          # ContentPackMeta
-├── species.json       # Additional species
-├── spells.json        # Additional spells
-└── ...
-```
+Core provides the foundational types for content packs in `src/content/types.ts`
+(`ContentPack`, `ContentPackMeta` interfaces), but registration, editing, and
+storage are implemented in `@open20/content`.
 
-**meta.json schema**:
+### 7.5 Adding Spell Data
 
-```json
-{
-  "id": "my-homebrew",
-  "name": "My Homebrew Content",
-  "version": "1.0.0",
-  "source": "Homebrew",
-  "author": "Your Name",
-  "priority": 0
-}
-```
-
-**Loading content packs**:
-
-```typescript
-import { registerContentPack } from '@open20/core';
-
-const meta = { id: 'my-homebrew', name: '...', version: '1.0.0', source: 'Homebrew' };
-const data = {
-  spells: [{ id: 'custom-spell', name: 'Custom Spell', source: 'Homebrew', ... }]
-};
-registerContentPack(meta, data);
-```
-
-**Key rules**:
-
-- Same ID in different packs = separate items (no override)
-- `getSpell('custom-spell')` returns first registered version
-- Use `getSpellsBySource('Homebrew')` to filter by source
-
-### 7.4 Adding Spell Data
-
-1. Use `scripts/import_srd_spells.py` to import from dnd-data repo
-2. Validate imported data against spell schema
-3. Update `static/spells.json`
-4. Write tests for new spell queries
+Spell data lives in `packages/content-srd/`. See that package's AGENTS.md for
+instructions on importing and validating spell data.
 
 ---
 
@@ -534,18 +455,17 @@ registerContentPack(meta, data);
 
 ### Current Status
 
-- ✅ `spells.json` populated with 391+ SRD 5.2 spells
-- ✅ Import script at `scripts/import_srd_spells.py`
-- ✅ Source: dnd-data GitHub repo (nick-aschenbach/dnd-data)
+- SRD 5.2 spell data lives in `packages/content-srd/data/spells.json`
+- Spell query functions are in `src/spells/query.ts`
+- See `packages/content-srd/AGENTS.md` for data import/management
 
 ### Adding New Spells
 
-```bash
-# Import SRD spells from dnd-data
-python3 scripts/import_srd_spells.py
+Add or update spell data in the `content-srd` package, then verify query
+functions work with the updated data:
 
-# Validate imported data
-npx vitest run tests/data/spells.test.ts
+```bash
+pnpm --filter open20-core test
 ```
 
 ### Spell Data Format Rules
@@ -665,9 +585,8 @@ Update this matrix in `requirements/README.md` when adding new requirements.
 #### `spec/data-model.md`
 
 - Changed TypeScript interfaces in `src/types/index.ts`
-- Changed JSON schema in `static/*.json`
+- Changed JSON schema in content pack data files
 - Added/removed fields from core types
-- Updated Zod schemas in `src/schemas/`
 
 #### `requirements/README.md`
 
@@ -737,24 +656,7 @@ describe('functionUnderTest', () => {
 });
 ```
 
-### 11.2 Testing with DataLoader
-
-```typescript
-import { createDataLoader, type DataLoader } from '../../src/data/loader';
-
-// Create mock loader with test data
-const mockLoader: DataLoader = createDataLoader({
-  // Mock methods as needed for tests
-  getClass: (id: string) => mockClasses[id] ?? undefined,
-  getAllClasses: () => Object.values(mockClasses),
-  // ... other methods
-});
-
-// Use in tests
-const result = createCharacter(params, mockLoader);
-```
-
-### 11.3 Testing Immutable Updates
+### 11.2 Testing Immutable Updates
 
 ```typescript
 it('should return new object without mutating original', () => {
@@ -775,7 +677,7 @@ it('should return new object without mutating original', () => {
 });
 ```
 
-### 11.4 Testing Spell Queries
+### 11.3 Testing Spell Queries
 
 ```typescript
 it('should filter spells by school and level', () => {
@@ -827,21 +729,17 @@ Examples:
 | Run single test    | `pnpm exec vitest run tests/path/to/test.test.ts`                                                                                                         |
 | Install deps       | `pnpm install` (from monorepo root)                                                                                                                       |
 | Check coverage     | `pnpm run test:coverage`                                                                                                                                  |
-| Import spells      | `python3 scripts/import_srd_spells.py`                                                                                                                    |
 | Full CI validation | `pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build && pnpm run build:bundle && pnpm run test:artifact && pnpm run test:browser-artifact` |
 
-| File                                  | Purpose                                 |
-| ------------------------------------- | --------------------------------------- |
-| `PRD.md`                              | Product Requirements Document           |
-| `AGENTS.md`                           | This file - read first!                 |
-| `spec/high-level-design.md`           | Technical architecture (S1-S20)         |
-| `spec/data-model.md`                  | TypeScript interfaces & JSON schema     |
-| `requirements/README.md`              | Requirements traceability (R1-R26)      |
-| `src/types/index.ts`                  | All core types                          |
-| `src/data/loader.ts`                  | DataLoader interface                    |
-| `requirements/11-content-management/` | Content management spec (R26)           |
-| `src/content/types.ts`                | ContentPack, ContentPackMeta interfaces |
-| `static/srd/`                         | SRD 5.2 content (included in core)      |
+| File                        | Purpose                                 |
+| --------------------------- | --------------------------------------- |
+| `PRD.md`                    | Product Requirements Document           |
+| `AGENTS.md`                 | This file - read first!                 |
+| `spec/high-level-design.md` | Technical architecture (S1-S20)         |
+| `spec/data-model.md`        | TypeScript interfaces & JSON schema     |
+| `requirements/README.md`    | Requirements traceability (R1-R26)      |
+| `src/types/index.ts`        | All core types                          |
+| `src/content/types.ts`      | ContentPack, ContentPackMeta interfaces |
 
 ---
 
@@ -858,5 +756,5 @@ If you're stuck or unsure:
 
 ---
 
-_Last updated: 2026-05-25 (monorepo migration: pnpm, turbo, core-v_ tags, test count 826)\*
-_Maintained by: AI agents working on this project_
+_Last updated: 2026-06-30 (AGENTS.md audit — removed stale references, test count 653)\*
+\_Maintained by: AI agents working on this project_

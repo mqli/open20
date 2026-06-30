@@ -7,12 +7,13 @@
 ## 0. Package Overview
 
 **Package**: `@open20/content-srd` - SRD 5.2 content pack for Open20  
-**Goal**: Provide SRD (System Reference Document) content as a `ContentPack` object that can be registered with `DataLoader`.  
-**Status**: S1 complete (SRD 5.2 content exported)
+**Goal**: Provide SRD (System Reference Document) content as a content pack for the Open20 engine.  
+**Status**: SRD 5.2 content exported — query utilities, glossary support, class markdown sources
 
 **Dependencies**:
 
-- `open20-core` (workspace:\*) - for `ContentPack` type definition
+- `open20-core` (workspace:\*) - for core type definitions
+- `@open20/content` (workspace:\*) - for content management types
 
 ---
 
@@ -35,20 +36,57 @@ packages/content-srd/
 │   ├── armors.json
 │   ├── gears.json
 │   ├── spells.json
-│   └── monsters.json
+│   ├── monsters.json
+│   └── glossary.json
 ├── src/
-│   └── index.ts              # Imports JSON, exports srdContentPack
+│   ├── index.ts              # Imports JSON, exports srdContentPack
+│   ├── merge.ts              # Content pack merging utilities
+│   ├── query/
+│   │   ├── catalog.ts        # Content catalog queries
+│   │   ├── glossary.ts       # Glossary queries
+│   │   ├── monsters.ts       # Monster queries
+│   │   ├── resolve.ts        # Content resolution
+│   │   └── spells.ts         # Spell queries
+│   └── markdown/
+│       ├── srd-5.2-feat.md
+│       ├── srd-5.2-glossary.md
+│       ├── srd-5.2-monsters.md
+│       ├── srd-5.2-spell-list.md
+│       └── classes/
+│           ├── 01_Barbarian.md
+│           └── ...through 12_Wizard.md
 ├── scripts/                  # Scripts to parse SRD markdown into JSON
-│   ├── parse_srd_markdown.ts
 │   ├── parse_srd_spells_markdown.ts
 │   ├── parse_srd_classes_markdown.ts
 │   ├── parse_srd_subclasses_markdown.ts
 │   ├── parse_srd_class_generation.ts
 │   ├── parse_srd_spell_generation.ts
 │   ├── parse_srd_class_markdown_shared.ts
-│   └── srd_markdown_helpers.ts
-└── tests/                    # Tests for parse scripts
-    └── parse_srd_markdown.test.ts
+│   ├── parse_srd_glossary_generation.ts
+│   └── parse_srd_glossary_markdown.ts
+└── tests/
+    ├── parse_srd_markdown.test.ts
+    ├── parse_srd_glossary.test.ts
+    ├── content-management.test.ts
+    ├── create-test-loader.ts
+    ├── data-integrity.test.ts
+    ├── engine/
+    │   └── ac-calculator-srd.test.ts
+    └── integration/
+        ├── character-adventure.test.ts
+        ├── character-combat-scenarios.test.ts
+        ├── character-multiclass.test.ts
+        ├── character-survival.test.ts
+        ├── combat-scenarios/
+        │   ├── basic-combat.test.ts
+        │   ├── damage-defenses.test.ts
+        │   ├── healing.test.ts
+        │   └── temporary-hp.test.ts
+        └── fighter-class/
+            ├── combat.test.ts
+            ├── creation.test.ts
+            ├── features.test.ts
+            └── subclass.test.ts
 ```
 
 ---
@@ -64,25 +102,10 @@ pnpm add @open20/content-srd
 ### 2.2 Using in Code
 
 ```typescript
-import { createDataLoader } from 'open20-core';
 import { srdContentPack } from '@open20/content-srd';
 
-const dataLoader = createDataLoader();
-dataLoader.registerContentPack(srdContentPack);
-
-// Now dataLoader has SRD data
-const human = dataLoader.getSpecies('human');
-const fireball = dataLoader.getSpell('fireball');
-```
-
-### 2.3 Using in Tests (core package)
-
-```typescript
-import { createTestLoader } from '../create-test-loader';
-
-const dataLoader = createTestLoader(); // Auto-registers SRD content
-
-// Now dataLoader has SRD data
+// Use srdContentPack with your content management system
+// See @open20/content package for content pack registration
 ```
 
 ---
@@ -103,6 +126,7 @@ const dataLoader = createTestLoader(); // Auto-registers SRD content
 | `gears.json`       | Gear (Backpack, etc.)                  | SRD 5.2 |
 | `spells.json`      | Spells (Fireball, etc.)                | SRD 5.2 |
 | `monsters.json`    | Monsters (Goblin, etc.)                | SRD 5.2 |
+| `glossary.json`    | Game rule glossary terms               | SRD 5.2 |
 | `meta.json`        | Content pack metadata                  | Manual  |
 
 ### 3.2 Parse Scripts (in `scripts/`)
@@ -113,7 +137,7 @@ These scripts parse SRD markdown files and generate the JSON data files.
 
 ```bash
 cd packages/content-srd
-npx tsx scripts/parse_srd_markdown.ts
+npx tsx scripts/parse_srd_spells_markdown.ts
 ```
 
 ---
@@ -160,8 +184,9 @@ pnpm test
 ### 6.1 Separation of Concerns
 
 - **`open20-core`**: Pure engine, NO content data
-- **`@open20/content-srd`**: SRD content as a `ContentPack`
-- **Consumer** (e.g., `spellbook`): Installs both, registers content pack
+- **`@open20/content`**: Content management engine (editing, validation, storage)
+- **`@open20/content-srd`**: SRD 5.2 content pack
+- **Consumer** (e.g., `spellbook`, `rulebook`): Installs content packs and registers them
 
 ### 6.2 Why Separate Package?
 
@@ -182,10 +207,9 @@ pnpm test
 
 ### 7.2 Tests Failing with Empty Data
 
-- Make sure you're using `createTestLoader()` (not `createDataLoader()`)
 - Check that `srdContentPack` is correctly imported and registered
 
 ---
 
-**Last Updated**: 2026-06-06  
+**Last Updated**: 2026-06-30 (AGENTS.md audit — expanded structure, updated usage)  
 **Maintainer**: Open20 Team

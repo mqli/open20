@@ -41,9 +41,9 @@ Always read the relevant documentation before implementing. The docs are split b
 
 ### i18n Documentation
 
-- For any translation-related work, read [`../ui/I18N.md`](../ui/I18N.md) first.
+- For any translation-related work, read [`../../.agents/ui/i18n.md`](../../.agents/ui/i18n.md) first.
 - Follow the current `@open20/ui` i18n API exactly (`I18nProvider` with `translationsSet` and `initialLocale`).
-- If spellbook i18n behavior changes (keys, locale wiring, provider usage), update `../ui/I18N.md` in the same change.
+- If spellbook i18n behavior changes (keys, locale wiring, provider usage), update `../../.agents/ui/i18n.md` in the same change.
 
 ---
 
@@ -118,11 +118,12 @@ src/
 │   ├── ui/              # Wrapped Radix UI components (shared)
 │   ├── layout/          # App shell, sidebar, header
 │   ├── spell-library/   # Spell list, search, filters
-│   ├── character-sheet/ # Character view, spell slots
-│   └── character-setup/ # Character creation/editing
+│   ├── spell/           # Spell card display
+│   ├── spell-slots/     # Spell slot management
+│   ├── character/       # Character sheet, character modal
+│   ├── class/           # Class-related components
+│   └── dice/            # Dice rolling UI
 ├── stores/              # Zustand stores
-├── services/            # localStorage, API clients
-├── utils/               # Helpers, formatters
 ├── types/               # TypeScript types
 └── hooks/               # Custom React hooks
 ```
