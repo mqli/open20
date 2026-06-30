@@ -156,7 +156,7 @@ export function SpellCardActions({
   );
 
   const handleCantripSingleClick = useCallback(() => {
-    const classId = capabilities.matchingClassIds[0];
+    const classId = capabilities.accessibleClassIds[0];
     if (!classId) return;
     if (capabilities.isCantripKnown) {
       unlearnCantrip(classId, spell.id);
@@ -164,7 +164,7 @@ export function SpellCardActions({
       learnCantrip(classId, spell.id);
     }
   }, [
-    capabilities.matchingClassIds,
+    capabilities.accessibleClassIds,
     capabilities.isCantripKnown,
     learnCantrip,
     unlearnCantrip,
@@ -190,7 +190,7 @@ export function SpellCardActions({
   );
 
   const handlePrepareSingleClick = useCallback(() => {
-    const classId = capabilities.matchingClassIds[0];
+    const classId = capabilities.accessibleClassIds[0];
     if (capabilities.isPrepared) {
       if (classId && capabilities.alwaysPreparedClassIds.includes(classId)) return;
       const preparedClassId = capabilities.preparedClassIds[0] ?? classId;
@@ -205,7 +205,7 @@ export function SpellCardActions({
       prepareSpell(spell.id);
     }
   }, [
-    capabilities.matchingClassIds,
+    capabilities.accessibleClassIds,
     capabilities.isPrepared,
     capabilities.alwaysPreparedClassIds,
     capabilities.preparedClassIds,
@@ -240,7 +240,7 @@ export function SpellCardActions({
           isCantripKnown={capabilities.isCantripKnown}
           isKnown={capabilities.isKnown}
           isPrepared={capabilities.isPrepared}
-          matchingClassIds={capabilities.matchingClassIds}
+          accessibleClassIds={capabilities.accessibleClassIds}
           cantripKnownClassIds={capabilities.cantripKnownClassIds}
           preparedClassIds={capabilities.preparedClassIds}
           alwaysPreparedClassIds={capabilities.alwaysPreparedClassIds}

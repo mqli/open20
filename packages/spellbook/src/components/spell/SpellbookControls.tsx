@@ -15,7 +15,8 @@ interface SpellbookControlsProps {
   isCantripKnown: boolean;
   isKnown: boolean;
   isPrepared: boolean;
-  matchingClassIds: string[];
+  /** Subset of matchingClassIds that can actually access this spell level */
+  accessibleClassIds: string[];
   cantripKnownClassIds: string[];
   preparedClassIds: string[];
   alwaysPreparedClassIds: string[];
@@ -33,7 +34,7 @@ export function SpellbookControls({
   isCantripKnown,
   isKnown,
   isPrepared,
-  matchingClassIds,
+  accessibleClassIds,
   cantripKnownClassIds,
   preparedClassIds,
   alwaysPreparedClassIds,
@@ -46,9 +47,9 @@ export function SpellbookControls({
   const t = useTranslation();
   const prepareIcon = isPrepared || isCantripKnown ? <PreparedSpellIcon /> : <PrepareSpellIcon />;
   if (showCantripButton) {
-    return matchingClassIds.length > 1 && !isPrepared ? (
+    return accessibleClassIds.length > 1 && !isPrepared ? (
       <ClassActionDropdown
-        matchingClassIds={matchingClassIds}
+        matchingClassIds={accessibleClassIds}
         activeClassIds={cantripKnownClassIds}
         label={t('cantrip')}
         onToggle={onCantripMultiToggle}
@@ -78,9 +79,9 @@ export function SpellbookControls({
         </IconButton>
       )}
       {showPrepareButton &&
-        (matchingClassIds.length > 1 && !isPrepared ? (
+        (accessibleClassIds.length > 1 && !isPrepared ? (
           <ClassActionDropdown
-            matchingClassIds={matchingClassIds}
+            matchingClassIds={accessibleClassIds}
             activeClassIds={preparedClassIds}
             disabledActiveClassIds={alwaysPreparedClassIds}
             label={t('spells')}
@@ -93,13 +94,13 @@ export function SpellbookControls({
             variant="primary"
             active={isPrepared}
             disabled={
-              matchingClassIds.length === 1 &&
-              alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
+              accessibleClassIds.length === 1 &&
+              alwaysPreparedClassIds.includes(accessibleClassIds[0] ?? '')
             }
             onClick={onPrepareSingleClick}
             title={
-              matchingClassIds.length === 1 &&
-              alwaysPreparedClassIds.includes(matchingClassIds[0] ?? '')
+              accessibleClassIds.length === 1 &&
+              alwaysPreparedClassIds.includes(accessibleClassIds[0] ?? '')
                 ? t('alwaysPreparedLabel')
                 : isPrepared
                   ? t('unprepareSpell')
