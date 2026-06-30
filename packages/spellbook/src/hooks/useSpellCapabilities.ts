@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { calculateSpellSlots, type Spell, type SpellLevel } from 'open20-core';
 import {
-  getCasterType,
+  getCasterTypeForClass,
   getMatchingClassIds,
   getSpellClassStates,
   getAvailableSlots,
@@ -21,9 +21,6 @@ export interface SpellCapabilities {
   isCantripKnown: boolean;
   isClassSpell: boolean;
   isConcentratingOnThis: boolean;
-
-  // Caster type info
-  casterType: ReturnType<typeof getCasterType>;
 
   // Casting capability (spellbook-caster-aware)
   knows: boolean;
@@ -58,7 +55,6 @@ const EMPTY_CAPABILITIES: SpellCapabilities = {
   isCantripKnown: false,
   isClassSpell: false,
   isConcentratingOnThis: false,
-  casterType: { canLearn: false, canPrepare: false, isSpellbookCaster: false },
   knows: false,
   canCast: false,
   showPrepareButton: false,
@@ -84,9 +80,6 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     const char = activeCharacter;
     const deps = resolveDeps(char);
 
-    // ── caster type ──
-    const casterType = getCasterType(char, deps);
-
     // ── matching class IDs ──
     const matchingClassIds = getMatchingClassIds(char, spell);
 
@@ -110,7 +103,12 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     // ── knows (spellbook-caster-aware) ──
     // For spellbook casters (Wizard), must have learned the spell.
     // For other casters (Cleric, Druid, etc.), all class spells are "known".
-    const knows = casterType.isSpellbookCaster ? isKnown : true;
+    // In multiclass: if at least one non-spellbook caster matches, the spell is known.
+    const knows =
+      matchingClassIds.some((classId) => {
+        const ct = getCasterTypeForClass(classId, deps);
+        return !ct.isSpellbookCaster;
+      }) || isKnown;
 
     // ── slots ──
     const slotInfo = getAvailableSlots(char, spell.level as SpellLevel);
@@ -152,14 +150,22 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
             return (classSlots[spell.level]?.total ?? 0) > 0;
           });
 
+    // Per-class canPrepare: at least one matching class allows changing spells on long rest/level up
+    const canPrepare = matchingClassIds.some(
+      (classId) => getCasterTypeForClass(classId, deps).canPrepare,
+    );
+
     // Prepare button: show for prepared casters (canPrepare) when the spell is known/accessible.
     // For spellbook casters, must also have learned the spell first.
     const showPrepareButton =
-      isClassSpell && casterType.canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
-    // Learn toggle: cantrips for all casters, regular spells only for spellbook casters
-    // Spellbook casters also need high enough level to learn spells of this level
+      isClassSpell && canPrepare && spell.level > 0 && knows && canAccessSpellLevel;
+    // Learn toggle: only for spells with at least one spellbook-caster matching class
+    // that can actually access this spell level
     const showLearnButton =
-      isClassSpell && spell.level > 0 && casterType.canLearn && canAccessSpellLevel;
+      isClassSpell &&
+      spell.level > 0 &&
+      matchingClassIds.some((classId) => getCasterTypeForClass(classId, deps).canLearn) &&
+      canAccessSpellLevel;
     const showCantripButton = isClassSpell && spell.level === 0;
 
     return {
@@ -168,7 +174,6 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
       isCantripKnown,
       isClassSpell,
       isConcentratingOnThis,
-      casterType,
       knows,
       canCast,
       showPrepareButton,

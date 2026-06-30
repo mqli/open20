@@ -6,7 +6,7 @@ import { useSpellCapabilities } from '../useSpellCapabilities';
 import { useCharacterStore } from '@/stores/characterStore';
 import { spellService } from '@/core/spell-service';
 import {
-  getCasterType,
+  getCasterTypeForClass,
   getMatchingClassIds,
   getSpellClassStates,
   getAvailableSlots,
@@ -31,7 +31,11 @@ vi.mock('@/core/spell-service', () => ({
 }));
 
 vi.mock('open20-core/spells', () => ({
-  getCasterType: vi.fn(),
+  getCasterTypeForClass: vi.fn(() => ({
+    isSpellbookCaster: false,
+    canLearn: false,
+    canPrepare: false,
+  })),
   getMatchingClassIds: vi.fn(() => []),
   getSpellClassStates: vi.fn(() => []),
   getAvailableSlots: vi.fn(() => ({ hasRegularSlot: false, hasPactSlot: false })),
@@ -52,7 +56,7 @@ import { resolveDeps } from '@/core/content-resolver';
 // Get mocked function references
 const mockUseCharacterStore = vi.mocked(useCharacterStore);
 const mockSpellService = vi.mocked(spellService);
-const mockGetCasterType = vi.mocked(getCasterType);
+const mockGetCasterTypeForClass = vi.mocked(getCasterTypeForClass);
 const mockGetMatchingClassIds = vi.mocked(getMatchingClassIds);
 const mockGetSpellClassStates = vi.mocked(getSpellClassStates);
 const mockGetAvailableSlots = vi.mocked(getAvailableSlots);
@@ -67,11 +71,6 @@ describe('useSpellCapabilities', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseCharacterStore.mockReturnValue({ activeCharacter: null });
-    mockGetCasterType.mockReturnValue({
-      canLearn: false,
-      canPrepare: false,
-      isSpellbookCaster: false,
-    });
     mockGetMatchingClassIds.mockReturnValue([]);
     mockGetSpellClassStates.mockReturnValue([]);
     mockGetAvailableSlots.mockReturnValue({ hasRegularSlot: false, hasPactSlot: false });
@@ -195,11 +194,6 @@ describe('useSpellCapabilities', () => {
         isCantripKnown: true,
       },
     ]);
-    mockGetCasterType.mockReturnValue({
-      canLearn: true,
-      canPrepare: true,
-      isSpellbookCaster: true,
-    });
     mockKnowsSpell.mockReturnValue(true);
     mockCanCastSpellWithSlots.mockReturnValue(true);
 
@@ -275,11 +269,15 @@ describe('useSpellCapabilities', () => {
           Wizard: { spellSlotsByLevel: { 1: [2] } },
         },
       } as any);
-      // Caster type: preparer (not spellbook), all class spells are "known"
-      mockGetCasterType.mockReturnValue({
-        canLearn: false,
-        canPrepare: true,
-        isSpellbookCaster: false,
+      // Per-class caster type for all multiclass logic
+      mockGetCasterTypeForClass.mockImplementation((classId: string) => {
+        if (classId === 'Cleric') {
+          return { isSpellbookCaster: false, canLearn: false, canPrepare: true };
+        }
+        if (classId === 'Wizard') {
+          return { isSpellbookCaster: true, canLearn: true, canPrepare: true };
+        }
+        return { isSpellbookCaster: false, canLearn: false, canPrepare: false };
       });
       mockGetSpellClassStates.mockReturnValue([]);
       mockGetAvailableSlots.mockReturnValue({ hasRegularSlot: false, hasPactSlot: false });
@@ -365,16 +363,57 @@ describe('useSpellCapabilities', () => {
       expect(l3.current.accessibleClassIds).toEqual(['Cleric']);
     });
 
+    it('should hide prepare button for unlearned Wizard-only spell even with accessible level', () => {
+      const char = createMulticlassCharacter();
+      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
+      // Only Wizard matches this spell
+      mockGetMatchingClassIds.mockReturnValue(['Wizard']);
+      // Wizard 1 can access 1st-level spells (canAccessSpellLevel = true)
+      // But Wizard hasn't learned it (isKnown = false)
+      mockKnowsSpell.mockReturnValue(false);
+
+      const spell = createMockSpell({ id: 'magic-missile', level: 1, classes: ['Wizard'] });
+      const { result } = renderHook(() => useSpellCapabilities(spell));
+
+      // Wizard is spellbook caster → must learn before preparing → knows = false
+      expect(result.current.showPrepareButton).toBe(false);
+      // But learn button should be visible (Wizard CAN learn it)
+      expect(result.current.showLearnButton).toBe(true);
+    });
+
+    it('should show prepare button for learned Wizard-only spell when level accessible', () => {
+      const char = createMulticlassCharacter();
+      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
+      mockGetMatchingClassIds.mockReturnValue(['Wizard']);
+      mockKnowsSpell.mockReturnValue(true); // Wizard has learned it
+
+      const spell = createMockSpell({ id: 'magic-missile', level: 1, classes: ['Wizard'] });
+      const { result } = renderHook(() => useSpellCapabilities(spell));
+
+      // Wizard learned the spell → knows = true → can prepare
+      expect(result.current.showPrepareButton).toBe(true);
+      expect(result.current.showLearnButton).toBe(true); // learn button is a toggle
+    });
+
+    it('should show prepare button for Cleric spell when Wizards learns in multiclass', () => {
+      const char = createMulticlassCharacter();
+      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
+      // Only Cleric matches → non-spellbook caster → knows = true regardless of isKnown
+      mockGetMatchingClassIds.mockReturnValue(['Cleric']);
+      mockKnowsSpell.mockReturnValue(false); // not in Wizard's "known" set
+
+      const spell = createMockSpell({ id: 'bless', level: 1, classes: ['Cleric'] });
+      const { result } = renderHook(() => useSpellCapabilities(spell));
+
+      // Cleric is not a spellbook caster → knows = true without needing to "learn"
+      expect(result.current.showPrepareButton).toBe(true);
+      expect(result.current.showLearnButton).toBe(false); // Cleric doesn't learn spells
+    });
+
     it('should show learn button only when per-class level allows it', () => {
       const char = createMulticlassCharacter();
       mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
       mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-      // Spellbook caster so canLearn is true
-      mockGetCasterType.mockReturnValue({
-        canLearn: true,
-        canPrepare: true,
-        isSpellbookCaster: true,
-      });
       mockKnowsSpell.mockReturnValue(false);
 
       // 3rd-level Wizard-only spell: Wizard 1 can't learn it
