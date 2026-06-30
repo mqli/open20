@@ -110,7 +110,6 @@ describe('getCasterType', () => {
     const char = { ...MOCK_CHARACTER, classes: [] } as unknown as Character;
     const deps = createMockDeps();
     const result = getCasterType(char, deps);
-    expect(result.isSpellbookCaster).toBe(false);
     expect(result.canLearn).toBe(false);
     expect(result.canPrepare).toBe(false);
   });
@@ -118,7 +117,6 @@ describe('getCasterType', () => {
   it('should identify spellbook caster (Wizard)', () => {
     const char = MOCK_CHARACTER as unknown as Character;
     const result = getCasterType(char, mockWizardDeps);
-    expect(result.isSpellbookCaster).toBe(true);
     expect(result.canLearn).toBe(true);
     expect(result.canPrepare).toBe(true);
   });
@@ -137,7 +135,6 @@ describe('getCasterType', () => {
       ],
     } as unknown as Character;
     const result = getCasterType(char, mockClericDeps);
-    expect(result.isSpellbookCaster).toBe(false);
     expect(result.canLearn).toBe(false);
     expect(result.canPrepare).toBe(true);
   });
@@ -147,14 +144,12 @@ describe('getCasterTypeForClass', () => {
   it('should return false for unknown class', () => {
     const deps = createMockDeps();
     const result = getCasterTypeForClass('Unknown', deps);
-    expect(result.isSpellbookCaster).toBe(false);
     expect(result.canLearn).toBe(false);
     expect(result.canPrepare).toBe(false);
   });
 
   it('should identify Wizard as spellbook caster', () => {
     const result = getCasterTypeForClass('Wizard', mockWizardDeps);
-    expect(result.isSpellbookCaster).toBe(true);
     expect(result.canLearn).toBe(true);
     expect(result.canPrepare).toBe(true);
   });

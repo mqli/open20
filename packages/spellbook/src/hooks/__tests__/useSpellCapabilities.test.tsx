@@ -32,7 +32,6 @@ vi.mock('@/core/spell-service', () => ({
 
 vi.mock('open20-core/spells', () => ({
   getCasterTypeForClass: vi.fn(() => ({
-    isSpellbookCaster: false,
     canLearn: false,
     canPrepare: false,
   })),
@@ -272,12 +271,12 @@ describe('useSpellCapabilities', () => {
       // Per-class caster type for all multiclass logic
       mockGetCasterTypeForClass.mockImplementation((classId: string) => {
         if (classId === 'Cleric') {
-          return { isSpellbookCaster: false, canLearn: false, canPrepare: true };
+          return { canLearn: false, canPrepare: true };
         }
         if (classId === 'Wizard') {
-          return { isSpellbookCaster: true, canLearn: true, canPrepare: true };
+          return { canLearn: true, canPrepare: true };
         }
-        return { isSpellbookCaster: false, canLearn: false, canPrepare: false };
+        return { canLearn: false, canPrepare: false };
       });
       mockGetSpellClassStates.mockReturnValue([]);
       mockGetAvailableSlots.mockReturnValue({ hasRegularSlot: false, hasPactSlot: false });

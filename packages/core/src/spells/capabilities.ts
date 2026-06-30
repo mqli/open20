@@ -14,9 +14,7 @@ import { canCastSpell } from './query';
 
 /** What kind of spellcaster a character is. */
 export interface CasterType {
-  /** Character has at least one spellbook caster class (Wizard). */
-  isSpellbookCaster: boolean;
-  /** Character can learn spells (same as isSpellbookCaster in D&D 2024). */
+  /** Character can learn spells (Wizard spellbook caster in D&D 2024). */
   canLearn: boolean;
   /** Character can prepare spells (Cleric, Druid, Wizard, etc.). */
   canPrepare: boolean;
@@ -54,7 +52,6 @@ export function getCasterType(char: Character, deps: RecomputeDerivedStatsDeps):
   const isSpellbook = classes.some(isSpellbookCaster);
 
   return {
-    isSpellbookCaster: isSpellbook,
     canLearn: isSpellbook,
     canPrepare,
   };
@@ -69,11 +66,10 @@ export function getCasterTypeForClass(
 ): CasterType {
   const classDef = deps.classes?.[classId];
   if (!classDef) {
-    return { isSpellbookCaster: false, canLearn: false, canPrepare: false };
+    return { canLearn: false, canPrepare: false };
   }
 
   return {
-    isSpellbookCaster: isSpellbookCaster(classDef),
     canLearn: isSpellbookCaster(classDef),
     canPrepare: canChangeSpellsOnLongRest(classDef) || canChangeSpellsOnLevelUp(classDef),
   };

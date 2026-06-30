@@ -107,7 +107,7 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
     const knows =
       matchingClassIds.some((classId) => {
         const ct = getCasterTypeForClass(classId, deps);
-        return !ct.isSpellbookCaster;
+        return !ct.canLearn;
       }) || isKnown;
 
     // ── slots ──

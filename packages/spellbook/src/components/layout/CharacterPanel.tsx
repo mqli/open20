@@ -19,7 +19,7 @@ export function CharacterPanel() {
   const [editingId, setEditingId] = useState<string | undefined>();
 
   const casterType = useMemo(() => {
-    if (!activeCharacter) return { canLearn: false, canPrepare: false, isSpellbookCaster: false };
+    if (!activeCharacter) return { canLearn: false, canPrepare: false };
     return getCasterType(activeCharacter, resolveDeps(activeCharacter));
   }, [activeCharacter]);
 
