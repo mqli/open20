@@ -7,6 +7,7 @@ const tabsListVariants = cva('flex border-b border-border', {
     variant: {
       default: '',
       pills: 'gap-1 border-b-0',
+      segmented: 'gap-0 border-b-0 rounded-lg bg-bg-tertiary p-0.5 w-fit',
     },
     scrollable: {
       true: 'overflow-x-auto hide-scrollbar',
@@ -25,6 +26,8 @@ const tabsTriggerVariants = cva(
           'text-text-secondary hover:text-text-primary data-[state=active]:border-primary-600 data-[state=active]:text-primary-600',
         pills:
           'rounded-full border-0 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary data-[state=active]:bg-primary-600 data-[state=active]:text-bg-primary data-[state=active]:shadow-sm',
+        segmented:
+          'rounded-md border-0 mb-0 py-1.5 flex-1 text-center text-text-secondary hover:text-text-primary data-[state=active]:bg-bg-primary data-[state=active]:text-text-primary data-[state=active]:shadow-sm',
       },
     },
     defaultVariants: { variant: 'default' },

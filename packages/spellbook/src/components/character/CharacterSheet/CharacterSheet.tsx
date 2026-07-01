@@ -114,14 +114,15 @@ export function CharacterSheetContent({
         {/* Per-Class Spellcasting Sections */}
         {spellcastingClasses.length > 0 && (
           <section>
-            <SectionHeader title={t('classSpellcastingStats')} />
+            <SectionHeader title={t('classSpellcastingStats')} className="mb-2" />
             <Tabs.Root defaultValue={classTabEntries[0]?.tabValue}>
-              <Tabs.List variant="pills" className="mb-3">
+              <Tabs.List variant="segmented" className="mb-3">
                 {classTabEntries.map((spellcastingClass) => (
                   <Tabs.Trigger
                     key={spellcastingClass.tabValue}
                     value={spellcastingClass.tabValue}
-                    variant="pills"
+                    variant="segmented"
+                    className="px-2.5 py-1 text-xs"
                   >
                     {spellcastingClass.classId} {spellcastingClass.level}
                   </Tabs.Trigger>

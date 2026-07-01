@@ -95,7 +95,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
 
   return (
     <Surface variant="default" padding="none" className="overflow-hidden">
-      <div className="p-4 space-y-4">
+      <div className="p-3 space-y-3">
         {/* Class Stats */}
         <SpellCastingStats
           character={activeCharacter}
