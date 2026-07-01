@@ -4,37 +4,22 @@ import {
   Text,
   DefenseIcon,
   ConcentrationIcon,
+  AttackIcon,
   SlotPips,
   Divider,
 } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
 import { getCasterTypeForClass } from 'open20-core/spells';
+import { rollSpellAttack, defaultRandom } from 'open20-core';
+import type { Character } from 'open20-core/types';
 import { resolveDeps } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useSpellStore } from '@/stores/spellStore';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
+import { useRollStore } from '@/stores/rollStore';
 import type { SpellLevel, Spell, SpellSlotEntry } from 'open20-core/types';
-import { type ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
-
-function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
-  return (
-    <Surface variant="default" padding="sm" className="text-center">
-      <Text variant="label" className="mb-1">
-        {label}
-      </Text>
-      <Text weight="black" color="accent">
-        {value}
-      </Text>
-      {sub && (
-        <Text variant="caption" weight="bold" className="mt-0.5">
-          {sub}
-        </Text>
-      )}
-    </Surface>
-  );
-}
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -113,6 +98,7 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
       <div className="p-4 space-y-4">
         {/* Class Stats */}
         <SpellCastingStats
+          character={activeCharacter}
           spellSaveDC={spellSaveDC}
           spellAttack={spellAttack}
           ability={ability}
@@ -164,27 +150,76 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
   );
 }
 interface SpellCastingStatsProps {
+  character: Character;
   spellSaveDC: number;
   spellAttack: number;
   ability: string;
   abilityMod: number;
 }
 function SpellCastingStats({
+  character,
   spellSaveDC,
   spellAttack,
   ability,
   abilityMod,
 }: SpellCastingStatsProps) {
   const t = useTranslation();
+  const { addRoll } = useRollStore();
+
+  const handleAttackRoll = () => {
+    const result = rollSpellAttack({
+      character,
+      spellcastingAbility: ability as
+        | 'Strength'
+        | 'Dexterity'
+        | 'Constitution'
+        | 'Intelligence'
+        | 'Wisdom'
+        | 'Charisma',
+      rng: defaultRandom,
+    });
+    addRoll({
+      label: t('spellAttack'),
+      expression: `d20 (${result.rawRoll}) + ${result.bonus}`,
+      total: result.total,
+    });
+  };
+
   return (
-    <div className="grid grid-cols-3 gap-2">
-      <StatTile
-        label={t('ability')}
-        value={ability.substring(0, 3)}
-        sub={`${abilityMod >= 0 ? '+' : ''}${abilityMod}`}
-      />
-      <StatTile label={t('saveDC')} value={spellSaveDC} />
-      <StatTile label={t('attackBonus')} value={`+${spellAttack}`} />
+    <div className="grid grid-cols-3 text-xs">
+      <div className="text-center">
+        <span className="inline-flex items-baseline gap-1">
+          <Text as="span" variant="label">
+            {ability.substring(0, 3)}
+          </Text>
+          <Text as="span" weight="bold" color="accent">
+            {abilityMod >= 0 ? '+' : ''}
+            {abilityMod}
+          </Text>
+        </span>
+      </div>
+      <div className="text-center">
+        <span className="inline-flex items-baseline gap-1">
+          <Text as="span" variant="label">
+            {t('saveDC')}
+          </Text>
+          <Text as="span" weight="bold" color="accent">
+            {spellSaveDC}
+          </Text>
+        </span>
+      </div>
+      <div className="text-center">
+        <button
+          onClick={handleAttackRoll}
+          title={t('rollAttack')}
+          className="inline-flex items-baseline gap-1 cursor-pointer hover:opacity-80"
+        >
+          <AttackIcon size="xs" />
+          <Text as="span" weight="bold" color="accent">
+            +{spellAttack}
+          </Text>
+        </button>
+      </div>
     </div>
   );
 }
