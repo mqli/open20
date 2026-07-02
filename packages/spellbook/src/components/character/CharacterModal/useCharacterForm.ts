@@ -30,10 +30,23 @@ function computeFormData(
       abilities: { ...DEFAULT_ABILITIES },
       subclassId: '',
       additionalClasses: [],
+      featSelections: [],
     };
   }
 
   if (editingCharacter) {
+    // Parse existing feat entries back to form data
+    const featSelections = editingCharacter.feats
+      .filter((f) => f.featId === 'magic-initiate' && f.spellChoices)
+      .map((f, i) => ({
+        key: f.featId + (i > 0 ? `-${i}` : ''),
+        featId: 'magic-initiate' as const,
+        enabled: true,
+        classId: f.spellChoices!.classId,
+        cantrips: (f.spellChoices!.spells['cantrips'] ?? []) as string[],
+        level1Spell: (f.spellChoices!.spells['level1Spell'] ?? [''])[0] ?? '',
+      }));
+
     return {
       name: editingCharacter.name,
       charClass: editingCharacter.classes[0]?.classId || 'Wizard',
@@ -55,6 +68,7 @@ function computeFormData(
         level: c.level,
         subclassId: c.subclassId ?? undefined,
       })),
+      featSelections,
     };
   }
 
@@ -68,6 +82,7 @@ function computeFormData(
     abilities: { ...DEFAULT_ABILITIES },
     subclassId: '',
     additionalClasses: [],
+    featSelections: [],
   };
 }
 

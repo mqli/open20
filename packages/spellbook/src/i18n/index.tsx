@@ -175,6 +175,15 @@ export type SpellbookTranslationKeys =
   | 'noCustomClasses'
   | 'addSubclassTo'
   | 'srdClasses'
+  // Feats
+  | 'feats'
+  | 'magicInitiate'
+  | 'magicInitiateDesc'
+  | 'addMagicInitiate'
+  | 'removeMagicInitiate'
+  | 'featClassSource'
+  | 'selectCantrips'
+  | 'selectLevel1Spell'
   // Menu
   | 'language'
   | 'theme';
@@ -360,6 +369,17 @@ export const enTranslations: SpellbookTranslations = {
   addSubclassTo: 'Add Subclass to {name}',
   srdClasses: 'SRD Classes',
 
+  // Feats
+  feats: 'Feats',
+  magicInitiate: 'Magic Initiate',
+  magicInitiateDesc:
+    'Choose a class: learn 2 cantrips and 1 level-1 spell from that class. You can cast that spell once per long rest without a spell slot.',
+  addMagicInitiate: 'Add Magic Initiate',
+  removeMagicInitiate: 'Remove Magic Initiate',
+  featClassSource: 'Class Source',
+  selectCantrips: 'Select 2 Cantrips',
+  selectLevel1Spell: 'Select Level 1 Spell',
+
   // Menu
   language: 'Language',
   theme: 'Theme',
@@ -539,6 +559,17 @@ export const zhCNTranslations: SpellbookTranslations = {
   noCustomClasses: '还没有自定义职业，创建一个开始吧。',
   addSubclassTo: '添加子职业到 {name}',
   srdClasses: 'SRD 职业',
+
+  // Feats (Chinese)
+  feats: '专长',
+  magicInitiate: '魔法学徒',
+  magicInitiateDesc:
+    '选择一个职业：学习该职业的 2 个戏法和 1 个 1 级法术。你可以每日一次无需法术位施放该法术。',
+  addMagicInitiate: '添加专长',
+  removeMagicInitiate: '移除专长',
+  featClassSource: '法术来源',
+  selectCantrips: '选择 2 个戏法',
+  selectLevel1Spell: '选择 1 级法术',
 
   // Menu
   language: '语言',

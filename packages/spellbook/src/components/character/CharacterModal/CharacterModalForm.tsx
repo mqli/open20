@@ -19,7 +19,8 @@ import { useTranslation } from '@/i18n';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
-import type { AdditionalClassEntry, CharacterFormData } from './types';
+import { MagicInitiateSection } from './MagicInitiateSection';
+import type { AdditionalClassEntry, CharacterFormData, FeatFormEntry } from './types';
 import type { AppCharacter } from '@/core/types';
 import { getAllClasses, getAllSpecies, getAllBackgrounds } from '@/core/content-resolver';
 import { useCustomClassStore } from '@/stores/customClassStore';
@@ -108,6 +109,44 @@ export function CharacterModalForm({
     setFormData((prev) => ({
       ...prev,
       additionalClasses: prev.additionalClasses.filter((ac) => ac.id !== id),
+    }));
+  };
+
+  // ── Feat handlers ───────────────────────────────────────
+
+  const handleAddFeat = () => {
+    setFormData((prev) => {
+      const existing = prev.featSelections ?? [];
+      return {
+        ...prev,
+        featSelections: [
+          ...existing,
+          {
+            key: `magic-initiate-${Date.now()}`,
+            featId: 'magic-initiate' as const,
+            enabled: true,
+            classId: 'Wizard',
+            cantrips: [],
+            level1Spell: '',
+          },
+        ],
+      };
+    });
+  };
+
+  const handleRemoveFeat = (key: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      featSelections: (prev.featSelections ?? []).filter((f) => f.key !== key),
+    }));
+  };
+
+  const handleUpdateFeat = (key: string, updates: Partial<FeatFormEntry>) => {
+    setFormData((prev) => ({
+      ...prev,
+      featSelections: (prev.featSelections ?? []).map((f) =>
+        f.key === key ? { ...f, ...updates } : f,
+      ),
     }));
   };
 
@@ -274,6 +313,14 @@ export function CharacterModalForm({
                   />
                 ))}
               </div>
+
+              {/* Feats Section / Magic Initiate */}
+              <MagicInitiateSection
+                feats={formData.featSelections ?? []}
+                onAdd={handleAddFeat}
+                onRemove={handleRemoveFeat}
+                onUpdate={handleUpdateFeat}
+              />
             </div>
 
             <AbilityScoresSection abilities={formData.abilities} onChange={handleAbilityChange} />

@@ -1,9 +1,66 @@
 import { useCharacterStore } from '@/stores/characterStore';
 import { characterService } from '@/core/character-service';
-import type { CharacterCreationParams } from '@/core/types';
+import type { CharacterCreationParams, AppCharacter } from '@/core/types';
+import { getContentPack } from '@/core/content-resolver';
+import type { CharacterFeatEntry, FeatSpellSelection, FeatSpellsEntry } from 'open20-core';
 import { CharacterModalForm } from './CharacterModalForm';
 import { useCharacterForm } from './useCharacterForm';
-import type { AdditionalClassEntry } from './types';
+import type { AdditionalClassEntry, FeatFormEntry } from './types';
+
+/**
+ * Apply inline feat selections to a character object.
+ * Does NOT call recomputeDerivedStats (no feat def in deps),
+ * instead manually builds featSpells data.
+ */
+function applyFeatSelections(char: AppCharacter, featSelections: FeatFormEntry[]): AppCharacter {
+  if (!featSelections || featSelections.length === 0) return char;
+
+  const pack = getContentPack();
+  const featEntries: CharacterFeatEntry[] = [];
+  const newFeatSpells: Record<string, FeatSpellsEntry> = {};
+
+  for (const fs of featSelections) {
+    if (!fs.enabled) continue;
+    if (!fs.cantrips.length || !fs.level1Spell) continue;
+
+    // Look up spellcasting ability from class data
+    const classData = pack.classes?.find((c) => c.id === fs.classId);
+    const spellcastingAbility = classData?.spellcasting?.ability ?? 'Intelligence';
+
+    const spellSelection: FeatSpellSelection = {
+      classId: fs.classId,
+      spells: {
+        cantrips: fs.cantrips,
+        level1Spell: [fs.level1Spell],
+      },
+    };
+
+    const featEntry: CharacterFeatEntry = {
+      featId: 'magic-initiate',
+      spellChoices: spellSelection,
+    };
+    featEntries.push(featEntry);
+
+    // Build FeatSpellsEntry (mirrors what computeFeatSpells would produce)
+    newFeatSpells[fs.key] = {
+      classId: fs.classId,
+      spellcastingAbility,
+      cantrips: fs.cantrips,
+      preparedSpells: [...fs.cantrips, fs.level1Spell],
+      oncePerLongRest: { [fs.level1Spell]: true },
+      usedOncePerLongRest: char.spells.featSpells?.[fs.key]?.usedOncePerLongRest,
+    };
+  }
+
+  return {
+    ...char,
+    feats: [...char.feats, ...featEntries],
+    spells: {
+      ...char.spells,
+      featSpells: Object.keys(newFeatSpells).length > 0 ? newFeatSpells : undefined,
+    },
+  };
+}
 
 export function CharacterModal({
   open,
@@ -64,19 +121,32 @@ export function CharacterModal({
             : undefined,
       };
 
+      const featSelections = formData.featSelections?.filter((f) => f.enabled) ?? [];
+
       if (editingCharacter) {
         const rebuilt = characterService.createCharacter(params);
-        // Preserve existing spell data: known cantrips, known spells (spellbook casters),
-        // prepared spells, spell slot usage, pact magic usage, and feat spell choices.
-        // The recompute pipeline inside updateCharacter will use these as `existing`
-        // data and properly recompute derived stats (spell DCs, max slots, etc.),
-        // dropping any stale data for classes that were removed.
-        updateCharacter({
+        // Preserve existing spell data (known cantrips, known spells, etc.)
+        // but replace feats with form's feat selections.
+        let updated: AppCharacter = {
           ...rebuilt,
           id: editingCharacter.id,
           spells: editingCharacter.spells,
-          feats: editingCharacter.feats,
+        } as AppCharacter;
+        updated = applyFeatSelections(updated, featSelections);
+        updateCharacter(updated);
+      } else if (featSelections.length > 0) {
+        // Create character with inline feat data (bypass store.createCharacter
+        // to inject feat data before storing)
+        const raw = characterService.createCharacter(params);
+        const withFeats = applyFeatSelections(raw, featSelections);
+
+        // Add to store directly
+        const { characters, setActiveCharacter, saveCharacters } = useCharacterStore.getState();
+        useCharacterStore.setState({
+          characters: [...characters, withFeats],
         });
+        setActiveCharacter(withFeats);
+        saveCharacters();
       } else {
         createCharacter(params);
       }
