@@ -227,19 +227,17 @@ export function castSpell(
     };
   }
 
-  // Handle feat spells (level 1+ spells that can be cast once per long rest)
+  // Handle feat spells (level 1+ spells that can be cast once per long rest
+  // or, for characters with spell slots, by expending a slot)
   if (featSpellEntries.length > 0 && castingClasses.length === 0) {
     const { featId, entry: featEntry } = featSpellEntries[0]!;
 
-    if (featEntry.oncePerLongRest?.[spell.id]) {
-      if (featEntry.usedOncePerLongRest?.[spell.id]) {
-        return {
-          success: false,
-          char,
-          message: `${spell.name} can only be cast once per long rest.`,
-        };
-      }
+    const hasFreeCast = featEntry.oncePerLongRest?.[spell.id] === true;
+    const freeCastUsed = featEntry.usedOncePerLongRest?.[spell.id] === true;
+    const isUpcasting = slotLevel > spell.level;
 
+    // When NOT upcasting and free cast is available, use the once-per-long-rest cast
+    if (!isUpcasting && hasFreeCast && !freeCastUsed) {
       const updatedEntry: FeatSpellsEntry = {
         ...featEntry,
         usedOncePerLongRest: { ...featEntry.usedOncePerLongRest, [spell.id]: true },
@@ -258,6 +256,53 @@ export function castSpell(
         castingClassId: featEntry.classId,
       };
     }
+
+    // Free cast unavailable (already used, or upcasting) — try spell slots
+    if (slotLevel < spell.level) {
+      return {
+        success: false,
+        char,
+        message: `Cannot cast ${spell.name} using a level ${slotLevel} slot (requires level ${spell.level}).`,
+      };
+    }
+
+    const slots = getAvailableSlots(char, slotLevel);
+    if (slots.hasRegularSlot) {
+      const slotEntry = char.spells.spellSlots[slotLevel];
+      if (slotEntry) {
+        const updatedChar: Character = {
+          ...char,
+          spells: {
+            ...char.spells,
+            spellSlots: {
+              ...char.spells.spellSlots,
+              [slotLevel]: { ...slotEntry, used: slotEntry.used + 1 },
+            },
+          },
+        };
+        const upcastDesc = getUpcastDescription(spell, slotLevel);
+        return {
+          success: true,
+          char: updatedChar,
+          message: `Cast ${spell.name} using a level ${slotLevel} slot.${upcastDesc ? ` ${upcastDesc}` : ''}`,
+          castingClassId: featEntry.classId,
+        };
+      }
+    }
+
+    // No slots available — report appropriate error
+    if (hasFreeCast && freeCastUsed) {
+      return {
+        success: false,
+        char,
+        message: `${spell.name} can only be cast once per long rest, and no spell slots are available.`,
+      };
+    }
+    return {
+      success: false,
+      char,
+      message: `No level ${slotLevel} spell slots remaining.`,
+    };
   }
 
   // Handle regular spell casting (requires spell slots)

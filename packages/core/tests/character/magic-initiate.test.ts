@@ -73,6 +73,9 @@ const MOCK_SPELLS: Record<string, Spell> = {
     concentration: false,
     ritual: false,
     description: ['You create three glowing darts...'],
+    usingAHigherLevelSpellSlot: [
+      'When you cast this spell using a spell slot of 2nd level or higher, you create one more dart for each slot level above 1st.',
+    ],
     classes: ['Wizard'],
   } as unknown as Spell,
   shield: {
@@ -603,5 +606,232 @@ describe('Casting Magic Initiate spells', () => {
     const magicMissile = deps.spells?.['magic-missile'];
     expect(magicMissile).toBeDefined();
     expect(canCastSpell(withFeat, magicMissile!)).toBe(true);
+  });
+
+  // ── Spell slot integration tests ────────────────────────────
+
+  it('should cast feat spell using free cast first, then spell slot when free cast used', () => {
+    const deps = createMockDeps({
+      species: HUMAN_SPECIES,
+      background: SOLDIER_BACKGROUND,
+      classes: { Wizard: WIZARD_CLASS },
+      feats: MOCK_FEATS,
+      spells: MOCK_SPELLS,
+    });
+    const char = createCharacter(
+      {
+        name: 'Wizard Initiate',
+        speciesId: 'Human',
+        backgroundId: 'Soldier',
+        classId: 'Wizard',
+        classLevel: 1,
+        abilityScores: {
+          Strength: 8,
+          Dexterity: 12,
+          Constitution: 14,
+          Intelligence: 16,
+          Wisdom: 10,
+          Charisma: 13,
+        },
+      },
+      deps,
+    );
+
+    // Verify Wizard 1 has spell slots
+    expect(char.spells.spellSlots[1].total).toBe(2);
+    expect(char.spells.spellSlots[1].used).toBe(0);
+
+    const spellSelection: FeatSpellSelection = {
+      classId: 'Wizard',
+      spells: {
+        cantrips: ['fire-bolt'],
+        level1Spell: ['magic-missile'],
+      },
+    };
+
+    const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
+    const magicMissile = deps.spells!['magic-missile'];
+
+    // 1st cast: should use free once-per-long-rest cast
+    const result1 = castSpell(withFeat, magicMissile, 1);
+    expect(result1.success).toBe(true);
+    expect(result1.message).toContain('once per long rest');
+    // Verify no spell slot consumed
+    expect(result1.char.spells.spellSlots[1].used).toBe(0);
+
+    // 2nd cast: free cast exhausted, should use spell slot
+    const result2 = castSpell(result1.char, magicMissile, 1);
+    expect(result2.success).toBe(true);
+    expect(result2.message).toContain('using a level 1 slot');
+    // Verify spell slot consumed
+    expect(result2.char.spells.spellSlots[1].used).toBe(1);
+  });
+
+  it('should upcast feat spell using higher level spell slot', () => {
+    const deps = createMockDeps({
+      species: HUMAN_SPECIES,
+      background: SOLDIER_BACKGROUND,
+      classes: { Wizard: WIZARD_CLASS },
+      feats: MOCK_FEATS,
+      spells: MOCK_SPELLS,
+    });
+    const char = createCharacter(
+      {
+        name: 'Wizard Initiate',
+        speciesId: 'Human',
+        backgroundId: 'Soldier',
+        classId: 'Wizard',
+        classLevel: 3,
+        abilityScores: {
+          Strength: 8,
+          Dexterity: 12,
+          Constitution: 14,
+          Intelligence: 16,
+          Wisdom: 10,
+          Charisma: 13,
+        },
+      },
+      deps,
+    );
+
+    // Wizard 3 has 4 level-1 and 2 level-2 slots
+    expect(char.spells.spellSlots[2].total).toBe(2);
+
+    const spellSelection: FeatSpellSelection = {
+      classId: 'Wizard',
+      spells: {
+        cantrips: ['fire-bolt'],
+        level1Spell: ['magic-missile'],
+      },
+    };
+
+    const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
+    const magicMissile = deps.spells!['magic-missile'];
+
+    // Upcast: slotLevel 2 > spell.level 1 — should skip free cast, use slot
+    const result = castSpell(withFeat, magicMissile, 2);
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('using a level 2 slot');
+    expect(result.message).toContain('one more dart'); // upcast description
+    // Free cast still available (not consumed)
+    expect(
+      result.char.spells.featSpells?.['magic-initiate']?.oncePerLongRest?.['magic-missile'],
+    ).toBe(true);
+    expect(
+      result.char.spells.featSpells?.['magic-initiate']?.usedOncePerLongRest?.['magic-missile'],
+    ).toBeUndefined();
+    // Level 2 slot consumed
+    expect(result.char.spells.spellSlots[2].used).toBe(1);
+  });
+
+  it('should report error for non-caster when free cast is used (no spell slots)', () => {
+    const deps = createMockDeps({
+      species: HUMAN_SPECIES,
+      background: SOLDIER_BACKGROUND,
+      classes: { Fighter: FIGHTER_CLASS, Wizard: WIZARD_CLASS, Cleric: CLERIC_CLASS },
+      feats: MOCK_FEATS,
+      spells: MOCK_SPELLS,
+    });
+    const char = createCharacter(
+      {
+        name: 'Fighter Initiate',
+        speciesId: 'Human',
+        backgroundId: 'Soldier',
+        classId: 'Fighter',
+        classLevel: 4,
+        abilityScores: {
+          Strength: 15,
+          Dexterity: 14,
+          Constitution: 13,
+          Intelligence: 12,
+          Wisdom: 10,
+          Charisma: 8,
+        },
+      },
+      deps,
+    );
+
+    // Fighter has no spell slots
+    expect(char.spells.spellSlots[1].total).toBe(0);
+
+    const spellSelection: FeatSpellSelection = {
+      classId: 'Wizard',
+      spells: {
+        cantrips: ['fire-bolt'],
+        level1Spell: ['magic-missile'],
+      },
+    };
+
+    const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
+    const magicMissile = deps.spells!['magic-missile'];
+
+    // 1st cast: free cast works
+    const result1 = castSpell(withFeat, magicMissile, 1);
+    expect(result1.success).toBe(true);
+    expect(result1.message).toContain('once per long rest');
+
+    // 2nd cast: free cast used, no slots → error
+    const result2 = castSpell(result1.char, magicMissile, 1);
+    expect(result2.success).toBe(false);
+    expect(result2.message).toContain('no spell slots are available');
+  });
+
+  it('should report error when both free cast and all spell slots are exhausted', () => {
+    const deps = createMockDeps({
+      species: HUMAN_SPECIES,
+      background: SOLDIER_BACKGROUND,
+      classes: { Wizard: WIZARD_CLASS },
+      feats: MOCK_FEATS,
+      spells: MOCK_SPELLS,
+    });
+    const char = createCharacter(
+      {
+        name: 'Wizard Initiate',
+        speciesId: 'Human',
+        backgroundId: 'Soldier',
+        classId: 'Wizard',
+        classLevel: 1,
+        abilityScores: {
+          Strength: 8,
+          Dexterity: 12,
+          Constitution: 14,
+          Intelligence: 16,
+          Wisdom: 10,
+          Charisma: 13,
+        },
+      },
+      deps,
+    );
+
+    // Wizard 1 has 2 level-1 slots
+    expect(char.spells.spellSlots[1].total).toBe(2);
+
+    const spellSelection: FeatSpellSelection = {
+      classId: 'Wizard',
+      spells: {
+        cantrips: ['fire-bolt'],
+        level1Spell: ['magic-missile'],
+      },
+    };
+
+    const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
+    const magicMissile = deps.spells!['magic-missile'];
+
+    // 1st cast: free
+    const afterFree = castSpell(withFeat, magicMissile, 1);
+    expect(afterFree.success).toBe(true);
+
+    // 2nd cast: spell slot 1
+    const afterSlot1 = castSpell(afterFree.char, magicMissile, 1);
+    expect(afterSlot1.success).toBe(true);
+
+    // 3rd cast: spell slot 2 (last)
+    const afterSlot2 = castSpell(afterSlot1.char, magicMissile, 1);
+    expect(afterSlot2.success).toBe(true);
+
+    // 4th cast: both free cast and all slots exhausted
+    const result = castSpell(afterSlot2.char, magicMissile, 1);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('no spell slots are available');
   });
 });
