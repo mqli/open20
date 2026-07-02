@@ -2,62 +2,50 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { characterService } from '@/core/character-service';
 import type { CharacterCreationParams, AppCharacter } from '@/core/types';
 import { getContentPack } from '@/core/content-resolver';
-import type { CharacterFeatEntry, FeatSpellSelection, FeatSpellsEntry } from 'open20-core';
+import type { CharacterFeatEntry, FeatSpellSelection } from 'open20-core';
 import { CharacterModalForm } from './CharacterModalForm';
 import { useCharacterForm } from './useCharacterForm';
-import type { AdditionalClassEntry, FeatFormEntry } from './types';
+import type { AdditionalClassEntry } from './types';
 
 /**
- * Apply inline feat selections to a character object.
+ * Apply a single Magic Initiate feat selection to a character object.
  * Does NOT call recomputeDerivedStats (no feat def in deps),
- * instead manually builds featSpells data.
+ * instead manually builds the feat entry and featSpells data.
  */
-function applyFeatSelections(char: AppCharacter, featSelections: FeatFormEntry[]): AppCharacter {
-  if (!featSelections || featSelections.length === 0) return char;
-
+function applyMagicInitiate(
+  char: AppCharacter,
+  mi: { classId: string; cantrips: string[]; level1Spell: string },
+): AppCharacter {
   const pack = getContentPack();
-  const featEntries: CharacterFeatEntry[] = [];
-  const newFeatSpells: Record<string, FeatSpellsEntry> = {};
+  const classData = pack.classes?.find((c) => c.id === mi.classId);
+  const spellcastingAbility = classData?.spellcasting?.ability ?? 'Intelligence';
 
-  for (const fs of featSelections) {
-    if (!fs.enabled) continue;
-    if (!fs.cantrips.length || !fs.level1Spell) continue;
+  const spellSelection: FeatSpellSelection = {
+    classId: mi.classId,
+    spells: { cantrips: mi.cantrips, level1Spell: [mi.level1Spell] },
+  };
 
-    // Look up spellcasting ability from class data
-    const classData = pack.classes?.find((c) => c.id === fs.classId);
-    const spellcastingAbility = classData?.spellcasting?.ability ?? 'Intelligence';
-
-    const spellSelection: FeatSpellSelection = {
-      classId: fs.classId,
-      spells: {
-        cantrips: fs.cantrips,
-        level1Spell: [fs.level1Spell],
-      },
-    };
-
-    const featEntry: CharacterFeatEntry = {
-      featId: 'magic-initiate',
-      spellChoices: spellSelection,
-    };
-    featEntries.push(featEntry);
-
-    // Build FeatSpellsEntry (mirrors what computeFeatSpells would produce)
-    newFeatSpells[fs.key] = {
-      classId: fs.classId,
-      spellcastingAbility,
-      cantrips: fs.cantrips,
-      preparedSpells: [...fs.cantrips, fs.level1Spell],
-      oncePerLongRest: { [fs.level1Spell]: true },
-      usedOncePerLongRest: char.spells.featSpells?.[fs.key]?.usedOncePerLongRest,
-    };
-  }
+  const featEntry: CharacterFeatEntry = {
+    featId: 'magic-initiate',
+    spellChoices: spellSelection,
+  };
 
   return {
     ...char,
-    feats: [...char.feats, ...featEntries],
+    feats: [...char.feats, featEntry],
     spells: {
       ...char.spells,
-      featSpells: Object.keys(newFeatSpells).length > 0 ? newFeatSpells : undefined,
+      featSpells: {
+        ...(char.spells.featSpells ?? {}),
+        'magic-initiate': {
+          classId: mi.classId,
+          spellcastingAbility,
+          cantrips: mi.cantrips,
+          preparedSpells: [...mi.cantrips, mi.level1Spell],
+          oncePerLongRest: { [mi.level1Spell]: true },
+          usedOncePerLongRest: char.spells.featSpells?.['magic-initiate']?.usedOncePerLongRest,
+        },
+      },
     },
   };
 }
@@ -121,24 +109,24 @@ export function CharacterModal({
             : undefined,
       };
 
-      const featSelections = formData.featSelections?.filter((f) => f.enabled) ?? [];
+      const mi = formData.magicInitiate;
 
       if (editingCharacter) {
         const rebuilt = characterService.createCharacter(params);
         // Preserve existing spell data (known cantrips, known spells, etc.)
-        // but replace feats with form's feat selections.
         let updated: AppCharacter = {
           ...rebuilt,
           id: editingCharacter.id,
           spells: editingCharacter.spells,
         } as AppCharacter;
-        updated = applyFeatSelections(updated, featSelections);
+        if (mi) {
+          updated = applyMagicInitiate(updated, mi);
+        }
         updateCharacter(updated);
-      } else if (featSelections.length > 0) {
-        // Create character with inline feat data (bypass store.createCharacter
-        // to inject feat data before storing)
+      } else if (mi) {
+        // Create character with inline Magic Initiate data
         const raw = characterService.createCharacter(params);
-        const withFeats = applyFeatSelections(raw, featSelections);
+        const withFeats = applyMagicInitiate(raw, mi);
 
         // Add to store directly
         const { characters, setActiveCharacter, saveCharacters } = useCharacterStore.getState();

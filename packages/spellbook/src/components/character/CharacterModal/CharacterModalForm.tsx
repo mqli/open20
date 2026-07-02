@@ -20,7 +20,7 @@ import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
 import { MagicInitiateSection } from './MagicInitiateSection';
-import type { AdditionalClassEntry, CharacterFormData, FeatFormEntry } from './types';
+import type { AdditionalClassEntry, CharacterFormData } from './types';
 import type { AppCharacter } from '@/core/types';
 import { getAllClasses, getAllSpecies, getAllBackgrounds } from '@/core/content-resolver';
 import { useCustomClassStore } from '@/stores/customClassStore';
@@ -112,42 +112,25 @@ export function CharacterModalForm({
     }));
   };
 
-  // ── Feat handlers ───────────────────────────────────────
+  // ── Magic Initiate handlers ─────────────────────────────
 
-  const handleAddFeat = () => {
+  const handleMagicInitiateToggle = (enabled: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      magicInitiate: enabled ? { classId: 'Wizard', cantrips: [], level1Spell: '' } : undefined,
+    }));
+  };
+
+  const handleMagicInitiateUpdate = (
+    updates: Partial<{ classId: string; cantrips: string[]; level1Spell: string }>,
+  ) => {
     setFormData((prev) => {
-      const existing = prev.featSelections ?? [];
+      if (!prev.magicInitiate) return prev;
       return {
         ...prev,
-        featSelections: [
-          ...existing,
-          {
-            key: `magic-initiate-${Date.now()}`,
-            featId: 'magic-initiate' as const,
-            enabled: true,
-            classId: 'Wizard',
-            cantrips: [],
-            level1Spell: '',
-          },
-        ],
+        magicInitiate: { ...prev.magicInitiate, ...updates },
       };
     });
-  };
-
-  const handleRemoveFeat = (key: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      featSelections: (prev.featSelections ?? []).filter((f) => f.key !== key),
-    }));
-  };
-
-  const handleUpdateFeat = (key: string, updates: Partial<FeatFormEntry>) => {
-    setFormData((prev) => ({
-      ...prev,
-      featSelections: (prev.featSelections ?? []).map((f) =>
-        f.key === key ? { ...f, ...updates } : f,
-      ),
-    }));
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -171,7 +154,7 @@ export function CharacterModalForm({
         </div>
 
         <form onSubmit={onSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-[5fr_3fr] gap-8">
             <div className="space-y-6">
               <div data-testid="char-name-input">
                 <Text as="label" variant="formLabel">
@@ -186,7 +169,7 @@ export function CharacterModalForm({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-[1fr_auto] gap-4 items-end">
                 <div>
                   <Text as="label" variant="formLabel" className="mb-1">
                     {t('class')}
@@ -234,6 +217,7 @@ export function CharacterModalForm({
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, level: parseInt(e.target.value) || 1 }))
                     }
+                    className="w-[4.5rem]"
                     data-testid="char-level-input"
                   />
                 </div>
@@ -285,45 +269,48 @@ export function CharacterModalForm({
                   </SelectRoot>
                 </div>
               </div>
-
-              {/* Multiclass Section */}
-              <div className="pt-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <Text as="label" variant="labelSm" weight="black" className="tracking-[0.2em]">
-                    {t('multiclass')}
-                  </Text>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleAddAdditionalClass}
-                    className="h-7 text-[9px]"
-                    data-testid="add-class-btn"
-                  >
-                    {t('addClass')}
-                  </Button>
-                </div>
-
-                {formData.additionalClasses.map((ac) => (
-                  <AdditionalClassEntryComponent
-                    key={ac.id}
-                    entry={ac}
-                    onUpdate={handleUpdateAdditionalClass}
-                    onRemove={handleRemoveAdditionalClass}
-                  />
-                ))}
-              </div>
-
-              {/* Feats Section / Magic Initiate */}
-              <MagicInitiateSection
-                feats={formData.featSelections ?? []}
-                onAdd={handleAddFeat}
-                onRemove={handleRemoveFeat}
-                onUpdate={handleUpdateFeat}
-              />
             </div>
 
             <AbilityScoresSection abilities={formData.abilities} onChange={handleAbilityChange} />
+          </div>
+
+          {/* Multiclass + Magic Initiate — second row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Multiclass */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Text as="label" variant="labelSm" weight="black" className="tracking-[0.2em]">
+                  {t('multiclass')}
+                </Text>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAddAdditionalClass}
+                  className="h-7 text-[9px]"
+                  data-testid="add-class-btn"
+                >
+                  {t('addClass')}
+                </Button>
+              </div>
+
+              {formData.additionalClasses.map((ac) => (
+                <AdditionalClassEntryComponent
+                  key={ac.id}
+                  entry={ac}
+                  onUpdate={handleUpdateAdditionalClass}
+                  onRemove={handleRemoveAdditionalClass}
+                />
+              ))}
+            </div>
+
+            {/* Magic Initiate */}
+            <MagicInitiateSection
+              enabled={!!formData.magicInitiate}
+              onToggle={handleMagicInitiateToggle}
+              feat={formData.magicInitiate ?? { classId: 'Wizard', cantrips: [], level1Spell: '' }}
+              onUpdate={handleMagicInitiateUpdate}
+            />
           </div>
 
           <div className="pt-6 border-t border-border flex justify-end gap-4">

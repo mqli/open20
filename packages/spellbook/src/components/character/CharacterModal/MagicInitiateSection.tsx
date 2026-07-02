@@ -1,15 +1,13 @@
 import { useMemo } from 'react';
 import {
-  Button,
   Surface,
   Text,
-  Badge,
+  Switch,
   SelectContent,
   SelectItem,
   SelectRoot,
   SelectTrigger,
 } from '@open20/ui';
-import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { getAllSpells } from '@/core/content-resolver';
 import type { FeatFormEntry } from './types';
@@ -21,16 +19,16 @@ const MAGIC_INITIATE_CLASSES = [
 ] as const;
 
 interface MagicInitiateSectionProps {
-  feats: FeatFormEntry[];
-  onAdd: () => void;
-  onRemove: (key: string) => void;
-  onUpdate: (key: string, updates: Partial<FeatFormEntry>) => void;
+  enabled: boolean;
+  onToggle: (enabled: boolean) => void;
+  feat: FeatFormEntry;
+  onUpdate: (updates: Partial<FeatFormEntry>) => void;
 }
 
 export function MagicInitiateSection({
-  feats,
-  onAdd,
-  onRemove,
+  enabled,
+  onToggle,
+  feat,
   onUpdate,
 }: MagicInitiateSectionProps) {
   const t = useTranslation();
@@ -42,84 +40,70 @@ export function MagicInitiateSection({
   const getLevel1Spells = (classId: string) =>
     allSpells.filter((s) => s.level === 1 && s.classes?.includes(classId));
 
-  if (feats.length === 0) {
-    return (
-      <div className="pt-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <Text as="label" variant="labelSm" weight="black" className="tracking-[0.2em]">
+  return (
+    <div className="space-y-4">
+      {/* Toggle row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Text variant="labelSm" weight="black" className="tracking-[0.2em]">
             {t('feats')}
           </Text>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onAdd}
-            className="h-7 text-[9px]"
-          >
-            <Plus className="w-3 h-3 mr-1" />
-            {t('addMagicInitiate')}
-          </Button>
+          <Text variant="bodySm" className="text-text-secondary">
+            {t('magicInitiate')}
+          </Text>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="pt-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <Text as="label" variant="labelSm" weight="black" className="tracking-[0.2em]">
-          {t('feats')}
-        </Text>
-        <Button type="button" variant="ghost" size="sm" onClick={onAdd} className="h-7 text-[9px]">
-          <Plus className="w-3 h-3 mr-1" />
-          {t('addMagicInitiate')}
-        </Button>
+        <Switch checked={enabled} onCheckedChange={onToggle} data-testid="magic-initiate-switch" />
       </div>
 
-      {feats.map((feat) => (
-        <Surface key={feat.key} variant="default" className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Badge variant="primary" size="sm">
-                {t('magicInitiate')}
-              </Badge>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onRemove(feat.key)}
-              className="h-7 text-[9px] text-destructive hover:text-destructive"
-            >
-              <Trash2 className="w-3 h-3 mr-1" />
-              {t('removeMagicInitiate')}
-            </Button>
-          </div>
-
+      {/* Expanded form */}
+      {enabled && (
+        <Surface variant="default" className="p-4 space-y-4">
           <Text variant="bodySm" className="text-text-secondary">
             {t('magicInitiateDesc')}
           </Text>
 
-          {/* Class source selector */}
-          <div>
-            <Text as="label" variant="formLabel">
-              {t('featClassSource')}
-            </Text>
-            <SelectRoot
-              value={feat.classId}
-              onValueChange={(value) =>
-                onUpdate(feat.key, { classId: value, cantrips: [], level1Spell: '' })
-              }
-            >
-              <SelectTrigger />
-              <SelectContent>
-                {MAGIC_INITIATE_CLASSES.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </SelectRoot>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Class source selector */}
+            <div>
+              <Text as="label" variant="formLabel">
+                {t('featClassSource')}
+              </Text>
+              <SelectRoot
+                value={feat.classId}
+                onValueChange={(value) =>
+                  onUpdate({ classId: value, cantrips: [], level1Spell: '' })
+                }
+              >
+                <SelectTrigger data-testid="mi-class-source" />
+                <SelectContent>
+                  {MAGIC_INITIATE_CLASSES.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </SelectRoot>
+            </div>
+
+            {/* Level 1 spell selector */}
+            <div>
+              <Text as="label" variant="formLabel">
+                {t('selectLevel1Spell')}
+              </Text>
+              <SelectRoot
+                value={feat.level1Spell}
+                onValueChange={(value) => onUpdate({ level1Spell: value })}
+              >
+                <SelectTrigger data-testid="mi-level1-select" />
+                <SelectContent>
+                  {getLevel1Spells(feat.classId).map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </SelectRoot>
+            </div>
           </div>
 
           {/* Cantrip selectors */}
@@ -132,19 +116,21 @@ export function MagicInitiateSection({
                 const cantrips = getCantrips(feat.classId);
                 return (
                   <SelectRoot
-                    key={`${feat.key}-cantrip-${index}`}
+                    key={`cantrip-${index}`}
                     value={feat.cantrips[index] ?? ''}
                     onValueChange={(value) => {
                       const updated = [...feat.cantrips];
                       updated[index] = value;
-                      // Only keep unique values
                       const unique = updated
                         .filter(Boolean)
                         .filter((v, i, a) => a.indexOf(v) === i);
-                      onUpdate(feat.key, { cantrips: unique });
+                      onUpdate({ cantrips: unique });
                     }}
                   >
-                    <SelectTrigger placeholder={`${t('cantrip')} ${index + 1}`} />
+                    <SelectTrigger
+                      data-testid={`mi-cantrip-${index}`}
+                      placeholder={`${t('cantrip')} ${index + 1}`}
+                    />
                     <SelectContent>
                       {cantrips.map((s) => (
                         <SelectItem key={s.id} value={s.id}>
@@ -157,28 +143,8 @@ export function MagicInitiateSection({
               })}
             </div>
           </div>
-
-          {/* Level 1 spell selector */}
-          <div>
-            <Text as="label" variant="formLabel">
-              {t('selectLevel1Spell')}
-            </Text>
-            <SelectRoot
-              value={feat.level1Spell}
-              onValueChange={(value) => onUpdate(feat.key, { level1Spell: value })}
-            >
-              <SelectTrigger />
-              <SelectContent>
-                {getLevel1Spells(feat.classId).map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </SelectRoot>
-          </div>
         </Surface>
-      ))}
+      )}
     </div>
   );
 }

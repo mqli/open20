@@ -48,7 +48,7 @@ export function AdditionalClassEntryComponent({
   return (
     <Surface variant="ghost" padding="sm" className="space-y-2 bg-bg-primary/30">
       <div className="grid grid-cols-12 gap-2 items-end">
-        <div className="col-span-7">
+        <div className="col-span-6">
           <SelectRoot
             value={entry.classId}
             onValueChange={(value) => onUpdate(entry.id, { classId: value, subclassId: undefined })}
@@ -78,13 +78,12 @@ export function AdditionalClassEntryComponent({
             </SelectContent>
           </SelectRoot>
         </div>
-        <div className="col-span-3">
+        <div className="col-span-4">
           <Input
             type="number"
             min={1}
             value={entry.level}
             onChange={(e) => onUpdate(entry.id, { level: parseInt(e.target.value) || 1 })}
-            className="h-8 px-2 py-1 text-xs"
             data-testid="additional-level-input"
           />
         </div>

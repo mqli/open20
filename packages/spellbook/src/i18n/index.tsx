@@ -376,9 +376,9 @@ export const enTranslations: SpellbookTranslations = {
     'Choose a class: learn 2 cantrips and 1 level-1 spell from that class. You can cast that spell once per long rest without a spell slot.',
   addMagicInitiate: 'Add Magic Initiate',
   removeMagicInitiate: 'Remove Magic Initiate',
-  featClassSource: 'Class Source',
-  selectCantrips: 'Select 2 Cantrips',
-  selectLevel1Spell: 'Select Level 1 Spell',
+  featClassSource: 'Spell List',
+  selectCantrips: 'Cantrips (2)',
+  selectLevel1Spell: 'Level 1 Spell',
 
   // Menu
   language: 'Language',
@@ -567,9 +567,9 @@ export const zhCNTranslations: SpellbookTranslations = {
     '选择一个职业：学习该职业的 2 个戏法和 1 个 1 级法术。你可以每日一次无需法术位施放该法术。',
   addMagicInitiate: '添加专长',
   removeMagicInitiate: '移除专长',
-  featClassSource: '法术来源',
-  selectCantrips: '选择 2 个戏法',
-  selectLevel1Spell: '选择 1 级法术',
+  featClassSource: '法术列表',
+  selectCantrips: '戏法 (2)',
+  selectLevel1Spell: '1 级法术',
 
   // Menu
   language: '语言',

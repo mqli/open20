@@ -30,22 +30,21 @@ function computeFormData(
       abilities: { ...DEFAULT_ABILITIES },
       subclassId: '',
       additionalClasses: [],
-      featSelections: [],
     };
   }
 
   if (editingCharacter) {
-    // Parse existing feat entries back to form data
-    const featSelections = editingCharacter.feats
-      .filter((f) => f.featId === 'magic-initiate' && f.spellChoices)
-      .map((f, i) => ({
-        key: f.featId + (i > 0 ? `-${i}` : ''),
-        featId: 'magic-initiate' as const,
-        enabled: true,
-        classId: f.spellChoices!.classId,
-        cantrips: (f.spellChoices!.spells['cantrips'] ?? []) as string[],
-        level1Spell: (f.spellChoices!.spells['level1Spell'] ?? [''])[0] ?? '',
-      }));
+    // Parse first magic-initiate feat back to form data
+    const firstMI = editingCharacter.feats.find(
+      (f) => f.featId === 'magic-initiate' && f.spellChoices,
+    );
+    const magicInitiate = firstMI
+      ? {
+          classId: firstMI.spellChoices!.classId,
+          cantrips: (firstMI.spellChoices!.spells['cantrips'] ?? []) as string[],
+          level1Spell: (firstMI.spellChoices!.spells['level1Spell'] ?? [''])[0] ?? '',
+        }
+      : undefined;
 
     return {
       name: editingCharacter.name,
@@ -68,7 +67,7 @@ function computeFormData(
         level: c.level,
         subclassId: c.subclassId ?? undefined,
       })),
-      featSelections,
+      magicInitiate,
     };
   }
 
@@ -82,7 +81,6 @@ function computeFormData(
     abilities: { ...DEFAULT_ABILITIES },
     subclassId: '',
     additionalClasses: [],
-    featSelections: [],
   };
 }
 
