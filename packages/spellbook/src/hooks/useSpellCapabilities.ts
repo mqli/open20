@@ -13,6 +13,16 @@ import {
 } from 'open20-core/spells';
 import { useCharacterStore } from '@/stores/characterStore';
 import { resolveDeps } from '@/core/content-resolver';
+import type { Character } from 'open20-core';
+
+/** Check if a spell is known through a feat (e.g. Magic Initiate). */
+function isKnownViaFeat(char: Character, spellId: string): boolean {
+  if (!char.spells.featSpells) return false;
+  for (const entry of Object.values(char.spells.featSpells)) {
+    if (entry.cantrips.includes(spellId) || entry.preparedSpells.includes(spellId)) return true;
+  }
+  return false;
+}
 
 export interface SpellCapabilities {
   // Basic status
@@ -95,7 +105,12 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
 
     // ── basic status ──
     const isKnown = knowsSpell(char, spell.id);
-    const isPrepared = isSpellPrepared(char, spell.id);
+    const isFeatSpell = isKnownViaFeat(char, spell.id);
+    const isPrepared = isSpellPrepared(char, spell.id) || isFeatSpell;
+    // Feat spells are always prepared — treat them as always-prepared for badges / UI
+    const resolvedAlwaysPreparedIds = isFeatSpell
+      ? [...alwaysPreparedClassIds, '@feat']
+      : alwaysPreparedClassIds;
     const isCantripKnown = cantripKnownClassIds.length > 0;
     const isClassSpell = matchingClassIds.length > 0;
     const isConcentratingOnThis = char.concentration?.spellId === spell.id;
@@ -185,7 +200,7 @@ export function useSpellCapabilities(spell: Spell | null | undefined): SpellCapa
       matchingClassIds,
       accessibleClassIds,
       preparedClassIds,
-      alwaysPreparedClassIds,
+      alwaysPreparedClassIds: resolvedAlwaysPreparedIds,
       cantripKnownClassIds,
       spellAttackBonus,
     };

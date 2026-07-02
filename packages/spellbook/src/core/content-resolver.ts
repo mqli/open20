@@ -6,12 +6,43 @@
 // instead of DataLoader (runtime lookup).
 
 import type { ContentPack } from 'open20-core/content';
-import type { RecomputeDerivedStatsDeps, Character } from 'open20-core';
+import type { RecomputeDerivedStatsDeps, Character, Feat } from 'open20-core';
 import type { Class, Species, Background, Spell, Subclass } from 'open20-core';
 import { mergeContentPacks } from '@open20/content-srd/merge';
 import { srdContentPack } from '@open20/content-srd';
 import { resolveCharacterDeps } from '@open20/content-srd/query/resolve';
 import { storageService } from './storage-service';
+
+/** Inline Magic Initiate feat definition — no SRD feat data needed. */
+const MAGIC_INITIATE_FEAT: Feat = {
+  id: 'magic-initiate',
+  source: '2024 PHB',
+  name: 'Magic Initiate',
+  description: 'You learn two cantrips and one 1st-level spell from the chosen class list.',
+  category: 'Origin',
+  grants: [
+    {
+      type: 'spellChoices',
+      choices: [
+        {
+          id: 'cantrips',
+          classOptions: ['Cleric', 'Druid', 'Wizard'],
+          spellLevel: 0,
+          count: 2,
+          alwaysPrepared: true,
+        },
+        {
+          id: 'level1Spell',
+          classOptions: ['Cleric', 'Druid', 'Wizard'],
+          spellLevel: 1,
+          count: 1,
+          alwaysPrepared: true,
+          oncePerLongRest: true,
+        },
+      ],
+    },
+  ],
+} as const;
 
 // ── Singleton merged content pack ──────────────────────────
 
@@ -111,6 +142,12 @@ export function getAllSubclasses(): Subclass[] {
 
 // ── Deps resolution ───────────────────────────────────────
 
+/** Ensure the inline Magic Initiate feat is in deps so computeFeatSpells works. */
+function injectInlineFeats(deps: RecomputeDerivedStatsDeps): RecomputeDerivedStatsDeps {
+  deps.feats = { ...(deps.feats ?? {}), 'magic-initiate': MAGIC_INITIATE_FEAT };
+  return deps;
+}
+
 /**
  * Resolve a character's RecomputeDerivedStatsDeps from the merged content pack.
  *
@@ -120,7 +157,8 @@ export function getAllSubclasses(): Subclass[] {
  */
 export function resolveDeps(character: Character): RecomputeDerivedStatsDeps {
   const pack = getContentPack();
-  return resolveCharacterDeps(character, pack);
+  const deps = resolveCharacterDeps(character, pack);
+  return injectInlineFeats(deps);
 }
 
 /**
@@ -170,5 +208,5 @@ export function buildDepsForCreate(params: {
     if (sub) deps.subclasses = { ...(deps.subclasses ?? {}), [sub.id]: sub };
   }
 
-  return deps;
+  return injectInlineFeats(deps);
 }

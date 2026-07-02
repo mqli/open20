@@ -650,7 +650,7 @@ describe('Casting Magic Initiate spells', () => {
     };
 
     const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
-    const magicMissile = deps.spells!['magic-missile'];
+    const magicMissile = deps.spells!['magic-missile']!;
 
     // 1st cast: should use free once-per-long-rest cast
     const result1 = castSpell(withFeat, magicMissile, 1);
@@ -706,7 +706,7 @@ describe('Casting Magic Initiate spells', () => {
     };
 
     const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
-    const magicMissile = deps.spells!['magic-missile'];
+    const magicMissile = deps.spells!['magic-missile']!;
 
     // Upcast: slotLevel 2 > spell.level 1 — should skip free cast, use slot
     const result = castSpell(withFeat, magicMissile, 2);
@@ -763,7 +763,7 @@ describe('Casting Magic Initiate spells', () => {
     };
 
     const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
-    const magicMissile = deps.spells!['magic-missile'];
+    const magicMissile = deps.spells!['magic-missile']!;
 
     // 1st cast: free cast works
     const result1 = castSpell(withFeat, magicMissile, 1);
@@ -815,7 +815,7 @@ describe('Casting Magic Initiate spells', () => {
     };
 
     const withFeat = addFeat(char, 'magic-initiate', deps, { spellSelection });
-    const magicMissile = deps.spells!['magic-missile'];
+    const magicMissile = deps.spells!['magic-missile']!;
 
     // 1st cast: free
     const afterFree = castSpell(withFeat, magicMissile, 1);

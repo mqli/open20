@@ -320,33 +320,39 @@ function computeFeatSpells(
   for (const entry of char.feats) {
     if (!entry.spellChoices) continue;
 
-    const feat = deps.feats?.[entry.featId];
-    if (!feat?.grants) continue;
-
-    // Find spellChoices grant in the grants array
-    const spellChoicesGrant = feat.grants.find((g) => g.type === 'spellChoices');
-    if (!spellChoicesGrant) continue;
-
     const selection = entry.spellChoices;
 
-    // Determine spellcasting ability from classId
+    // Determine spellcasting ability from classId.
+    // If the class is not in deps (e.g. Magic Initiate picks a spell list
+    // from a class the character does not have), fall back to known defaults.
     const classData = deps.classes?.[selection.classId];
-    if (!classData?.spellcasting) continue;
-
-    const spellcastingAbility = classData.spellcasting.ability;
+    const spellcastingAbility: import('../types/ability').AbilityName =
+      classData?.spellcasting?.ability ??
+      (selection.classId === 'Wizard' ? 'Intelligence' : 'Wisdom');
 
     // Build the FeatSpellsEntry
     const cantrips = selection.spells['cantrips'] ?? [];
     const level1Spell = selection.spells['level1Spell'] ?? [];
 
-    // Determine which spells can be cast once per long rest
+    // Determine which spells can be cast once per long rest.
+    // Prefer feat definition grants; fall back to default behaviour (all
+    // non-cantrip spells are once-per-long-rest, which matches Magic Initiate).
     const oncePerLongRest: Record<string, boolean> = {};
-    for (const spellChoice of spellChoicesGrant.choices) {
-      if (spellChoice.oncePerLongRest) {
-        const spellsForChoice = selection.spells[spellChoice.id] ?? [];
-        for (const spell of spellsForChoice) {
-          oncePerLongRest[spell] = true;
+    const feat = deps.feats?.[entry.featId];
+    const spellChoicesGrant = feat?.grants?.find((g) => g.type === 'spellChoices');
+    if (spellChoicesGrant) {
+      for (const spellChoice of spellChoicesGrant.choices) {
+        if (spellChoice.oncePerLongRest) {
+          const spellsForChoice = selection.spells[spellChoice.id] ?? [];
+          for (const spell of spellsForChoice) {
+            oncePerLongRest[spell] = true;
+          }
         }
+      }
+    } else {
+      // No feat def — all level-1+ spells are once per long rest
+      for (const spell of level1Spell) {
+        oncePerLongRest[spell] = true;
       }
     }
 

@@ -1,9 +1,12 @@
 import { X, Pencil } from 'lucide-react';
-import { Badge, Button, SectionHeader, SlotPips, Tabs, Text } from '@open20/ui';
+import { Badge, Button, SectionHeader, SlotPips, Surface, Tabs, Text } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
+import { spellService } from '@/core/spell-service';
 import { ConcentrationBanner } from './ConcentrationBanner';
 import { ClassSpellSection } from './ClassSpellSection';
 import { useTranslation } from '@/i18n';
+import { useSpellStore } from '@/stores/spellStore';
+import type { Spell } from 'open20-core';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -26,10 +29,18 @@ export function CharacterSheetContent({
   onClose?: () => void;
 }) {
   const t = useTranslation();
-  const { activeCharacter, consumePactMagicSlot, recoverPactMagicSlot } = useCharacterStore();
+  const {
+    activeCharacter,
+    consumePactMagicSlot,
+    recoverPactMagicSlot,
+    consumeSpellSlot,
+    recoverSpellSlot,
+  } = useCharacterStore();
+  const { selectSpell } = useSpellStore();
   if (!activeCharacter) return null;
   const { spells, classes, concentration } = activeCharacter;
   const classSpellcasting = spells.classSpellcasting ?? {};
+  const featSpells = spells.featSpells;
 
   const concentratingSpellId = concentration?.spellId ?? null;
 
@@ -139,6 +150,116 @@ export function CharacterSheetContent({
                 </Tabs.Content>
               ))}
             </Tabs.Root>
+          </section>
+        )}
+
+        {/* Feat Spells (Magic Initiate etc.) */}
+        {featSpells && Object.keys(featSpells).length > 0 && (
+          <section>
+            <SectionHeader title={t('feats')} className="mb-2" />
+            {Object.entries(featSpells).map(([featKey, entry]) => {
+              const cantripSpells = entry.cantrips
+                .map((id: string) => spellService.getSpell(id))
+                .filter((s): s is Spell => !!s)
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+              const level1Spells = entry.preparedSpells
+                .filter((id: string) => !entry.cantrips.includes(id))
+                .map((id: string) => spellService.getSpell(id))
+                .filter((s): s is Spell => !!s);
+
+              const slotEntry = spells.spellSlots[1] as { total: number; used: number } | undefined;
+
+              return (
+                <Surface key={featKey} variant="default" className="p-3 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="primary" size="sm">
+                      {t('magicInitiate')}
+                    </Badge>
+                    <Text variant="caption" color="secondary">
+                      ({entry.classId})
+                    </Text>
+                  </div>
+
+                  {/* Cantrips */}
+                  {cantripSpells.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between px-1">
+                        <Text variant="label" className="text-[8px]">
+                          {t('cantripLevel')}
+                        </Text>
+                        <Text variant="caption" weight="bold" className="text-[10px]">
+                          ({cantripSpells.length}/2)
+                        </Text>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {cantripSpells.map((spell) => (
+                          <Badge
+                            key={spell.id}
+                            variant="secondary"
+                            size="sm"
+                            className="cursor-pointer hover:opacity-80"
+                            onClick={() => selectSpell(spell)}
+                          >
+                            {spell.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Level 1 spells */}
+                  {level1Spells.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between px-1">
+                        <Text variant="label" className="text-[8px]">
+                          {t('firstLevel')}
+                        </Text>
+                        <div className="flex items-center gap-2">
+                          {slotEntry && slotEntry.total > 0 && (
+                            <SlotPips
+                              total={slotEntry.total}
+                              used={slotEntry.used}
+                              onPipClick={(_index, isUsed) =>
+                                isUsed ? recoverSpellSlot(1) : consumeSpellSlot(1)
+                              }
+                              size="sm"
+                            />
+                          )}
+                          <Text
+                            variant="caption"
+                            weight="bold"
+                            className="text-[10px] w-8 text-right"
+                          >
+                            {slotEntry
+                              ? `${slotEntry.total - slotEntry.used}/${slotEntry.total}`
+                              : '-'}
+                          </Text>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {level1Spells.map((spell) => {
+                          const isUsed =
+                            spells.featSpells?.[featKey]?.usedOncePerLongRest?.[spell.id] === true;
+                          return (
+                            <Badge
+                              key={spell.id}
+                              variant={isUsed ? 'danger' : 'secondary'}
+                              size="sm"
+                              className="cursor-pointer hover:opacity-80"
+                              onClick={() => selectSpell(spell)}
+                            >
+                              {spell.name}
+                              {isUsed ? ' (used)' : ''}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </Surface>
+              );
+            })}
           </section>
         )}
       </div>
