@@ -12,9 +12,10 @@ function SpellDetailContent({
   spell: NonNullable<ReturnType<typeof useSpellStore.getState>['selectedSpell']>;
 }) {
   return (
-    <div className="mb-6">
+    <div>
       <SpellCard
         spell={spell}
+        density="compact"
         className="border-0 rounded-none bg-transparent p-0 ring-0"
         stickyActions
         showDescription
@@ -67,13 +68,13 @@ export function SpellDetailFlyout() {
         size="xl"
         className="flex flex-col w-[min(96vw,1200px)] p-0 max-h-[min(92vh,1000px)] overflow-hidden"
       >
-        <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-4 sm:px-8">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2 sm:px-4">
           <h2 className="text-lg font-semibold text-text-primary truncate">{selectedSpell.name}</h2>
           <IconButton size="sm" aria-label="Close spell details" onClick={closeDetail}>
             <X />
           </IconButton>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-4">
           <SpellDetailContent spell={selectedSpell} />
         </div>
       </Dialog.Content>

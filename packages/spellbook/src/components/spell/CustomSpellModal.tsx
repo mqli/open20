@@ -99,19 +99,19 @@ export function CustomSpellModal({ open, onOpenChange, editingSpell }: CustomSpe
 
   return (
     <DialogRoot open={open} onOpenChange={handleOpenChange}>
-      <DialogContent size="xl" className="h-[90vh] flex flex-col overflow-hidden">
+      <DialogContent size="xl" className="h-[90vh] flex flex-col overflow-hidden p-0">
         {/* Header */}
-        <div className="flex justify-between items-center mb-4 shrink-0">
+        <div className="flex justify-between items-center shrink-0 px-4 py-3 sm:px-6 border-b border-border">
           <DialogTitle className="text-xl font-black text-text-primary">{title}</DialogTitle>
           <DialogClose asChild>
-            <Button variant="ghost" size="sm" className="p-2 rounded-full">
+            <Button variant="ghost" size="sm" className="p-1 rounded-full">
               <X className="w-5 h-5" />
             </Button>
           </DialogClose>
         </div>
 
         {/* Paste-from-text import */}
-        <div className="mb-4 shrink-0">
+        <div className="shrink-0 px-4 pt-3 sm:px-6">
           <Button
             type="button"
             variant="ghost"
@@ -160,7 +160,7 @@ export function CustomSpellModal({ open, onOpenChange, editingSpell }: CustomSpe
         </div>
 
         {/* SpellEditor */}
-        <div className="flex-1 min-h-0 overflow-y-auto [&_.bg-bg-primary]:bg-transparent">
+        <div className="flex-1 min-h-0 overflow-y-auto [&_.bg-bg-primary]:bg-transparent px-4 py-3 sm:px-6">
           <SpellEditor
             value={editorValue}
             onChange={setCurrentValue}

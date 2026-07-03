@@ -141,19 +141,19 @@ export function CharacterModalForm({
 
   return (
     <DialogRoot open={open} onOpenChange={handleOpenChange}>
-      <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto no-scrollbar">
-        <div className="flex justify-between items-center mb-8">
+      <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto no-scrollbar p-0">
+        <div className="flex justify-between items-center px-4 py-3 sm:px-6 border-b border-border">
           <DialogTitle className="text-2xl font-black text-text-primary uppercase tracking-tight">
             {editingCharacter ? t('editCharacter') : t('createCharacter')}
           </DialogTitle>
           <DialogClose asChild>
-            <Button variant="ghost" size="sm" className="p-2 rounded-full" disabled={isSubmitting}>
+            <Button variant="ghost" size="sm" className="p-1 rounded-full" disabled={isSubmitting}>
               <X className="w-6 h-6" />
             </Button>
           </DialogClose>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-8">
+        <form onSubmit={onSubmit} className="px-4 py-3 sm:px-6 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-[5fr_3fr] gap-8">
             <div className="space-y-6">
               <div data-testid="char-name-input">
@@ -313,11 +313,11 @@ export function CharacterModalForm({
             />
           </div>
 
-          <div className="pt-6 border-t border-border flex justify-end gap-4">
+          <div className="pt-3 border-t border-border flex justify-end gap-4">
             <Button
               type="button"
               variant="ghost"
-              size="lg"
+              size="sm"
               disabled={isSubmitting}
               onClick={onCancel}
             >
@@ -326,7 +326,7 @@ export function CharacterModalForm({
             <Button
               type="submit"
               variant="primary"
-              size="lg"
+              size="sm"
               disabled={!formData.name || isSubmitting}
               data-testid="char-submit-btn"
             >

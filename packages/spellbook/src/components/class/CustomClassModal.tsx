@@ -207,10 +207,10 @@ export function CustomClassModal({
 
   return (
     <DialogRoot open={open} onOpenChange={handleOpenChange}>
-      <DialogContent size="sm">
+      <DialogContent size="sm" className="p-0">
         {showForm ? (
           <>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center px-4 py-3 sm:px-6 border-b border-border">
               <div className="flex items-center gap-2">
                 {/* Back button (internal navigation only) */}
                 {!editingEntry && (
@@ -244,26 +244,28 @@ export function CustomClassModal({
                 </Button>
               </DialogClose>
             </div>
-            <CustomClassFormInner
-              key={formKey}
-              editingEntry={resolvedEditingEntry}
-              onSave={handleSave}
-              onDelete={handleDelete}
-              onDismiss={() => {
-                if (editingEntry) {
-                  onOpenChange(false);
-                } else {
-                  handleBackToList();
-                }
-              }}
-              addSubclassToClassId={addsubTargetId ?? undefined}
-              onAddSubclass={addsubTargetId ? handleAddSubclass : undefined}
-            />
+            <div className="px-4 py-3 sm:px-6">
+              <CustomClassFormInner
+                key={formKey}
+                editingEntry={resolvedEditingEntry}
+                onSave={handleSave}
+                onDelete={handleDelete}
+                onDismiss={() => {
+                  if (editingEntry) {
+                    onOpenChange(false);
+                  } else {
+                    handleBackToList();
+                  }
+                }}
+                addSubclassToClassId={addsubTargetId ?? undefined}
+                onAddSubclass={addsubTargetId ? handleAddSubclass : undefined}
+              />
+            </div>
           </>
         ) : (
           <>
             {/* ── List view ── */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center px-4 py-3 sm:px-6 border-b border-border">
               <DialogTitle>
                 <Settings className="w-4 h-4 mr-1 inline" />
                 {t('manageCustomClasses')}
@@ -275,7 +277,7 @@ export function CustomClassModal({
               </DialogClose>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 px-4 py-3 sm:px-6">
               <Button
                 variant="primary"
                 size="sm"
