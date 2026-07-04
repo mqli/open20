@@ -8,6 +8,7 @@ interface CustomSpellState {
   addSpell: (spell: Spell) => void;
   updateSpell: (spell: Spell) => void;
   deleteSpell: (id: string) => void;
+  importSpells: (spells: Spell[]) => { imported: number; skipped: number };
 }
 
 export const useCustomSpellStore = create<CustomSpellState>((set, get) => ({
@@ -39,5 +40,18 @@ export const useCustomSpellStore = create<CustomSpellState>((set, get) => ({
   deleteSpell: (id) => {
     const updated = storageService.deleteCustomSpell(id);
     set({ spells: updated });
+  },
+
+  importSpells: (spells) => {
+    const { spells: existing } = get();
+    const existingIds = new Set(existing.map((s) => s.id));
+    const newSpells = spells.filter((s) => !existingIds.has(s.id));
+    if (newSpells.length === 0) {
+      return { imported: 0, skipped: spells.length };
+    }
+    const updated = [...existing, ...newSpells];
+    storageService.saveCustomSpells(updated);
+    set({ spells: updated });
+    return { imported: newSpells.length, skipped: spells.length - newSpells.length };
   },
 }));

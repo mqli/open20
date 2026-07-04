@@ -186,7 +186,17 @@ export type SpellbookTranslationKeys =
   | 'selectLevel1Spell'
   // Menu
   | 'language'
-  | 'theme';
+  | 'theme'
+  // Import / Export
+  | 'exportCustomSpells'
+  | 'importCustomSpells'
+  | 'noCustomSpellsToExport'
+  | 'importSpellsTitle'
+  | 'dropFileOrClick'
+  | 'invalidSpellsFile'
+  | 'importPreview'
+  | 'spellsImported'
+  | 'spellsSkipped';
 
 // Spellbook translation structure
 export type SpellbookTranslations = BaseTranslations & Record<SpellbookTranslationKeys, string>;
@@ -383,6 +393,17 @@ export const enTranslations: SpellbookTranslations = {
   // Menu
   language: 'Language',
   theme: 'Theme',
+
+  // Import / Export
+  exportCustomSpells: 'Export Custom Spells',
+  importCustomSpells: 'Import Custom Spells',
+  noCustomSpellsToExport: 'No custom spells to export',
+  importSpellsTitle: 'Import Custom Spells',
+  dropFileOrClick: 'Drop JSON file or click to browse',
+  invalidSpellsFile: 'Invalid file: must be a JSON array of spells',
+  importPreview: 'Found {count} spells ready to import',
+  spellsImported: '{count} spells imported',
+  spellsSkipped: '{count} skipped (already exist)',
 };
 
 // Chinese (Simplified) translations
@@ -574,6 +595,17 @@ export const zhCNTranslations: SpellbookTranslations = {
   // Menu
   language: '语言',
   theme: '主题',
+
+  // Import / Export
+  exportCustomSpells: '导出自定义法术',
+  importCustomSpells: '导入自定义法术',
+  noCustomSpellsToExport: '没有可导出的自定义法术',
+  importSpellsTitle: '导入自定义法术',
+  dropFileOrClick: '拖放 JSON 文件或点击浏览',
+  invalidSpellsFile: '无效文件：需要是法术的 JSON 数组',
+  importPreview: '找到 {count} 个法术可导入',
+  spellsImported: '导入了 {count} 个法术',
+  spellsSkipped: '跳过了 {count} 个（已存在）',
 };
 
 export { I18nProvider } from '@open20/ui';

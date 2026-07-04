@@ -13,6 +13,8 @@ import { CharacterSelector } from '@/components/layout/CharacterSelector';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
 import { CharacterModal } from '@/components/character/CharacterModal';
 import { CustomSpellModal } from '@/components/spell/CustomSpellModal';
+import { ImportSpellsDialog } from '@/components/spell/ImportSpellsDialog';
+import { exportCustomSpells } from '@/components/spell/import-export-utils';
 import { CustomClassModal } from '@/components/class/CustomClassModal';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { MobileTabBar, type MobileTab } from '@/components/layout/MobileTabBar';
@@ -24,7 +26,18 @@ import { useCustomSpellStore } from '@/stores/customSpellStore';
 import { useCustomClassStore } from '@/stores/customClassStore';
 import { useUIStore } from '@/stores/uiStore';
 import { storageService } from '@/core/storage-service';
-import { Pencil, Trash2, Sparkles, Settings, MoreHorizontal, Globe, Sun, Moon } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  Sparkles,
+  Settings,
+  MoreHorizontal,
+  Globe,
+  Sun,
+  Moon,
+  Download,
+  Upload,
+} from 'lucide-react';
 import type { Spell } from 'open20-core';
 
 export function SpellLibraryLayout() {
@@ -42,6 +55,9 @@ export function SpellLibraryLayout() {
 
   // Custom class state
   const [isClassModalOpen, setIsClassModalOpen] = useState(false);
+
+  // Import dialog state
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const { setSpells, filteredSpells, showPreparedOnly, showKnownOnly, selectSpell } =
     useSpellStore();
@@ -160,6 +176,18 @@ export function SpellLibraryLayout() {
               <DropdownMenu.Item onSelect={() => setIsClassModalOpen(true)}>
                 <Settings className="w-4 h-4 mr-2" />
                 {t('manageCustomClasses')}
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item
+                disabled={customSpells.length === 0}
+                onSelect={() => exportCustomSpells(customSpells)}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {t('exportCustomSpells')}
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => setIsImportDialogOpen(true)}>
+                <Upload className="w-4 h-4 mr-2" />
+                {t('importCustomSpells')}
               </DropdownMenu.Item>
               <DropdownMenu.Separator />
               <DropdownMenu.Item
@@ -290,6 +318,7 @@ export function SpellLibraryLayout() {
           editingSpell={editingSpell}
         />
         <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
+        <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
       </div>
     );
   }
@@ -322,6 +351,7 @@ export function SpellLibraryLayout() {
         editingSpell={editingSpell}
       />
       <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
+      <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
     </div>
   );
 }
