@@ -34,7 +34,44 @@ pnpm lint
 
 ## Deploy
 
-Deployed to GitHub Pages via `.github/workflows/deploy-spellbook.yml` on push to `main`.
+### GitHub Pages (Staging)
+
+Automatically deployed to GitHub Pages on push to `main` via `.github/workflows/deploy-spellbook.yml`.
+
+URL: `https://<user>.github.io/open20/spellbook/`
+
+### Cloudflare Pages (Production)
+
+Manually deployed to `https://spellbook.open-20.com` via `.github/workflows/deploy-spellbook-cloudflare.yml`.
+
+**Trigger**: Only via `workflow_dispatch` (manual trigger) in the GitHub Actions tab.
+
+#### Prerequisites
+
+1. **Create a Cloudflare Pages project**:
+   - Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) → Workers & Pages → Create → Pages
+   - Choose "Upload assets" and create a project named `open20-spellbook`
+
+2. **Create an API Token**:
+   - Cloudflare Dashboard → My Profile → API Tokens → Create Token → Custom token
+   - Permission: `Account` → `Cloudflare Pages` → `Edit`
+   - Account Resources: select your account
+
+3. **Add GitHub Secrets** (in repo Settings → Secrets and variables → Actions):
+
+   | Secret                  | Value                                                   |
+   | ----------------------- | ------------------------------------------------------- |
+   | `CLOUDFLARE_API_TOKEN`  | Your API Token from step 2                              |
+   | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare Account ID (found in Dashboard sidebar) |
+
+4. **Configure custom domain** (one-time setup):
+   - After the first successful deploy, go to Cloudflare Dashboard → Workers & Pages → `open20-spellbook` → Custom domains
+   - Add `spellbook.open-20.com` — Cloudflare will auto-provision DNS and SSL
+
+#### Trigger a deploy
+
+1. Go to GitHub Actions → "Deploy Spellbook to Cloudflare Pages"
+2. Click "Run workflow" → "Run workflow"
 
 ## Documentation
 
