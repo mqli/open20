@@ -31,6 +31,18 @@ export interface CustomClassFormInnerProps {
   addSubclassToClassId?: string;
   /** Callback for condense mode: saves one subclass to an existing class. */
   onAddSubclass?: (classId: string, subclass: Subclass) => void;
+  /** Captures form actions so parent can render them in a fixed footer. */
+  renderActions?: (api: {
+    onSave: () => void;
+    onDelete: () => void;
+    onAddSubclass: () => void;
+    onDismiss: () => void;
+    canSave: boolean;
+    isEditing: boolean;
+    isSubclassMode: boolean;
+  }) => void;
+  /** When true, suppresses built-in action buttons (parent renders them). */
+  hideActions?: boolean;
 }
 
 export function CustomClassFormInner({
@@ -41,6 +53,8 @@ export function CustomClassFormInner({
   onDismiss,
   addSubclassToClassId,
   onAddSubclass,
+  renderActions,
+  hideActions,
 }: CustomClassFormInnerProps) {
   const t = useTranslation();
 
@@ -82,6 +96,8 @@ export function CustomClassFormInner({
 
   const preset = useMemo(() => getPreset(presetId), [presetId]);
 
+  const editingClassId = editingEntry?.class.id;
+
   const handleSave = useCallback(() => {
     if (!name.trim() || !preset) return;
 
@@ -91,11 +107,11 @@ export function CustomClassFormInner({
       ability,
       knownSource,
       preparationTiming,
-      editingEntry?.class.id,
+      editingClassId,
     );
     const subs = subclasses.map((s) => buildSubclass(s.id, cls.id, s.alwaysPrepared));
     onSave({ class: cls, subclasses: subs });
-  }, [name, preset, ability, knownSource, preparationTiming, subclasses, onSave]);
+  }, [name, preset, ability, knownSource, preparationTiming, subclasses, onSave, editingClassId]);
 
   const handleDelete = useCallback(() => {
     if (!editingEntry) return;
@@ -149,6 +165,7 @@ export function CustomClassFormInner({
   }, []);
 
   const canSave = name.trim().length > 0 && !!preset;
+  const isEditing = !!editingEntry;
 
   // ── Condense mode: always-prepared state for a single new subclass ──
   const [alwaysPrepared, setAlwaysPrepared] = useState<{ level: number; spells: string[] }[]>([]);
@@ -172,6 +189,19 @@ export function CustomClassFormInner({
     const subclass = buildSubclass(crypto.randomUUID(), addSubclassToClassId, alwaysPrepared);
     onAddSubclass(addSubclassToClassId, subclass);
   }, [newSubclassName, addSubclassToClassId, alwaysPrepared, onAddSubclass]);
+
+  // Expose form actions to parent for footer rendering
+  if (renderActions) {
+    renderActions({
+      onSave: handleSave,
+      onDelete: handleDelete,
+      onAddSubclass: handleAddSubclass,
+      onDismiss,
+      canSave,
+      isEditing,
+      isSubclassMode: isAddSubclassMode,
+    });
+  }
 
   // ── Condense mode: add-subclass form ──
 
@@ -217,28 +247,28 @@ export function CustomClassFormInner({
         <AddAlwaysPreparedRow onAdd={addAlwaysPrepared} />
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="ghost" size="sm" onClick={onDismiss}>
-            {t('cancel')}
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleAddSubclass}
-            disabled={!newSubclassName.trim()}
-            data-testid="add-subclass-submit"
-          >
-            <Plus className="w-3.5 h-3.5 mr-1" />
-            {t('add')}
-          </Button>
-        </div>
+        {!hideActions && (
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <Button variant="ghost" size="sm" onClick={onDismiss}>
+              {t('cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleAddSubclass}
+              disabled={!newSubclassName.trim()}
+              data-testid="add-subclass-submit"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1" />
+              {t('add')}
+            </Button>
+          </div>
+        )}
       </div>
     );
 
     return compact ? <>{content}</> : content;
   }
-
-  const isEditing = !!editingEntry;
 
   const content = (
     <div className="space-y-4">
@@ -393,35 +423,37 @@ export function CustomClassFormInner({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-2">
-        <div>
-          {isEditing && (
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={handleDelete}
-              data-testid="class-delete-btn"
-            >
-              <Trash2 className="w-3.5 h-3.5 mr-1" />
-              {t('deleteCustomClass')}
+      {!hideActions && (
+        <div className="flex items-center justify-between pt-2">
+          <div>
+            {isEditing && (
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={handleDelete}
+                data-testid="class-delete-btn"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1" />
+                {t('deleteCustomClass')}
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={onDismiss} data-testid="class-cancel-btn">
+              {t('cancel')}
             </Button>
-          )}
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={!canSave}
+              data-testid="class-save-btn"
+            >
+              {t('saveSpell')}
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onDismiss} data-testid="class-cancel-btn">
-            {t('cancel')}
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleSave}
-            disabled={!canSave}
-            data-testid="class-save-btn"
-          >
-            {t('saveSpell')}
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 

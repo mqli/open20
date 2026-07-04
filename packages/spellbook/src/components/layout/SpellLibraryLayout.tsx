@@ -136,7 +136,7 @@ export function SpellLibraryLayout() {
 
   // Spell library content (reused in desktop right column and mobile spells tab)
   const spellLibraryContent = (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-w-0">
       {/* Spell Header */}
       <Surface variant="default" className="rounded-none border-b px-3 py-1.5">
         <div className="flex items-center gap-2">
@@ -214,7 +214,7 @@ export function SpellLibraryLayout() {
       </Surface>
 
       {/* Spell Content */}
-      <main className="flex-1 overflow-y-auto px-3 md:px-4 relative">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden px-3 md:px-4 relative">
         {isLoading ? (
           <div className="flex items-center justify-center h-64 gap-2">
             <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />

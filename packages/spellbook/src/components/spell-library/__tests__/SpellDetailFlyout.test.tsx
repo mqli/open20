@@ -130,6 +130,13 @@ vi.mock('@open20/ui', async () => {
       ),
     },
     IconButton: ({ children }: any) => <button data-testid="icon-button">{children}</button>,
+    ResponsiveDialog: ({ children, open, renderHeader }: any) =>
+      open ? (
+        <div data-testid="responsive-dialog">
+          {renderHeader?.()}
+          <div data-testid="responsive-body">{children}</div>
+        </div>
+      ) : null,
   };
 });
 
@@ -178,8 +185,8 @@ describe('SpellDetailFlyout', () => {
 
     render(<SpellDetailFlyout />);
 
-    expect(screen.getByTestId('sheet-root')).toBeInTheDocument();
-    expect(screen.getByTestId('sheet-content')).toBeInTheDocument();
+    expect(screen.getByTestId('responsive-dialog')).toBeInTheDocument();
+    expect(screen.getByTestId('responsive-body')).toBeInTheDocument();
     expect(screen.getByTestId('spell-card')).toBeInTheDocument();
   });
 
@@ -192,7 +199,9 @@ describe('SpellDetailFlyout', () => {
 
     render(<SpellDetailFlyout />);
 
-    expect(screen.getByText('Fireball')).toBeInTheDocument();
+    // Fireball appears in both the header (renderHeader) and the SpellCard
+    const elements = screen.getAllByText('Fireball');
+    expect(elements.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should display spell level', () => {
@@ -262,7 +271,7 @@ describe('SpellDetailFlyout', () => {
     expect(screen.queryByText('M')).not.toBeInTheDocument();
   });
 
-  it('should close detail when Sheet is closed', () => {
+  it('should close detail when overlay is closed', () => {
     const closeDetail = vi.fn();
 
     (useSpellStore as any).mockReturnValue({
@@ -273,8 +282,8 @@ describe('SpellDetailFlyout', () => {
 
     render(<SpellDetailFlyout />);
 
-    // The SheetRoot's onOpenChange should call closeDetail when open becomes false
-    expect(screen.getByTestId('sheet-root')).toBeInTheDocument();
+    // The ResponsiveDialog should render when open
+    expect(screen.getByTestId('responsive-dialog')).toBeInTheDocument();
   });
 
   it('should render close button in header', () => {

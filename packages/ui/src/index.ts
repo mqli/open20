@@ -20,6 +20,8 @@ export type {
 export { Button } from './components/base/Button/index';
 export type { ButtonProps } from './components/base/Button/index';
 export { Dialog };
+export { ResponsiveDialog } from './components/base/ResponsiveDialog/index';
+export type { ResponsiveDialogProps } from './components/base/ResponsiveDialog/index';
 export { Divider } from './components/base/Divider/index';
 export type { DividerProps } from './components/base/Divider/index';
 export { DropdownMenu };

@@ -1,17 +1,10 @@
-import { useState, useCallback, useMemo } from 'react';
-import {
-  SpellEditor,
-  DialogRoot,
-  DialogContent,
-  DialogTitle,
-  DialogClose,
-  Button,
-  Text,
-} from '@open20/ui';
-import { X, ClipboardPaste } from 'lucide-react';
+import { useState, useCallback, useMemo, useRef } from 'react';
+import { SpellEditor, Button, Text, ResponsiveDialog } from '@open20/ui';
+import { ClipboardPaste } from 'lucide-react';
 import type { Spell } from 'open20-core';
 import { useCustomSpellStore } from '@/stores/customSpellStore';
 import { useTranslation } from '@/i18n';
+import { useIsLargeScreen } from '@/hooks/useBreakpoint';
 
 interface CustomSpellModalProps {
   open: boolean;
@@ -21,6 +14,7 @@ interface CustomSpellModalProps {
 
 export function CustomSpellModal({ open, onOpenChange, editingSpell }: CustomSpellModalProps) {
   const t = useTranslation();
+  const isLarge = useIsLargeScreen();
   const { addSpell, updateSpell } = useCustomSpellStore();
 
   const [showPasteArea, setShowPasteArea] = useState(false);
@@ -97,19 +91,88 @@ export function CustomSpellModal({ open, onOpenChange, editingSpell }: CustomSpe
 
   const title = isEditing ? t('editCustomSpell') : t('createCustomSpell');
 
-  return (
-    <DialogRoot open={open} onOpenChange={handleOpenChange}>
-      <DialogContent size="xl" className="h-[90vh] flex flex-col overflow-hidden p-0">
-        {/* Header */}
-        <div className="flex justify-between items-center shrink-0 px-4 py-3 sm:px-6 border-b border-border">
-          <DialogTitle className="text-xl font-black text-text-primary">{title}</DialogTitle>
-          <DialogClose asChild>
-            <Button variant="ghost" size="sm" className="p-1 rounded-full">
-              <X className="w-5 h-5" />
-            </Button>
-          </DialogClose>
-        </div>
+  // Capture SpellEditor's save API for rendering in the fixed footer
+  const saveApiRef = useRef<((intent: 'stay' | 'new' | 'close') => void) | null>(null);
+  const [saveState, setSaveState] = useState({ isValid: false, isSubmitting: false });
 
+  const renderActions = useCallback(
+    ({
+      onSave,
+      isValid,
+      isSubmitting,
+    }: {
+      onSave: (intent: 'stay' | 'new' | 'close') => void;
+      isValid: boolean;
+      isSubmitting: boolean;
+    }) => {
+      saveApiRef.current = onSave;
+      // Sync validation/submitting state into local state so renderFooter re-renders
+      if (saveState.isValid !== isValid || saveState.isSubmitting !== isSubmitting) {
+        setSaveState({ isValid, isSubmitting });
+      }
+      return null; // Hide built-in buttons, we render them in the footer
+    },
+    [saveState.isValid, saveState.isSubmitting],
+  );
+
+  const renderFooter = () => (
+    <div className="shrink-0 border-t border-border px-4 py-3 sm:px-6 flex justify-end gap-2">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={handleCancel}
+        disabled={saveState.isSubmitting}
+        className="shrink-0"
+      >
+        {t('cancel')}
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        onClick={() => saveApiRef.current?.('stay')}
+        disabled={!saveState.isValid || saveState.isSubmitting}
+        className="shrink-0"
+      >
+        {t('saveSpell')}
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        onClick={() => saveApiRef.current?.('new')}
+        disabled={!saveState.isValid || saveState.isSubmitting}
+        className="shrink-0"
+      >
+        {t('saveAndNew')}
+      </Button>
+      <Button
+        type="button"
+        variant="primary"
+        size="sm"
+        onClick={() => saveApiRef.current?.('close')}
+        disabled={!saveState.isValid || saveState.isSubmitting}
+        className="shrink-0"
+      >
+        {t('saveAndClose')}
+      </Button>
+    </div>
+  );
+
+  return (
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      isMobile={!isLarge}
+      title={title}
+      sheetSide="bottom"
+      sheetClassName="h-[90vh] flex flex-col overflow-hidden"
+      dialogSize="xl"
+      dialogClassName="h-[90vh] overflow-hidden"
+      renderFooter={renderFooter}
+    >
+      <div className="flex flex-col flex-1 min-h-0">
         {/* Paste-from-text import */}
         <div className="shrink-0 px-4 pt-3 sm:px-6">
           <Button
@@ -166,53 +229,10 @@ export function CustomSpellModal({ open, onOpenChange, editingSpell }: CustomSpe
             onChange={setCurrentValue}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
-            renderActions={({ onSave, isValid, isSubmitting }) => (
-              <div className="flex items-center justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
-                  className="shrink-0"
-                >
-                  {t('cancel')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => onSave('stay')}
-                  disabled={!isValid || isSubmitting}
-                  className="shrink-0"
-                >
-                  {t('saveSpell')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => onSave('new')}
-                  disabled={!isValid || isSubmitting}
-                  className="shrink-0"
-                >
-                  {t('saveAndNew')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => onSave('close')}
-                  disabled={!isValid || isSubmitting}
-                  className="shrink-0"
-                >
-                  {t('saveAndClose')}
-                </Button>
-              </div>
-            )}
+            renderActions={renderActions}
           />
         </div>
-      </DialogContent>
-    </DialogRoot>
+      </div>
+    </ResponsiveDialog>
   );
 }

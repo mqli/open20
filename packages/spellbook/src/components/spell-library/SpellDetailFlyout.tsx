@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { useSpellStore } from '@/stores/spellStore';
-import { IconButton, Sheet, Dialog } from '@open20/ui';
+import { IconButton, ResponsiveDialog } from '@open20/ui';
 import { SpellCard } from '@/components/spell/SpellCard';
 import { SpellCardBadges } from '@/components/spell/SpellCardBadges';
 import { SpellCardActions } from '@/components/spell/SpellCardActions';
@@ -41,43 +41,27 @@ export function SpellDetailFlyout() {
 
   if (!selectedSpell) return null;
 
-  // Mobile/Tablet: Use Sheet (slide-in from right)
-  if (!isLarge) {
-    return (
-      <Sheet open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
-        <Sheet.Content side="right" className="w-full sm:w-[540px]">
-          <Sheet.Header>
-            <Sheet.Close asChild>
-              <IconButton size="sm">
-                <X />
-              </IconButton>
-            </Sheet.Close>
-          </Sheet.Header>
-          <Sheet.Body>
-            <SpellDetailContent spell={selectedSpell} />
-          </Sheet.Body>
-        </Sheet.Content>
-      </Sheet>
-    );
-  }
-
-  // Desktop: Use Dialog (centered modal)
   return (
-    <Dialog.Root open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
-      <Dialog.Content
-        size="xl"
-        className="flex flex-col w-[min(96vw,1200px)] p-0 max-h-[min(92vh,1000px)] overflow-hidden"
-      >
-        <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2 sm:px-4">
+    <ResponsiveDialog
+      open={isDetailOpen}
+      onOpenChange={(open) => !open && closeDetail()}
+      isMobile={!isLarge}
+      sheetSide="right"
+      sheetClassName="w-full sm:w-[540px]"
+      dialogSize="xl"
+      dialogClassName="w-[min(96vw,1200px)] max-h-[min(92vh,1000px)] overflow-hidden"
+      renderHeader={() => (
+        <div className="flex items-center justify-between gap-3 shrink-0 border-b border-border px-3 py-2 sm:px-4">
           <h2 className="text-lg font-semibold text-text-primary truncate">{selectedSpell.name}</h2>
           <IconButton size="sm" aria-label="Close spell details" onClick={closeDetail}>
             <X />
           </IconButton>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-4">
-          <SpellDetailContent spell={selectedSpell} />
-        </div>
-      </Dialog.Content>
-    </Dialog.Root>
+      )}
+    >
+      <div className="flex-1 overflow-y-auto px-3 py-3 sm:px-4">
+        <SpellDetailContent spell={selectedSpell} />
+      </div>
+    </ResponsiveDialog>
   );
 }

@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
-import { X } from 'lucide-react';
 import {
   Button,
   Badge,
-  DialogClose,
-  DialogContent,
-  DialogRoot,
-  DialogTitle,
   Input,
   SelectContent,
   SelectItem,
@@ -14,8 +9,10 @@ import {
   SelectTrigger,
   SelectSeparator,
   Text,
+  ResponsiveDialog,
 } from '@open20/ui';
 import { useTranslation } from '@/i18n';
+import { useIsLargeScreen } from '@/hooks/useBreakpoint';
 import { AbilityScoresSection } from './AbilityScoresSection';
 import { SubclassSelect } from './SubclassSelect';
 import { AdditionalClassEntryComponent } from './AdditionalClassEntry';
@@ -74,6 +71,8 @@ export function CharacterModalForm({
   }));
 
   const t = useTranslation();
+  const isLarge = useIsLargeScreen();
+
   const handleAbilityChange = (abilityName: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -139,21 +138,22 @@ export function CharacterModalForm({
     }
   };
 
-  return (
-    <DialogRoot open={open} onOpenChange={handleOpenChange}>
-      <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto no-scrollbar p-0">
-        <div className="flex justify-between items-center px-4 py-3 sm:px-6 border-b border-border">
-          <DialogTitle className="text-2xl font-black text-text-primary uppercase tracking-tight">
-            {editingCharacter ? t('editCharacter') : t('createCharacter')}
-          </DialogTitle>
-          <DialogClose asChild>
-            <Button variant="ghost" size="sm" className="p-1 rounded-full" disabled={isSubmitting}>
-              <X className="w-6 h-6" />
-            </Button>
-          </DialogClose>
-        </div>
+  const title = editingCharacter ? t('editCharacter') : t('createCharacter');
 
-        <form onSubmit={onSubmit} className="px-4 py-3 sm:px-6 space-y-8">
+  return (
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      isMobile={!isLarge}
+      title={title}
+      sheetSide="bottom"
+      sheetClassName="h-[92vh]"
+      dialogSize="lg"
+      dialogClassName="max-h-[90vh] overflow-hidden"
+      closeDisabled={isSubmitting}
+    >
+      <form onSubmit={onSubmit} className="flex flex-1 flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-6 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-[5fr_3fr] gap-8">
             <div className="space-y-6">
               <div data-testid="char-name-input">
@@ -312,29 +312,29 @@ export function CharacterModalForm({
               onUpdate={handleMagicInitiateUpdate}
             />
           </div>
+        </div>
 
-          <div className="pt-3 border-t border-border flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={isSubmitting}
-              onClick={onCancel}
-            >
-              {t('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              disabled={!formData.name || isSubmitting}
-              data-testid="char-submit-btn"
-            >
-              {isSubmitting ? t('saving') : editingCharacter ? t('saveChanges') : t('summonHero')}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </DialogRoot>
+        <div className="shrink-0 border-t border-border px-4 py-3 sm:px-6 flex justify-end gap-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={isSubmitting}
+            onClick={onCancel}
+          >
+            {t('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={!formData.name || isSubmitting}
+            data-testid="char-submit-btn"
+          >
+            {isSubmitting ? t('saving') : editingCharacter ? t('saveChanges') : t('summonHero')}
+          </Button>
+        </div>
+      </form>
+    </ResponsiveDialog>
   );
 }
