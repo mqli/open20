@@ -68,6 +68,57 @@ export class CharacterService {
     return { ...recomputed, id: character.id } as AppCharacter;
   }
 
+  /**
+   * Rebuild a character from creation params while preserving user-specific mutable state
+   * (known spells, prepared spells, cantrips, feat choices, resource usage, conditions, etc.).
+   *
+   * Unlike manually spreading createCharacter() output onto an old character, this method:
+   * 1. Creates a fresh character from params (correct structural data)
+   * 2. Preserves only the user-editable state from the old character
+   * 3. Ensures derived stats are freshly recomputed from the new params
+   */
+  rebuildCharacter(
+    oldChar: AppCharacter,
+    params: Parameters<typeof open20CreateCharacter>[0],
+  ): AppCharacter {
+    const fresh = this.createCharacter(params);
+
+    return {
+      ...fresh,
+      id: oldChar.id,
+
+      // Preserve user-specific spell data from old character.
+      // classSpellcasting holds per-class spell choices (knownCantrips, knownSpells,
+      // preparedSpells) that the user selected. recompute() in updateCharacter will
+      // refresh DC / attack bonus etc. while preserving those choices via existing.
+      spells: {
+        ...fresh.spells,
+        classSpellcasting: oldChar.spells.classSpellcasting,
+        // Preserve feat spells (e.g. Magic Initiate choices)
+        featSpells: oldChar.spells.featSpells,
+        // Preserve usage counts (capped at new totals during recompute)
+        spellSlots: oldChar.spells.spellSlots,
+        pactMagicSlots: oldChar.spells.pactMagicSlots,
+      },
+
+      // Preserve user choices and mutable state
+      feats: oldChar.feats,
+      concentration: oldChar.concentration,
+      conditions: oldChar.conditions,
+      activeEffects: oldChar.activeEffects,
+
+      // Preserve current HP (capped at new max by recompute)
+      hitPoints: {
+        ...fresh.hitPoints,
+        current: oldChar.hitPoints.current,
+      },
+
+      // Preserve equipment and resources with usage state
+      equipment: oldChar.equipment,
+      resources: oldChar.resources,
+    } as AppCharacter;
+  }
+
   prepareSpell(character: AppCharacter, spellId: string): AppCharacter {
     const spell = this.spellService.getSpell(spellId);
     if (!spell) return character;

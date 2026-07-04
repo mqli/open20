@@ -66,13 +66,17 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   },
 
   updateCharacter: (character) => {
-    const recomputed = characterService.recompute(character);
-    set((state) => ({
-      activeCharacter:
-        state.activeCharacter?.id === recomputed.id ? recomputed : state.activeCharacter,
-      characters: state.characters.map((c) => (c.id === recomputed.id ? recomputed : c)),
-    }));
-    storageService.saveCharacter(recomputed);
+    try {
+      const recomputed = characterService.recompute(character);
+      set((state) => ({
+        activeCharacter:
+          state.activeCharacter?.id === recomputed.id ? recomputed : state.activeCharacter,
+        characters: state.characters.map((c) => (c.id === recomputed.id ? recomputed : c)),
+      }));
+      storageService.saveCharacter(recomputed);
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Failed to update character' });
+    }
   },
 
   deleteCharacter: (id) => {

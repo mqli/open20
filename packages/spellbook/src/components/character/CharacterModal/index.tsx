@@ -70,20 +70,24 @@ export function CharacterModal({
       const mi = formData.magicInitiate;
 
       if (editingCharacter) {
-        const rebuilt = characterService.createCharacter(params);
-        let updated: AppCharacter = {
-          ...rebuilt,
-          id: editingCharacter.id,
-          spells: editingCharacter.spells,
-        } as AppCharacter;
+        // Rebuild fresh character from params, preserving user-specific state
+        // (known spells, prepared spells, feat choices, resource usage, etc.)
+        let updated = characterService.rebuildCharacter(editingCharacter, params);
+
+        // Handle magic initiate feat: remove existing, then re-add if form has selection
         if (mi) {
+          const withoutMI: AppCharacter = {
+            ...updated,
+            feats: updated.feats.filter((f) => f.featId !== 'magic-initiate'),
+          } as AppCharacter;
           const spellSelection: FeatSpellSelection = {
             classId: mi.classId,
             spells: { cantrips: mi.cantrips, level1Spell: [mi.level1Spell] },
           };
-          const deps = resolveDeps(updated);
-          updated = addFeat(updated, 'magic-initiate', deps, { spellSelection }) as AppCharacter;
+          const deps = resolveDeps(withoutMI);
+          updated = addFeat(withoutMI, 'magic-initiate', deps, { spellSelection }) as AppCharacter;
         }
+
         updateCharacter(updated);
       } else if (mi) {
         const raw = characterService.createCharacter(params);
