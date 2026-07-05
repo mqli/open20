@@ -216,7 +216,7 @@ export function SpellCardActions({
     spell.id,
   ]);
 
-  const showCastAction = !!activeCharacter && !!showCast;
+  const showCastAction = !!activeCharacter && !!showCast && spell.level > 0;
   const showAttackAction = showAttack && !!spell.attack;
   const showDamageActions = showDamage && (hasDamageEntries || hasHealEntry);
 
