@@ -164,7 +164,9 @@ export function CustomClassFormInner({
     );
   }, []);
 
-  const canSave = name.trim().length > 0 && !!preset;
+  const canSave = isAddSubclassMode
+    ? newSubclassName.trim().length > 0
+    : name.trim().length > 0 && !!preset;
   const isEditing = !!editingEntry;
 
   // ── Condense mode: always-prepared state for a single new subclass ──
