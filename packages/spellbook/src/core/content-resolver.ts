@@ -50,7 +50,7 @@ let mergedPack: ContentPack | null = null;
 let initPromise: Promise<ContentPack> | null = null;
 
 /**
- * Build a custom ContentPack from user-saved classes and subclasses.
+ * Build a custom ContentPack from user-saved classes, subclasses, and spells.
  * Mirrors the structure of an SRD ContentPack so mergeContentPacks
  * can handle it transparently.
  */
@@ -60,6 +60,7 @@ function buildCustomContentPack(): ContentPack {
   const customSubclasses = entries.flatMap((e) => e.subclasses);
   const standaloneSubclasses = storageService.loadStandaloneSubclasses();
   const subclasses = [...customSubclasses, ...standaloneSubclasses];
+  const spells = storageService.loadCustomSpells();
 
   return {
     meta: {
@@ -71,6 +72,7 @@ function buildCustomContentPack(): ContentPack {
     },
     classes: classes.length > 0 ? classes : undefined,
     subclasses: subclasses.length > 0 ? subclasses : undefined,
+    spells: spells.length > 0 ? spells : undefined,
   };
 }
 

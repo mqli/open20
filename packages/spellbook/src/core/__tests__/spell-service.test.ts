@@ -3,7 +3,7 @@ import { spellService } from '@/core/spell-service';
 import type { AppCharacter } from '@/core/types';
 import type { AbilityName } from 'open20-core';
 
-// Test data
+// Test data — simulates a merged ContentPack with SRD + custom/homebrew spells
 const testSpells = [
   {
     id: 'fireball',
@@ -34,6 +34,21 @@ const testSpells = [
     description: ['A creature you touch regains a number of hit points...'],
     source: 'SRD 5.2',
     classes: ['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger'] as readonly string[],
+  },
+  {
+    id: 'arcane-bolt',
+    name: 'Arcane Bolt',
+    level: 1 as const,
+    school: 'Evocation' as const,
+    castingTime: 'Action',
+    range: '90 feet',
+    components: ['V', 'S'] as const,
+    duration: 'Instantaneous',
+    concentration: false,
+    ritual: false,
+    description: ['A bolt of arcane energy strikes the target.'],
+    source: 'Homebrew',
+    classes: ['Wizard'] as readonly string[],
   },
 ];
 
@@ -127,5 +142,20 @@ describe('SpellService', () => {
 
     expect(spellService.isSpellPrepared(mockCharacter, 'fireball')).toBe(true);
     expect(spellService.isSpellPrepared(mockCharacter, 'cure-wounds')).toBe(false);
+  });
+
+  it('should find custom/homebrew spells by id', () => {
+    const spell = spellService.getSpell('arcane-bolt');
+    expect(spell).toBeDefined();
+    expect(spell?.name).toBe('Arcane Bolt');
+    expect(spell?.source).toBe('Homebrew');
+  });
+
+  it('should return both SRD and custom spells in searchSpells({})', () => {
+    const results = spellService.searchSpells({});
+    const ids = results.map((s) => s.id);
+    expect(ids).toContain('fireball'); // SRD
+    expect(ids).toContain('cure-wounds'); // SRD
+    expect(ids).toContain('arcane-bolt'); // Homebrew
   });
 });

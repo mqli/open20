@@ -84,11 +84,11 @@ export function SpellLibraryLayout() {
     loadSpells();
   }, [loadCharacters, loadCustomSpells, loadCustomClasses, setSpells]);
 
-  // Merge custom spells into display list whenever they change
+  // Refresh spell list from spellService (single source of truth)
+  // whenever custom spells change (add/delete/import)
   useEffect(() => {
     if (!isLoading) {
-      const srdSpells = spellService.searchSpells({});
-      setSpells([...srdSpells, ...customSpells]);
+      setSpells(spellService.searchSpells({}));
     }
   }, [customSpells, isLoading, setSpells]);
 

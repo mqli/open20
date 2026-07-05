@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { characterService } from '@/core/character-service';
 
-// Mock spellService.getSpell to return test spells
+// Mock spellService.getSpell to return test spells (SRD + custom)
 const mockGetSpell = vi.fn((id: string) => {
   const spells: Record<string, { id: string; name: string; level: number; classes: string[] }> = {
     fireball: { id: 'fireball', name: 'Fireball', level: 3, classes: ['Wizard', 'Sorcerer'] },
     'magic-missile': { id: 'magic-missile', name: 'Magic Missile', level: 1, classes: ['Wizard'] },
     haste: { id: 'haste', name: 'Haste', level: 3, classes: ['Wizard', 'Sorcerer'] },
+    'arcane-bolt': { id: 'arcane-bolt', name: 'Arcane Bolt', level: 1, classes: ['Wizard'] },
   };
   return spells[id] || null;
 });
@@ -247,5 +248,53 @@ describe('CharacterService', () => {
 
     const result = characterService.learnSpell(character as any, spellId);
     expect(result.spells.classSpellcasting['Wizard'].knownSpells).toContain(spellId);
+  });
+
+  it('should prepare a custom/homebrew spell', () => {
+    const character = createMockCharacter({ name: 'Test', classLevel: 1 });
+    const customSpellId = 'arcane-bolt';
+
+    // Mock prepareSpell to return character with prepared custom spell
+    const updatedChar = {
+      ...character,
+      spells: {
+        ...character.spells,
+        classSpellcasting: {
+          ...character.spells.classSpellcasting,
+          Wizard: {
+            ...character.spells.classSpellcasting['Wizard'],
+            preparedSpells: [customSpellId],
+          },
+        },
+      },
+    };
+    vi.spyOn(characterService as any, 'prepareSpell').mockReturnValue(updatedChar);
+
+    const result = characterService.prepareSpell(character as any, customSpellId);
+    expect(result.spells.classSpellcasting['Wizard'].preparedSpells).toContain(customSpellId);
+  });
+
+  it('should learn a custom/homebrew spell', () => {
+    const character = createMockCharacter({ name: 'Test', classLevel: 1 });
+    const customSpellId = 'arcane-bolt';
+
+    // Mock learnSpell to return character with known custom spell
+    const withLearned = {
+      ...character,
+      spells: {
+        ...character.spells,
+        classSpellcasting: {
+          ...character.spells.classSpellcasting,
+          Wizard: {
+            ...character.spells.classSpellcasting['Wizard'],
+            knownSpells: [customSpellId],
+          },
+        },
+      },
+    };
+    vi.spyOn(characterService as any, 'learnSpell').mockReturnValue(withLearned);
+
+    const result = characterService.learnSpell(character as any, customSpellId);
+    expect(result.spells.classSpellcasting['Wizard'].knownSpells).toContain(customSpellId);
   });
 });

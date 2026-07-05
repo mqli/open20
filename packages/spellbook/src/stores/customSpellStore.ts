@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Spell } from 'open20-core';
 import { storageService } from '@/core/storage-service';
+import { reinitContent } from '@/core/content-resolver';
 
 interface CustomSpellState {
   spells: Spell[];
@@ -9,6 +10,14 @@ interface CustomSpellState {
   updateSpell: (spell: Spell) => void;
   deleteSpell: (id: string) => void;
   importSpells: (spells: Spell[]) => { imported: number; skipped: number };
+}
+
+/**
+ * After any spell mutation, rebuild the merged content pack so SpellService
+ * can see the updated custom spell list as the single source of truth.
+ */
+async function afterMutate() {
+  await reinitContent();
 }
 
 export const useCustomSpellStore = create<CustomSpellState>((set, get) => ({
@@ -24,6 +33,7 @@ export const useCustomSpellStore = create<CustomSpellState>((set, get) => ({
     const updated = [...spells, spell];
     storageService.saveCustomSpells(updated);
     set({ spells: updated });
+    afterMutate();
   },
 
   updateSpell: (spell) => {
@@ -34,12 +44,14 @@ export const useCustomSpellStore = create<CustomSpellState>((set, get) => ({
       updated[index] = spell;
       storageService.saveCustomSpells(updated);
       set({ spells: updated });
+      afterMutate();
     }
   },
 
   deleteSpell: (id) => {
     const updated = storageService.deleteCustomSpell(id);
     set({ spells: updated });
+    afterMutate();
   },
 
   importSpells: (spells) => {
@@ -52,6 +64,7 @@ export const useCustomSpellStore = create<CustomSpellState>((set, get) => ({
     const updated = [...existing, ...newSpells];
     storageService.saveCustomSpells(updated);
     set({ spells: updated });
+    afterMutate();
     return { imported: newSpells.length, skipped: spells.length - newSpells.length };
   },
 }));
