@@ -82,8 +82,11 @@ export function AdditionalClassEntryComponent({
           <Input
             type="number"
             min={1}
-            value={entry.level}
-            onChange={(e) => onUpdate(entry.id, { level: parseInt(e.target.value) || 1 })}
+            defaultValue={entry.level}
+            onBlur={(e) => {
+              const val = e.target.valueAsNumber;
+              onUpdate(entry.id, { level: isNaN(val) ? 1 : Math.min(20, Math.max(1, val)) });
+            }}
             data-testid="additional-level-input"
           />
         </div>

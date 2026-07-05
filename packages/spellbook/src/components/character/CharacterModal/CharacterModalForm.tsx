@@ -74,9 +74,13 @@ export function CharacterModalForm({
   const isLarge = useIsLargeScreen();
 
   const handleAbilityChange = (abilityName: string, value: string) => {
+    const val = parseInt(value);
     setFormData((prev) => ({
       ...prev,
-      abilities: { ...prev.abilities, [abilityName]: parseInt(value) || 0 },
+      abilities: {
+        ...prev.abilities,
+        [abilityName]: isNaN(val) ? 1 : Math.min(30, Math.max(1, val)),
+      },
     }));
   };
 
@@ -213,10 +217,14 @@ export function CharacterModalForm({
                     type="number"
                     min={1}
                     max={20}
-                    value={formData.level}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, level: parseInt(e.target.value) || 1 }))
-                    }
+                    defaultValue={formData.level}
+                    onBlur={(e) => {
+                      const val = e.target.valueAsNumber;
+                      setFormData((prev) => ({
+                        ...prev,
+                        level: isNaN(val) ? 1 : Math.min(20, Math.max(1, val)),
+                      }));
+                    }}
                     className="w-[4.5rem]"
                     data-testid="char-level-input"
                   />

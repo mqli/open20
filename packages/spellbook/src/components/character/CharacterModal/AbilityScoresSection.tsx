@@ -34,8 +34,17 @@ export function AbilityScoresSection({ abilities, onChange }: AbilityScoresSecti
               type="number"
               min={1}
               max={30}
-              value={abilities[ability as keyof typeof abilities]}
-              onChange={(e) => onChange(ability, e.target.value)}
+              defaultValue={abilities[ability as keyof typeof abilities]}
+              onBlur={(e) => {
+                const val = e.target.valueAsNumber;
+                if (isNaN(val) || val < 1) {
+                  onChange(ability, '1');
+                } else if (val > 30) {
+                  onChange(ability, '30');
+                } else {
+                  onChange(ability, String(val));
+                }
+              }}
               className="text-center font-bold tabular-nums"
               data-testid={`ability-${ability.toLowerCase()}`}
             />
