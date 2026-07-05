@@ -20,7 +20,7 @@ const SCHOOLS = [
 
 // ── Format Detection ─────────────────────────────────────────
 
-type Format = '5etools' | 'dndbeyond' | 'roll20';
+type Format = '5etools' | 'dndbeyond' | 'roll20' | '5ewiki';
 
 function detectFormat(lines: string[]): Format {
   // D&D Beyond: standalone label lines (labels on their own line, values on next)
@@ -31,6 +31,21 @@ function detectFormat(lines: string[]): Format {
 
   if (hasStandaloneLevel || hasRangeArea || (hasAvailableFor && hasMaterialFootnote)) {
     return 'dndbeyond';
+  }
+
+  // 5e wiki: "Source:" line + ordinal or cantrip level line + "Spell Lists." trailer
+  const hasSourceLine = lines.some((l) => /^Source:/i.test(l.trim()));
+  const hasWikiLevelLine = lines.some((l) => {
+    const t = l.trim();
+    // Ordinal: "1st-level Enchantment" or Cantrip: "Evocation Cantrip"
+    return (
+      /^\d+(?:st|nd|rd|th)-level/i.test(t) ||
+      new RegExp(`^(${SCHOOLS.join('|')})\\s+Cantrip`, 'i').test(t)
+    );
+  });
+  const hasSpellLists = lines.some((l) => /^Spell\s+Lists\./i.test(l.trim()));
+  if (hasSourceLine && hasWikiLevelLine && hasSpellLists) {
+    return '5ewiki';
   }
 
   // Roll20: line 2 has "X School" without "Level " prefix (for leveled spells)
@@ -133,8 +148,52 @@ function isStopLine(line: string): boolean {
   const trimmed = line.trim();
   return (
     /^(Classes|Subclasses|Source|Spell\s+Tags):/i.test(trimmed) ||
+    /^(Spell\s+Lists\.)/i.test(trimmed) ||
     /^Available\s+For:/i.test(trimmed)
   );
+}
+
+/** Strip component abbreviation prefix from wiki spell name line like "V`Silvery Barbs" or "V, S`Fireball" */
+function stripComponentPrefix(line: string): string {
+  // Find the backtick delimiter (U+0060) that separates the component prefix from the name.
+  // Using charCodeAt to avoid escaping issues with backtick in regex/string literals.
+  for (let i = 0; i < line.length; i++) {
+    if (line.charCodeAt(i) === 0x60) {
+      return line.slice(i + 1).trim();
+    }
+  }
+  return line.trim();
+}
+
+/**
+ * Parse an ordinal level/school line from 5e wiki format:
+ * - "1st-level Enchantment" → { level: 1, school: "Enchantment" }
+ * - "2nd-level Evocation"   → { level: 2, school: "Evocation" }
+ * - "3rd-level Transmutation" → { level: 3, school: "Transmutation" }
+ * - "Evocation Cantrip"     → { level: 0, school: "Evocation" }
+ * - "Cantrip"               → { level: 0, school: "Unknown" }
+ */
+function parseOrdinalLevelLine(line: string): { level: number; school: string } | null {
+  const trimmed = line.trim();
+
+  // "Evocation Cantrip" or "School Cantrip"
+  const cantripMatch = trimmed.match(new RegExp(`^(${SCHOOLS.join('|')})\\s+Cantrip`, 'i'));
+  if (cantripMatch) {
+    return { level: 0, school: normalizeSchool(cantripMatch[1]!) };
+  }
+
+  // "Cantrip" alone
+  if (/^Cantrip$/i.test(trimmed)) {
+    return { level: 0, school: 'Unknown' };
+  }
+
+  // "1st-level Enchantment", "2nd-level Evocation", etc.
+  const ordinalMatch = trimmed.match(/^(\d+)(?:st|nd|rd|th)-level\s+(\w+)/i);
+  if (ordinalMatch) {
+    return { level: parseInt(ordinalMatch[1]!), school: normalizeSchool(ordinalMatch[2]!) };
+  }
+
+  return null;
 }
 
 /** Strip the upcast/upgrade section prefix from a line */
@@ -516,11 +575,121 @@ function parseRoll20(lines: string[]): Partial<ParsedSpell> {
   return result;
 }
 
+// ── 5e Wiki Parser ────────────────────────────────────────────
+
+function parse5eWiki(lines: string[]): Partial<ParsedSpell> {
+  const result: Partial<ParsedSpell> = {
+    classes: [],
+    descriptionLines: [],
+  };
+
+  let i: number;
+
+  // Line 0: Spell name — strip component prefix like "V`Silvery Barbs" → "Silvery Barbs"
+  result.name = stripComponentPrefix(lines[0] ?? '');
+  i = 1;
+
+  // Skip blank lines and "Source:" metadata line
+  while (i < lines.length) {
+    const trimmed = (lines[i] ?? '').trim();
+    if (!trimmed) {
+      i++;
+      continue;
+    }
+    if (/^Source:/i.test(trimmed)) {
+      i++;
+      // Skip blank lines after source too
+      while (i < lines.length && !(lines[i] ?? '').trim()) i++;
+      continue;
+    }
+    break;
+  }
+
+  // Parse ordinal level/school line (e.g., "1st-level Enchantment")
+  if (i < lines.length) {
+    const levelSchool = parseOrdinalLevelLine(lines[i] ?? '');
+    if (levelSchool) {
+      result.level = levelSchool.level;
+      result.school = levelSchool.school;
+      i++;
+    }
+  }
+
+  // Skip blank lines before fields
+  while (i < lines.length && !(lines[i] ?? '').trim()) i++;
+
+  // Parse labeled fields: Casting Time:, Range:, Components:, Duration:
+  const SPELL_FIELD_LABELS = new Set(['casting time', 'range', 'components', 'duration']);
+  result.castingTime = '';
+  result.range = '';
+  result.components = '';
+  result.duration = '';
+  while (i < lines.length) {
+    const line = lines[i] ?? '';
+    const lv = parseLabelValueLine(line);
+    if (!lv) break;
+
+    const label = lv.label.toLowerCase();
+    if (!SPELL_FIELD_LABELS.has(label)) break;
+
+    switch (label) {
+      case 'casting time':
+        result.castingTime = lv.value;
+        if (/ritual/i.test(lv.value)) result.ritual = true;
+        break;
+      case 'range':
+        result.range = lv.value;
+        break;
+      case 'components':
+        result.components = lv.value;
+        result.material = extractMaterial(lv.value);
+        break;
+      case 'duration':
+        result.duration = lv.value;
+        if (/ritual/i.test(lv.value)) result.ritual = true;
+        break;
+    }
+    i++;
+  }
+
+  // Skip blank lines before description
+  while (i < lines.length && !(lines[i] ?? '').trim()) i++;
+
+  // Collect description and "Spell Lists." trailer
+  const descLines: string[] = [];
+  while (i < lines.length) {
+    const line = lines[i] ?? '';
+    const trimmed = line.trim();
+
+    // "Spell Lists." trailer — extract classes
+    if (/^Spell\s+Lists\./i.test(trimmed)) {
+      const classStr = trimmed.replace(/^Spell\s+Lists\s*\.?\s*/i, '').trim();
+      if (classStr) {
+        result.classes = parseParentheticalCommaList(`(${classStr})`);
+      }
+      i++;
+      continue;
+    }
+
+    // Skip blank lines
+    if (!trimmed) {
+      i++;
+      continue;
+    }
+
+    descLines.push(trimmed);
+    i++;
+  }
+  result.descriptionLines = descLines;
+
+  return result;
+}
+
 // ── Main Entry Point ─────────────────────────────────────────
 
 /**
  * Parse a plain text spell description into a `ParsedSpell` object.
- * Auto-detects source format (5e tools, D&D Beyond, or Roll20).
+ * Auto-detects source format (5e tools, D&D Beyond, Roll20, or 5e wiki).
  *
  * The returned `ParsedSpell` can be passed directly to `transformSpell()`
  * to produce a full `Spell` object.
@@ -540,6 +709,9 @@ export function parsePlainText(text: string): ParsedSpell {
       break;
     case 'roll20':
       partial = parseRoll20(lines);
+      break;
+    case '5ewiki':
+      partial = parse5eWiki(lines);
       break;
   }
 

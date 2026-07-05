@@ -362,6 +362,155 @@ You hurl a mote of fire at a creature or object within range. Make a ranged spel
   });
 });
 
+// ── 5e Wiki Tests ────────────────────────────────────────────
+
+describe('parsePlainText — 5e wiki', () => {
+  const silveryBarbs = `V\`Silvery Barbs
+
+Source: Strixhaven: A Curriculum of Chaos
+
+1st-level Enchantment
+
+Casting Time: 1 reaction, which you take when a creature you can see within 60 feet of yourself succeeds on an attack roll, an ability check, or a saving throw
+Range: 60 feet
+Components: V
+Duration: Instantaneous
+
+You magically distract the triggering creature and turn its momentary uncertainty into encouragement for another creature. The triggering creature must reroll the d20 and use the lower roll.
+
+You can then choose a different creature you can see within range (you can choose yourself). The chosen creature has advantage on the next attack roll, ability check, or saving throw it makes within 1 minute. A creature can be empowered by only one use of this spell at a time.
+
+Spell Lists. Bard, Sorcerer, Wizard`;
+
+  it('should strip component prefix from name line', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.name).toBe('Silvery Barbs');
+  });
+
+  it('should parse ordinal level and school', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.level).toBe(1);
+    expect(result.school).toBe('Enchantment');
+  });
+
+  it('should parse Casting Time (reaction with long description)', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.castingTime).toContain('1 reaction');
+    expect(result.castingTime).toContain('60 feet');
+  });
+
+  it('should parse Range', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.range).toBe('60 feet');
+  });
+
+  it('should parse Components', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.components).toBe('V');
+  });
+
+  it('should parse Duration', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.duration).toBe('Instantaneous');
+  });
+
+  it('should parse description lines', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.descriptionLines.length).toBeGreaterThan(0);
+    expect(result.descriptionLines[0]).toContain('triggering creature');
+    expect(result.descriptionLines[1]).toContain('choose a different creature');
+  });
+
+  it('should parse classes from Spell Lists. trailer', () => {
+    const result = parsePlainText(silveryBarbs);
+    expect(result.classes).toContain('Bard');
+    expect(result.classes).toContain('Sorcerer');
+    expect(result.classes).toContain('Wizard');
+    expect(result.classes.length).toBe(3);
+  });
+
+  it('should not include Source or Spell Lists in description', () => {
+    const result = parsePlainText(silveryBarbs);
+    const descText = result.descriptionLines.join(' ');
+    expect(descText).not.toContain('Strixhaven');
+    expect(descText).not.toContain('Spell Lists');
+  });
+
+  it('should parse a 3rd-level spell', () => {
+    const fireball = `V, S, M\`Fireball
+
+Source: Player's Handbook
+
+3rd-level Evocation
+
+Casting Time: 1 action
+Range: 150 feet
+Components: V, S, M (a tiny ball of bat guano and sulfur)
+Duration: Instantaneous
+
+A bright streak flashes from your pointing finger. Each creature in a 20-foot-radius sphere must make a Dexterity saving throw. A target takes 8d6 fire damage on a failed save.
+
+Spell Lists. Sorcerer, Wizard`;
+
+    const result = parsePlainText(fireball);
+    expect(result.name).toBe('Fireball');
+    expect(result.level).toBe(3);
+    expect(result.school).toBe('Evocation');
+    expect(result.components).toBe('V, S, M (a tiny ball of bat guano and sulfur)');
+    expect(result.material).toBe('a tiny ball of bat guano and sulfur');
+    expect(result.classes).toContain('Sorcerer');
+    expect(result.classes).toContain('Wizard');
+  });
+
+  it('should parse a cantrip', () => {
+    const fireBolt = `V, S\`Fire Bolt
+
+Source: Player's Handbook
+
+Evocation Cantrip
+
+Casting Time: 1 action
+Range: 120 feet
+Components: V, S
+Duration: Instantaneous
+
+You hurl a mote of fire at a creature or object. Make a ranged spell attack. On a hit, the target takes 1d10 fire damage.
+
+Spell Lists. Artificer, Sorcerer, Wizard`;
+
+    const result = parsePlainText(fireBolt);
+    expect(result.name).toBe('Fire Bolt');
+    expect(result.level).toBe(0);
+    expect(result.school).toBe('Evocation');
+    expect(result.classes).toContain('Artificer');
+    expect(result.classes).toContain('Sorcerer');
+    expect(result.classes).toContain('Wizard');
+  });
+
+  it('should parse a spell with concentration', () => {
+    const haste = `V, S, M\`Haste
+
+Source: Player's Handbook
+
+3rd-level Transmutation
+
+Casting Time: 1 action
+Range: 30 feet
+Components: V, S, M (a shaving of licorice root)
+Duration: Concentration, up to 1 minute
+
+Choose a willing creature within range. Until the spell ends, the target's speed is doubled, it gains a +2 bonus to AC.
+
+Spell Lists. Artificer, Sorcerer, Wizard`;
+
+    const result = parsePlainText(haste);
+    expect(result.name).toBe('Haste');
+    expect(result.level).toBe(3);
+    expect(result.school).toBe('Transmutation');
+    expect(result.duration).toBe('Concentration, up to 1 minute');
+  });
+});
+
 // ── Integration with transformSpell ──────────────────────────
 
 describe('parsePlainText + transformSpell integration', () => {
@@ -451,6 +600,41 @@ At Higher Levels: Using a Higher-Level Spell Slot. The damage (both initial and 
     expect(spell.castingTime).toBe('Action');
     expect(spell.damage).toBeDefined();
     expect(spell.usingAHigherLevelSpellSlot).toBeDefined();
+  });
+
+  it('should produce a valid Spell from 5e wiki text', () => {
+    const text = `V\`Silvery Barbs
+
+Source: Strixhaven: A Curriculum of Chaos
+
+1st-level Enchantment
+
+Casting Time: 1 reaction, which you take when a creature you can see within 60 feet of yourself succeeds on an attack roll, an ability check, or a saving throw
+Range: 60 feet
+Components: V
+Duration: Instantaneous
+
+You magically distract the triggering creature and turn its momentary uncertainty into encouragement for another creature. The triggering creature must reroll the d20 and use the lower roll.
+
+Spell Lists. Bard, Sorcerer, Wizard`;
+
+    const parsed = parsePlainText(text);
+    const spell = transformSpell(parsed);
+
+    expect(spell.id).toBe('silvery-barbs');
+    expect(spell.name).toBe('Silvery Barbs');
+    expect(spell.level).toBe(1);
+    expect(spell.school).toBe('Enchantment');
+    expect(spell.castingTime).toBe('Reaction');
+    expect(spell.range).toBe('60 feet');
+    expect(spell.components).toContain('V');
+    expect(spell.components).not.toContain('S');
+    expect(spell.components).not.toContain('M');
+    expect(spell.duration).toBe('Instantaneous');
+    expect(spell.classes).toContain('Bard');
+    expect(spell.classes).toContain('Sorcerer');
+    expect(spell.classes).toContain('Wizard');
+    expect(spell.source).toBe('SRD 5.2');
   });
 
   it('should parse and transform a healing spell', () => {
