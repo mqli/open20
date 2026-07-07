@@ -3,15 +3,13 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { useSpellStore } from '@/stores/spellStore';
 import { resolveDeps } from '@/core/content-resolver';
 import { getCasterType } from 'open20-core/spells';
-import { Button, Surface, Toggle } from '@open20/ui';
+import { Surface } from '@open20/ui';
 import { CharacterSelector } from '@/components/layout/CharacterSelector';
+import { CharacterBottomControls } from '@/components/layout/CharacterBottomControls';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
 import { CharacterModal } from '@/components/character/CharacterModal';
-import { Moon, Sun } from 'lucide-react';
-import { useTranslation } from '@/i18n';
 
 export function CharacterPanel() {
-  const t = useTranslation();
   const { activeCharacter, longRest, shortRest } = useCharacterStore();
   const { showPreparedOnly, setShowPreparedOnly, showKnownOnly, setShowKnownOnly } =
     useSpellStore();
@@ -51,54 +49,16 @@ export function CharacterPanel() {
           </div>
 
           {/* Fixed Bottom Controls */}
-          <div className="shrink-0 border-t border-border bg-bg-secondary px-3 py-2 space-y-1.5">
-            {(casterType.canLearn || casterType.canPrepare) && (
-              <div className="flex gap-1.5">
-                {casterType.canPrepare && (
-                  <Toggle
-                    variant="primary"
-                    size="sm"
-                    pressed={showPreparedOnly}
-                    onPressedChange={() => setShowPreparedOnly(!showPreparedOnly)}
-                    className="prepared-toggle flex-1 justify-center"
-                  >
-                    {t('prepared')}
-                  </Toggle>
-                )}
-                {casterType.canLearn && (
-                  <Toggle
-                    variant="secondary"
-                    size="sm"
-                    pressed={showKnownOnly}
-                    onPressedChange={() => setShowKnownOnly(!showKnownOnly)}
-                    className="known-toggle flex-1 justify-center"
-                  >
-                    {t('known')}
-                  </Toggle>
-                )}
-              </div>
-            )}
-            <div className="flex gap-1.5">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={shortRest}
-                className="flex-1 justify-center text-text-secondary hover:text-primary-600"
-              >
-                <Sun className="w-3.5 h-3.5 mr-1" />
-                {t('shortRest')}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={longRest}
-                className="flex-1 justify-center text-text-secondary hover:text-primary-600"
-              >
-                <Moon className="w-3.5 h-3.5 mr-1" />
-                {t('longRest')}
-              </Button>
-            </div>
-          </div>
+          <CharacterBottomControls
+            canPrepare={casterType.canPrepare}
+            canLearn={casterType.canLearn}
+            showPreparedOnly={showPreparedOnly}
+            showKnownOnly={showKnownOnly}
+            onShowPreparedOnlyChange={setShowPreparedOnly}
+            onShowKnownOnlyChange={setShowKnownOnly}
+            onShortRest={shortRest}
+            onLongRest={longRest}
+          />
         </>
       ) : (
         <div className="flex-1" />

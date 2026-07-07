@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSpellStore } from '@/stores/spellStore';
 import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
@@ -9,6 +9,7 @@ import { SpellCardBadges } from '@/components/spell/SpellCardBadges';
 import { SpellCardActions } from '@/components/spell/SpellCardActions';
 import { SpellDetailFlyout } from '@/components/spell-library/SpellDetailFlyout';
 import { CharacterPanel } from '@/components/layout/CharacterPanel';
+import { CharacterBottomControls } from '@/components/layout/CharacterBottomControls';
 import { CharacterSelector } from '@/components/layout/CharacterSelector';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
 import { CharacterModal } from '@/components/character/CharacterModal';
@@ -39,6 +40,8 @@ import {
   Upload,
 } from 'lucide-react';
 import type { Spell } from 'open20-core';
+import { getCasterType } from 'open20-core/spells';
+import { resolveDeps } from '@/core/content-resolver';
 
 export function SpellLibraryLayout() {
   const t = useTranslation();
@@ -59,9 +62,16 @@ export function SpellLibraryLayout() {
   // Import dialog state
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
-  const { setSpells, filteredSpells, showPreparedOnly, showKnownOnly, selectSpell } =
-    useSpellStore();
-  const { activeCharacter, loadCharacters } = useCharacterStore();
+  const {
+    setSpells,
+    filteredSpells,
+    showPreparedOnly,
+    showKnownOnly,
+    selectSpell,
+    setShowPreparedOnly,
+    setShowKnownOnly,
+  } = useSpellStore();
+  const { activeCharacter, loadCharacters, shortRest, longRest } = useCharacterStore();
   const { theme, setTheme } = useUIStore();
   const {
     spells: customSpells,
@@ -69,6 +79,11 @@ export function SpellLibraryLayout() {
     deleteSpell: deleteCustomSpell,
   } = useCustomSpellStore();
   const { loadClasses: loadCustomClasses } = useCustomClassStore();
+
+  const casterType = useMemo(() => {
+    if (!activeCharacter) return { canLearn: false, canPrepare: false };
+    return getCasterType(activeCharacter, resolveDeps(activeCharacter));
+  }, [activeCharacter]);
 
   useEffect(() => {
     async function loadSpells() {
@@ -338,17 +353,30 @@ export function SpellLibraryLayout() {
       <div className="flex-1 overflow-hidden">
         {mobileTab === 'spells' ? (
           spellLibraryContent
-        ) : (
-          <div className="h-full overflow-y-auto px-3 py-4" data-testid="character-content">
-            <CharacterSheetContent
-              onEdit={() => {
-                if (activeCharacter) {
+        ) : activeCharacter ? (
+          <div className="flex flex-col h-full" data-testid="character-content">
+            <div className="flex-1 overflow-y-auto px-3 py-4">
+              <CharacterSheetContent
+                onEdit={() => {
                   setEditingId(activeCharacter.id);
                   setIsModalOpen(true);
-                }
-              }}
+                }}
+              />
+            </div>
+            {/* Fixed Bottom Controls */}
+            <CharacterBottomControls
+              canPrepare={casterType.canPrepare}
+              canLearn={casterType.canLearn}
+              showPreparedOnly={showPreparedOnly}
+              showKnownOnly={showKnownOnly}
+              onShowPreparedOnlyChange={setShowPreparedOnly}
+              onShowKnownOnlyChange={setShowKnownOnly}
+              onShortRest={shortRest}
+              onLongRest={longRest}
             />
           </div>
+        ) : (
+          <div className="flex-1" />
         )}
       </div>
       <MobileTabBar activeTab={mobileTab} onTabChange={setMobileTab} />
