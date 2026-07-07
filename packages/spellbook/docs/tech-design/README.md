@@ -75,6 +75,7 @@ This technical design specification defines the architecture, technology stack, 
 | [Persistence](./07-persistence.md) | localStorage service implementation |
 | [Routing](./08-routing.md) | Route definitions and navigation |
 | [Implementation](./09-implementation.md) | Implementation phases, testing, deployment |
+| [Character Export/Import](./10-character-export-import.md) | URL-based character sharing with custom spells and subclasses |
 
 ---
 
