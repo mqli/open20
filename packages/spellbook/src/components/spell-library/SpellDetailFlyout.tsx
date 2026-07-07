@@ -48,8 +48,8 @@ export function SpellDetailFlyout() {
       isMobile={!isLarge}
       sheetSide="right"
       sheetClassName="w-full sm:w-[540px]"
-      dialogSize="xl"
-      dialogClassName="w-[min(96vw,1200px)] max-h-[min(92vh,1000px)] overflow-hidden"
+      dialogSize="lg"
+      dialogClassName="max-h-[min(92vh,1000px)] overflow-hidden"
       renderHeader={() => (
         <div className="flex items-center justify-between gap-3 shrink-0 border-b border-border px-3 py-2 sm:px-4">
           <h2 className="text-lg font-semibold text-text-primary truncate">{selectedSpell.name}</h2>
