@@ -47,7 +47,7 @@ export function SpellDetailFlyout() {
       onOpenChange={(open) => !open && closeDetail()}
       isMobile={!isLarge}
       sheetSide="right"
-      sheetClassName="w-full sm:w-[540px]"
+      sheetClassName="w-full sm:w-[540px] h-auto max-h-[85vh] overflow-y-auto bottom-0 right-0 top-auto"
       dialogSize="lg"
       dialogClassName="max-h-[min(92vh,1000px)] overflow-hidden"
       renderHeader={() => (
@@ -59,7 +59,7 @@ export function SpellDetailFlyout() {
         </div>
       )}
     >
-      <div className="flex-1 overflow-y-auto px-3 py-3 sm:px-4">
+      <div className="overflow-y-auto px-3 py-3 sm:px-4">
         <SpellDetailContent spell={selectedSpell} />
       </div>
     </ResponsiveDialog>
