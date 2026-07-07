@@ -26,7 +26,10 @@ export function CharacterBottomControls({
   const t = useTranslation();
 
   return (
-    <div className="shrink-0 border-t border-border bg-bg-secondary px-3 py-2 space-y-1.5">
+    <div
+      className="shrink-0 border-t border-border bg-bg-secondary px-3 py-2 space-y-1.5"
+      data-testid="character-bottom-controls"
+    >
       {(canLearn || canPrepare) && (
         <div className="flex gap-1.5">
           {canPrepare && (

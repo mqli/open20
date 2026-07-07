@@ -8,7 +8,7 @@ const baseConfig = createPlaywrightConfig({
   testDir: './e2e',
   // In CI, turbo manages build (dependsOn: ["build"]), so webServerCommand only needs preview.
   // Locally, run preview directly — ensure you've built first or use `pnpm run test:e2e` via turbo.
-  webServerCommand: 'pnpm run preview -- --port 4173',
+  webServerCommand: 'pnpm run preview --port 4173',
   webServerPort: 4173,
   webServerTimeout: 120000,
   headless: isCI,
