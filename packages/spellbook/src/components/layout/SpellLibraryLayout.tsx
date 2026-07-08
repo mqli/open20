@@ -155,12 +155,10 @@ export function SpellLibraryLayout() {
       {/* Spell Header */}
       <Surface variant="default" className="rounded-none border-b px-3 py-1.5">
         <div className="flex items-center gap-2">
-          {isLarge ? (
+          {isLarge && (
             <Text as="h1" variant="heading" className="shrink-0 mr-1">
               {t('spells')}
             </Text>
-          ) : (
-            <CharacterSelector compact />
           )}
           <div className="flex-1 min-w-0">
             <SearchBar />
@@ -353,30 +351,39 @@ export function SpellLibraryLayout() {
       <div className="flex-1 overflow-hidden">
         {mobileTab === 'spells' ? (
           spellLibraryContent
-        ) : activeCharacter ? (
-          <div className="flex flex-col h-full" data-testid="character-content">
-            <div className="flex-1 overflow-y-auto px-3 py-4">
-              <CharacterSheetContent
-                onEdit={() => {
-                  setEditingId(activeCharacter.id);
-                  setIsModalOpen(true);
-                }}
-              />
-            </div>
-            {/* Fixed Bottom Controls */}
-            <CharacterBottomControls
-              canPrepare={casterType.canPrepare}
-              canLearn={casterType.canLearn}
-              showPreparedOnly={showPreparedOnly}
-              showKnownOnly={showKnownOnly}
-              onShowPreparedOnlyChange={setShowPreparedOnly}
-              onShowKnownOnlyChange={setShowKnownOnly}
-              onShortRest={shortRest}
-              onLongRest={longRest}
-            />
-          </div>
         ) : (
-          <div className="flex-1" />
+          <div className="flex flex-col h-full" data-testid="character-content">
+            {/* Character Selector */}
+            <div className="shrink-0 px-3 py-2 border-b border-border">
+              <CharacterSelector />
+            </div>
+
+            {activeCharacter ? (
+              <>
+                <div className="flex-1 overflow-y-auto px-3 py-4">
+                  <CharacterSheetContent
+                    onEdit={() => {
+                      setEditingId(activeCharacter.id);
+                      setIsModalOpen(true);
+                    }}
+                  />
+                </div>
+                {/* Fixed Bottom Controls */}
+                <CharacterBottomControls
+                  canPrepare={casterType.canPrepare}
+                  canLearn={casterType.canLearn}
+                  showPreparedOnly={showPreparedOnly}
+                  showKnownOnly={showKnownOnly}
+                  onShowPreparedOnlyChange={setShowPreparedOnly}
+                  onShowKnownOnlyChange={setShowKnownOnly}
+                  onShortRest={shortRest}
+                  onLongRest={longRest}
+                />
+              </>
+            ) : (
+              <div className="flex-1" />
+            )}
+          </div>
         )}
       </div>
       <MobileTabBar activeTab={mobileTab} onTabChange={setMobileTab} />

@@ -95,7 +95,7 @@ export function CharacterSelector({ compact }: CharacterSelectorProps) {
             <ChevronDown className="w-4 h-4 text-text-tertiary shrink-0" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
+        <DropdownMenuContent className="min-w-[var(--radix-dropdown-menu-trigger-width)] w-[var(--radix-dropdown-menu-trigger-width)]">
           {characters.length > 0 && (
             <>
               {characters.map((char) => (
