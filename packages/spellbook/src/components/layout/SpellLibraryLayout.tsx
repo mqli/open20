@@ -349,7 +349,7 @@ export function SpellLibraryLayout() {
 
   // Mobile: single column with tab bar
   return (
-    <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
+    <div className="flex flex-col h-dvh bg-bg-primary overflow-hidden">
       <div className="flex-1 overflow-hidden">
         {mobileTab === 'spells' ? (
           spellLibraryContent

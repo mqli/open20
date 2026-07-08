@@ -28,7 +28,11 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
   const { activeCharacter } = useCharacterStore();
 
   return (
-    <Surface variant="default" className="rounded-none border-t shrink-0">
+    <Surface
+      variant="default"
+      className="rounded-none border-t shrink-0"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
       <div className="flex">
         <Button
           variant="ghost"
