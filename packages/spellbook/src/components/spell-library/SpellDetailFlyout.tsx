@@ -59,7 +59,10 @@ export function SpellDetailFlyout() {
         </div>
       )}
     >
-      <div className="overflow-y-auto px-3 py-3 sm:px-4">
+      <div
+        className="px-3 py-3 sm:px-4"
+        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      >
         <SpellDetailContent spell={selectedSpell} />
       </div>
     </ResponsiveDialog>
