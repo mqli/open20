@@ -75,8 +75,6 @@ test.describe('Character Creation', () => {
     await setup.goto();
     await setup.switchToCharacterTab();
     await setup.expectCharacterInPanel(TEST_WIZARD.name);
-    // On mobile, switch back to Spells tab to access CharacterSelector in header
-    await setup.switchToSpellsTab();
     await setup.openEditModal(TEST_WIZARD.name);
 
     await setup.fillName('Merlin the Wise');

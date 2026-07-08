@@ -31,6 +31,18 @@ export class CharacterSetupPage {
     await locator.fill(text);
   }
 
+  /**
+   * Returns the CharacterSelector trigger button.
+   * Identified by the chevron-down icon unique to the dropdown trigger
+   * (MobileTabBar also has a User icon, but not a ChevronDown).
+   */
+  private getCharacterSelectorTrigger(): Locator {
+    return this.page
+      .getByRole('button')
+      .filter({ has: this.page.locator('.lucide-chevron-down') })
+      .first();
+  }
+
   // ── Dialog / Panel ──
 
   getDialog(): Locator {
@@ -50,11 +62,10 @@ export class CharacterSetupPage {
   }
 
   async openCreateModal() {
-    await this.page
-      .getByRole('button')
-      .filter({ has: this.page.locator('.lucide-user') })
-      .first()
-      .click();
+    // On mobile, CharacterSelector lives in the character tab
+    await this.switchToCharacterTab();
+
+    await this.getCharacterSelectorTrigger().click();
     await this.page.waitForTimeout(300);
 
     await this.page.getByRole('menuitem', { name: /Add character|添加角色/i }).click();
@@ -65,11 +76,10 @@ export class CharacterSetupPage {
   }
 
   async openEditModal(characterName: string) {
-    await this.page
-      .getByRole('button')
-      .filter({ has: this.page.locator('.lucide-user') })
-      .first()
-      .click();
+    // On mobile, CharacterSelector lives in the character tab
+    await this.switchToCharacterTab();
+
+    await this.getCharacterSelectorTrigger().click();
     await this.page.waitForTimeout(300);
 
     const menuItem = this.page.getByRole('menuitem').filter({ hasText: characterName }).first();
@@ -176,8 +186,7 @@ export class CharacterSetupPage {
   }
 
   /**
-   * On mobile, switches back to the Spells tab (where CharacterSelector lives in the header).
-   * Needed when you want to open a modal after verifying character content on the Character tab.
+   * On mobile, switches back to the Spells tab (e.g. to verify spell list).
    * On desktop this is a no-op.
    */
   async switchToSpellsTab() {
