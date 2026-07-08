@@ -23,19 +23,15 @@ export function DiceRollOverlay() {
 
   const isVisible = latestRoll.id !== dismissedRollId;
 
-  const handleTransitionEnd = () => {
-    // Animation complete - no state update needed
-  };
-
   return (
     <div
       role="status"
       aria-live="polite"
       className={`
         fixed bottom-8 left-1/2 -translate-x-1/2 z-100 transition-all duration-500 ease-out
-        ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}
+        pointer-events-auto
+        ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0 pointer-events-none'}
       `}
-      onTransitionEnd={handleTransitionEnd}
     >
       <div className="relative group">
         {/* Glow effect */}
