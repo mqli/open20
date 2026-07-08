@@ -39,7 +39,7 @@ export function DiceRollOverlay() {
     >
       <div className="relative group">
         {/* Glow effect */}
-        <div className="absolute -inset-1 bg-linear-to-r from-primary-600 to-info rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+        <div className="absolute -inset-1 bg-linear-to-r from-primary-600 to-info rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200 pointer-events-none"></div>
 
         <Surface
           variant="primary"
@@ -67,11 +67,12 @@ export function DiceRollOverlay() {
 
           <IconButton
             variant="secondary"
-            size="sm"
+            size="md"
             onClick={() => setDismissedRollId(latestRoll.id)}
-            className="text-text-tertiary hover:text-primary-600"
+            className="text-text-tertiary hover:text-primary-600 min-h-[44px] min-w-[44px]"
+            aria-label="Dismiss roll result"
           >
-            <X />
+            <X className="w-4 h-4" />
           </IconButton>
         </Surface>
       </div>
