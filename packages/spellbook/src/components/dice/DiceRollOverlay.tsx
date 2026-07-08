@@ -27,6 +27,12 @@ export function DiceRollOverlay() {
     <div
       role="status"
       aria-live="polite"
+      onPointerDown={(e) => {
+        // Stop native pointerdown from bubbling to document, so Radix's
+        // DismissableLayer doesn't treat this as an "outside click" and
+        // close the underlying Sheet/Dialog.
+        e.nativeEvent.stopPropagation();
+      }}
       className={`
         fixed bottom-8 left-1/2 -translate-x-1/2 z-100 transition-all duration-500 ease-out
         pointer-events-auto
