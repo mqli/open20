@@ -18,6 +18,12 @@ export function useSpellCastLevel(spell: Spell, activeCharacter: AppCharacter | 
     [activeCharacter, spell],
   );
 
+  const characterLevel = useMemo(
+    () =>
+      activeCharacter ? activeCharacter.classes.reduce((sum, c) => sum + c.level, 0) : undefined,
+    [activeCharacter],
+  );
+
   const [selectedCastLevel, setSelectedCastLevel] = useState<SpellLevel>(() =>
     getInitialCastLevel(spell, activeCharacter),
   );
@@ -41,8 +47,8 @@ export function useSpellCastLevel(spell: Spell, activeCharacter: AppCharacter | 
   }
 
   const effectiveDamageEntries = useMemo(
-    () => getScaledDamageEntries(spell, effectiveCastLevel),
-    [spell, effectiveCastLevel],
+    () => getScaledDamageEntries(spell, effectiveCastLevel, characterLevel),
+    [spell, effectiveCastLevel, characterLevel],
   );
 
   const effectiveHealDice = useMemo(

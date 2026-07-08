@@ -52,9 +52,15 @@ export function SpellCardActions({
   const castLevelState = useSpellCastLevel(spell, activeCharacter);
 
   const isIconStyle = actionStyle === 'icon';
-  const hasDamageEntries = (spell.damage?.entries ?? []).length > 0;
+  const hasDamageEntries =
+    (spell.damage?.entries ?? []).length > 0 ||
+    (spell.cantripUpgrade ?? []).some((u) => u.damage && u.damage.length > 0);
   const hasHealEntry = !!spell.heal?.dice;
   const canShowConcentrationAction = showConcentration && spell.concentration && !!activeCharacter;
+
+  const characterLevel = activeCharacter
+    ? activeCharacter.classes.reduce((sum, c) => sum + c.level, 0)
+    : undefined;
 
   const handleCast = useCallback(() => {
     castSpell(spell.id, castLevelState.effectiveCastLevel);
@@ -87,6 +93,7 @@ export function SpellCardActions({
           spell,
           slotLevel: castLevelState.effectiveCastLevel,
           rng: defaultRandom,
+          characterLevel,
         });
     const diceExpr = result.entries
       .map((entry) => `${entry.results.join('+')} (${entry.type})`)

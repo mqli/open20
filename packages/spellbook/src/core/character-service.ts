@@ -381,6 +381,7 @@ export class CharacterService {
       spellcastingModifier: spell.damage?.includeSpellcastingModifier
         ? spellcastingModifier
         : undefined,
+      characterLevel: character.classes.reduce((sum, c) => sum + c.level, 0),
     });
   }
 

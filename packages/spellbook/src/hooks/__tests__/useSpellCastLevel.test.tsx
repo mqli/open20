@@ -43,6 +43,29 @@ const healSpell: Spell = {
   source: 'Test',
 };
 
+const cantripSpell: Spell = {
+  id: 'fire-bolt',
+  name: 'Fire Bolt',
+  level: 0 as SpellLevel,
+  school: 'Evocation',
+  castingTime: 'Action',
+  range: '120 ft',
+  components: ['V', 'S'],
+  duration: 'Instantaneous',
+  concentration: false,
+  ritual: false,
+  description: ['You hurl a mote of fire.'],
+  damage: {
+    entries: [{ dice: '1d10', type: 'Fire' }],
+  },
+  cantripUpgrade: [
+    { atCharacterLevel: 5, damage: [{ dice: '2d10', type: 'Fire' }] },
+    { atCharacterLevel: 11, damage: [{ dice: '3d10', type: 'Fire' }] },
+    { atCharacterLevel: 17, damage: [{ dice: '4d10', type: 'Fire' }] },
+  ],
+  source: 'Test',
+};
+
 describe('useSpellCastLevel', () => {
   it('exposes theoretical upcast levels without a character', () => {
     const { result } = renderHook(() => useSpellCastLevel(upcastSpell, null));
@@ -90,5 +113,46 @@ describe('useSpellCastLevel', () => {
 
     expect(result.current.availableCastLevels).toEqual([2, 3]);
     expect(result.current.selectedCastLevel).toBe(2);
+  });
+
+  it('returns base damage for cantrip without character', () => {
+    const { result } = renderHook(() => useSpellCastLevel(cantripSpell, null));
+
+    expect(result.current.effectiveCastLevel).toBe(0);
+    expect(result.current.effectiveDamageEntries).toEqual([{ dice: '1d10', type: 'Fire' }]);
+  });
+
+  it('scales cantrip damage by character level', () => {
+    const characterAtLevel5 = {
+      classes: [{ classId: 'Wizard', level: 5 }],
+      spells: {
+        spellSlots: {},
+        pactMagicSlots: null,
+        classSpellcasting: {},
+      },
+    } as any;
+
+    const { result } = renderHook(() => useSpellCastLevel(cantripSpell, characterAtLevel5));
+
+    expect(result.current.effectiveCastLevel).toBe(0);
+    expect(result.current.effectiveDamageEntries).toEqual([{ dice: '2d10', type: 'Fire' }]);
+  });
+
+  it('scales cantrip damage to max upgrade at level 17+', () => {
+    const characterAtLevel20 = {
+      classes: [
+        { classId: 'Wizard', level: 5 },
+        { classId: 'Fighter', level: 15 },
+      ],
+      spells: {
+        spellSlots: {},
+        pactMagicSlots: null,
+        classSpellcasting: {},
+      },
+    } as any;
+
+    const { result } = renderHook(() => useSpellCastLevel(cantripSpell, characterAtLevel20));
+
+    expect(result.current.effectiveDamageEntries).toEqual([{ dice: '4d10', type: 'Fire' }]);
   });
 });

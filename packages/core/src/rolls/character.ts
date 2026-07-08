@@ -234,16 +234,23 @@ export interface SpellDamageParams {
   isCritical?: boolean;
   rng: RandomProvider;
   spellcastingModifier?: number; // Character's spellcasting ability modifier (if spell includes it)
+  characterLevel?: number; // Character total level (for cantrip damage scaling)
 }
 
 /**
  * Roll spell damage for a character
- * Supports upcasting (higher level damage)
+ * Supports upcasting (higher level damage) and cantrip upgrades (character level scaling)
  */
 export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
-  const { spell, slotLevel, rng, spellcastingModifier } = params;
+  const { spell, slotLevel, rng, spellcastingModifier, characterLevel } = params;
 
-  if (!spell.damage) {
+  // For cantrips, check if cantripUpgrade provides damage even when spell.damage is null
+  const hasCantripDamage =
+    spell.level === 0 &&
+    characterLevel !== undefined &&
+    (spell.cantripUpgrade ?? []).some((u) => u.damage);
+
+  if (!spell.damage && !hasCantripDamage) {
     return {
       entries: [],
       modifiers: [],
@@ -252,7 +259,7 @@ export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
     };
   }
 
-  const scaledEntries = getScaledDamageEntries(spell, slotLevel);
+  const scaledEntries = getScaledDamageEntries(spell, slotLevel, characterLevel);
   const damageEntries: import('../dice/mechanics').DamageRollEntry[] = scaledEntries.map(
     (entry) => ({
       dice: entry.dice,
@@ -261,7 +268,7 @@ export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
   );
 
   // Add additional damage (e.g., Melf's Acid Arrow)
-  if (spell.damage.additional) {
+  if (spell.damage?.additional) {
     for (const additional of spell.damage.additional) {
       damageEntries.push({
         dice: additional.dice,
@@ -272,7 +279,7 @@ export function rollSpellDamage(params: SpellDamageParams): DamageRollResult {
 
   // Add spellcasting ability modifier if the spell includes it
   const modifiers: Array<{ value: number; type: string; description: string }> = [];
-  if (spell.damage.includeSpellcastingModifier && spellcastingModifier !== undefined) {
+  if (spell.damage?.includeSpellcastingModifier && spellcastingModifier !== undefined) {
     modifiers.push({
       value: spellcastingModifier,
       type: 'ability',

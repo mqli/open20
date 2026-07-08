@@ -26,7 +26,22 @@ export function scaleDiceForUpcast(
 export function getScaledDamageEntries(
   spell: Spell,
   slotLevel: SpellLevel,
+  characterLevel?: number,
 ): readonly { readonly dice: string; readonly type?: string }[] {
+  // Handle cantrip damage scaling by character level
+  if (spell.level === 0 && characterLevel !== undefined && spell.cantripUpgrade) {
+    let bestEntries: readonly { readonly dice: string; readonly type?: string }[] =
+      spell.damage?.entries ?? [];
+
+    for (const upgrade of spell.cantripUpgrade) {
+      if (upgrade.atCharacterLevel <= characterLevel && upgrade.damage) {
+        bestEntries = upgrade.damage;
+      }
+    }
+
+    return bestEntries;
+  }
+
   const entries = spell.damage?.entries ?? [];
   const perSlot = spell.damage?.perSlot;
   if (!perSlot || perSlot.length === 0 || slotLevel <= spell.level) return entries;
