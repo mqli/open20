@@ -159,7 +159,13 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
     if (state.phase === 'preview') {
       return (
         <div className="flex items-center justify-end gap-2 shrink-0 px-4 py-3 sm:px-6 border-t border-border">
-          <Button type="button" variant="primary" size="sm" onClick={() => handleImport()}>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            className="character-import-btn"
+            onClick={() => handleImport()}
+          >
             {t('importCharacter')}
           </Button>
           <Button type="button" variant="ghost" size="sm" onClick={handleReset}>
@@ -209,6 +215,7 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
         {state.phase === 'idle' && (
           <div
             className={`
+              character-import-drop-zone
               relative flex flex-col items-center justify-center gap-3 p-8
               border-2 border-dashed rounded-lg cursor-pointer transition-colors
               ${dragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/50'}
@@ -226,7 +233,7 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
               ref={fileInputRef}
               type="file"
               accept=".json"
-              className="hidden"
+              className="character-import-file-input hidden"
               onChange={handleFileChange}
             />
           </div>
@@ -255,7 +262,7 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
               <div className="bg-muted/30 border rounded-md p-4 space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-muted-foreground" />
-                  <Text variant="body" className="font-medium">
+                  <Text variant="body" className="character-import-preview-name font-medium">
                     {state.bundle.character.name}
                   </Text>
                 </div>
@@ -269,7 +276,7 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
 
             {/* Content summary */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-muted/30 border rounded-md p-3">
+              <div className="character-import-spell-count bg-muted/30 border rounded-md p-3">
                 <Text variant="bodySm" className="text-muted-foreground">
                   {t('customSpells')}
                 </Text>
@@ -277,7 +284,7 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
                   {spellCount}
                 </Text>
               </div>
-              <div className="bg-muted/30 border rounded-md p-3">
+              <div className="character-import-subclass-count bg-muted/30 border rounded-md p-3">
                 <Text variant="bodySm" className="text-muted-foreground">
                   {t('customSubclasses')}
                 </Text>
@@ -340,7 +347,7 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
 
         {/* Phase: not a character file */}
         {state.phase === 'not-character' && (
-          <div className="space-y-3">
+          <div className="character-import-error space-y-3">
             <div className="flex items-center gap-2 text-amber-600">
               <AlertCircle className="w-5 h-5" />
               <Text variant="body" className="font-medium">
@@ -360,7 +367,7 @@ export function CharacterImportDialog({ open, onOpenChange }: CharacterImportDia
 
         {/* Phase: result */}
         {state.phase === 'result' && (
-          <div className="space-y-3">
+          <div className="character-import-result space-y-3">
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle2 className="w-5 h-5" />
               <Text variant="body" className="font-medium">

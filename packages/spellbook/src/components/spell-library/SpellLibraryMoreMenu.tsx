@@ -77,11 +77,15 @@ export function SpellLibraryMoreMenu({
           {t('importCustomSpells')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
-        <DropdownMenu.Item disabled={!hasActiveCharacter} onSelect={onExportCharacter}>
+        <DropdownMenu.Item
+          disabled={!hasActiveCharacter}
+          onSelect={onExportCharacter}
+          className="menu-export-character"
+        >
           <User className="w-4 h-4 mr-2" />
           {t('exportCharacter')}
         </DropdownMenu.Item>
-        <DropdownMenu.Item onSelect={onOpenCharacterImportDialog}>
+        <DropdownMenu.Item onSelect={onOpenCharacterImportDialog} className="menu-import-character">
           <UserPlus className="w-4 h-4 mr-2" />
           {t('importCharacter')}
         </DropdownMenu.Item>
