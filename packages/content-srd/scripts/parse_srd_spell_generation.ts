@@ -1,4 +1,5 @@
 import { parseMarkdown, transformSpell } from '@open20/content/parser';
+import { sortSpells } from 'open20-core/spells';
 
 export { parseMarkdown, transformSpell };
 export type { ParsedSpell } from '@open20/content/parser';
@@ -16,8 +17,5 @@ export function mergeSpells(existing: Spell[], generated: Spell[]): Spell[] {
   for (const s of existing) {
     if (!merged.has(s.id)) merged.set(s.id, s);
   }
-  return Array.from(merged.values()).sort((a, b) => {
-    if (a.level !== b.level) return a.level - b.level;
-    return a.name.localeCompare(b.name);
-  });
+  return sortSpells(Array.from(merged.values()));
 }

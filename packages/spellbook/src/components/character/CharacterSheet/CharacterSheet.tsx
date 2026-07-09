@@ -7,6 +7,7 @@ import { ClassSpellSection } from './ClassSpellSection';
 import { useTranslation } from '@/i18n';
 import { useSpellStore } from '@/stores/spellStore';
 import type { Spell } from 'open20-core';
+import { sortSpells } from 'open20-core/spells';
 
 const SPELL_LEVEL_LABELS = [
   'cantripLevel',
@@ -158,15 +159,19 @@ export function CharacterSheetContent({
           <section>
             <SectionHeader title={t('feats')} className="mb-2" />
             {Object.entries(featSpells).map(([featKey, entry]) => {
-              const cantripSpells = entry.cantrips
-                .map((id: string) => spellService.getSpell(id))
-                .filter((s): s is Spell => !!s)
-                .sort((a, b) => a.name.localeCompare(b.name));
+              const cantripSpells = sortSpells(
+                entry.cantrips
+                  .map((id: string) => spellService.getSpell(id))
+                  .filter((s): s is Spell => !!s),
+                { sortBy: 'name' },
+              );
 
-              const level1Spells = entry.preparedSpells
-                .filter((id: string) => !entry.cantrips.includes(id))
-                .map((id: string) => spellService.getSpell(id))
-                .filter((s): s is Spell => !!s);
+              const level1Spells = sortSpells(
+                entry.preparedSpells
+                  .filter((id: string) => !entry.cantrips.includes(id))
+                  .map((id: string) => spellService.getSpell(id))
+                  .filter((s): s is Spell => !!s),
+              );
 
               const slotEntry = spells.spellSlots[1] as { total: number; used: number } | undefined;
 

@@ -5,7 +5,7 @@
 import type { Spell } from 'open20-core';
 import type { AppCharacter } from './types';
 import { initContent, getContentPack } from './content-resolver';
-import { knowsSpell, isSpellPreparedForClass } from 'open20-core/spells';
+import { knowsSpell, isSpellPreparedForClass, sortSpells } from 'open20-core/spells';
 
 /**
  * Service for querying and managing spells.
@@ -29,7 +29,7 @@ export class SpellService {
   getAllSpells(): Spell[] {
     if (!this.isReady()) return [];
     const pack = getContentPack();
-    return pack.spells ?? [];
+    return sortSpells(pack.spells ?? []);
   }
 
   getSpell(id: string): Spell | undefined {
@@ -42,7 +42,7 @@ export class SpellService {
     if (!this.isReady()) return [];
     const pack = getContentPack();
     const spells = pack.spells ?? [];
-    return spells.filter((s) => {
+    const filtered = spells.filter((s) => {
       if (filter.query) {
         if (!s.name.toLowerCase().includes(filter.query.toLowerCase())) return false;
       }
@@ -54,12 +54,13 @@ export class SpellService {
       }
       return true;
     });
+    return sortSpells(filtered);
   }
 
   getSpellsByClass(classId: string): Spell[] {
     if (!this.isReady()) return [];
     const pack = getContentPack();
-    return pack.spells?.filter((s) => s.classes?.includes(classId)) ?? [];
+    return sortSpells(pack.spells?.filter((s) => s.classes?.includes(classId)) ?? []);
   }
 
   /** Check if a spell is known by any of the character's classes. */

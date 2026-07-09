@@ -197,6 +197,7 @@ export {
 // ── Spells (query + preparation rules) ─────────────────
 export type { SpellFilter } from './spells';
 export type { CasterType, SpellClassState, SlotAvailability } from './spells';
+export type { SpellSortField, SortOrder, SortSpellsOptions } from './spells';
 export {
   getKnownSpellsForClass,
   getSpellsForCharacter,
@@ -223,6 +224,7 @@ export {
   scaleDiceForUpcast,
   getScaledDamageEntries,
   getScaledHealDice,
+  sortSpells,
 } from './spells';
 
 // ── Dice Rolling (New Layered Architecture) ───────────

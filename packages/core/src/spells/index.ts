@@ -32,3 +32,6 @@ export {
 } from './capabilities';
 
 export { scaleDiceForUpcast, getScaledDamageEntries, getScaledHealDice } from './upcast';
+
+export type { SpellSortField, SortOrder, SortSpellsOptions } from './sort';
+export { sortSpells } from './sort';

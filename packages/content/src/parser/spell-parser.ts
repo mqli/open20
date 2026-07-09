@@ -21,6 +21,7 @@ import type {
   SpellComponent,
 } from 'open20-core';
 import type { DamageEntry, DamageType } from 'open20-core/types';
+import { sortSpells } from 'open20-core/spells';
 
 // ── Helper Parsers ────────────────────────────────────────────
 
@@ -435,8 +436,5 @@ export function mergeSpells(existing: Spell[], generated: Spell[]): Spell[] {
   for (const s of existing) {
     if (!merged.has(s.id)) merged.set(s.id, s);
   }
-  return Array.from(merged.values()).sort((a, b) => {
-    if (a.level !== b.level) return a.level - b.level;
-    return a.name.localeCompare(b.name);
-  });
+  return sortSpells(Array.from(merged.values()));
 }

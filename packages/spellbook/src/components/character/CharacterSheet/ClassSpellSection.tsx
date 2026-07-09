@@ -10,7 +10,7 @@ import {
 } from '@open20/ui';
 import { spellService } from '@/core/spell-service';
 import { RulesService } from '@/core/rules-service';
-import { getCasterTypeForClass } from 'open20-core/spells';
+import { getCasterTypeForClass, sortSpells } from 'open20-core/spells';
 import { rollSpellAttack, defaultRandom } from 'open20-core';
 import type { Character } from 'open20-core/types';
 import { resolveDeps } from '@/core/content-resolver';
@@ -63,10 +63,11 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
   const maxPrepared = classData.maxPrepared;
 
   // Only show prepared (or always-prepared) spells
-  const inventorySpells = known
-    .map((id) => spellService.getSpell(id))
-    .filter((s): s is NonNullable<typeof s> => !!s && allPreparedIds.has(s.id))
-    .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+  const inventorySpells = sortSpells(
+    known
+      .map((id) => spellService.getSpell(id))
+      .filter((s): s is NonNullable<typeof s> => !!s && allPreparedIds.has(s.id)),
+  );
 
   const spellsByLevel = inventorySpells.reduce(
     (acc, spell) => {
@@ -79,10 +80,12 @@ export function ClassSpellSection({ classId }: ClassSpellSectionProps) {
   );
 
   // Merge cantrips (level 0) into spellsByLevel
-  const cantripSpells = classData.knownCantrips
-    .map((id) => spellService.getSpell(id))
-    .filter((s): s is NonNullable<typeof s> => !!s)
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const cantripSpells = sortSpells(
+    classData.knownCantrips
+      .map((id) => spellService.getSpell(id))
+      .filter((s): s is NonNullable<typeof s> => !!s),
+    { sortBy: 'name' },
+  );
   if (cantripSpells.length > 0) {
     spellsByLevel[0] = cantripSpells;
   }

@@ -1,4 +1,5 @@
 import type { Spell, Monster, Species, Background, Feat, Weapon, Armor, Gear } from 'open20-core';
+import { sortSpells } from 'open20-core/spells';
 import type {
   SpellQuery,
   MonsterQuery,
@@ -126,22 +127,7 @@ export class ContentBrowser {
     // Sort
     const sortBy = query.sortBy ?? 'name';
     const sortOrder = query.sortOrder ?? 'asc';
-    const multiplier = sortOrder === 'asc' ? 1 : -1;
-
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return multiplier * a.name.localeCompare(b.name);
-        case 'level':
-          return multiplier * (a.level - b.level);
-        case 'school':
-          return multiplier * a.school.localeCompare(b.school);
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
+    return sortSpells(filtered, { sortBy, sortOrder });
   }
 
   // ── Monster methods ─────────────────────────────────────
