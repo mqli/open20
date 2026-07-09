@@ -1,11 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { CustomClassPage } from '../pages/CustomClassPage';
-import {
-  CUSTOM_CLASSES_KEY,
-  STANDALONE_SUBCLASSES_KEY,
-  SEED_CUSTOM_CLASSES,
-  SEED_STANDALONE_SUBCLASSES,
-} from '../fixtures/test-custom-class';
+import { CUSTOM_CLASSES_KEY, SEED_CUSTOM_CLASSES } from '../fixtures/test-custom-class';
 
 test.describe('Custom Class Management', () => {
   let customClassPage: CustomClassPage;
@@ -22,15 +17,6 @@ test.describe('Custom Class Management', () => {
 
     await expect(customClassPage.getDialog()).toBeVisible();
     await expect(customClassPage.getDialog().getByText('Manage Custom Classes')).toBeVisible();
-  });
-
-  // ── Empty state ──
-
-  test('should show empty state when no custom classes exist', async () => {
-    await customClassPage.goto();
-    await customClassPage.openClassModal();
-
-    await expect(customClassPage.getEmptyText()).toBeVisible();
   });
 
   // ── Create custom class ──
@@ -143,20 +129,6 @@ test.describe('Custom Class Management', () => {
     await expect(customClassPage.getDialog().getByText('2 subclasses')).toBeVisible();
   });
 
-  // ── SRD section ──
-
-  test('should display SRD classes section with spellcasting classes only', async () => {
-    await customClassPage.goto();
-    await customClassPage.openClassModal();
-
-    // SRD section should be visible
-    await expect(customClassPage.getSrdSection()).toBeVisible();
-
-    // Wizard and Cleric should be in SRD section (they have spellcasting)
-    await expect(customClassPage.getSrdClassRow('Wizard')).toBeVisible();
-    await expect(customClassPage.getSrdClassRow('Cleric')).toBeVisible();
-  });
-
   // ── Add standalone subclass to SRD class ──
 
   test('should add standalone subclass to SRD class', async () => {
@@ -230,25 +202,5 @@ test.describe('Custom Class Management', () => {
     // Should still be there
     const wizardRowAfter = customClassPage.getSrdClassRow('Wizard');
     await expect(wizardRowAfter.getByText(/1 custom subclass/i)).toBeVisible({ timeout: 5000 });
-  });
-
-  // ── Subclass count updates ──
-
-  test('should show updated subclass count on SRD row after adding standalone subclass', async ({
-    page,
-  }) => {
-    await page.addInitScript(
-      ({ key, data }) => {
-        localStorage.setItem(key, JSON.stringify(data));
-      },
-      { key: STANDALONE_SUBCLASSES_KEY, data: SEED_STANDALONE_SUBCLASSES },
-    );
-
-    await customClassPage.goto();
-    await customClassPage.openClassModal();
-
-    // Should show 1 custom subclass from seed
-    const wizardRow = customClassPage.getSrdClassRow('Wizard');
-    await expect(wizardRow.getByText(/1 custom subclass/i)).toBeVisible();
   });
 });

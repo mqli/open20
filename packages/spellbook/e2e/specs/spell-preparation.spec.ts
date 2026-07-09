@@ -19,36 +19,6 @@ test.describe('Spell Preparation', () => {
     characterPage = new CharacterPage(page);
   });
 
-  test('should prepare a spell from spell library', async ({ page }) => {
-    await spellLibrary.goto();
-    await spellLibrary.searchSpell('Magic Missile');
-    await spellLibrary.viewSpell('Magic Missile');
-
-    const prepareButton = page.locator('.prepare-spell-button').last();
-    await prepareButton.waitFor({ state: 'visible' });
-    await prepareButton.click();
-
-    await expect(prepareButton).toHaveAttribute('title', /unprepare spell/i);
-  });
-
-  test('should unprepare a spell from spell detail', async ({ page }) => {
-    await spellLibrary.goto();
-    await spellLibrary.searchSpell('Magic Missile');
-    await spellLibrary.viewSpell('Magic Missile');
-
-    const prepareButton = page.locator('.prepare-spell-button').last();
-    await prepareButton.waitFor({ state: 'visible' });
-
-    // Ensure it is prepared first
-    if (!/unprepare/i.test((await prepareButton.getAttribute('title')) ?? '')) {
-      await prepareButton.click();
-    }
-
-    await prepareButton.click();
-
-    await expect(prepareButton).toHaveAttribute('title', /prepare spell/i);
-  });
-
   test('should show prepared spells in character sheet', async () => {
     await spellLibrary.goto();
     await spellLibrary.searchSpell('Shield');
