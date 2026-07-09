@@ -196,7 +196,16 @@ export type SpellbookTranslationKeys =
   | 'invalidSpellsFile'
   | 'importPreview'
   | 'spellsImported'
-  | 'spellsSkipped';
+  | 'spellsSkipped'
+  // Character Import / Export
+  | 'exportCharacter'
+  | 'importCharacter'
+  | 'importCharacterTitle'
+  | 'characterImportPreview'
+  | 'characterImported'
+  | 'invalidCharacterFile'
+  | 'customSpells'
+  | 'customSubclasses';
 
 // Spellbook translation structure
 export type SpellbookTranslations = BaseTranslations & Record<SpellbookTranslationKeys, string>;
@@ -404,6 +413,16 @@ export const enTranslations: SpellbookTranslations = {
   importPreview: 'Found {count} spells ready to import',
   spellsImported: '{count} spells imported',
   spellsSkipped: '{count} skipped (already exist)',
+
+  // Character Import / Export
+  exportCharacter: 'Export Character',
+  importCharacter: 'Import Character',
+  importCharacterTitle: 'Import Character',
+  characterImportPreview: 'Character ready to import',
+  characterImported: '{name} has been imported',
+  invalidCharacterFile: 'Invalid character file. Expected a .json character export.',
+  customSpells: 'Custom Spells',
+  customSubclasses: 'Custom Subclasses',
 };
 
 // Chinese (Simplified) translations
@@ -606,6 +625,16 @@ export const zhCNTranslations: SpellbookTranslations = {
   importPreview: '找到 {count} 个法术可导入',
   spellsImported: '导入了 {count} 个法术',
   spellsSkipped: '跳过了 {count} 个（已存在）',
+
+  // Character Import / Export
+  exportCharacter: '导出角色',
+  importCharacter: '导入角色',
+  importCharacterTitle: '导入角色',
+  characterImportPreview: '角色准备导入',
+  characterImported: '{name} 已导入',
+  invalidCharacterFile: '无效的角色文件：需要是 .json 角色导出文件',
+  customSpells: '自定义法术',
+  customSubclasses: '自定义子职业',
 };
 
 export { I18nProvider } from '@open20/ui';
