@@ -5,15 +5,15 @@ import { Sheet } from '../../Sheet';
 
 const meta = {
   title: 'Components/Sheet',
-  component: Sheet,
-} satisfies Meta<typeof Sheet>;
+  component: Sheet.Root,
+} satisfies Meta<typeof Sheet.Root>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
   render: () => (
-    <Sheet>
+    <Sheet.Root>
       <Sheet.Trigger asChild>
         <Button>Open Sheet</Button>
       </Sheet.Trigger>
@@ -33,6 +33,6 @@ export const Playground: Story = {
           </Text>
         </Sheet.Body>
       </Sheet.Content>
-    </Sheet>
+    </Sheet.Root>
   ),
 };

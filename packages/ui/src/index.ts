@@ -220,7 +220,7 @@ export const SelectItem: typeof Select.Item = Select.Item;
 export const SelectLabel: typeof Select.Label = Select.Label;
 export const SelectSeparator: typeof Select.Separator = Select.Separator;
 
-export const SheetRoot = Sheet;
+export const SheetRoot = Sheet.Root;
 export const SheetTrigger = Sheet.Trigger;
 export const SheetClose = Sheet.Close;
 export const SheetContent: typeof Sheet.Content = Sheet.Content;

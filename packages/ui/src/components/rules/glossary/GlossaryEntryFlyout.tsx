@@ -34,7 +34,7 @@ export function GlossaryEntryFlyout({
   if (!entry) return trigger ?? null;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet.Root open={open} onOpenChange={onOpenChange}>
       {trigger && <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>}
       <Sheet.Content side={side} className={cn('w-full sm:w-[min(100vw,420px)]', className)}>
         <Sheet.Header>
@@ -56,6 +56,6 @@ export function GlossaryEntryFlyout({
           </div>
         </Sheet.Body>
       </Sheet.Content>
-    </Sheet>
+    </Sheet.Root>
   );
 }

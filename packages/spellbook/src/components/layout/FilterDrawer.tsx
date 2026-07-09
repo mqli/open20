@@ -41,7 +41,7 @@ export function FilterDrawer() {
           </span>
         )}
       </Button>
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet.Root open={isOpen} onOpenChange={setIsOpen}>
         <Sheet.Content side="bottom" className="max-h-[70vh] overflow-y-auto px-4 py-4">
           <div className="space-y-4">
             <Text as="h3" variant="heading" size="lg">
@@ -55,7 +55,7 @@ export function FilterDrawer() {
             </Surface>
           </div>
         </Sheet.Content>
-      </Sheet>
+      </Sheet.Root>
     </>
   );
 }

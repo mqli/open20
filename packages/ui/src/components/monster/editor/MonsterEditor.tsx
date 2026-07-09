@@ -167,7 +167,6 @@ export function MonsterEditor({
       cancelLabel={t('common.cancel')}
       saveLabel={value ? t('monsterEditor.updateMonster') : t('monsterEditor.createMonster')}
       savingLabel={t('common.saving')}
-      isCreate={!value}
     >
       <Tabs.Root defaultValue="general" className="flex flex-1 flex-col">
         <Tabs.List variant="pills" className="mb-4">

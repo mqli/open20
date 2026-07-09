@@ -43,7 +43,7 @@ export function InlineEditPanel({
   }
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Sheet.Root open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <Sheet.Content side="right" className="w-96">
         <Sheet.Header className="flex items-center justify-between">
           <Sheet.Title>Edit: {spell.name}</Sheet.Title>
@@ -112,6 +112,6 @@ export function InlineEditPanel({
           </div>
         </Sheet.Body>
       </Sheet.Content>
-    </Sheet>
+    </Sheet.Root>
   );
 }

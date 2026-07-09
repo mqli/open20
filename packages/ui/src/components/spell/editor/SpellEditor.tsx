@@ -131,7 +131,6 @@ export function SpellEditor({
       cancelLabel={t('common.cancel')}
       saveLabel={value ? t('spellEditor.updateSpell') : t('spellEditor.createSpell')}
       savingLabel={t('common.saving')}
-      isCreate={!value}
     >
       <Tabs.Root defaultValue="general" className="flex flex-1 flex-col">
         <Tabs.List variant="pills" className="mb-4">

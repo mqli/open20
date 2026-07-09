@@ -95,7 +95,6 @@ export function SpeciesEditor({
       previewLabel="Preview"
       cancelLabel="Cancel"
       saveLabel="Save"
-      isCreate={!value?.id}
     >
       <Tabs.Root defaultValue="general" className="flex flex-1 flex-col">
         <Tabs.List variant="pills" className="mb-4">

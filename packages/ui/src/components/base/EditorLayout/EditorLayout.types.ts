@@ -52,8 +52,4 @@ export interface EditorLayoutProps {
   saveLabel?: string;
   /** Label shown while saving */
   savingLabel?: string;
-
-  // ── Mode ──
-  /** When true, saveLabel is used directly (create mode). When false, updateLabel is used. */
-  isCreate?: boolean;
 }

@@ -27,7 +27,6 @@ export function EditorLayout({
   cancelLabel = 'Cancel',
   saveLabel = 'Save',
   savingLabel = 'Saving...',
-  isCreate: _isCreate = true,
 }: EditorLayoutProps) {
   const saveText = isSubmitting ? savingLabel : saveLabel;
 

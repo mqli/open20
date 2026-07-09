@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Dialog } from '../Dialog';
 import { Sheet } from '../Sheet';
 import { IconButton } from '../IconButton';
+import { Text } from '../Text';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
@@ -35,10 +36,6 @@ export interface ResponsiveDialogProps {
   closeDisabled?: boolean;
 }
 
-const HEADER_CLASSES =
-  'flex justify-between items-center shrink-0 px-4 py-3 sm:px-6 border-b border-border';
-const TITLE_CLASSES = 'text-xl font-black text-text-primary';
-
 export function ResponsiveDialog({
   open,
   onOpenChange,
@@ -59,8 +56,10 @@ export function ResponsiveDialog({
   const header = renderHeader ? (
     renderHeader()
   ) : (
-    <div className={HEADER_CLASSES}>
-      <h2 className={TITLE_CLASSES}>{title}</h2>
+    <div className="flex justify-between items-center shrink-0 px-4 py-3 sm:px-6 border-b border-border">
+      <Text as="h2" size="xl" weight="black">
+        {title}
+      </Text>
       {!hideClose && (
         <IconButton size="sm" disabled={closeDisabled} onClick={handleClose}>
           <X className="w-4 h-4" />
@@ -71,13 +70,13 @@ export function ResponsiveDialog({
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet.Root open={open} onOpenChange={onOpenChange}>
         <Sheet.Content side={sheetSide} className={cn(sheetClassName)}>
           {header}
           {children}
           {renderFooter?.()}
         </Sheet.Content>
-      </Sheet>
+      </Sheet.Root>
     );
   }
 
