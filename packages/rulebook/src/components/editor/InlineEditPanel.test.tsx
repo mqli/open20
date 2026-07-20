@@ -14,6 +14,10 @@ vi.mock('@open20/ui', async () => {
         return <div data-testid="sheet">{children}</div>;
       },
       {
+        Root: ({ open, onOpenChange: _onOpenChange, children }: any) => {
+          if (!open) return null;
+          return <div data-testid="sheet-root">{children}</div>;
+        },
         Content: ({ children, side: _side, className }: any) => (
           <div data-testid="sheet-content" className={className}>
             {children}

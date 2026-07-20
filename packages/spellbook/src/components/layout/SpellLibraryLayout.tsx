@@ -15,6 +15,8 @@ import { CharacterSheetContent } from '@/components/character/CharacterSheet/Cha
 import { CharacterModal } from '@/components/character/CharacterModal';
 import { CustomSpellModal } from '@/components/spell/CustomSpellModal';
 import { ImportSpellsDialog } from '@/components/spell/ImportSpellsDialog';
+import { CharacterImportDialog } from '@/components/spell/CharacterImportDialog';
+import { exportCharacter } from '@/components/spell/character-import-export-utils';
 import { CustomClassModal } from '@/components/class/CustomClassModal';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { MobileTabBar, type MobileTab } from '@/components/layout/MobileTabBar';
@@ -47,6 +49,9 @@ export function SpellLibraryLayout() {
 
   // Import dialog state
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+
+  // Character import dialog state
+  const [isCharacterImportDialogOpen, setIsCharacterImportDialogOpen] = useState(false);
 
   const {
     setSpells,
@@ -117,6 +122,17 @@ export function SpellLibraryLayout() {
         ? t('noKnownSpells')
         : t('noSpellsFound');
 
+  // ── Character import/export callbacks ──
+  const handleExportCharacter = useCallback(() => {
+    if (activeCharacter) {
+      exportCharacter(activeCharacter);
+    }
+  }, [activeCharacter]);
+
+  const handleOpenCharacterImportDialog = useCallback(() => {
+    setIsCharacterImportDialogOpen(true);
+  }, []);
+
   // ── Custom spell actions ──
   const isHomebrew = useCallback((spell: Spell) => spell.source === 'Homebrew', []);
 
@@ -156,6 +172,9 @@ export function SpellLibraryLayout() {
             }}
             onOpenClassManager={() => setIsClassModalOpen(true)}
             onOpenImportDialog={() => setIsImportDialogOpen(true)}
+            onExportCharacter={handleExportCharacter}
+            onOpenCharacterImportDialog={handleOpenCharacterImportDialog}
+            hasActiveCharacter={!!activeCharacter}
           />
         </div>
       </Surface>
@@ -264,6 +283,10 @@ export function SpellLibraryLayout() {
         />
         <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
         <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
+        <CharacterImportDialog
+          open={isCharacterImportDialogOpen}
+          onOpenChange={setIsCharacterImportDialogOpen}
+        />
       </div>
     );
   }
@@ -319,6 +342,10 @@ export function SpellLibraryLayout() {
       />
       <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
       <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
+      <CharacterImportDialog
+        open={isCharacterImportDialogOpen}
+        onOpenChange={setIsCharacterImportDialogOpen}
+      />
     </div>
   );
 }

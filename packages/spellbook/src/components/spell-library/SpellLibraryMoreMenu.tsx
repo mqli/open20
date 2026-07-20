@@ -13,18 +13,29 @@ import {
   Moon,
   Download,
   Upload,
+  User,
+  UserPlus,
 } from 'lucide-react';
 
 export interface SpellLibraryMoreMenuProps {
   onOpenCreateSpell: () => void;
   onOpenClassManager: () => void;
   onOpenImportDialog: () => void;
+  /** Export the active character with its custom spells/subclasses */
+  onExportCharacter?: () => void;
+  /** Open the character import dialog */
+  onOpenCharacterImportDialog?: () => void;
+  /** Whether the active character exists (controls disabled state) */
+  hasActiveCharacter?: boolean;
 }
 
 export function SpellLibraryMoreMenu({
   onOpenCreateSpell,
   onOpenClassManager,
   onOpenImportDialog,
+  onExportCharacter,
+  onOpenCharacterImportDialog,
+  hasActiveCharacter = false,
 }: SpellLibraryMoreMenuProps) {
   const t = useTranslation();
   const { locale, setLocale } = useI18n();
@@ -64,6 +75,19 @@ export function SpellLibraryMoreMenu({
         <DropdownMenu.Item onSelect={onOpenImportDialog}>
           <Upload className="w-4 h-4 mr-2" />
           {t('importCustomSpells')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item
+          disabled={!hasActiveCharacter}
+          onSelect={onExportCharacter}
+          className="menu-export-character"
+        >
+          <User className="w-4 h-4 mr-2" />
+          {t('exportCharacter')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={onOpenCharacterImportDialog} className="menu-import-character">
+          <UserPlus className="w-4 h-4 mr-2" />
+          {t('importCharacter')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
