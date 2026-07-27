@@ -20,6 +20,8 @@ export {
 
 export {
   toggleCondition,
+  toggleInspiration,
+  setInspiration,
   startConcentration,
   endConcentration,
   makeConcentrationCheck,

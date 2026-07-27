@@ -19,18 +19,27 @@ export function withUpdate(char: Character, patch: Partial<Character>): Characte
  * For typed damage, use applyTypedDamage instead
  */
 export function modifyHP(char: Character, delta: number): Character {
+  const oldCurrent = char.hitPoints.current;
   const { currentHP, temporaryHP } = applyHPChange(
-    char.hitPoints.current,
+    oldCurrent,
     char.hitPoints.max,
     char.hitPoints.temporary,
     delta,
   );
+
+  // Reset death saves when HP transitions from 0 to positive
+  const wasDefeated = oldCurrent === 0;
+  const isHealed = currentHP > 0;
+  const resetDeathSaves = wasDefeated && isHealed;
 
   return withUpdate(char, {
     hitPoints: {
       ...char.hitPoints,
       current: currentHP,
       temporary: temporaryHP,
+      ...(resetDeathSaves && {
+        deathSaves: { successes: 0, failures: 0, isStable: false },
+      }),
     },
   });
 }

@@ -36,6 +36,58 @@ export function getSpeciesBySource(source: string, pack: ContentPack): Species[]
   return pack.species?.filter((s) => s.source === source) ?? [];
 }
 
+// ── Character: Derived species/background queries ──────────────────────
+
+/** Sense information resolved from species traits. */
+export interface SenseInfo {
+  readonly name: string;
+  readonly range?: number;
+}
+
+/**
+ * Get senses for a character derived from species data.
+ * Currently resolves darkvision from Species.darkvision.
+ */
+export function getSensesForCharacter(
+  character: { species: string },
+  pack: ContentPack,
+): readonly SenseInfo[] {
+  const species = findSpecies(character.species, pack);
+  if (!species) return [];
+  const senses: SenseInfo[] = [];
+  if (species.darkvision && species.darkvision > 0) {
+    senses.push({ name: 'Darkvision', range: species.darkvision });
+  }
+  return senses;
+}
+
+/**
+ * Get all languages for a character, aggregated from species and background.
+ * Deduplicates entries.
+ */
+export function getLanguagesForCharacter(
+  character: { species: string; background: string },
+  pack: ContentPack,
+): readonly string[] {
+  const species = findSpecies(character.species, pack);
+  const bg = findBackground(character.background, pack);
+
+  const all = new Set<string>();
+  for (const lang of species?.languages ?? []) all.add(lang);
+  for (const lang of bg?.languages ?? []) all.add(lang);
+
+  return [...all];
+}
+
+/**
+ * Get the character's size category derived from species data.
+ * Returns a reasonable default ('Medium') when species is not found.
+ */
+export function getSizeForCharacter(character: { species: string }, pack: ContentPack): string {
+  const species = findSpecies(character.species, pack);
+  return species?.size ?? 'Medium';
+}
+
 // ── Background ──────────────────────────────────────────
 
 /** Find a background by ID. */

@@ -18,6 +18,7 @@ import { calculateAttacks } from '@/engine/attack-calculator';
 import { calculateMaxHP } from '@/engine/hp-calculator';
 import { calculatePactMagic, calculateSpellSlotsFromClasses } from '@/engine/spell-slots';
 import { buildClassSpellData } from '@/engine/spell-data';
+import { getExhaustionSpeedPenalty } from '@/engine/exhaustion';
 import type { ClassSpellData, SpellLevel, SpellSlotEntry } from '@/types/spell';
 import type { Feature } from '@/types/class';
 import { gatherAllFeatures } from './utils';
@@ -470,7 +471,7 @@ export function recomputeDerivedStats(char: Character, deps: RecomputeDerivedSta
     combatStats: {
       AC: newAC,
       initiative: newInitiative,
-      speed: char.combatStats.speed,
+      speed: Math.max(0, char.combatStats.speed - getExhaustionSpeedPenalty(char.conditions)),
       passivePerception: newPassivePerception,
       proficiencyBonus: pb,
       attacks: newAttacks,

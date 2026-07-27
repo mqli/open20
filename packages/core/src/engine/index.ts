@@ -21,6 +21,11 @@ export { calculateInitiative } from './initiative';
 export { calculatePassivePerception } from './passive-perception';
 export { calculateAttacks } from './attack-calculator';
 export {
+  getExhaustionLevel,
+  getExhaustionD20Penalty,
+  getExhaustionSpeedPenalty,
+} from './exhaustion';
+export {
   buildClassSpellData,
   getMaxSpellLevel,
   getAlwaysPreparedSpellsFromSubclass,

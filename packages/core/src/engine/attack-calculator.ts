@@ -2,7 +2,7 @@
 // 攻击加值计算 — 纯函数
 // 对应 HLD §6.1
 
-import type { AbilityScores } from '@/types/ability';
+import type { AbilityScores, AbilityName } from '@/types/ability';
 import type { Weapon, EquipmentItem } from '@/types/equipment';
 import type { Feature } from '@/types/class';
 import type { CharacterAttack } from '@/types/character';
@@ -47,7 +47,7 @@ export function calculateAttacks(
     .filter((w): w is { itemId: string; weapon: Weapon } => w.weapon != null);
 
   for (const { weapon } of equippedWeapons) {
-    const { attackBonus, damageMod } = calculateWeaponAttack(
+    const { attackBonus, damageMod, abilityUsed } = calculateWeaponAttack(
       scores,
       weapon,
       proficiencyBonus,
@@ -68,6 +68,7 @@ export function calculateAttacks(
       damage: damageStr,
       damageType: baseEntry?.type ?? 'Slashing', // 从武器数据获取伤害类型
       mastery: weapon.mastery ?? [],
+      abilityUsed: abilityUsed as AbilityName,
     });
   }
 

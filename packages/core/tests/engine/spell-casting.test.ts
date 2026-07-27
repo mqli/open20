@@ -192,6 +192,7 @@ const mockWizardChar = {
   currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
   conditions: [],
   damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },
+  inspiration: false,
   notes: '',
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',

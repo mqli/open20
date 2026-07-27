@@ -16,6 +16,8 @@ import {
   consumeSpellSlot,
   recoverSpellSlot,
   toggleCondition,
+  toggleInspiration,
+  setInspiration,
   equipItem,
   unequipItem,
   prepareSpellForClass,
@@ -157,6 +159,105 @@ describe('modifyHP', () => {
     const originalCurrent = char.hitPoints.current;
     modifyHP(char, -5);
     expect(char.hitPoints.current).toBe(originalCurrent);
+  });
+
+  // Death-save auto-reset (T-011)
+  it('resets death saves when HP transitions from 0 to positive', () => {
+    const char = makeFighter();
+    // Pre-set char with 0 HP and active death saves
+    const defeated = {
+      ...char,
+      hitPoints: {
+        ...char.hitPoints,
+        current: 0,
+        deathSaves: { successes: 2, failures: 1, isStable: false },
+      },
+    };
+    const healed = modifyHP(defeated, 5);
+    expect(healed.hitPoints.current).toBe(5);
+    expect(healed.hitPoints.deathSaves).toEqual({
+      successes: 0,
+      failures: 0,
+      isStable: false,
+    });
+  });
+
+  it('resets death saves even when isStable is true', () => {
+    const char = makeFighter();
+    const stable = {
+      ...char,
+      hitPoints: {
+        ...char.hitPoints,
+        current: 0,
+        deathSaves: { successes: 3, failures: 0, isStable: true },
+      },
+    };
+    const healed = modifyHP(stable, 10);
+    expect(healed.hitPoints.current).toBe(10);
+    expect(healed.hitPoints.deathSaves).toEqual({
+      successes: 0,
+      failures: 0,
+      isStable: false,
+    });
+  });
+
+  it('does NOT reset death saves when HP stays at 0', () => {
+    const char = makeFighter();
+    const defeated = {
+      ...char,
+      hitPoints: {
+        ...char.hitPoints,
+        current: 0,
+        deathSaves: { successes: 2, failures: 1, isStable: false },
+      },
+    };
+    // delta is 0 — no net change
+    const result = modifyHP(defeated, 0);
+    expect(result.hitPoints.current).toBe(0);
+    expect(result.hitPoints.deathSaves).toEqual({
+      successes: 2,
+      failures: 1,
+      isStable: false,
+    });
+  });
+
+  it('does NOT reset death saves during normal healing (positive → positive)', () => {
+    const char = makeFighter();
+    const damaged = {
+      ...char,
+      hitPoints: {
+        ...char.hitPoints,
+        current: 5,
+        deathSaves: { successes: 0, failures: 0, isStable: false },
+      },
+    };
+    const healed = modifyHP(damaged, 5);
+    expect(healed.hitPoints.current).toBe(10);
+    expect(healed.hitPoints.deathSaves).toEqual({
+      successes: 0,
+      failures: 0,
+      isStable: false,
+    });
+  });
+
+  it('does NOT reset death saves when further damaged (positive → 0)', () => {
+    const char = makeFighter();
+    const damaged = {
+      ...char,
+      hitPoints: {
+        ...char.hitPoints,
+        current: 5,
+        deathSaves: { successes: 0, failures: 0, isStable: false },
+      },
+    };
+    const dropped = modifyHP(damaged, -5);
+    expect(dropped.hitPoints.current).toBe(0);
+    // Death saves unchanged by damage alone
+    expect(dropped.hitPoints.deathSaves).toEqual({
+      successes: 0,
+      failures: 0,
+      isStable: false,
+    });
   });
 });
 
@@ -481,6 +582,48 @@ describe('addEquipment / removeEquipment', () => {
     const char = makeFighter();
     const result = removeEquipment(char, 'does-not-exist');
     expect(result).toEqual(char);
+  });
+});
+
+describe('toggleInspiration', () => {
+  it('toggles inspiration from false to true', () => {
+    const char = makeFighter();
+    const result = toggleInspiration(char);
+    expect(result.inspiration).toBe(true);
+  });
+
+  it('toggles inspiration from true to false', () => {
+    const char = makeFighter();
+    const withInsp = toggleInspiration(char);
+    expect(withInsp.inspiration).toBe(true);
+    const result = toggleInspiration(withInsp);
+    expect(result.inspiration).toBe(false);
+  });
+
+  it('new character starts without inspiration', () => {
+    const char = makeFighter();
+    expect(char.inspiration).toBe(false);
+  });
+});
+
+describe('setInspiration', () => {
+  it('sets inspiration explicitly', () => {
+    const char = makeFighter();
+    const result = setInspiration(char, true);
+    expect(result.inspiration).toBe(true);
+  });
+
+  it('returns same object when value unchanged', () => {
+    const char = makeFighter();
+    const result = setInspiration(char, false);
+    expect(result).toBe(char);
+  });
+
+  it('preserves immutability of original', () => {
+    const char = makeFighter();
+    const originalInspiration = char.inspiration;
+    setInspiration(char, true);
+    expect(char.inspiration).toBe(originalInspiration);
   });
 });
 

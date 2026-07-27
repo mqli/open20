@@ -72,6 +72,7 @@ function createMinimalCharacter(overrides?: Partial<Character>): Character {
     concentration: null,
     activeEffects: [],
     damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },
+    inspiration: false,
     notes: '',
     createdAt: '2025-01-01T00:00:00.000Z',
     updatedAt: '2025-01-01T00:00:00.000Z',

@@ -7,21 +7,7 @@ import type { SkillEntry } from '@/types/skill';
 import type { ActiveCondition } from '@/types/character';
 import { getModifier, getTotalScore } from './ability-modifier';
 import { getSkillBonus } from './skill-bonus';
-
-/**
- * 取出 Exhaustion 的最高等级（无该状态时返回 0）
- * 2024 PHB: Exhaustion 是单一状态，不应有多个条目；
- * 若意外出现多个，取最高等级以保证幂等。
- */
-function getExhaustionLevel(conditions: readonly ActiveCondition[]): number {
-  let max = 0;
-  for (const c of conditions) {
-    if (c.id !== 'Exhaustion') continue;
-    const lvl = c.level ?? 1;
-    if (lvl > max) max = lvl;
-  }
-  return max;
-}
+import { getExhaustionLevel } from './exhaustion';
 
 /**
  * 计算被动感知(Passive Perception)

@@ -19,8 +19,8 @@ import {
 import { rollDiceExpression } from '@/dice/core';
 import { getModifier, getTotalScore } from '@/engine/ability-modifier';
 import { getScaledDamageEntries, getScaledHealDice } from '@/spells/upcast';
-import { getSkillBonus } from '@/engine/skill-bonus';
 import { SKILL_ABILITY_MAP } from '@/types/skill';
+import { getExhaustionD20Penalty } from '@/engine/exhaustion';
 import { getActiveDamageDefenses, calculateTypedDamage } from '@/engine/damage-calculator';
 import { modifyHP } from '@/character/mutate';
 import type { RecomputeDerivedStatsDeps } from '@/types/deps';
@@ -50,13 +50,6 @@ export function rollCharacterSkillCheck(
   const abilityMod = getModifier(getTotalScore(character.abilityScores, ability));
   const proficiencyBonus = character.combatStats.proficiencyBonus;
 
-  const bonus = getSkillBonus(
-    character.abilityScores,
-    skillEntry ?? { proficient: false, expertise: false },
-    ability,
-    proficiencyBonus,
-  );
-
   const result = rollSkillCheck({
     abilityMod,
     proficiencyBonus: skillEntry?.proficient ? proficiencyBonus : 0,
@@ -66,9 +59,16 @@ export function rollCharacterSkillCheck(
     rng,
   });
 
+  // Apply exhaustion penalty (D&D 2024: −2 × level on all d20 Tests)
+  const exhaustionPenalty = getExhaustionD20Penalty(character.conditions);
+  const adjustedTotal = result.total - exhaustionPenalty;
+  const adjustedBonus = result.bonus - exhaustionPenalty;
+
   return {
     ...result,
-    bonus, // Override with actual skill bonus
+    bonus: adjustedBonus,
+    total: adjustedTotal,
+    ...(result.dc !== undefined ? { success: adjustedTotal >= result.dc } : {}),
     skillName: skill,
     ability,
   };
@@ -105,8 +105,15 @@ export function rollCharacterAbilityCheck(
     rng,
   });
 
+  // Apply exhaustion penalty (D&D 2024: −2 × level on all d20 Tests)
+  const exhaustionPenalty = getExhaustionD20Penalty(character.conditions);
+  const adjustedTotal = result.total - exhaustionPenalty;
+
   return {
     ...result,
+    bonus: result.bonus - exhaustionPenalty,
+    total: adjustedTotal,
+    ...(result.dc !== undefined ? { success: adjustedTotal >= result.dc } : {}),
     ability,
   };
 }
@@ -142,7 +149,7 @@ export function rollCharacterSavingThrow(params: CharacterSavingThrowParams): Ch
     }
   }
 
-  return rollSavingThrow({
+  let result = rollSavingThrow({
     abilityMod,
     proficiencyBonus,
     isProficient,
@@ -150,6 +157,18 @@ export function rollCharacterSavingThrow(params: CharacterSavingThrowParams): Ch
     dc,
     rng,
   });
+
+  // Apply exhaustion penalty (D&D 2024: −2 × level on all d20 Tests)
+  const exhaustionPenalty = getExhaustionD20Penalty(character.conditions);
+  const adjustedTotal = result.total - exhaustionPenalty;
+  result = {
+    ...result,
+    bonus: result.bonus - exhaustionPenalty,
+    total: adjustedTotal,
+    ...(result.dc !== undefined ? { success: adjustedTotal >= result.dc } : {}),
+  };
+
+  return result;
 }
 
 // ── Character Attack Roll ───────────────────────────────────────
@@ -171,7 +190,8 @@ export function rollCharacterAttack(params: CharacterAttackParams): AttackRollRe
 
   const abilityMod = getModifier(getTotalScore(character.abilityScores, weapon.damage.ability));
   const proficiencyBonus = character.combatStats.proficiencyBonus;
-  const attackBonus = abilityMod + proficiencyBonus + weapon.damage.bonus;
+  const exhaustionPenalty = getExhaustionD20Penalty(character.conditions);
+  const attackBonus = abilityMod + proficiencyBonus + weapon.damage.bonus - exhaustionPenalty;
 
   return rollAttack({
     attackBonus,
@@ -253,7 +273,8 @@ export function rollSpellAttack(params: SpellAttackParams): AttackRollResult {
 
   const abilityMod = getModifier(getTotalScore(character.abilityScores, spellcastingAbility));
   const proficiencyBonus = character.combatStats.proficiencyBonus;
-  const attackBonus = abilityMod + proficiencyBonus;
+  const exhaustionPenalty = getExhaustionD20Penalty(character.conditions);
+  const attackBonus = abilityMod + proficiencyBonus - exhaustionPenalty;
 
   return rollAttack({
     attackBonus,
@@ -385,12 +406,19 @@ export function rollCharacterInitiative(params: CharacterInitiativeParams): Roll
   const { character, rollModifier = 'none', rng } = params;
 
   const dexterityMod = getModifier(getTotalScore(character.abilityScores, 'Dexterity'));
+  const exhaustionPenalty = getExhaustionD20Penalty(character.conditions);
 
-  return rollInitiative({
+  const result = rollInitiative({
     dexterityMod,
     rollModifier,
     rng,
   });
+
+  return {
+    ...result,
+    bonus: result.bonus - exhaustionPenalty,
+    total: result.total - exhaustionPenalty,
+  };
 }
 
 // ── Apply Damage with Defenses ─────────────────────────────

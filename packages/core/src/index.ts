@@ -96,6 +96,7 @@ export type { SpellSlotEntry as SpellSlotEntryEngine, PactMagicResult } from './
 export { calculateInitiative } from './engine';
 export { calculatePassivePerception } from './engine';
 export { calculateAttacks } from './engine';
+export { getExhaustionLevel, getExhaustionD20Penalty, getExhaustionSpeedPenalty } from './engine';
 
 // ── Engine: Critical Hit/Fail Helpers ────────────────
 export { isCriticalHit, isCriticalFail } from './engine';
@@ -157,6 +158,8 @@ export {
   consumeSpellSlot,
   recoverSpellSlot,
   toggleCondition,
+  toggleInspiration,
+  setInspiration,
   startConcentration,
   endConcentration,
   makeConcentrationCheck,
@@ -179,6 +182,10 @@ export {
 } from './character';
 export { validateCharacter } from './character';
 export { recomputeDerivedStats } from './character';
+
+// ── Character: Attack Adapter ──────────────────────────
+export { characterAttackToWeapon, rollStoredAttack, rollStoredAttackDamage } from './character';
+export type { StoredAttackRollParams, StoredAttackDamageParams } from './character';
 
 // ── Character: Feat Validation ─────────────────────────
 export type { FeatValidationResult } from './character/feat-validator';

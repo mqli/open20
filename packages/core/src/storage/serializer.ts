@@ -72,6 +72,7 @@ const CharacterSchema = z.object({
     .optional()
     .default({ resistances: [], immunities: [], vulnerabilities: [] }),
   notes: z.string(),
+  inspiration: z.boolean().optional().default(false),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

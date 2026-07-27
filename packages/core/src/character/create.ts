@@ -166,6 +166,7 @@ export function createCharacter(
     concentration: null,
     activeEffects: [],
     damageDefenses: emptyDamageDefenses,
+    inspiration: false,
     notes: '',
     createdAt: now,
     updatedAt: now,

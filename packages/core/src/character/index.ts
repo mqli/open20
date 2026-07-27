@@ -19,6 +19,8 @@ export {
   consumeSpellSlot,
   recoverSpellSlot,
   toggleCondition,
+  toggleInspiration,
+  setInspiration,
   startConcentration,
   endConcentration,
   makeConcentrationCheck,
@@ -65,3 +67,11 @@ export {
   getCharacterMaxHP,
   getCharacterTemporaryHP,
 } from '../engine/combat';
+
+// ── Attack Adapter ────────────────────────────
+export {
+  characterAttackToWeapon,
+  rollStoredAttack,
+  rollStoredAttackDamage,
+} from './attack-adapter';
+export type { StoredAttackRollParams, StoredAttackDamageParams } from './attack-adapter';

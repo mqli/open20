@@ -10,6 +10,15 @@ import { rollSavingThrow } from '@/dice/mechanics';
 import { withUpdate } from './hp';
 import type { RecomputeDerivedStatsDeps } from '@/types/deps';
 
+export function toggleInspiration(char: Character): Character {
+  return setInspiration(char, !char.inspiration);
+}
+
+export function setInspiration(char: Character, value: boolean): Character {
+  if (char.inspiration === value) return char;
+  return withUpdate(char, { inspiration: value });
+}
+
 export function toggleCondition(char: Character, conditionId: ConditionName): Character {
   const existingIdx = char.conditions.findIndex((c) => c.id === conditionId);
 

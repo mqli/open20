@@ -34,6 +34,7 @@ export interface Character {
   readonly concentration: ConcentrationState | null;
   readonly activeEffects: readonly ActiveEffect[];
   readonly damageDefenses: DamageDefenses;
+  readonly inspiration: boolean;
   readonly notes: string;
   readonly createdAt: string; // ISO 8601
   readonly updatedAt: string; // ISO 8601
