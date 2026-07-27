@@ -6,7 +6,6 @@
 import { createCharacter, type AbilityName } from 'open20-core';
 import { Surface, Text, Button, EmptyState } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
-import { useIsLargeScreen } from '@/hooks/useIsLargeScreen';
 import { buildDepsForCreate, getClassName, getSpeciesName } from '@/core/content-resolver';
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
@@ -42,7 +41,6 @@ function createSampleCharacter() {
 }
 
 export function AppShell() {
-  const { isMobile } = useIsLargeScreen();
   const { character, error, modifyHP, upsertCharacter } = useCharacterStore();
 
   if (!character) {
@@ -81,13 +79,14 @@ export function AppShell() {
         </Text>
       </header>
 
-      <div className={isMobile ? 'flex flex-col gap-4' : 'grid grid-cols-2 gap-4'}>
+      <div className="flex flex-col gap-4">
         <HpBar
           current={character.hitPoints.current}
           max={character.hitPoints.max}
           temporary={character.hitPoints.temporary}
           onAdjust={modifyHP}
         />
+        {/* Ability grid needs full width so all 6 columns fit without overlap. */}
         <Surface variant="default" padding="md">
           <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
             Ability Scores
