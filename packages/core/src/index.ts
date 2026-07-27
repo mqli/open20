@@ -270,6 +270,7 @@ export { rollSkillCheck, rollSavingThrow, rollAttack, rollDamage, rollInitiative
 // Layer 4: Application (rolls module)
 export type {
   CharacterSkillCheckParams,
+  CharacterAbilityCheckParams,
   CharacterSavingThrowParams,
   CharacterAttackParams,
   CharacterWeaponDamageParams,
@@ -285,6 +286,7 @@ export type {
 } from './rolls';
 export {
   rollCharacterSkillCheck,
+  rollCharacterAbilityCheck,
   rollCharacterSavingThrow,
   rollCharacterAttack,
   rollCharacterWeaponDamage,

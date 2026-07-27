@@ -17,7 +17,7 @@ import { resolveDeps } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useSpellStore } from '@/stores/spellStore';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
-import { useRollStore } from '@/stores/rollStore';
+import { useRollStore } from '@open20/ui';
 import type { SpellLevel, Spell, SpellSlotEntry } from 'open20-core/types';
 import { useTranslation } from '@/i18n';
 

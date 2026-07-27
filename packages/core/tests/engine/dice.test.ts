@@ -8,11 +8,13 @@ import {
   rollWithAdvantage,
   rollWithDisadvantage,
   defaultRandom,
+  createDeterministicRNG,
   type RandomProvider,
 } from '../../src/dice';
 import {
   rollCharacterAttack,
   rollCharacterSkillCheck,
+  rollCharacterAbilityCheck,
   rollCharacterSavingThrow,
 } from '../../src/rolls/character';
 import { rollCharacterWeaponDamage } from '../../src/rolls/character';
@@ -300,6 +302,139 @@ describe('rollSavingThrow', () => {
 
     expect(result.total).toBe(10); // 3 + 7
     expect(result.success).toBe(false);
+  });
+});
+
+describe('rollCharacterAbilityCheck', () => {
+  it('computes d20 + ability modifier with no proficiency', () => {
+    const rng = createDeterministicRNG([10]);
+    // STR 16 → +3 modifier
+    const character = createMockCharacter({
+      abilityScores: {
+        base: {
+          Strength: 16,
+          Dexterity: 14,
+          Constitution: 16,
+          Intelligence: 10,
+          Wisdom: 12,
+          Charisma: 8,
+        },
+        racialBonuses: {},
+        featBonuses: {},
+        temporaryBonuses: {},
+      },
+    });
+
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Strength',
+      rng,
+    });
+
+    expect(result.rawRoll).toBe(10);
+    expect(result.bonus).toBe(3);
+    expect(result.total).toBe(13);
+    expect(result.ability).toBe('Strength');
+    // No proficiency applied even though character has a proficiency bonus
+    expect(result.bonus).toBe(3);
+  });
+
+  it('sets success when total meets the DC', () => {
+    const rng = createDeterministicRNG([12]);
+    const character = createMockCharacter(); // STR 18 → +4
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Strength',
+      dc: 15,
+      rng,
+    });
+
+    expect(result.total).toBe(16); // 12 + 4
+    expect(result.dc).toBe(15);
+    expect(result.success).toBe(true);
+  });
+
+  it('sets failure when total is below the DC', () => {
+    const rng = createDeterministicRNG([5]);
+    const character = createMockCharacter(); // STR 18 → +4
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Strength',
+      dc: 15,
+      rng,
+    });
+
+    expect(result.total).toBe(9); // 5 + 4
+    expect(result.success).toBe(false);
+  });
+
+  it('leaves success undefined when no DC is provided', () => {
+    const rng = createDeterministicRNG([8]);
+    const character = createMockCharacter();
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Dexterity',
+      rng,
+    });
+
+    expect(result.success).toBeUndefined();
+    expect(result.dc).toBeUndefined();
+  });
+
+  it('honors advantage (takes the higher of two d20 rolls)', () => {
+    const rng = createDeterministicRNG([5, 18]);
+    const character = createMockCharacter();
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Strength',
+      rollModifier: 'advantage',
+      rng,
+    });
+
+    expect(result.rawRoll).toBe(18);
+    expect(result.rollModifier).toBe('advantage');
+    expect(result.total).toBe(22); // 18 + 4
+  });
+
+  it('honors disadvantage (takes the lower of two d20 rolls)', () => {
+    const rng = createDeterministicRNG([5, 18]);
+    const character = createMockCharacter();
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Strength',
+      rollModifier: 'disadvantage',
+      rng,
+    });
+
+    expect(result.rawRoll).toBe(5);
+    expect(result.rollModifier).toBe('disadvantage');
+    expect(result.total).toBe(9); // 5 + 4
+  });
+
+  it('records a natural 20 raw roll', () => {
+    const rng = createDeterministicRNG([20]);
+    const character = createMockCharacter();
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Strength',
+      rng,
+    });
+
+    expect(result.rawRoll).toBe(20);
+    expect(result.total).toBe(24); // 20 + 4
+  });
+
+  it('records a natural 1 raw roll', () => {
+    const rng = createDeterministicRNG([1]);
+    const character = createMockCharacter();
+    const result = rollCharacterAbilityCheck({
+      character,
+      ability: 'Strength',
+      rng,
+    });
+
+    expect(result.rawRoll).toBe(1);
+    expect(result.total).toBe(5); // 1 + 4
   });
 });
 

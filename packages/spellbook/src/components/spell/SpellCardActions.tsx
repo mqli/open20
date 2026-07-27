@@ -7,7 +7,7 @@ import { SpellbookControls } from './SpellbookControls';
 import { useSpellCapabilities } from '@/hooks/useSpellCapabilities';
 import { useSpellCastLevel } from '@/hooks/useSpellCastLevel';
 import { useCharacterStore } from '@/stores/characterStore';
-import { useRollStore } from '@/stores/rollStore';
+import { useRollStore } from '@open20/ui';
 import { characterService } from '@/core/character-service';
 import { useTranslation } from '@/i18n';
 

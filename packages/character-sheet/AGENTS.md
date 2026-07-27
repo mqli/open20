@@ -94,6 +94,8 @@ pnpm --filter @open20/character-sheet lint       # Lint
 
 See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane Purple primary, Stone Gray neutral, Inter font). The character sheet app inherits the same design tokens via `@open20/ui`.
 
-## PRD
+## PRD & Implementation Tasks
 
-See `PRD.md` for the full product requirements document (52 functional requirements across 18 feature groups).
+- `PRD.md` — full product requirements (64 functional requirements, FR-100~163, across 19 feature groups).
+- `Wireframe_Design.md` — UI wireframes and core-integration patterns.
+- `tasks/` — **implementation task specs for agents.** Start at `tasks/README.md`: it carries the verified API surface (core/ui/content), the golden-path architecture, corrections to the PRD/wireframe, and the phased task index (`phase-0-foundation.md` → `phase-3-p2.md`). Read it before implementing any feature.

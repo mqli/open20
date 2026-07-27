@@ -41,7 +41,8 @@
     "open20-core": "workspace:*",
     "react-markdown": "^9.0.0",
     "remark-gfm": "^4.0.0",
-    "tailwind-merge": "catalog:"
+    "tailwind-merge": "catalog:",
+    "zustand": "catalog:"
   },
   "peerDependencies": {
     "react": "catalog:",
