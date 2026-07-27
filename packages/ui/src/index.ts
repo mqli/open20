@@ -75,6 +75,9 @@ export type {
   GlossaryTermDisplay,
 } from './components/rules/glossary/index';
 
+export { DiceRollOverlay } from './components/dice/index';
+export { useRollStore } from './stores/rollStore';
+export type { RollResult, RollResultRow } from './stores/rollStore';
 export { Surface } from './components/base/Surface/index';
 export type { SurfaceProps } from './components/base/Surface/index';
 export { Switch } from './components/base/Switch/index';

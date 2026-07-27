@@ -74,6 +74,43 @@ export function rollCharacterSkillCheck(
   };
 }
 
+// ── Character Ability Check ─────────────────────────────────────
+
+export interface CharacterAbilityCheckParams {
+  character: Character;
+  ability: AbilityName;
+  rollModifier?: 'none' | 'advantage' | 'disadvantage';
+  dc?: number;
+  rng: RandomProvider;
+}
+
+/**
+ * Roll a raw ability check for a character (d20 + ability modifier).
+ * No proficiency bonus and no expertise are applied — this is a plain
+ * ability check (e.g., a raw Strength check), as distinct from a skill check.
+ */
+export function rollCharacterAbilityCheck(
+  params: CharacterAbilityCheckParams,
+): CheckResult & { ability: AbilityName } {
+  const { character, ability, rollModifier = 'none', dc, rng } = params;
+
+  const abilityMod = getModifier(getTotalScore(character.abilityScores, ability));
+
+  const result = rollSkillCheck({
+    abilityMod,
+    proficiencyBonus: 0,
+    hasExpertise: false,
+    rollModifier,
+    dc,
+    rng,
+  });
+
+  return {
+    ...result,
+    ability,
+  };
+}
+
 // ── Character Saving Throw ──────────────────────────────────────
 
 export interface CharacterSavingThrowParams {

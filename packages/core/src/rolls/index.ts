@@ -4,6 +4,7 @@
 // Character roll functions
 export {
   type CharacterSkillCheckParams,
+  type CharacterAbilityCheckParams,
   type CharacterSavingThrowParams,
   type CharacterAttackParams,
   type CharacterWeaponDamageParams,
@@ -13,6 +14,7 @@ export {
   type SpellHealRollResult,
   type CharacterInitiativeParams,
   rollCharacterSkillCheck,
+  rollCharacterAbilityCheck,
   rollCharacterSavingThrow,
   rollCharacterAttack,
   rollCharacterWeaponDamage,
