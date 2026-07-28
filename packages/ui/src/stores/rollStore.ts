@@ -35,6 +35,8 @@ export interface RollResult {
   isCritical?: boolean;
   /** Critical miss (natural 1) — renders a 💥 glyph + danger color. */
   isCriticalMiss?: boolean;
+  /** Individual d20 values (2 for adv/dis, 1 for normal) */
+  rolls?: readonly number[];
 }
 
 interface RollState {

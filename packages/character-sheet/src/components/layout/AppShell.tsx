@@ -93,7 +93,7 @@ export function AppShell() {
           </Text>
           <AbilityScoresGrid
             abilityScores={character.abilityScores}
-            onRoll={(ability) => rollAbility(character, ability)}
+            onRollCheck={(ability, rollModifier) => rollAbility(character, ability, rollModifier)}
           />
         </Surface>
       </div>

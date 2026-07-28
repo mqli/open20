@@ -77,22 +77,36 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
         {current} / {max}
       </Text>
 
-      <div className="flex flex-wrap gap-1">
-        {DELTAS.map((d) => (
-          <Button
-            key={d}
-            variant={d < 0 ? 'danger' : 'primary'}
-            size="sm"
-            className="min-h-[44px] min-w-[44px] tabular-nums"
-            onClick={() => onAdjust(d)}
-            aria-label={`${d > 0 ? 'Heal' : 'Damage'} ${Math.abs(d)}`}
-          >
-            {d > 0 ? `+${d}` : d}
-          </Button>
-        ))}
+      {/* Three-group layout: damage left, custom center, heal right */}
+      <div className="flex items-center justify-between gap-2">
+        {/* Damage */}
+        <div className="flex gap-1">
+          {DELTAS.filter((d) => d < 0).map((d) => (
+            <Button
+              key={d}
+              variant="danger"
+              size="sm"
+              className="min-h-[44px] min-w-[44px] tabular-nums"
+              onClick={() => onAdjust(d)}
+              aria-label={`Damage ${Math.abs(d)}`}
+            >
+              {d}
+            </Button>
+          ))}
+        </div>
 
-        {/* Inline custom-value input (FR-101): type amount, then + or − */}
+        {/* Custom input: − left, input center, + right */}
         <div className="flex items-center gap-0.5">
+          <Button
+            variant="danger"
+            size="sm"
+            className="min-h-[44px] min-w-[44px]"
+            onClick={() => apply(-1)}
+            disabled={customValue === ''}
+            aria-label="Damage custom amount"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
           <Input
             type="number"
             step="1"
@@ -113,16 +127,22 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
           >
             <Plus className="h-4 w-4" />
           </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            className="min-h-[44px] min-w-[44px]"
-            onClick={() => apply(-1)}
-            disabled={customValue === ''}
-            aria-label="Damage custom amount"
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
+        </div>
+
+        {/* Heal */}
+        <div className="flex gap-1">
+          {DELTAS.filter((d) => d > 0).map((d) => (
+            <Button
+              key={d}
+              variant="primary"
+              size="sm"
+              className="min-h-[44px] min-w-[44px] tabular-nums"
+              onClick={() => onAdjust(d)}
+              aria-label={`Heal ${Math.abs(d)}`}
+            >
+              +{d}
+            </Button>
+          ))}
         </div>
       </div>
     </Surface>

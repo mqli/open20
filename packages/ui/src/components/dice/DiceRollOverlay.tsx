@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { IconButton } from '@/components/base/IconButton/index';
 import { Surface } from '@/components/base/Surface/index';
 import { Text } from '@/components/base/Text/index';
+import { cn } from '@/lib/cn';
 
 /** Format a modifier breakdown as e.g. "WIS +3 | PB +2". */
 function formatComponents(components: RollResult['components']): string | null {
@@ -165,14 +166,39 @@ export function DiceRollOverlay() {
                     <span className={`ml-2 ${totalColorClass}`}>{critGlyph}</span>
                   ) : null}
                 </Text>
-                <div className="flex items-baseline gap-2">
+                <div className="flex items-center gap-2">
+                  {latestRoll.rolls && latestRoll.rolls.length === 2 ? (
+                    <>
+                      <span
+                        className={cn(
+                          'inline-flex h-9 w-9 items-center justify-center rounded-md border-2 text-lg font-black tabular-nums',
+                          latestRoll.rolls[0] >= latestRoll.rolls[1]
+                            ? 'border-primary-500 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
+                            : 'border-border/50 bg-bg-tertiary text-text-tertiary',
+                        )}
+                      >
+                        {latestRoll.rolls[0]}
+                      </span>
+                      <span
+                        className={cn(
+                          'inline-flex h-9 w-9 items-center justify-center rounded-md border-2 text-lg font-black tabular-nums',
+                          latestRoll.rolls[1] >= latestRoll.rolls[0]
+                            ? 'border-primary-500 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
+                            : 'border-border/50 bg-bg-tertiary text-text-tertiary',
+                        )}
+                      >
+                        {latestRoll.rolls[1]}
+                      </span>
+                      <span className="text-text-tertiary text-lg font-bold">→</span>
+                    </>
+                  ) : null}
                   <Text as="span" className={`text-4xl font-black tabular-nums ${totalColorClass}`}>
                     {latestRoll.total}
                   </Text>
-                  <Text as="span" size="xs" weight="medium" color="tertiary">
-                    {latestRoll.expression}
-                  </Text>
                 </div>
+                <Text as="span" size="xs" weight="medium" color="tertiary">
+                  {latestRoll.expression}
+                </Text>
                 <ComponentBreakdown components={latestRoll.components} />
               </>
             )}

@@ -25,6 +25,8 @@ export interface RollResult {
   readonly bonus: number;
   /** Final roll total = rawRoll + bonus */
   readonly total: number;
+  /** Individual d20 results (2 values for adv/dis, 1 for normal) */
+  readonly rolls?: readonly number[];
 }
 
 export interface CheckResult extends RollResult {
@@ -86,6 +88,7 @@ export function rollSkillCheck(params: SkillCheckParams): CheckResult {
     rollModifier,
     bonus,
     total,
+    rolls: d20Result.allRolls ?? d20Result.rolls,
     success: dc !== undefined ? total >= dc : undefined,
     dc,
   };
@@ -141,6 +144,7 @@ export function rollSavingThrow(params: SavingThrowParams): CheckResult {
     rollModifier,
     bonus,
     total,
+    rolls: d20Result.allRolls ?? d20Result.rolls,
     success: total >= dc,
     dc,
   };
@@ -210,6 +214,7 @@ export function rollAttack(params: AttackRollParams): AttackRollResult {
     rollModifier,
     bonus: attackBonus,
     total,
+    rolls: d20Result.allRolls ?? d20Result.rolls,
     isCritical,
     isCriticalFail,
     hit,
@@ -378,5 +383,6 @@ export function rollInitiative(params: InitiativeRollParams): RollResult {
     rollModifier,
     bonus: totalBonus,
     total: d20Result.total + totalBonus,
+    rolls: d20Result.allRolls ?? d20Result.rolls,
   };
 }

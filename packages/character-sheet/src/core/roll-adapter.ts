@@ -23,55 +23,95 @@ import { getClass } from './content-resolver';
 /** RNG shape expected by shortRest/longRest/levelUp: `{ d(max) }`. */
 export const restRng = { d: (max: number) => defaultRandom.roll(1, max) };
 
+export type RollModifierType = 'none' | 'advantage' | 'disadvantage';
+
 function sign(n: number): string {
   return n >= 0 ? `+${n}` : `${n}`;
 }
 
-function pushCheck(label: string, bonus: number, total: number, rawRoll: number): void {
+function pushCheck(
+  label: string,
+  bonus: number,
+  total: number,
+  rawRoll: number,
+  rollModifier: RollModifierType = 'none',
+  rolls?: readonly number[],
+): void {
+  const suffix =
+    rollModifier === 'advantage' ? ' (Adv)' : rollModifier === 'disadvantage' ? ' (Dis)' : '';
   useRollStore.getState().addRoll({
-    label,
+    label: `${label}${suffix}`,
     expression: `d20 ${sign(bonus)}`,
     total,
     components: [{ source: 'modifier', value: bonus }],
     mode: 'single',
     isCritical: rawRoll === 20,
     isCriticalMiss: rawRoll === 1,
+    rolls,
   });
 }
 
 export function rollSkill(
   character: Character,
   skill: SkillName,
+  rollModifier: RollModifierType = 'none',
   rng: RandomProvider = defaultRandom,
 ) {
-  const result = rollCharacterSkillCheck({ character, skill, rng });
-  pushCheck(`Skill: ${skill}`, result.bonus, result.total, result.rawRoll);
+  const result = rollCharacterSkillCheck({ character, skill, rollModifier, rng });
+  pushCheck(
+    `Skill: ${skill}`,
+    result.bonus,
+    result.total,
+    result.rawRoll,
+    rollModifier,
+    result.rolls,
+  );
   return result;
 }
 
 export function rollAbility(
   character: Character,
   ability: AbilityName,
+  rollModifier: RollModifierType = 'none',
   rng: RandomProvider = defaultRandom,
 ) {
-  const result = rollCharacterAbilityCheck({ character, ability, rng });
-  pushCheck(`Ability: ${ability}`, result.bonus, result.total, result.rawRoll);
+  const result = rollCharacterAbilityCheck({ character, ability, rollModifier, rng });
+  pushCheck(
+    `Ability: ${ability}`,
+    result.bonus,
+    result.total,
+    result.rawRoll,
+    rollModifier,
+    result.rolls,
+  );
   return result;
 }
 
 export function rollSave(
   character: Character,
   ability: AbilityName,
+  rollModifier: RollModifierType = 'none',
   dc = 0,
   rng: RandomProvider = defaultRandom,
 ) {
-  const result = rollCharacterSavingThrow({ character, ability, dc, getClass, rng });
-  pushCheck(`Save: ${ability}`, result.bonus, result.total, result.rawRoll);
+  const result = rollCharacterSavingThrow({ character, ability, dc, rollModifier, getClass, rng });
+  pushCheck(
+    `Save: ${ability}`,
+    result.bonus,
+    result.total,
+    result.rawRoll,
+    rollModifier,
+    result.rolls,
+  );
   return result;
 }
 
-export function rollInitiative(character: Character, rng: RandomProvider = defaultRandom) {
-  const result = rollCharacterInitiative({ character, rng });
-  pushCheck('Initiative', result.bonus, result.total, result.rawRoll);
+export function rollInitiative(
+  character: Character,
+  rollModifier: RollModifierType = 'none',
+  rng: RandomProvider = defaultRandom,
+) {
+  const result = rollCharacterInitiative({ character, rollModifier, rng });
+  pushCheck('Initiative', result.bonus, result.total, result.rawRoll, rollModifier, result.rolls);
   return result;
 }

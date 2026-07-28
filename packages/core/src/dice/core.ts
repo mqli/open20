@@ -56,8 +56,10 @@ const DIE_SIDES: Record<DieType, number> = {
  * Unified type used by all dice operations
  */
 export interface DiceRollResult {
-  /** Individual die results */
+  /** Individual die results (summed for diceTotal) */
   readonly rolls: readonly number[];
+  /** All raw d20 results before advantage/disadvantage filtering (only set for adv/dis) */
+  readonly allRolls?: readonly number[];
   /** Sum of all dice rolled */
   readonly diceTotal: number;
   /** Modifier added to the roll (e.g., ability mod, proficiency) */
@@ -113,20 +115,20 @@ export function rollDice(rng: RandomProvider, die: DieType, count: number): Dice
  * Roll with advantage - roll twice, take higher
  */
 export function rollWithAdvantage(rng: RandomProvider, die: DieType): DiceRollResult {
-  const result = rollDie(rng, die);
-  const secondRoll = rollDie(rng, die);
-  const finalRoll = Math.max(result.rolls[0]!, secondRoll.rolls[0]!);
-  return createResult([finalRoll], 0);
+  const first = rollDie(rng, die).rolls[0]!;
+  const second = rollDie(rng, die).rolls[0]!;
+  const finalRoll = Math.max(first, second);
+  return { ...createResult([finalRoll], 0), allRolls: [first, second] };
 }
 
 /**
  * Roll with disadvantage - roll twice, take lower
  */
 export function rollWithDisadvantage(rng: RandomProvider, die: DieType): DiceRollResult {
-  const result = rollDie(rng, die);
-  const secondRoll = rollDie(rng, die);
-  const finalRoll = Math.min(result.rolls[0]!, secondRoll.rolls[0]!);
-  return createResult([finalRoll], 0);
+  const first = rollDie(rng, die).rolls[0]!;
+  const second = rollDie(rng, die).rolls[0]!;
+  const finalRoll = Math.min(first, second);
+  return { ...createResult([finalRoll], 0), allRolls: [first, second] };
 }
 
 // ── Advantage/Disadvantage Modifier ───────────────────────────────

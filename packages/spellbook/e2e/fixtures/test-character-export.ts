@@ -80,6 +80,7 @@ export const EXPORTED_CHARACTER_BUNDLE: CharacterBundle = {
     },
     currency: { cp: 0, sp: 0, ep: 0, gp: 100, pp: 0 },
     conditions: [],
+    inspiration: false,
     concentration: null,
     activeEffects: [],
     damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },

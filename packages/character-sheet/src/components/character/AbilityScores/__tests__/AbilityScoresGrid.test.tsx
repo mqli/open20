@@ -3,10 +3,14 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { AbilityScoresGrid } from '../AbilityScoresGrid';
 import { makeCharacter } from '@/test/fixtures';
 
+const noop = () => {};
+
 describe('AbilityScoresGrid', () => {
+  // --- basic rendering ---
+
   it('renders all six ability short labels', () => {
     const char = makeCharacter();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRoll={() => {}} />);
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
     expect(screen.getByText('STR')).toBeInTheDocument();
     expect(screen.getByText('DEX')).toBeInTheDocument();
     expect(screen.getByText('CON')).toBeInTheDocument();
@@ -15,48 +19,68 @@ describe('AbilityScoresGrid', () => {
     expect(screen.getByText('CHA')).toBeInTheDocument();
   });
 
-  it('renders positive modifier badges (INT 16 base + species bonuses)', () => {
+  it('renders positive modifier badges', () => {
     const char = makeCharacter();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRoll={() => {}} />);
-    // At least one modifier should be positive (e.g. INT or DEX from Elf species)
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
     const positiveBadge = screen.getAllByText(/^\+/)[0];
     expect(positiveBadge).toBeInTheDocument();
   });
 
   it('renders negative modifier as danger badge', () => {
-    const char = makeCharacter({ abilityScores: { Strength: 8 } }); // STR 8 → -1
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRoll={() => {}} />);
+    const char = makeCharacter({ abilityScores: { Strength: 8 } });
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
     expect(screen.getByText('-1')).toBeInTheDocument();
   });
 
   it('renders zero modifier as secondary badge', () => {
-    const char = makeCharacter({ abilityScores: { Charisma: 10 } }); // CHA 10 → +0
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRoll={() => {}} />);
-    // +0 should be rendered somewhere (at least one ability could be 10)
-    const allBadges = screen.getAllByText(/^[+−]\d$/);
+    const char = makeCharacter({ abilityScores: { Charisma: 10 } });
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
+    const allBadges = screen.getAllByText(/^[+-]\d$/);
     expect(allBadges.length).toBeGreaterThan(0);
   });
 
-  it('rolls the tapped ability', () => {
-    const char = makeCharacter();
-    const onRoll = vi.fn();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRoll={onRoll} />);
-    fireEvent.click(screen.getByLabelText('Roll Strength check'));
-    expect(onRoll).toHaveBeenCalledWith('Strength');
-  });
-
-  it('uses grid-cols-3 for mobile 3×2 layout', () => {
+  it('uses grid-cols-3 for mobile 3x2 layout', () => {
     const char = makeCharacter();
     const { container } = render(
-      <AbilityScoresGrid abilityScores={char.abilityScores} onRoll={() => {}} />,
+      <AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />,
     );
     const grid = container.firstChild as HTMLElement;
     expect(grid.className).toContain('grid-cols-3');
   });
 
-  it('renders roll button for each ability with correct aria-label', () => {
+  // --- check roll ---
+
+  it('calls onRollCheck with ability and default normal mode', () => {
     const char = makeCharacter();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRoll={() => {}} />);
+    const onRollCheck = vi.fn();
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
+    fireEvent.click(screen.getByLabelText('Roll Strength check'));
+    expect(onRollCheck).toHaveBeenCalledWith('Strength', 'none');
+  });
+
+  // --- advantage / disadvantage ---
+
+  it('ADV button rolls with advantage immediately', () => {
+    const char = makeCharacter();
+    const onRollCheck = vi.fn();
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
+    fireEvent.click(screen.getAllByLabelText('Roll Strength with advantage')[0]);
+    expect(onRollCheck).toHaveBeenCalledWith('Strength', 'advantage');
+  });
+
+  it('DIS button rolls with disadvantage immediately', () => {
+    const char = makeCharacter();
+    const onRollCheck = vi.fn();
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
+    fireEvent.click(screen.getAllByLabelText('Roll Strength with disadvantage')[0]);
+    expect(onRollCheck).toHaveBeenCalledWith('Strength', 'disadvantage');
+  });
+
+  // --- aria-labels for all six abilities ---
+
+  it('renders check button for each ability', () => {
+    const char = makeCharacter();
+    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
     expect(screen.getByLabelText('Roll Strength check')).toBeInTheDocument();
     expect(screen.getByLabelText('Roll Dexterity check')).toBeInTheDocument();
     expect(screen.getByLabelText('Roll Constitution check')).toBeInTheDocument();
