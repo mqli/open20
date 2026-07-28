@@ -8,6 +8,7 @@ import {
   modifyHP as coreModifyHP,
   setTemporaryHP as coreSetTemporaryHP,
   recomputeDerivedStats,
+  isConcentrating,
   type Character,
   type RecomputeDerivedStatsDeps,
 } from 'open20-core';
@@ -21,6 +22,8 @@ interface CharacterSheetState {
   activeCharacterId: string | null;
   isLoaded: boolean;
   error: string | null;
+  /** Signal consumed by T-117: last damage taken while concentrating (CON save prompt). */
+  lastDamageForConcentration: number | null;
 
   load: () => void;
   loadCharacter: (id: string) => void;
@@ -32,6 +35,8 @@ interface CharacterSheetState {
   // Reference mutation pair (other feature tasks add more via applyMutation).
   modifyHP: (delta: number) => void;
   setTemporaryHP: (value: number) => void;
+  /** Toggle a death save success or failure at the given index (0, 1, 2). */
+  toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
 }
 
 export const useCharacterStore = create<CharacterSheetState>((set, get) => {
@@ -73,6 +78,7 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
     activeCharacterId: null,
     isLoaded: false,
     error: null,
+    lastDamageForConcentration: null,
 
     load: () => {
       const characters = storageService.loadAll();
@@ -124,7 +130,52 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       set({ activeCharacterId: character.id });
     },
 
-    modifyHP: (delta) => applyMutation((char) => coreModifyHP(char, delta)),
+    modifyHP: (delta) => {
+      applyMutation((char) => coreModifyHP(char, delta));
+      // Signal concentration CON save when HP reduced while concentrating (consumed by T-117).
+      if (delta < 0) {
+        const active = get().character;
+        if (active && isConcentrating(active)) {
+          set({ lastDamageForConcentration: Math.abs(delta) });
+        }
+      }
+    },
     setTemporaryHP: (value) => applyMutation((char) => coreSetTemporaryHP(char, value)),
+    toggleDeathSave: (kind, index) => {
+      applyMutation((char) => {
+        const ds = char.hitPoints.deathSaves;
+        const currentCount = kind === 'success' ? ds.successes : ds.failures;
+
+        let newCount: number;
+        if (currentCount === index) {
+          // Fill this position (advance count)
+          newCount = index + 1;
+        } else if (currentCount === index + 1) {
+          // Unfill this position (the last filled one)
+          newCount = index;
+        } else {
+          // Cannot skip positions — no change
+          return char;
+        }
+
+        const successes = kind === 'success' ? newCount : ds.successes;
+        const failures = kind === 'failure' ? newCount : ds.failures;
+
+        return {
+          ...char,
+          hitPoints: {
+            ...char.hitPoints,
+            deathSaves: {
+              successes,
+              failures,
+              isStable: successes >= 3,
+            },
+          },
+          // NOTE: updatedAt set inline because toggleDeathSave doesn't go through
+          // core's withUpdate() — it mutates deathSaves directly.
+          updatedAt: new Date().toISOString(),
+        };
+      });
+    },
   };
 });
