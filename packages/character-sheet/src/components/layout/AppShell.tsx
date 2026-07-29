@@ -1,7 +1,7 @@
 // AppShell.tsx (T-004, vertical-slice wiring)
 // Responsive scaffold. Components are wired incrementally after they pass
-// tests. Currently wired: HpBar, AbilityScoresGrid, DeathSavesTracker,
-// Skills (by ability group).
+// tests. Currently wired: HpBar, AbilityScoresGrid, SavingThrowsGrid,
+// DeathSavesTracker, Skills (by ability group).
 
 import { createCharacter, getSkillBonus, type AbilityName } from 'open20-core';
 import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
@@ -12,8 +12,9 @@ import { buildDepsForCreate, getClassName, getSpeciesName } from '@/core/content
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
 import { DeathSavesTracker } from '@/components/character/DeathSavesTracker';
+import { SavingThrowsGrid } from '@/components/character/SavingThrows';
 import { SkillRow } from '@/components/character/Skills';
-import { rollAbility, rollSkill } from '@/core/roll-adapter';
+import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 
 const SAMPLE_SCORES: Record<AbilityName, number> = {
   Strength: 10,
@@ -99,6 +100,17 @@ export function AppShell() {
           <AbilityScoresGrid
             abilityScores={character.abilityScores}
             onRollCheck={(ability, rollModifier) => rollAbility(character, ability, rollModifier)}
+          />
+        </Surface>
+
+        {/* Saving Throws (T-106) */}
+        <Surface variant="default" padding="md">
+          <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
+            Saving Throws
+          </Text>
+          <SavingThrowsGrid
+            character={character}
+            onRollSave={(ability, rollModifier) => rollSave(character, ability, rollModifier)}
           />
         </Surface>
 
