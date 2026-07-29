@@ -9,8 +9,9 @@ The core MVP. One component (with `index.ts` + test) per task. Components are **
 - Read derived values from the stored character; roll via `rollAdapter`.
 - Tests: Testing Library, user-perspective, using `makeCharacter()` (T-009).
 - **All tasks depend on T-004 (shell), T-005 (resolver), T-006 (rollAdapter), T-008 (store), T-009 (fixtures)** unless noted; extra deps called out. Store mutation actions listed with a task are added to `characterStore` as part of that task via `applyMutation`.
+- **Wire after build:** each component is wired into the `CharacterSheet` shell immediately after its component + tests pass. The sheet is assembled incrementally — no task leaves a component unwired. T-127 handles final accordion/layout polish, not initial wiring.
 
-Components T-101–T-126 are mutually independent (parallelizable). **T-127 (assembly) and T-128 (states) come last.**
+Components T-101–T-126 are mutually independent for the **build and test** phase (parallelizable). After it passes, wire it into the shell before marking the task complete. **T-127 (accordion polish) and T-128 (states) come last.**
 
 ---
 
@@ -118,9 +119,9 @@ Confirmation dialog ("Are you sure? This cannot be undone.") → **Store `delete
 
 56px bottom bar: Combat/Skills/Spells/More; active = `--color-primary-600`. "More" → Equipment/Features/Notes/Settings/Rest overflow. **Accept:** tab selects/scrolls to section; More opens overflow. **Tests:** tab selection; More menu.
 
-### T-127 — CharacterSheet assembly + accordion (FR-142) — §4, §6
+### T-127 — Accordion + layout polish (FR-142) — §4, §6
 
-**Depends on:** T-101–T-126 · Compose all sections into accordion/section layout inside the shell. Desktop: sidebar + stacked accordion main. Mobile: hero strip + accordion (one open at a time) + bottom tabs. Combat always visible; optional sections collapsed by default on mobile. **Accept:** full sheet usable at all breakpoints; tap-to-roll end-to-end; character switch within NFR-06 budget; offline works. **Tests:** breakpoint structure; accordion single-open mobile; end-to-end roll.
+**Depends on:** T-101–T-126 · All components are already wired into the shell. This task adds accordion behavior and final layout tuning: desktop sidebar + stacked accordion main; mobile hero strip + accordion (one open at a time) + bottom tabs. Combat always visible; optional sections collapsed by default on mobile. **Accept:** full sheet usable at all breakpoints; tap-to-roll end-to-end; character switch within NFR-06 budget; offline works. **Tests:** breakpoint structure; accordion single-open mobile; end-to-end roll.
 
 ### T-128 — App states (empty / loading / error) (§10)
 
