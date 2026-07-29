@@ -1,15 +1,19 @@
 // AppShell.tsx (T-004, vertical-slice wiring)
-// Responsive scaffold. For the vertical slice it renders a minimal working
-// sheet (identity + HpBar + AbilityScores) to validate the golden path end to
-// end. Later tasks (T-123–T-128) replace the slots with the full layout.
+// Responsive scaffold. Components are wired incrementally after they pass
+// tests. Currently wired: HpBar, AbilityScoresGrid, DeathSavesTracker,
+// Skills (by ability group).
 
-import { createCharacter, type AbilityName } from 'open20-core';
-import { Surface, Text, Button, EmptyState } from '@open20/ui';
+import { createCharacter, getSkillBonus, type AbilityName } from 'open20-core';
+import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
+import type { SkillEntry } from 'open20-core/types';
+import { Surface, Text, Button, EmptyState, Divider } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
 import { buildDepsForCreate, getClassName, getSpeciesName } from '@/core/content-resolver';
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
-import { rollAbility } from '@/core/roll-adapter';
+import { DeathSavesTracker } from '@/components/character/DeathSavesTracker';
+import { SkillRow } from '@/components/character/Skills';
+import { rollAbility, rollSkill } from '@/core/roll-adapter';
 
 const SAMPLE_SCORES: Record<AbilityName, number> = {
   Strength: 10,
@@ -41,7 +45,7 @@ function createSampleCharacter() {
 }
 
 export function AppShell() {
-  const { character, error, modifyHP, upsertCharacter } = useCharacterStore();
+  const { character, error, modifyHP, toggleDeathSave, upsertCharacter } = useCharacterStore();
 
   if (!character) {
     return (
@@ -86,6 +90,7 @@ export function AppShell() {
           temporary={character.hitPoints.temporary}
           onAdjust={modifyHP}
         />
+
         {/* Ability grid needs full width so all 6 columns fit without overlap. */}
         <Surface variant="default" padding="md">
           <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
@@ -95,6 +100,62 @@ export function AppShell() {
             abilityScores={character.abilityScores}
             onRollCheck={(ability, rollModifier) => rollAbility(character, ability, rollModifier)}
           />
+        </Surface>
+
+        {/* Death Saves (T-102) */}
+        <DeathSavesTracker
+          successes={character.hitPoints.deathSaves.successes}
+          failures={character.hitPoints.deathSaves.failures}
+          isStable={character.hitPoints.deathSaves.isStable}
+          onToggleSuccess={(i) => toggleDeathSave('success', i)}
+          onToggleFailure={(i) => toggleDeathSave('failure', i)}
+        />
+
+        {/* Skills grouped by ability (T-104) */}
+        <Surface variant="default" padding="md">
+          <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
+            Skills
+          </Text>
+          {(['Strength', 'Dexterity', 'Intelligence', 'Wisdom', 'Charisma'] as const).map(
+            (ability) => {
+              const skillsForAbility = SKILL_NAMES.filter((s) => SKILL_ABILITY_MAP[s] === ability);
+              if (skillsForAbility.length === 0) return null;
+              const pb = character.combatStats.proficiencyBonus;
+              return (
+                <div key={ability}>
+                  <Text
+                    variant="labelSm"
+                    color="secondary"
+                    className="mt-3 mb-1 first:mt-0 uppercase tracking-wide"
+                  >
+                    {ability}
+                  </Text>
+                  <Divider className="mb-1" />
+                  {skillsForAbility.map((skill) => {
+                    const entry: SkillEntry = character.skills[skill] ?? {
+                      proficient: false,
+                      expertise: false,
+                    };
+                    const bonus = getSkillBonus(
+                      character.abilityScores,
+                      entry,
+                      SKILL_ABILITY_MAP[skill],
+                      pb,
+                    );
+                    return (
+                      <SkillRow
+                        key={skill}
+                        skill={skill}
+                        bonus={bonus}
+                        skillEntry={entry}
+                        onRoll={(s, mod) => rollSkill(character, s, mod)}
+                      />
+                    );
+                  })}
+                </div>
+              );
+            },
+          )}
         </Surface>
       </div>
     </div>
