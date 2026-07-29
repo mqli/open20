@@ -8,7 +8,7 @@ Additions to `open20-core` and `@open20/ui` that Phase 1/2 UI depends on — the
 
 ---
 
-### T-010 — Extract `DiceRollOverlay` + roll store into `@open20/ui` (FR-147, FR-148 groundwork)
+### T-010 — Extract `DiceRollOverlay` + roll store into `@open20/ui` (FR-147, FR-148 groundwork) — ✅ done
 
 **Depends on:** none · **Files:** `packages/ui/src/components/dice/DiceRollOverlay.tsx` (4-file rule), `packages/ui/src/stores/rollStore.ts` (+ test), `packages/ui/src/index.ts`, spellbook consumers.
 
@@ -34,7 +34,7 @@ Additions to `open20-core` and `@open20/ui` that Phase 1/2 UI depends on — the
 - Optional convenience `rollStoredAttack({character,attack,rng})` / `rollStoredAttackDamage(...)`.
 - **Accept:** a representative attack (Longsword +6, 1d8+3 slashing, versatile) round-trips through both roll fns incl. crit doubling. **Tests:** string + entries damage forms; crit path doubles dice.
 
-### T-013 — Generic `rollCharacterAbilityCheck` (FR-105)
+### T-013 — Generic `rollCharacterAbilityCheck` (FR-105) — ✅ done
 
 **Depends on:** none · **Files:** `packages/core/src/rolls/character.ts` (+ barrel, tests)
 

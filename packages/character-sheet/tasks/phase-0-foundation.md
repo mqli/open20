@@ -6,7 +6,7 @@ Wire the app shell and the three integration seams. No feature UI yet — this p
 
 ---
 
-### T-001 — PWA config + reload prompt (FR-163)
+### T-001 — PWA config + reload prompt (FR-163) — ✅ done
 
 **Depends on:** none · **Files:** `vite.config.ts`, `package.json`, `src/components/layout/PwaReloadPrompt.tsx` (+ index, test)
 
@@ -15,14 +15,14 @@ Wire the app shell and the three integration seams. No feature UI yet — this p
 - `PwaReloadPrompt` uses the plugin's `useRegisterSW` (mirror spellbook).
 - **Accept:** `build` emits SW + manifest; app loads offline after first visit. **Tests:** prompt renders when an update is available (mock the hook).
 
-### T-002 — `useIsLargeScreen` breakpoint hook
+### T-002 — `useIsLargeScreen` breakpoint hook — ✅ done
 
 **Depends on:** none · **Files:** `src/hooks/useIsLargeScreen.ts` (+ test)
 
 - Mirror spellbook's hook. Expose booleans for the three breakpoints (README §9: desktop ≥1024, tablet 768–1023, mobile <768). Use `matchMedia` with listener cleanup.
 - **Accept:** returns correct flags per width. **Tests:** mock `matchMedia` across the three ranges.
 
-### T-003 — App providers + bootstrap
+### T-003 — App providers + bootstrap — ✅ done
 
 **Depends on:** T-005 (content init) · **Files:** `src/App.tsx` (replace placeholder), `src/main.tsx`
 
@@ -30,14 +30,14 @@ Wire the app shell and the three integration seams. No feature UI yet — this p
 - `App.tsx`: wrap in `I18nProvider` (from `@open20/ui`), apply `data-theme="dark"`, render `<AppShell/>` + `<DiceRollOverlay/>` (from ui, T-010) + `<PwaReloadPrompt/>`. No react-router.
 - **Accept:** app boots with content initialized before first render; theme applied. **Tests:** App renders shell + overlay + prompt without a character (no crash).
 
-### T-004 — AppShell responsive scaffold
+### T-004 — AppShell responsive scaffold — ✅ done
 
 **Depends on:** T-002 · **Files:** `src/components/layout/AppShell.tsx` (+ index, test)
 
 - Responsive scaffold only, using `useIsLargeScreen`: desktop = 250px sidebar slot + scrollable main slot; tablet = collapsible sidebar (hamburger) + single column; mobile = 48px top-bar slot + sticky hero-strip slot + content slot + 56px bottom-tab slot. Regions are **labeled empty slots** filled by Phase 1 (T-123–T-127). Tailwind utilities + `Surface`; no `--space-*`/`--font-h1`.
 - **Accept:** renders the correct structure per breakpoint with a `null` character, no errors. **Tests:** structure per breakpoint (mock the hook).
 
-### T-005 — ContentResolver service (§2.2, §2.5)
+### T-005 — ContentResolver service (§2.2, §2.5) — ✅ done
 
 **Depends on:** none · **Files:** `src/core/content-resolver.ts` (+ test)
 
@@ -52,7 +52,7 @@ Wire the app shell and the three integration seams. No feature UI yet — this p
   - senses/languages/size accessors per T-016's chosen strategy (add when T-016 lands).
 - **Accept:** `resolveDeps` on a fixture populates `classes` + resolved species/bg/feats/equipment/spells; name getters resolve or fall back. **Tests:** multiclass deps; name resolve + fallback; `buildDepsForCreate` single + multiclass.
 
-### T-006 — rollAdapter (§2.3)
+### T-006 — rollAdapter (§2.3) — ✅ done
 
 **Depends on:** T-005, T-010 · **Files:** `src/core/roll-adapter.ts` (+ test)
 
@@ -60,7 +60,7 @@ Wire the app shell and the three integration seams. No feature UI yet — this p
 - Functions: `rollSkill`, `rollSave` (supplies `getClass`), `rollInitiative`, `rollAbility` (uses T-013), `rollWeaponAttack` (dual-roll via T-012 → single weapon-mode `RollResult`), `rollSpellCast` (added with T-116). Each takes optional `rng` (default `defaultRandom`) for deterministic tests.
 - **Accept:** each fn returns the core result + appends exactly one store entry with label/expression/total/components. **Tests:** deterministic RNG → expected totals; `rollWeaponAttack` one entry with attack+damage rows and `isCritical` propagated.
 
-### T-007 — StorageService (NFR-03)
+### T-007 — StorageService (NFR-03) — ✅ done
 
 **Depends on:** none · **Files:** `src/core/storage-service.ts` (+ test)
 
@@ -68,7 +68,7 @@ Wire the app shell and the three integration seams. No feature UI yet — this p
 - API: `loadAll()`, `saveCharacter(char)`, `deleteCharacter(id)`, `getActiveId()`, `setActiveId(id)`.
 - **Accept:** round-trips a character map; quota error is typed and non-destructive. **Tests:** save/load/delete round-trip; simulated `QuotaExceededError` throws typed error, prior data intact.
 
-### T-008 — characterStore (wireframe §13)
+### T-008 — characterStore (wireframe §13) — ✅ done
 
 **Depends on:** T-005, T-007 · **Files:** `src/stores/characterStore.ts` (+ test)
 
@@ -76,7 +76,7 @@ Wire the app shell and the three integration seams. No feature UI yet — this p
 - Implement `modifyHP(delta)` + `setTemporaryHP(v)` here as the reference mutation pair (resolve deps if needed → core fn → `set` new snapshot → `storage.saveCharacter`). Other mutation actions are added by their feature tasks.
 - **Accept:** `load()` hydrates + recomputes; `modifyHP` replaces snapshot immutably + persists; quota error surfaces `state.error`. **Tests:** `modifyHP` calls core + persists (mock storage); `load()` hydrates + recomputes; quota → `error` set, data intact.
 
-### T-009 — Test fixtures (`makeCharacter`)
+### T-009 — Test fixtures (`makeCharacter`) — ✅ done
 
 **Depends on:** none · **Files:** `src/test/fixtures.ts` (+ self-test)
 

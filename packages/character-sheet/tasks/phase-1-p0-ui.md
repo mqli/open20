@@ -31,11 +31,11 @@ Current/max fill (`--color-success`; `--color-danger` <25%), temp-HP overlay ban
 
 Single skill row: proficiency mark (○/▣/★ **icon**, NFR-01), name, right-aligned bold bonus, roll `IconButton` (`aria-label="Roll {skill}"`). Tap → `rollAdapter.rollSkill`. Read bonus + proficiency/expertise from `SkillEntry` (call `getSkillBonus` in a selector only if not precomputed — verify). **Accept:** renders the three proficiency states + bonus; tap rolls. **Tests:** icon per state; roll callback with `SkillName`.
 
-### T-105 — SkillsList (FR-107) — §6.3
+### T-105 — SkillsList (FR-107) — §6.3 — ⏳ partial (renders grouped by ability, missing search/filter)
 
 **Depends on:** T-104 · Composes 18 `SkillRow`s grouped by ability (dividers via `SectionHeader`/`Divider`), filter `Input` at top, legend. **Accept:** 18 skills, correct grouping, filter narrows. **Tests:** grouping; filter.
 
-### T-106 — SavingThrows (card + grid) (FR-109~110) — §6.4
+### T-106 — SavingThrows (card + grid) (FR-109~110) — §6.4 — ✅ done
 
 `SavingThrowCard` (bonus + roll button, proficient = `--color-primary-600` border + non-color cue) + grid (ability-scores pattern). Tap → `rollAdapter.rollSave` (supplies `getClass`). **Accept:** 6 saves, proficiency non-color-only, tap rolls. **Tests:** proficiency indicator; roll per ability.
 
