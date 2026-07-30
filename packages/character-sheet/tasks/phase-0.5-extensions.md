@@ -1,5 +1,9 @@
 # Phase 0.5 — Core & Shared-Infra Extensions
 
+**Status: COMPLETE** (all 7 tasks done, 2026-07-30)
+
+**T-016 strategy:** Option A — render-time query helpers in `@open20/content-srd/query/catalog` (`getSensesForCharacter`, `getLanguagesForCharacter`, `getSizeForCharacter`), wrapped by ContentResolver.
+
 Additions to `open20-core` and `@open20/ui` that Phase 1/2 UI depends on — the only tasks touching packages **outside** character-sheet. Each is independent and parallelizable. Every core/ui change needs tests in that package and must keep the existing suite green.
 
 **Covers:** FR-103, FR-105, FR-117, FR-147, FR-157, FR-158, FR-159~161.
@@ -18,7 +22,7 @@ Additions to `open20-core` and `@open20/ui` that Phase 1/2 UI depends on — the
 - Keep last-10 history buffer + `clearRolls`; expose `recentRolls` (history UI is T-304). Update spellbook to import from ui; delete its copies; remove stale `packages/ui/dist/components/dice/*`.
 - **Accept:** ui exports `DiceRollOverlay`/`useRollStore`/`RollResult`; spellbook consumes them, suite green. **Tests (ui):** single + weapon-mode + crit-glyph render; store cap-10 + auto-clear.
 
-### T-011 — Death-save auto-reset in `modifyHP` (FR-103)
+### T-011 — Death-save auto-reset in `modifyHP` (FR-103) — ✅ done
 
 **Depends on:** none · **Files:** `packages/core/src/character/mutate/hp.ts` (+ tests)
 
@@ -26,7 +30,7 @@ Additions to `open20-core` and `@open20/ui` that Phase 1/2 UI depends on — the
 - **Accept:** 0→+ resets; +→+, +→0, 0→0 unchanged; existing tests pass. **Tests:** table-driven transitions.
 - > Until merged, the app resets death saves in `characterStore.modifyHP`; remove that workaround once this lands.
 
-### T-012 — CharacterAttack → Weapon adapter (FR-117)
+### T-012 — CharacterAttack → Weapon adapter (FR-117) — ✅ done
 
 **Depends on:** none · **Files:** `packages/core/src/character/attack-adapter.ts` (+ barrel, tests) — confirm home via `AGENTS.md`.
 
@@ -41,21 +45,21 @@ Additions to `open20-core` and `@open20/ui` that Phase 1/2 UI depends on — the
 - `rollCharacterAbilityCheck({character, ability, rollModifier?, dc?, rng}) → CheckResult & {ability}` — d20 + ability modifier (`getModifier(getTotalScore(scores,ability))`), no proficiency. Mirror `rollCharacterSkillCheck` shape/return. Prefer this name over the PRD's `rollAbilityCheck`.
 - **Accept:** d20 + mod; optional `dc`/`rollModifier`; deterministic under `createDeterministicRNG`; exported top-level. **Tests:** STR 16 (+3), d20=10 → 13; DC + crit flags.
 
-### T-014 — `Character.inspiration` field + helper (FR-157)
+### T-014 — `Character.inspiration` field + helper (FR-157) — ✅ done
 
 **Depends on:** none · **Files:** `packages/core/src/types/character.ts`, mutate helper, Zod `CharacterSchema`, serializer migration, tests.
 
 - Add `readonly inspiration: boolean` (default false) + `toggleInspiration(char)`/`setInspiration(char,v)`. Update Zod schema + `createCharacter` defaults. `deserialize` tolerates legacy data (default false); bump schema version only per core's convention.
 - **Accept:** new chars `false`; toggle flips immutably; legacy JSON → `false`. **Tests:** toggle; legacy deserialize.
 
-### T-015 — Exhaustion auto-penalties on d20 tests + speed (FR-158)
+### T-015 — Exhaustion auto-penalties on d20 tests + speed (FR-158) — ✅ done
 
 **Depends on:** none · **Files:** `packages/core/src/engine/*` (d20 paths, speed) + shared helper + tests.
 
 - D&D 2024: **−2×level to all d20 Tests** (ability/skill/save/attack/initiative) and **−5 ft×level to speed**. Today only passive perception applies it. Promote a shared `getExhaustionPenalty(conditions)` (from the local one in `passive-perception.ts`); thread it into the character roll fns and derived speed in `recomputeDerivedStats`. No double-application; passive-perception behavior unchanged. Level-6 death is display-only.
 - **Accept:** level 2 → −4 on d20 rolls, −10 ft speed, passive perception unchanged. **Tests:** each roll fn subtracts `2*level`; speed `-5*level`; level 0 no-op.
 
-### T-016 — Senses / languages / size resolution strategy (FR-159~161)
+### T-016 — Senses / languages / size resolution strategy (FR-159~161) — ✅ done
 
 **Depends on:** none · **Files:** decision note in PR + either core type additions OR content-srd helpers (+ tests).
 

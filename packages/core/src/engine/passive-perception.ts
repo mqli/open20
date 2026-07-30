@@ -7,7 +7,7 @@ import type { SkillEntry } from '@/types/skill';
 import type { ActiveCondition } from '@/types/character';
 import { getModifier, getTotalScore } from './ability-modifier';
 import { getSkillBonus } from './skill-bonus';
-import { getExhaustionLevel } from './exhaustion';
+import { getExhaustionD20Penalty } from './exhaustion';
 
 /**
  * 计算被动感知(Passive Perception)
@@ -43,7 +43,5 @@ export function calculatePassivePerception(
     ? getSkillBonus(scores, perceptionSkill, 'Wisdom', proficiencyBonus)
     : getModifier(getTotalScore(scores, 'Wisdom'));
 
-  const exhaustion = getExhaustionLevel(conditions);
-
-  return base + perceptionBonus - 2 * exhaustion;
+  return base + perceptionBonus - getExhaustionD20Penalty(conditions);
 }

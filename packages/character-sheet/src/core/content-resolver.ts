@@ -28,8 +28,12 @@ import {
   getClasses,
   getSubclassesForClass,
   getFeats,
+  getSensesForCharacter,
+  getLanguagesForCharacter,
+  getSizeForCharacter,
 } from '@open20/content-srd/query/catalog';
 import { findSpell } from '@open20/content-srd/query/spells';
+import type { SenseInfo } from '@open20/content-srd/query/catalog';
 
 // ── Singleton content pack ────────────────────────────────
 // The SRD pack is a bundled constant (statically imported JSON), so init is
@@ -124,3 +128,20 @@ export const getFeatName = (id: string): string =>
   findFeat(id, getContentPack())?.name ?? humanize(id);
 export const getSpellName = (id: string): string =>
   findSpell(id, getContentPack())?.name ?? humanize(id);
+
+// ── Senses / languages / size (T-016) ────────────────────
+
+export function getSpeciesSenses(character: { species: string }): readonly SenseInfo[] {
+  return getSensesForCharacter(character, getContentPack());
+}
+
+export function getSpeciesLanguages(character: {
+  species: string;
+  background: string;
+}): readonly string[] {
+  return getLanguagesForCharacter(character, getContentPack());
+}
+
+export function getSpeciesSize(character: { species: string }): string {
+  return getSizeForCharacter(character, getContentPack());
+}
