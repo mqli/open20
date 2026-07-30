@@ -14,6 +14,7 @@ import { AbilityScoresGrid } from '@/components/character/AbilityScores';
 import { DeathSavesTracker } from '@/components/character/DeathSavesTracker';
 import { SavingThrowsGrid } from '@/components/character/SavingThrows';
 import { SkillRow } from '@/components/character/Skills';
+import { CombatStatsBar } from '@/components/character/CombatStats';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 
 const SAMPLE_SCORES: Record<AbilityName, number> = {
@@ -91,6 +92,11 @@ export function AppShell() {
           temporary={character.hitPoints.temporary}
           onAdjust={modifyHP}
         />
+
+        {/* Combat Stats (T-107, T-108) */}
+        <Surface variant="default" padding="md">
+          <CombatStatsBar character={character} />
+        </Surface>
 
         {/* Ability grid needs full width so all 6 columns fit without overlap. */}
         <Surface variant="default" padding="md">
