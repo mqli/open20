@@ -34,8 +34,6 @@ export interface SidebarProps {
   character: AppCharacter;
   activeSection: SectionKey;
   onSectionChange: (section: SectionKey) => void;
-  onShortRest?: () => void;
-  onLongRest?: () => void;
   className?: string;
 }
 
@@ -53,14 +51,7 @@ const NAV_ITEMS: Array<{
   { id: 'notes', label: 'Notes', icon: FileText },
 ];
 
-export function Sidebar({
-  character,
-  activeSection,
-  onSectionChange,
-  onShortRest,
-  onLongRest,
-  className,
-}: SidebarProps) {
+export function Sidebar({ character, activeSection, onSectionChange, className }: SidebarProps) {
   return (
     <aside
       className={cn(
@@ -101,7 +92,7 @@ export function Sidebar({
 
       {/* Rest Actions — sticky bottom */}
       <div className="border-t border-border p-4">
-        <RestActions onShortRest={onShortRest} onLongRest={onLongRest} />
+        <RestActions />
       </div>
     </aside>
   );

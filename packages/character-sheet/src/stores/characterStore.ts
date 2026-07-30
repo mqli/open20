@@ -8,12 +8,15 @@ import {
   modifyHP as coreModifyHP,
   setTemporaryHP as coreSetTemporaryHP,
   recomputeDerivedStats,
+  shortRest as coreShortRest,
+  longRest as coreLongRest,
   isConcentrating,
   type Character,
   type RecomputeDerivedStatsDeps,
 } from 'open20-core';
 import type { AppCharacter } from '@/types';
 import { resolveDeps } from '@/core/content-resolver';
+import { restRng } from '@/core/roll-adapter';
 import { storageService, StorageQuotaError } from '@/core/storage-service';
 
 interface CharacterSheetState {
@@ -37,6 +40,10 @@ interface CharacterSheetState {
   setTemporaryHP: (value: number) => void;
   /** Toggle a death save success or failure at the given index (0, 1, 2). */
   toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
+  /** Short rest: spend hit dice, recover HP, reset short-rest resources. */
+  shortRest: (hitDiceToSpend: number) => void;
+  /** Long rest: full HP, all HD, all spell slots, reset death saves, conditions, resources. */
+  longRest: () => void;
 }
 
 export const useCharacterStore = create<CharacterSheetState>((set, get) => {
@@ -175,6 +182,22 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
           // core's withUpdate() — it mutates deathSaves directly.
           updatedAt: new Date().toISOString(),
         };
+      });
+    },
+
+    shortRest: (hitDiceToSpend) => {
+      set({ lastDamageForConcentration: null });
+      applyMutation((char, deps) => {
+        const rested = coreShortRest(char, hitDiceToSpend, deps, restRng);
+        return recomputeDerivedStats(rested, deps);
+      });
+    },
+
+    longRest: () => {
+      set({ lastDamageForConcentration: null });
+      applyMutation((char, deps) => {
+        const rested = coreLongRest(char, deps);
+        return recomputeDerivedStats(rested, deps);
       });
     },
   };

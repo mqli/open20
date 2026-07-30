@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@open20/ui';
 import type { SectionKey } from './Sidebar';
+import { RestActions } from './RestActions';
 
 export interface MobileBottomBarProps {
   activeSection: SectionKey;
@@ -57,7 +58,7 @@ export function MobileBottomBar({
   const moreRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click and Escape key
   useEffect(() => {
     if (!moreOpen) return;
     function handleClick(e: MouseEvent) {
@@ -70,8 +71,18 @@ export function MobileBottomBar({
         setMoreOpen(false);
       }
     }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setMoreOpen(false);
+        moreRef.current?.focus();
+      }
+    }
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [moreOpen]);
 
   return (
@@ -118,7 +129,7 @@ export function MobileBottomBar({
           aria-selected={isOverflow(activeSection)}
           aria-label="More sections"
           aria-expanded={moreOpen}
-          aria-haspopup="menu"
+          aria-haspopup={true}
           onClick={() => setMoreOpen((prev) => !prev)}
           className={cn(
             'relative flex w-full flex-col items-center justify-center gap-0.5 py-1',
@@ -135,12 +146,11 @@ export function MobileBottomBar({
           )}
         </button>
 
-        {/* Dropdown menu */}
+        {/* Dropdown panel */}
         {moreOpen && (
           <div
             ref={menuRef}
-            role="menu"
-            aria-label="More sections"
+            aria-label="More sections and actions"
             className="absolute bottom-full left-0 right-0 mb-2 rounded-lg border border-border bg-bg-secondary p-1 shadow-lg"
           >
             {OVERFLOW_SECTIONS.map(({ id, label, icon: Icon }) => {
@@ -149,7 +159,6 @@ export function MobileBottomBar({
                 <button
                   key={id}
                   type="button"
-                  role="menuitem"
                   onClick={() => {
                     onSectionChange(id);
                     setMoreOpen(false);
@@ -167,6 +176,12 @@ export function MobileBottomBar({
                 </button>
               );
             })}
+
+            {/* Rest Actions */}
+            <hr className="mx-1 my-1 border-border" />
+            <div className="pt-1">
+              <RestActions onShortRest={() => setMoreOpen(false)} />
+            </div>
           </div>
         )}
       </div>

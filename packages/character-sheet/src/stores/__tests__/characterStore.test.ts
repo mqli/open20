@@ -177,6 +177,121 @@ describe('characterStore', () => {
     });
   });
 
+  describe('shortRest', () => {
+    it('recovers HP and increments hit dice used', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      // Damage the character first so HP recovery is visible
+      useCharacterStore.getState().modifyHP(-20);
+      const before = useCharacterStore.getState().character!;
+      const hurtHp = before.hitPoints.current;
+      const hdUsedBefore = before.classes[0].hitDice.used;
+
+      useCharacterStore.getState().shortRest(3);
+
+      const after = useCharacterStore.getState().character!;
+      // HP should have recovered (3 × (avg d6 + CON mod))
+      expect(after.hitPoints.current).toBeGreaterThan(hurtHp);
+      // Hit dice used count increased
+      expect(after.classes[0].hitDice.used).toBe(hdUsedBefore + 3);
+      // Immutable snapshot
+      expect(after).not.toBe(before);
+    });
+
+    it('persists to localStorage', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+      useCharacterStore.getState().modifyHP(-10);
+      useCharacterStore.getState().shortRest(2);
+
+      const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
+      const storedChar = stored[char.id];
+      expect(storedChar.classes[0].hitDice.used).toBe(2);
+      expect(storedChar.hitPoints.current).toBeGreaterThan(char.hitPoints.max - 10);
+    });
+
+    it('clears lastDamageForConcentration', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+      useCharacterStore.setState({ lastDamageForConcentration: 15 });
+
+      useCharacterStore.getState().shortRest(1);
+      expect(useCharacterStore.getState().lastDamageForConcentration).toBeNull();
+    });
+
+    it('does nothing when no character is active', () => {
+      useCharacterStore.getState().shortRest(1);
+      // Should not throw
+      expect(useCharacterStore.getState().character).toBeNull();
+    });
+  });
+
+  describe('longRest', () => {
+    it('restores full HP and resets all hit dice', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      useCharacterStore.getState().modifyHP(-15);
+      useCharacterStore.getState().shortRest(2); // spend some HD
+
+      const before = useCharacterStore.getState().character!;
+      expect(before.classes[0].hitDice.used).toBeGreaterThan(0);
+
+      useCharacterStore.getState().longRest();
+
+      const after = useCharacterStore.getState().character!;
+      expect(after.hitPoints.current).toBe(after.hitPoints.max);
+      expect(after.classes[0].hitDice.used).toBe(0);
+      expect(after).not.toBe(before);
+    });
+
+    it('resets death saves', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      // Set some death saves
+      useCharacterStore.getState().toggleDeathSave('failure', 0);
+      useCharacterStore.getState().toggleDeathSave('failure', 1);
+      expect(useCharacterStore.getState().character!.hitPoints.deathSaves.failures).toBe(2);
+
+      useCharacterStore.getState().longRest();
+
+      const ds = useCharacterStore.getState().character!.hitPoints.deathSaves;
+      expect(ds.successes).toBe(0);
+      expect(ds.failures).toBe(0);
+      expect(ds.isStable).toBe(false);
+    });
+
+    it('persists to localStorage', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+      useCharacterStore.getState().modifyHP(-20);
+      useCharacterStore.getState().shortRest(2);
+      useCharacterStore.getState().longRest();
+
+      const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
+      const storedChar = stored[char.id];
+      expect(storedChar.hitPoints.current).toBe(storedChar.hitPoints.max);
+      expect(storedChar.classes[0].hitDice.used).toBe(0);
+    });
+
+    it('clears lastDamageForConcentration', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+      useCharacterStore.setState({ lastDamageForConcentration: 15 });
+
+      useCharacterStore.getState().longRest();
+      expect(useCharacterStore.getState().lastDamageForConcentration).toBeNull();
+    });
+
+    it('does nothing when no character is active', () => {
+      useCharacterStore.getState().longRest();
+      // Should not throw
+      expect(useCharacterStore.getState().character).toBeNull();
+    });
+  });
+
   describe('lastDamageForConcentration', () => {
     it('sets lastDamageForConcentration when HP reduced while concentrating', () => {
       const char = makeCharacter();
