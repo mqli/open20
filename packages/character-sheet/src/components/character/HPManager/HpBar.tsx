@@ -65,9 +65,10 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
         />
         {temporary > 0 && (
           <div
-            className="absolute inset-y-0 left-0 border-y-2 border-info/70 bg-info/30"
+            className="absolute inset-y-0 border-y-2 border-info/70 bg-info/30"
             style={{
-              width: `${Math.min(100, ((current + temporary) / Math.max(max, current + temporary)) * 100)}%`,
+              left: `${pct}%`,
+              width: `${Math.min(100 - pct, (temporary / Math.max(max, 1)) * 100)}%`,
             }}
           />
         )}
@@ -77,16 +78,16 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
         {current} / {max}
       </Text>
 
-      {/* Three-group layout: damage left, custom center, heal right */}
-      <div className="flex items-center justify-between gap-2">
-        {/* Damage */}
-        <div className="flex gap-1">
+      {/* Three-group layout: stacks vertically on mobile, side-by-side on sm+ */}
+      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
+        {/* Damage — left-aligned on sm+ */}
+        <div className="flex justify-start gap-1">
           {DELTAS.filter((d) => d < 0).map((d) => (
             <Button
               key={d}
               variant="danger"
               size="sm"
-              className="min-h-[44px] min-w-[44px] tabular-nums"
+              className="flex-1 min-h-[44px] min-w-0 tabular-nums sm:flex-none sm:min-w-[44px]"
               onClick={() => onAdjust(d)}
               aria-label={`Damage ${Math.abs(d)}`}
             >
@@ -96,11 +97,11 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
         </div>
 
         {/* Custom input: − left, input center, + right */}
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center justify-center gap-0.5">
           <Button
             variant="danger"
             size="sm"
-            className="min-h-[44px] min-w-[44px]"
+            className="flex-1 min-h-[44px] min-w-0 sm:flex-none sm:min-w-[44px]"
             onClick={() => apply(-1)}
             disabled={customValue === ''}
             aria-label="Damage custom amount"
@@ -108,19 +109,24 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
             <Minus className="h-4 w-4" />
           </Button>
           <Input
-            type="number"
-            step="1"
-            min="1"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder="HP"
             value={customValue}
-            onChange={(e) => setCustomValue(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '' || /^\d+$/.test(val)) {
+                setCustomValue(val);
+              }
+            }}
             aria-label="Custom HP adjustment value"
-            className="min-h-[44px] w-16 tabular-nums px-2"
+            className="min-h-[44px] w-full max-w-20 tabular-nums px-2 sm:w-16"
           />
           <Button
             variant="primary"
             size="sm"
-            className="min-h-[44px] min-w-[44px]"
+            className="flex-1 min-h-[44px] min-w-0 sm:flex-none sm:min-w-[44px]"
             onClick={() => apply(1)}
             disabled={customValue === ''}
             aria-label="Heal custom amount"
@@ -129,14 +135,14 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
           </Button>
         </div>
 
-        {/* Heal */}
-        <div className="flex gap-1">
+        {/* Heal — right-aligned on sm+ */}
+        <div className="flex justify-end gap-1">
           {DELTAS.filter((d) => d > 0).map((d) => (
             <Button
               key={d}
               variant="primary"
               size="sm"
-              className="min-h-[44px] min-w-[44px] tabular-nums"
+              className="flex-1 min-h-[44px] min-w-0 tabular-nums sm:flex-none sm:min-w-[44px]"
               onClick={() => onAdjust(d)}
               aria-label={`Heal ${Math.abs(d)}`}
             >
