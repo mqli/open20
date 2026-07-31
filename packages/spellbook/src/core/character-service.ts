@@ -198,7 +198,7 @@ export class CharacterService {
     } as AppCharacter;
   }
 
-  shortRest(character: AppCharacter, hitDiceToSpend: number = 0): AppCharacter {
+  shortRest(character: AppCharacter, hitDiceToSpend: Record<string, number> = {}): AppCharacter {
     const deps = resolveDeps(character);
     return {
       ...open20ShortRest(character, hitDiceToSpend, deps),

@@ -77,7 +77,7 @@ describe('D&D SRD 5.2 - Fighter Class: Level 1-4 Features', () => {
       expect(getResource(fighter, 'Fighter', 'Second Wind')!.used).toBe(1);
 
       const depsForShortRest = createTestDeps(fighter);
-      fighter = shortRest(fighter, 1, depsForShortRest);
+      fighter = shortRest(fighter, { Fighter: 1 }, depsForShortRest);
       const afterRest = getResource(fighter, 'Fighter', 'Second Wind');
       expect(afterRest!.used).toBe(0);
     });

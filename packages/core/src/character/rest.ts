@@ -50,57 +50,61 @@ function getConMod(char: Character): number {
 
 export function shortRest(
   char: Character,
-  hitDiceToSpend: number,
+  hitDiceToSpend: Record<string, number>,
   deps: RecomputeDerivedStatsDeps,
   rng?: RandomProvider,
 ): Character {
   let result = char;
-  let remainingToSpend = hitDiceToSpend;
 
-  // 1. Spend hit dice and recover HP
-  for (const charClass of result.classes) {
-    if (remainingToSpend <= 0) break;
+  // 1. Spend hit dice and recover HP (per-class)
+  const newClasses = result.classes.map((charClass) => {
+    const requested = hitDiceToSpend[charClass.classId] ?? 0;
+    const available = Math.max(0, charClass.level - charClass.hitDice.used);
+    const toSpend = Math.max(0, Math.min(requested, available));
 
-    const available = charClass.level - charClass.hitDice.used;
-    const toSpend = Math.min(remainingToSpend, available);
+    if (toSpend <= 0) return charClass;
+
+    const classData = deps.classes?.[charClass.classId];
+    if (!classData) return charClass;
+
+    return {
+      ...charClass,
+      hitDice: { ...charClass.hitDice, used: charClass.hitDice.used + toSpend },
+    };
+  });
+
+  // Calculate total HP recovery across all classes
+  let totalHpRecovered = 0;
+  const conMod = getConMod(result);
+
+  for (let i = 0; i < result.classes.length; i++) {
+    const charClass = result.classes[i]!;
+    const newClass = newClasses[i]!;
+    const toSpend = newClass.hitDice.used - charClass.hitDice.used;
 
     if (toSpend <= 0) continue;
 
     const classData = deps.classes?.[charClass.classId];
     if (!classData) continue;
 
-    // Calculate HP recovery for each die spent
-    let hpRecovered = 0;
-    const conMod = getConMod(result);
-
     if (rng) {
-      for (let i = 0; i < toSpend; i++) {
-        hpRecovered += rng.d(getDieMax(classData.hitDie)) + conMod;
+      for (let j = 0; j < toSpend; j++) {
+        totalHpRecovered += rng.d(getDieMax(classData.hitDie)) + conMod;
       }
     } else {
       // Fixed value: floor(die/2) + 1 + Con mod
       const fixedPerDie = getHitDieFixedValue(classData.hitDie) + conMod;
-      hpRecovered = fixedPerDie * toSpend;
+      totalHpRecovered += fixedPerDie * toSpend;
     }
-
-    // Update hit dice used for this class
-    const newClasses = result.classes.map((c) => {
-      if (c.classId === charClass.classId) {
-        return { ...c, hitDice: { ...c.hitDice, used: c.hitDice.used + toSpend } };
-      }
-      return c;
-    });
-
-    result = withUpdate(result, {
-      classes: newClasses,
-      hitPoints: {
-        ...result.hitPoints,
-        current: Math.min(result.hitPoints.current + hpRecovered, result.hitPoints.max),
-      },
-    });
-
-    remainingToSpend -= toSpend;
   }
+
+  result = withUpdate(result, {
+    classes: newClasses,
+    hitPoints: {
+      ...result.hitPoints,
+      current: Math.min(result.hitPoints.current + totalHpRecovered, result.hitPoints.max),
+    },
+  });
 
   // 2. Reset short rest resources (per-class model)
   const resetShortRest = resetClassResources(

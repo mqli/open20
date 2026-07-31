@@ -37,6 +37,7 @@ export interface ContentAreaProps {
   onToggleSection: (key: SectionKey) => void;
   modifyHP: (delta: number) => void;
   toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
+  toggleInspiration?: () => void;
   className?: string;
 }
 
@@ -46,6 +47,7 @@ function CombatSection({
   character,
   modifyHP,
   toggleDeathSave,
+  toggleInspiration,
 }: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'className'>) {
   return (
     <div className="flex flex-col gap-4">
@@ -62,7 +64,7 @@ function CombatSection({
           <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
             Combat Stats
           </Text>
-          <CombatStatsBar character={character} />
+          <CombatStatsBar character={character} onToggleInspiration={toggleInspiration} />
         </Surface>
 
         <DeathSavesTracker
@@ -285,6 +287,7 @@ export function ContentArea({
   onToggleSection,
   modifyHP,
   toggleDeathSave,
+  toggleInspiration,
   className,
 }: ContentAreaProps) {
   const renderSectionContent = (key: SectionKey) => {
@@ -295,6 +298,7 @@ export function ContentArea({
             character={character}
             modifyHP={modifyHP}
             toggleDeathSave={toggleDeathSave}
+            toggleInspiration={toggleInspiration}
           />
         );
       case 'abilities':

@@ -201,7 +201,7 @@ describe('shortRest', () => {
     const char = makeFighterWithResources();
     // Fighter level 5, Con mod = +3 (Con 16), d10 hit die
     // Fixed value: ceil(10/2) + 3 = 6 + 3 = 9 HP per die
-    const result = shortRest(char, 1, deps);
+    const result = shortRest(char, { Fighter: 1 }, deps);
 
     expect(result.hitPoints.current).toBe(25 + 9); // 34
     expect(result.classes[0]!.hitDice.used).toBe(3); // was 2, now 3
@@ -209,7 +209,7 @@ describe('shortRest', () => {
 
   it('spends 0 hit dice: no HP change, resources still reset', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, deps);
+    const result = shortRest(char, {}, deps);
 
     expect(result.hitPoints.current).toBe(25); // unchanged
     expect(result.classes[0]!.hitDice.used).toBe(2); // unchanged
@@ -219,7 +219,7 @@ describe('shortRest', () => {
 
   it('resets short rest resources (Second Wind)', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, deps);
+    const result = shortRest(char, {}, deps);
 
     const secondWind = getResource(result, 'Fighter', 'Second Wind')!;
     expect(secondWind.used).toBe(0);
@@ -227,7 +227,7 @@ describe('shortRest', () => {
 
   it('does NOT reset long rest resources', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, deps);
+    const result = shortRest(char, {}, deps);
 
     const indomitable = getResource(result, 'Fighter', 'Indomitable')!;
     expect(indomitable.used).toBe(1); // still used
@@ -235,7 +235,7 @@ describe('shortRest', () => {
 
   it('does NOT reset per-turn resources', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, deps);
+    const result = shortRest(char, {}, deps);
 
     const sneakAttack = getResource(result, 'Fighter', 'Sneak Attack')!;
     expect(sneakAttack.used).toBe(1); // still used
@@ -243,16 +243,16 @@ describe('shortRest', () => {
 
   it('recovers pact magic slots', () => {
     const char = makeWarlock();
-    const result = shortRest(char, 0, deps);
+    const result = shortRest(char, {}, deps);
 
     expect(result.spells.pactMagicSlots!.used).toBe(0);
   });
 
-  it('cannot spend more hit dice than available', () => {
+  it('clamps per-class spending to available', () => {
     const char = makeFighterWithResources();
     // Level 5, 2 used, so 3 available
     // Try to spend 10 — should only spend 3
-    const result = shortRest(char, 10, deps);
+    const result = shortRest(char, { Fighter: 10 }, deps);
 
     // Should spend all 3 remaining: 3 * 9 = 27, but capped at max 49
     expect(result.hitPoints.current).toBe(49); // capped at max
@@ -277,7 +277,7 @@ describe('shortRest', () => {
         },
       ],
     });
-    const result = shortRest(char, 1, deps);
+    const result = shortRest(char, { Fighter: 1 }, deps);
 
     // 45 + 9 = 54, but max is 49
     expect(result.hitPoints.current).toBe(49);
@@ -289,7 +289,7 @@ describe('shortRest', () => {
     const mockRng: RandomProvider = {
       d: (_max: number) => 8, // always roll 8
     };
-    const result = shortRest(char, 1, deps, mockRng);
+    const result = shortRest(char, { Fighter: 1 }, deps, mockRng);
 
     // HP recovered = 8 (roll) + 3 (con mod) = 11
     expect(result.hitPoints.current).toBe(25 + 11); // 36
@@ -297,9 +297,17 @@ describe('shortRest', () => {
 
   it('updates updatedAt timestamp', () => {
     const char = makeFighterWithResources();
-    const result = shortRest(char, 0, deps);
+    const result = shortRest(char, {}, deps);
 
     expect(result.updatedAt).not.toBe(char.updatedAt);
+  });
+
+  it('ignores unknown class IDs in spending map', () => {
+    const char = makeFighterWithResources();
+    const result = shortRest(char, { NonExistentClass: 5 }, deps);
+
+    expect(result.hitPoints.current).toBe(25); // no HP change
+    expect(result.classes[0]!.hitDice.used).toBe(2); // unchanged
   });
 });
 
@@ -424,7 +432,7 @@ describe('shortRest with multi-class', () => {
     classes: { Fighter: FIGHTER_CLASS, Wizard: WIZARD_CLASS },
   });
 
-  it('spends hit dice across classes in order', () => {
+  it('spends per-class hit dice with exact control', () => {
     const char = createMockCharacter({
       classes: [
         {
@@ -463,13 +471,61 @@ describe('shortRest with multi-class', () => {
       },
     });
 
-    // Fighter: 5-3=2 available, d10 fixed+con=6+3=9 each
-    // Wizard: 3-1=2 available, d6 fixed+con=4+3=7 each
-    // Spend 3 dice: 2 from Fighter (18 HP) + 1 from Wizard (7 HP) = 25 HP
-    const result = shortRest(char, 3, deps);
+    // Fighter: 5-3=2 available, d10 fixed+con=6+3=9 each → 18 HP
+    // Wizard: 3-1=2 available, d6 fixed+con=4+3=7 each → 7 HP
+    // Spend exactly 2 from Fighter, 1 from Wizard
+    const result = shortRest(char, { Fighter: 2, Wizard: 1 }, deps);
 
     expect(result.classes[0]!.hitDice.used).toBe(5); // 3+2=5
     expect(result.classes[1]!.hitDice.used).toBe(2); // 1+1=2
     expect(result.hitPoints.current).toBe(20 + 18 + 7); // 45
+  });
+
+  it('spends only from specified classes, ignoring others', () => {
+    const char = createMockCharacter({
+      classes: [
+        {
+          classId: 'Fighter',
+          level: 5,
+          subclassId: null,
+          subclassLevel: null,
+          hitDice: { die: 'd10', used: 3 },
+        },
+        {
+          classId: 'Wizard',
+          level: 3,
+          subclassId: null,
+          subclassLevel: null,
+          hitDice: { die: 'd6', used: 1 },
+        },
+      ],
+      hitPoints: {
+        max: 55,
+        current: 20,
+        temporary: 0,
+        deathSaves: { successes: 0, failures: 0, isStable: false },
+      },
+      abilityScores: {
+        base: {
+          Strength: 16,
+          Dexterity: 14,
+          Constitution: 16,
+          Intelligence: 10,
+          Wisdom: 12,
+          Charisma: 8,
+        },
+        racialBonuses: {},
+        featBonuses: {},
+        temporaryBonuses: {},
+      },
+    });
+
+    // Spend only from Wizard, not Fighter
+    const result = shortRest(char, { Wizard: 2 }, deps);
+
+    expect(result.classes[0]!.hitDice.used).toBe(3); // Fighter unchanged
+    expect(result.classes[1]!.hitDice.used).toBe(3); // 1+2=3
+    // Wizard: 2 * 7 = 14 HP
+    expect(result.hitPoints.current).toBe(20 + 14); // 34
   });
 });

@@ -10,6 +10,7 @@ import {
   recomputeDerivedStats,
   shortRest as coreShortRest,
   longRest as coreLongRest,
+  toggleInspiration as coreToggleInspiration,
   isConcentrating,
   type Character,
   type RecomputeDerivedStatsDeps,
@@ -40,10 +41,12 @@ interface CharacterSheetState {
   setTemporaryHP: (value: number) => void;
   /** Toggle a death save success or failure at the given index (0, 1, 2). */
   toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
-  /** Short rest: spend hit dice, recover HP, reset short-rest resources. */
-  shortRest: (hitDiceToSpend: number) => void;
+  /** Short rest: spend per-class hit dice, recover HP, reset short-rest resources. */
+  shortRest: (hitDiceToSpend: Record<string, number>) => void;
   /** Long rest: full HP, all HD, all spell slots, reset death saves, conditions, resources. */
   longRest: () => void;
+  /** Toggle inspiration on/off. */
+  toggleInspiration: () => void;
 }
 
 export const useCharacterStore = create<CharacterSheetState>((set, get) => {
@@ -199,6 +202,13 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
         const rested = coreLongRest(char, deps);
         return recomputeDerivedStats(rested, deps);
       });
+    },
+
+    toggleInspiration: () => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = { ...coreToggleInspiration(active), id: active.id };
+      persist(next);
     },
   };
 });

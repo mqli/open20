@@ -50,7 +50,19 @@ describe('RestActions', () => {
     expect(screen.getByRole('button', { name: 'Take a long rest' })).not.toBeDisabled();
   });
 
-  it('executes shortRest(0) directly on button click (no HP recovery, no dialog)', () => {
+  it('opens Short Rest hit dice dialog on button click', () => {
+    const char = makeCharacter();
+    useCharacterStore.getState().upsertCharacter(char);
+
+    renderWithI18n(<RestActions />);
+    fireEvent.click(screen.getByRole('button', { name: 'Take a short rest' }));
+
+    // Dialog should appear with per-class row
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Take Short Rest' })).toBeInTheDocument();
+  });
+
+  it('executes short rest with chosen hit dice when confirmed in dialog', () => {
     const char = makeCharacter();
     useCharacterStore.getState().upsertCharacter(char);
     useCharacterStore.getState().modifyHP(-15);
@@ -59,12 +71,18 @@ describe('RestActions', () => {
     const hpBefore = before.hitPoints.current;
 
     renderWithI18n(<RestActions />);
+
+    // Open dialog
     fireEvent.click(screen.getByRole('button', { name: 'Take a short rest' }));
 
+    // Click + to spend 1 hit die, then confirm
+    const plusBtn = screen.getByRole('button', { name: 'Spend one more Wizard hit die' });
+    fireEvent.click(plusBtn);
+    fireEvent.click(screen.getByRole('button', { name: 'Take Short Rest' }));
+
     const after = useCharacterStore.getState().character!;
-    // shortRest(0) does NOT recover HP — hit dice are not spent
-    expect(after.hitPoints.current).toBe(hpBefore);
-    // Character should still be the same one
+    // shortRest should recover some HP
+    expect(after.hitPoints.current).toBeGreaterThan(hpBefore);
     expect(after.id).toBe(char.id);
   });
 
@@ -97,7 +115,7 @@ describe('RestActions', () => {
     expect(after.hitPoints.current).toBe(after.hitPoints.max);
   });
 
-  it('calls onShortRest callback after short rest', () => {
+  it('calls onShortRest callback after confirming short rest in dialog', () => {
     const char = makeCharacter();
     useCharacterStore.getState().upsertCharacter(char);
     let called = false;
@@ -109,7 +127,11 @@ describe('RestActions', () => {
       />,
     );
 
+    // Open dialog
     fireEvent.click(screen.getByRole('button', { name: 'Take a short rest' }));
+
+    // Confirm with 0 hit dice (just click Take Short Rest)
+    fireEvent.click(screen.getByRole('button', { name: 'Take Short Rest' }));
 
     expect(called).toBe(true);
   });

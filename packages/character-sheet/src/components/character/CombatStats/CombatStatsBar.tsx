@@ -12,6 +12,8 @@ import { CombatStatCard } from './CombatStatCard';
 
 export interface CombatStatsBarProps {
   character: AppCharacter;
+  /** Called when the Inspiration card is tapped. If omitted, the card is non-interactive. */
+  onToggleInspiration?: () => void;
   className?: string;
 }
 
@@ -19,7 +21,7 @@ function fmt(n: number): string {
   return n >= 0 ? `+${n}` : `${n}`;
 }
 
-export function CombatStatsBar({ character, className }: CombatStatsBarProps) {
+export function CombatStatsBar({ character, onToggleInspiration, className }: CombatStatsBarProps) {
   const { combatStats } = character;
 
   return (
@@ -44,12 +46,12 @@ export function CombatStatsBar({ character, className }: CombatStatsBarProps) {
       {/* Proficiency Bonus — not rollable */}
       <CombatStatCard icon={Star} label="PB" value={fmt(combatStats.proficiencyBonus)} />
 
-      {/* Inspiration slot — placeholder, filled by T-219 */}
+      {/* Inspiration — toggleable */}
       <CombatStatCard
         icon={Sparkles}
         label="Insp"
         value={character.inspiration ? 'ON' : '—'}
-        className="opacity-50"
+        onTap={onToggleInspiration}
       />
     </div>
   );

@@ -118,6 +118,18 @@ export function DeathSavesTracker({
       <Text variant="labelSm" color="secondary">
         {isStable ? 'Stable' : `${successes} / 3 successes · ${failures} / 3 failures`}
       </Text>
+
+      {/* Threshold warnings */}
+      {successes >= 3 && (
+        <Text variant="labelSm" className="text-success">
+          Stable at 3 successes
+        </Text>
+      )}
+      {failures >= 3 && (
+        <Text variant="labelSm" className="text-danger">
+          Death at 3 failures
+        </Text>
+      )}
     </Surface>
   );
 }

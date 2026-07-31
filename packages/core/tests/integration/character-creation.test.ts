@@ -126,7 +126,7 @@ describe('D&D Player Behavior - Character Creation', () => {
     it('should recover HP after Short Rest', () => {
       const hpBeforeRest = fighter.hitPoints.current;
 
-      const afterRest = shortRest(fighter, 1, dataLoader);
+      const afterRest = shortRest(fighter, { Fighter: 1 }, dataLoader);
 
       expect(afterRest.hitPoints.current).toBeGreaterThan(hpBeforeRest);
     });

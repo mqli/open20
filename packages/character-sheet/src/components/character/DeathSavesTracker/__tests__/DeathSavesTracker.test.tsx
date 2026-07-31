@@ -144,6 +144,59 @@ describe('DeathSavesTracker', () => {
     expect(screen.getByText('1 / 3 successes · 2 / 3 failures')).toBeInTheDocument();
   });
 
+  it('shows "Stable at 3 successes" threshold label when successes=3', () => {
+    const onToggleSuccess = vi.fn();
+    const onToggleFailure = vi.fn();
+
+    renderWithI18n(
+      <DeathSavesTracker
+        successes={3}
+        failures={1}
+        isStable={true}
+        onToggleSuccess={onToggleSuccess}
+        onToggleFailure={onToggleFailure}
+      />,
+    );
+
+    expect(screen.getByText('Stable at 3 successes')).toBeInTheDocument();
+    expect(screen.getByText('Stable')).toBeInTheDocument();
+  });
+
+  it('shows "Death at 3 failures" threshold label when failures=3', () => {
+    const onToggleSuccess = vi.fn();
+    const onToggleFailure = vi.fn();
+
+    renderWithI18n(
+      <DeathSavesTracker
+        successes={1}
+        failures={3}
+        isStable={false}
+        onToggleSuccess={onToggleSuccess}
+        onToggleFailure={onToggleFailure}
+      />,
+    );
+
+    expect(screen.getByText('Death at 3 failures')).toBeInTheDocument();
+  });
+
+  it('does not show threshold labels when below threshold', () => {
+    const onToggleSuccess = vi.fn();
+    const onToggleFailure = vi.fn();
+
+    renderWithI18n(
+      <DeathSavesTracker
+        successes={1}
+        failures={2}
+        isStable={false}
+        onToggleSuccess={onToggleSuccess}
+        onToggleFailure={onToggleFailure}
+      />,
+    );
+
+    expect(screen.queryByText('Stable at 3 successes')).toBeNull();
+    expect(screen.queryByText('Death at 3 failures')).toBeNull();
+  });
+
   it('all circles are empty when successes=0, failures=0', () => {
     const onToggleSuccess = vi.fn();
     const onToggleFailure = vi.fn();

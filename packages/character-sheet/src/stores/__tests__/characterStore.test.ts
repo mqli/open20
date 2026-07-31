@@ -188,7 +188,7 @@ describe('characterStore', () => {
       const hurtHp = before.hitPoints.current;
       const hdUsedBefore = before.classes[0].hitDice.used;
 
-      useCharacterStore.getState().shortRest(3);
+      useCharacterStore.getState().shortRest({ Wizard: 3 });
 
       const after = useCharacterStore.getState().character!;
       // HP should have recovered (3 × (avg d6 + CON mod))
@@ -203,7 +203,7 @@ describe('characterStore', () => {
       const char = makeCharacter();
       useCharacterStore.getState().upsertCharacter(char);
       useCharacterStore.getState().modifyHP(-10);
-      useCharacterStore.getState().shortRest(2);
+      useCharacterStore.getState().shortRest({ Wizard: 2 });
 
       const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
       const storedChar = stored[char.id];
@@ -216,12 +216,12 @@ describe('characterStore', () => {
       useCharacterStore.getState().upsertCharacter(char);
       useCharacterStore.setState({ lastDamageForConcentration: 15 });
 
-      useCharacterStore.getState().shortRest(1);
+      useCharacterStore.getState().shortRest({ Wizard: 1 });
       expect(useCharacterStore.getState().lastDamageForConcentration).toBeNull();
     });
 
     it('does nothing when no character is active', () => {
-      useCharacterStore.getState().shortRest(1);
+      useCharacterStore.getState().shortRest({ Wizard: 1 });
       // Should not throw
       expect(useCharacterStore.getState().character).toBeNull();
     });
@@ -233,7 +233,7 @@ describe('characterStore', () => {
       useCharacterStore.getState().upsertCharacter(char);
 
       useCharacterStore.getState().modifyHP(-15);
-      useCharacterStore.getState().shortRest(2); // spend some HD
+      useCharacterStore.getState().shortRest({ Wizard: 2 }); // spend some HD
 
       const before = useCharacterStore.getState().character!;
       expect(before.classes[0].hitDice.used).toBeGreaterThan(0);
@@ -267,7 +267,7 @@ describe('characterStore', () => {
       const char = makeCharacter();
       useCharacterStore.getState().upsertCharacter(char);
       useCharacterStore.getState().modifyHP(-20);
-      useCharacterStore.getState().shortRest(2);
+      useCharacterStore.getState().shortRest({ Wizard: 2 });
       useCharacterStore.getState().longRest();
 
       const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
@@ -288,6 +288,45 @@ describe('characterStore', () => {
     it('does nothing when no character is active', () => {
       useCharacterStore.getState().longRest();
       // Should not throw
+      expect(useCharacterStore.getState().character).toBeNull();
+    });
+  });
+
+  describe('toggleInspiration', () => {
+    it('toggles inspiration from false to true', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+      expect(useCharacterStore.getState().character!.inspiration).toBe(false);
+
+      useCharacterStore.getState().toggleInspiration();
+      expect(useCharacterStore.getState().character!.inspiration).toBe(true);
+    });
+
+    it('toggles inspiration from true to false', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+      // Manually set inspiration to true via state override
+      useCharacterStore.setState((s) => ({
+        character: s.character ? { ...s.character, inspiration: true } : null,
+      }));
+      expect(useCharacterStore.getState().character!.inspiration).toBe(true);
+
+      useCharacterStore.getState().toggleInspiration();
+      expect(useCharacterStore.getState().character!.inspiration).toBe(false);
+    });
+
+    it('persists inspiration change to localStorage', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      useCharacterStore.getState().toggleInspiration();
+
+      const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
+      expect(stored[char.id].inspiration).toBe(true);
+    });
+
+    it('does nothing when no character is active', () => {
+      useCharacterStore.getState().toggleInspiration();
       expect(useCharacterStore.getState().character).toBeNull();
     });
   });

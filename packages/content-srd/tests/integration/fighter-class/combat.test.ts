@@ -69,7 +69,7 @@ describe('D&D SRD 5.2 - Fighter Class: Combat Scenarios', () => {
       expect(swAfterConsume!.used).toBe(1);
 
       const depsForShortRest = createTestDeps(fighter);
-      fighter = shortRest(fighter, 1, depsForShortRest);
+      fighter = shortRest(fighter, { Fighter: 1 }, depsForShortRest);
 
       const afterRest = fighter.resources['Fighter']!.resources.find((r) => r.id === 'Second Wind');
       expect(afterRest!.used).toBe(0);

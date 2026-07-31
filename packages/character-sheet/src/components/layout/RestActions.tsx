@@ -2,11 +2,14 @@
 // Short Rest / Long Rest button panel + dialogs (T-118).
 // Self-contained: manages its own dialog state and calls characterStore directly.
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Coffee, Moon } from 'lucide-react';
 import { Button, Text, cn } from '@open20/ui';
+import { getModifier, getTotalScore } from 'open20-core';
 import { useCharacterStore } from '@/stores/characterStore';
-import { LongRestDialog } from '@/components/character/Rests';
+import { getClassName } from '@/core/content-resolver';
+import { LongRestDialog, ShortRestHitDiceDialog } from '@/components/character/Rests';
+import type { ClassHitDiceInfo } from '@/components/character/Rests';
 
 export interface RestActionsProps {
   className?: string;
@@ -20,8 +23,30 @@ export function RestActions({ className, onShortRest }: RestActionsProps) {
   const longRest = useCharacterStore((s) => s.longRest);
 
   const [showLongRestDialog, setShowLongRestDialog] = useState(false);
+  const [showShortRestDialog, setShowShortRestDialog] = useState(false);
 
   const hasCharacter = character !== null;
+
+  // Per-class hit dice info for the dialog
+  const classHitDice: ClassHitDiceInfo[] = useMemo(() => {
+    if (!character) return [];
+    return character.classes.map((c) => ({
+      classId: c.classId,
+      className: getClassName(c.classId),
+      dieType: c.hitDice.die,
+      available: Math.max(0, c.level - c.hitDice.used),
+      total: c.level,
+    }));
+  }, [character]);
+
+  // CON modifier for HP recovery preview — uses same calculation as core shortRest()
+  const conMod = useMemo(() => {
+    if (!character) return 0;
+    return getModifier(getTotalScore(character.abilityScores, 'Constitution'));
+  }, [character]);
+
+  const currentHp = character?.hitPoints.current ?? 0;
+  const maxHp = character?.hitPoints.max ?? 0;
 
   return (
     <>
@@ -34,10 +59,7 @@ export function RestActions({ className, onShortRest }: RestActionsProps) {
           variant="secondary"
           size="md"
           className="w-full justify-start gap-2 border-warning/40 bg-warning/10 text-warning hover:bg-warning/20 hover:text-warning"
-          onClick={() => {
-            shortRest(0);
-            onShortRest?.();
-          }}
+          onClick={() => setShowShortRestDialog(true)}
           aria-label="Take a short rest"
           disabled={!hasCharacter}
         >
@@ -57,6 +79,20 @@ export function RestActions({ className, onShortRest }: RestActionsProps) {
           Long Rest
         </Button>
       </div>
+
+      {/* Short Rest hit dice dialog */}
+      <ShortRestHitDiceDialog
+        open={showShortRestDialog}
+        onOpenChange={setShowShortRestDialog}
+        onConfirm={(perClassSpending) => {
+          shortRest(perClassSpending);
+          onShortRest?.();
+        }}
+        classHitDice={classHitDice}
+        conMod={conMod}
+        currentHp={currentHp}
+        maxHp={maxHp}
+      />
 
       {/* Long Rest confirmation dialog */}
       <LongRestDialog

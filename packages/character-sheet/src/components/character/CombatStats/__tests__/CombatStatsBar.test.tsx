@@ -53,8 +53,26 @@ describe('CombatStatsBar', () => {
 
   it('renders Inspiration as — when false', () => {
     const char = makeCharacter();
-    render(<CombatStatsBar character={char} />);
+    const onToggleInspiration = vi.fn();
+    render(<CombatStatsBar character={char} onToggleInspiration={onToggleInspiration} />);
     expect(screen.getByText('—')).toBeInTheDocument();
+  });
+
+  it('renders Inspiration as ON when true', () => {
+    const char = { ...makeCharacter(), inspiration: true };
+    const onToggleInspiration = vi.fn();
+    render(<CombatStatsBar character={char} onToggleInspiration={onToggleInspiration} />);
+    expect(screen.getByText('ON')).toBeInTheDocument();
+  });
+
+  // --- inspiration tap ---
+
+  it('calls onToggleInspiration when inspiration card is tapped', () => {
+    const onToggleInspiration = vi.fn();
+    const char = makeCharacter();
+    render(<CombatStatsBar character={char} onToggleInspiration={onToggleInspiration} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Roll Insp' }));
+    expect(onToggleInspiration).toHaveBeenCalled();
   });
 
   // --- initiative tap ---
@@ -70,13 +88,15 @@ describe('CombatStatsBar', () => {
 
   it('AC card has no button (not rollable)', () => {
     const char = makeCharacter();
-    render(<CombatStatsBar character={char} />);
+    const onToggleInspiration = vi.fn();
+    render(<CombatStatsBar character={char} onToggleInspiration={onToggleInspiration} />);
 
     // AC should render as text but NOT have a surrounding button
     const buttons = screen.queryAllByRole('button');
-    // Only Init should be a button
-    expect(buttons).toHaveLength(1);
+    // Init + Inspiration should be buttons
+    expect(buttons).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Roll Init' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Roll Insp' })).toBeInTheDocument();
   });
 
   // --- layout ---

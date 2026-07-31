@@ -51,7 +51,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
 
       const hitDiceBefore = char.classes[0]!.hitDice.used;
       const deps2 = createTestDeps(char);
-      const afterShortRest = shortRest(char, 1, deps2);
+      const afterShortRest = shortRest(char, { Wizard: 1 }, deps2);
       expect(afterShortRest.hitPoints.current).toBeGreaterThan(char.hitPoints.current);
       expect(afterShortRest.classes[0]!.hitDice.used).toBe(hitDiceBefore + 1);
 
@@ -115,7 +115,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       expect(fighter.hitPoints.current).toBe(initialHP - 20);
 
       const deps1 = createTestDeps(fighter);
-      fighter = shortRest(fighter, 1, deps1);
+      fighter = shortRest(fighter, { Fighter: 1 }, deps1);
       expect(fighter.hitPoints.current).toBeGreaterThan(initialHP - 20);
 
       const deps2 = createTestDeps(fighter);
@@ -159,7 +159,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       (wizard.spells.spellSlots[2] as any).used = 1;
 
       const deps1 = createTestDeps(wizard);
-      const afterShortRest = shortRest(wizard, 0, deps1);
+      const afterShortRest = shortRest(wizard, {}, deps1);
       expect(afterShortRest.spells.spellSlots[1]!.used).toBe(2);
       expect(afterShortRest.spells.spellSlots[2]!.used).toBe(1);
 
@@ -286,7 +286,7 @@ describe('D&D Player Behavior - Full Lifecycle & Combat Scenarios', () => {
       expect(damaged.hitPoints.current).toBeGreaterThanOrEqual(0);
 
       const deps1 = createTestDeps(damaged);
-      const afterRest = shortRest(damaged, 1, deps1);
+      const afterRest = shortRest(damaged, { Fighter: 1 }, deps1);
       if (damaged.hitPoints.current > 0) {
         expect(afterRest.hitPoints.current).toBeGreaterThan(damaged.hitPoints.current);
       }

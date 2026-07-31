@@ -145,7 +145,7 @@ describe('D&D Player Behavior - Adventure Arc', () => {
       expect(hero.hitPoints.current).toBeGreaterThan(0);
 
       const depsForShortRest = createTestDeps(hero);
-      hero = shortRest(hero, 1, depsForShortRest);
+      hero = shortRest(hero, { Paladin: 1 }, depsForShortRest);
       expect(hero.hitPoints.current).toBeGreaterThan(level1HP - 8);
 
       const depsForLongRest = createTestDeps(hero);

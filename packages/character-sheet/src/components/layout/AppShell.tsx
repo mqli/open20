@@ -64,7 +64,8 @@ const ALL_SECTIONS: SectionKey[] = [
 
 export function AppShell() {
   const { isDesktop } = useIsLargeScreen();
-  const { character, error, modifyHP, toggleDeathSave, upsertCharacter } = useCharacterStore();
+  const { character, error, modifyHP, toggleDeathSave, toggleInspiration, upsertCharacter } =
+    useCharacterStore();
 
   // Accordion state: combat is always expanded.
   // Desktop: all sections start expanded (multi-open).
@@ -166,7 +167,7 @@ export function AppShell() {
 
   // ── Error banner ───────────────────────────────────────────
   const errorBanner = error && (
-    <Surface variant="warning" padding="sm" className="m-2 lg:m-0">
+    <Surface variant="warning" padding="sm" className="m-2 lg:m-0" role="alert">
       <Text variant="bodySm">{error}</Text>
     </Surface>
   );
@@ -192,6 +193,7 @@ export function AppShell() {
           onToggleSection={handleToggleSection}
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
+          toggleInspiration={toggleInspiration}
         />
 
         {/* CharacterSelector dialog — renders at top level */}
@@ -233,8 +235,12 @@ export function AppShell() {
           </Button>
         </div>
 
-        {/* Hero Strip */}
-        <HeroStrip character={character} className="border-b border-border" />
+        {/* Hero Strip — tap to expand full combat stats */}
+        <HeroStrip
+          character={character}
+          onExpand={() => handleSectionChange('combat')}
+          className="border-b border-border"
+        />
       </div>
 
       {/* Content — accordion */}
@@ -245,6 +251,7 @@ export function AppShell() {
           onToggleSection={handleToggleSection}
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
+          toggleInspiration={toggleInspiration}
           className="pb-4"
         />
       </div>
