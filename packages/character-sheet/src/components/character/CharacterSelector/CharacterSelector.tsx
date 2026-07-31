@@ -28,16 +28,16 @@ const DEFAULT_SCORES: Record<AbilityName, number> = {
 function createNewCharacter(): AppCharacter {
   initContent();
   const deps = buildDepsForCreate({
-    speciesId: 'Human',
-    backgroundId: 'acolyte',
-    classId: 'Fighter',
+    speciesId: 'Elf',
+    backgroundId: 'sage',
+    classId: 'Wizard',
   });
   const char = createCharacter(
     {
       name: 'New Character',
-      speciesId: 'Human',
-      backgroundId: 'acolyte',
-      classId: 'Fighter',
+      speciesId: 'Elf',
+      backgroundId: 'sage',
+      classId: 'Wizard',
       classLevel: 1,
       abilityScores: DEFAULT_SCORES,
     },
