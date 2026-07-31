@@ -10,6 +10,7 @@
 // Mobile: single-open accordion (only one section open at a time, combat always open).
 
 import { useState, useCallback } from 'react';
+import { Users } from 'lucide-react';
 import { createCharacter, type AbilityName } from 'open20-core';
 import { Surface, Text, Button, EmptyState } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
@@ -20,6 +21,7 @@ import type { SectionKey } from './Sidebar';
 import { HeroStrip } from './HeroStrip';
 import { ContentArea } from './ContentArea';
 import { MobileBottomBar } from './MobileBottomBar';
+import { CharacterSelector } from '@/components/character/CharacterSelector';
 
 const SAMPLE_SCORES: Record<AbilityName, number> = {
   Strength: 10,
@@ -80,7 +82,8 @@ export function AppShell() {
   // Track which section the user last navigated to (for sidebar/bottom-bar highlight).
   const [lastNavigatedSection, setLastNavigatedSection] = useState<SectionKey>('combat');
 
-  // Toggle a section's expanded state.
+  // CharacterSelector dialog state
+  const [showCharacterSelector, setShowCharacterSelector] = useState(false); // Toggle a section's expanded state.
   // Desktop: toggle independently.
   // Mobile: single-open (close other sections besides combat).
   const handleToggleSection = useCallback(
@@ -135,20 +138,29 @@ export function AppShell() {
     [isDesktop],
   );
 
-  // ── Empty state ────────────────────────────────────────────
+  // CharacterSelector dialog — rendered at top level so it persists when
+  // the active character is deleted (store sets character→null).
+  const characterSelectorDialog = (
+    <CharacterSelector open={showCharacterSelector} onOpenChange={setShowCharacterSelector} />
+  );
+
+  // ── Empty state ──���─────────────────────────────────────────
   if (!character) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6">
-        <EmptyState
-          title="No Character Yet"
-          description="Create a sample D&D 2024 character to explore the sheet."
-          action={
-            <Button variant="primary" onClick={() => upsertCharacter(createSampleCharacter())}>
-              Create sample character
-            </Button>
-          }
-        />
-      </div>
+      <>
+        <div className="flex min-h-screen items-center justify-center p-6">
+          <EmptyState
+            title="No Character Yet"
+            description="Create a sample D&D 2024 character to explore the sheet."
+            action={
+              <Button variant="primary" onClick={() => upsertCharacter(createSampleCharacter())}>
+                Create sample character
+              </Button>
+            }
+          />
+        </div>
+        {characterSelectorDialog}
+      </>
     );
   }
 
@@ -170,6 +182,7 @@ export function AppShell() {
           character={character}
           activeSection={lastNavigatedSection}
           onSectionChange={handleSectionChange}
+          onOpenCharacterSelector={() => setShowCharacterSelector(true)}
         />
 
         {/* Content — accordion */}
@@ -180,6 +193,9 @@ export function AppShell() {
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
         />
+
+        {/* CharacterSelector dialog — renders at top level */}
+        {characterSelectorDialog}
       </div>
     );
   }
@@ -206,6 +222,15 @@ export function AppShell() {
               {getSpeciesName(character.species)} · Lv.{totalLevel} {classLabel}
             </Text>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setShowCharacterSelector(true)}
+            aria-label="Manage characters"
+          >
+            <Users className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Hero Strip */}
@@ -226,6 +251,9 @@ export function AppShell() {
 
       {/* Bottom Tab Bar */}
       <MobileBottomBar activeSection={lastNavigatedSection} onSectionChange={handleSectionChange} />
+
+      {/* CharacterSelector dialog — renders at top level */}
+      {characterSelectorDialog}
     </div>
   );
 }

@@ -87,7 +87,7 @@ Reuse ui `SlotPips` (`total`,`used`), **read-only** (no manual toggle). Cantrip 
 
 **Depends on:** T-005 · Two full-width buttons. Long Rest → confirm dialog (§7.3 checklist) → **Store `longRest(char,deps)`**. Short Rest → simple total-HD prompt (rich per-class selector is T-206) → **Store `shortRest(char,total,deps,restRng)`** using the **rest RNG `{d(max)}`** shape (README §2.1). **Accept:** rests apply + persist; correct rng shape. **Tests:** store actions call core w/ deps + rng shape.
 
-### T-119 — CharacterSelector (FR-143) — §7.1
+### T-119 — CharacterSelector (FR-143) — §7.1 — ✅ done
 
 **Depends on:** T-005 · List saved characters (resolved name + `Lvl N Class`, HP/AC/PP), active highlighted (`--color-primary-600` left border), Edit per card, `+ New`. **Store:** `setActiveCharacter`. **Accept:** lists + highlights active; switch works. **Tests:** highlight active; select callback.
 

@@ -15,9 +15,10 @@ import {
   Package,
   Feather,
   FileText,
+  Users,
 } from 'lucide-react';
 import type { AppCharacter } from '@/types';
-import { Tabs, Text, cn } from '@open20/ui';
+import { Tabs, Text, Button, cn } from '@open20/ui';
 import { HeroCard } from './HeroCard';
 import { RestActions } from './RestActions';
 
@@ -34,6 +35,7 @@ export interface SidebarProps {
   character: AppCharacter;
   activeSection: SectionKey;
   onSectionChange: (section: SectionKey) => void;
+  onOpenCharacterSelector: () => void;
   className?: string;
 }
 
@@ -51,7 +53,13 @@ const NAV_ITEMS: Array<{
   { id: 'notes', label: 'Notes', icon: FileText },
 ];
 
-export function Sidebar({ character, activeSection, onSectionChange, className }: SidebarProps) {
+export function Sidebar({
+  character,
+  activeSection,
+  onSectionChange,
+  onOpenCharacterSelector,
+  className,
+}: SidebarProps) {
   return (
     <aside
       className={cn(
@@ -62,6 +70,20 @@ export function Sidebar({ character, activeSection, onSectionChange, className }
       {/* Hero Card — sticky top */}
       <div className="p-4 pb-0">
         <HeroCard character={character} />
+      </div>
+
+      {/* Character management trigger */}
+      <div className="px-4 pt-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2 text-text-secondary hover:text-text-primary"
+          onClick={onOpenCharacterSelector}
+          aria-label="Manage characters"
+        >
+          <Users className="h-4 w-4" />
+          <Text variant="bodySm">Characters</Text>
+        </Button>
       </div>
 
       {/* Nav Tabs — vertical pills */}

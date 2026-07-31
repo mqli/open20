@@ -155,7 +155,8 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-108 CombatStatsBar
 - ✅ T-118 RestActions (including LongRestDialog)
 - ✅ T-127 Sheet assembly (accordion layout)
-- ⏳ T-109–T-128 Pending (12 remaining P0 UI tasks – T-109/T-110 blocked by T-012)
+- ✅ T-119 CharacterSelector (multi-character modal with create/switch/delete)
+- ⏳ T-109–T-128 Pending (11 remaining P0 UI tasks – T-109/T-110 blocked by T-012)
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -165,7 +166,6 @@ The highest-value unblocked P0 tasks, in recommended order:
 
 | Task        | What                              | Why first                                                        |
 | ----------- | --------------------------------- | ---------------------------------------------------------------- |
-| T-119       | CharacterSelector                 | Multi-character list picker; no blockers                         |
 | T-114/T-115 | SpellcastingHeader + SpellSlotRow | Reuses `SlotPips` from ui; needs `classSpellData` from character |
 | T-111/T-112 | SpeciesPanel + BackgroundPanel    | ContentResolver already does lookups; just display               |
 | T-128       | App states (empty/loading/error)  | Polish what's already wired                                      |
