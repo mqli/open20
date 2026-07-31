@@ -27,7 +27,7 @@ export function SpellcastingHeader({ character, className }: SpellcastingHeaderP
           <Text variant="labelSm" color="secondary" className="mb-1">
             Spell DC
           </Text>
-          <Text variant="h3" className="text-primary-600 tabular-nums">
+          <Text variant="heading" className="text-primary-600 tabular-nums">
             {spellSaveDC}
           </Text>
         </div>
@@ -35,7 +35,7 @@ export function SpellcastingHeader({ character, className }: SpellcastingHeaderP
           <Text variant="labelSm" color="secondary" className="mb-1">
             Atk Bonus
           </Text>
-          <Text variant="h3" className="text-primary-600 tabular-nums">
+          <Text variant="heading" className="text-primary-600 tabular-nums">
             +{spellAttackBonus}
           </Text>
         </div>

@@ -17,6 +17,7 @@ import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
 import type { SkillEntry, AbilityName } from 'open20-core/types';
 import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
+import type { SpellLevel } from 'open20-core/types';
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
 import { SavingThrowsGrid } from '@/components/character/SavingThrows';
@@ -25,6 +26,7 @@ import { CombatStatsBar } from '@/components/character/CombatStats';
 import { SkillRow } from '@/components/character/Skills';
 import { SpeciesPanel } from '@/components/character/Species';
 import { BackgroundPanel } from '@/components/character/Background';
+import { SpellcastingHeader, SpellSlotRow } from '@/components/character/Spellcasting';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import type { SectionKey } from './Sidebar';
@@ -158,6 +160,67 @@ function SkillsSection({ character }: { character: AppCharacter }) {
   );
 }
 
+// ─── Spells Section (internal) ──────────────────────────
+
+function SpellsSection({ character }: { character: AppCharacter }) {
+  const { spells } = character;
+  const hasSpellcasting = Object.keys(spells.classSpellcasting).length > 0;
+
+  const slotLevels: Array<{ level: number | 'Cantrip'; total: number; used: number }> = [];
+
+  const firstClassData = Object.values(spells.classSpellcasting)[0];
+  const cantripCount = firstClassData?.maxCantripsKnown ?? 0;
+  slotLevels.push({ level: 'Cantrip', total: cantripCount, used: 0 });
+
+  for (let lvl = 1; lvl <= 9; lvl++) {
+    const slot = spells.spellSlots[lvl as SpellLevel];
+    slotLevels.push({
+      level: lvl,
+      total: slot?.total ?? 0,
+      used: slot?.used ?? 0,
+    });
+  }
+
+  if (!hasSpellcasting) {
+    return (
+      <Surface variant="default" padding="md">
+        <Text variant="bodySm" color="secondary">
+          This character does not have spellcasting.
+        </Text>
+      </Surface>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <SpellcastingHeader character={character} />
+
+      <Surface variant="default" padding="md">
+        <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
+          Spell Slots
+        </Text>
+        <div className="divide-y divide-border">
+          {slotLevels.map((slot) => (
+            <SpellSlotRow key={slot.level} level={slot.level} total={slot.total} used={slot.used} />
+          ))}
+        </div>
+      </Surface>
+
+      {/* Prepared spells placeholder (T-116 pending) */}
+      <Surface
+        variant="default"
+        padding="md"
+        className="flex min-h-[80px] items-center justify-center"
+      >
+        <EmptyState
+          title="Prepared Spells"
+          description="Spell preparation and casting coming in the next update."
+        />
+      </Surface>
+    </div>
+  );
+}
+
 // ─── Features Section (internal) ─────────────────────────
 
 function FeaturesSection({ character }: { character: AppCharacter }) {
@@ -238,12 +301,7 @@ export function ContentArea({
       case 'skills':
         return <SkillsSection character={character} />;
       case 'spells':
-        return (
-          <PlaceholderSection
-            title="Spellcasting"
-            description="Spell management coming in the next update. Manage spell slots, prepared spells, and casting."
-          />
-        );
+        return <SpellsSection character={character} />;
       case 'equipment':
         return (
           <PlaceholderSection
