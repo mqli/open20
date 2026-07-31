@@ -58,35 +58,44 @@ function CombatSection({
         onAdjust={modifyHP}
       />
 
-      {/* 2-column grid for compact panels on md+ screens */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Surface variant="default" padding="md">
-          <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
-            Combat Stats
-          </Text>
-          <CombatStatsBar character={character} onToggleInspiration={toggleInspiration} />
-        </Surface>
+      {/* Unified panel: Combat Stats + Death Saves side-by-side on desktop */}
+      <Surface variant="default" padding="md">
+        <div className="flex flex-col gap-4 md:flex-row md:gap-0 md:items-center">
+          {/* Left: Combat Stats */}
+          <div className="flex-1 min-w-0 md:pr-6">
+            <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
+              Combat Stats
+            </Text>
+            <CombatStatsBar character={character} onToggleInspiration={toggleInspiration} />
+          </div>
 
-        <DeathSavesTracker
-          successes={character.hitPoints.deathSaves.successes}
-          failures={character.hitPoints.deathSaves.failures}
-          isStable={character.hitPoints.deathSaves.isStable}
-          onToggleSuccess={(i) => toggleDeathSave('success', i)}
-          onToggleFailure={(i) => toggleDeathSave('failure', i)}
-        />
+          {/* Divider: horizontal on mobile, vertical on desktop */}
+          <Divider className="md:hidden" />
 
-        <Surface variant="default" padding="md" className="md:col-span-2">
-          <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
-            Saving Throws
-          </Text>
-          <SavingThrowsGrid
-            character={character}
-            onRollSave={(ability: AbilityName, rollModifier: RollModifierType) =>
-              rollSave(character, ability, rollModifier)
-            }
+          {/* Right: Death Saves (with left border on desktop) */}
+          <DeathSavesTracker
+            successes={character.hitPoints.deathSaves.successes}
+            failures={character.hitPoints.deathSaves.failures}
+            isStable={character.hitPoints.deathSaves.isStable}
+            onToggleSuccess={(i) => toggleDeathSave('success', i)}
+            onToggleFailure={(i) => toggleDeathSave('failure', i)}
+            className="p-0 border-none shadow-none bg-transparent md:border-l md:border-border md:pl-6"
           />
-        </Surface>
-      </div>
+        </div>
+      </Surface>
+
+      {/* Saving Throws */}
+      <Surface variant="default" padding="md">
+        <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
+          Saving Throws
+        </Text>
+        <SavingThrowsGrid
+          character={character}
+          onRollSave={(ability: AbilityName, rollModifier: RollModifierType) =>
+            rollSave(character, ability, rollModifier)
+          }
+        />
+      </Surface>
     </div>
   );
 }

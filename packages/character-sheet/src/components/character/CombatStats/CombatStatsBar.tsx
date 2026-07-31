@@ -25,7 +25,7 @@ export function CombatStatsBar({ character, onToggleInspiration, className }: Co
   const { combatStats } = character;
 
   return (
-    <div className={cn('grid grid-cols-3 gap-2', 'md:flex md:flex-wrap md:gap-2', className)}>
+    <div className={cn('grid grid-cols-3 gap-2', className)}>
       {/* AC — not rollable */}
       <CombatStatCard icon={Shield} label="AC" value={String(combatStats.AC)} />
 
