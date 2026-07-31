@@ -147,10 +147,12 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-108 CombatStatsBar
 - ✅ T-111 SpeciesPanel
 - ✅ T-112 BackgroundPanel
+- ✅ T-114 SpellcastingHeader
+- ✅ T-115 SpellSlotRow
 - ✅ T-118 RestActions (including LongRestDialog)
 - ✅ T-119 CharacterSelector (multi-character modal with create/switch/delete)
 - ✅ T-127 Sheet assembly (accordion layout)
-- ⏳ 15 remaining P0 tasks: T-109/T-110/T-113~T-117/T-120~T-126/T-128 (+ T-105 finish)
+- ⏳ 13 remaining P0 tasks: T-109/T-110/T-113/T-116/T-117/T-120~T-126/T-128 (+ T-105 finish)
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -158,11 +160,11 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 The highest-value unblocked P0 tasks, in recommended order:
 
-| Task        | What                              | Why first                                                        |
-| ----------- | --------------------------------- | ---------------------------------------------------------------- |
-| T-114/T-115 | SpellcastingHeader + SpellSlotRow | Reuses `SlotPips` from ui; needs `classSpellData` from character |
-| T-109/T-110 | WeaponAttackCard + WeaponsList    | T-012 adapter is done — now unblocked                            |
-| T-113       | Feats (FeatCard + list)           | ContentResolver already does lookups; just display               |
-| T-128       | App states (empty/loading/error)  | Polish what's already wired                                      |
+| Task        | What                              | Why first                                                  |
+| ----------- | --------------------------------- | ---------------------------------------------------------- |
+| T-109/T-110 | WeaponAttackCard + WeaponsList    | T-012 adapter is done — now unblocked                      |
+| T-113       | Feats (FeatCard + list)           | ContentResolver already does lookups; just display         |
+| T-116/T-117 | PreparedSpellList + Concentration | Spell section now has header+slots; next: spell management |
+| T-128       | App states (empty/loading/error)  | Polish what's already wired                                |
 
 **Do NOT start** T-219 (needs T-014 inspiration), T-208 (needs T-015 exhaustion), T-215 (needs T-016 senses). These Phase 2 tasks are blocked by pending core extensions.

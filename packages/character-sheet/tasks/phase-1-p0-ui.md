@@ -67,11 +67,11 @@ Single stat card: icon + label + value (`Text` variants). Optional `onTap` for r
 
 **Depends on:** T-005 · `character.feats` → cards expandable to description + granted benefits (resolve via `getFeatName` + feat data). Reuse ui `FeatCard` if props fit, else local. **Accept:** feats render; expand shows description; unknown → humanized. **Tests:** render; expand; fallback.
 
-### T-114 — SpellcastingHeader (FR-152) — §6.12
+### T-114 — SpellcastingHeader (FR-152) — §6.12 — ✅ done
 
 Spell DC + attack bonus side-by-side (`--color-primary-600`), from `ClassSpellData.spellSaveDC` + `getSpellAttackBonusForClass`/`getBestSpellAttackBonus` (best for MVP multiclass). **Accept:** DC + attack shown from character. **Tests:** values render.
 
-### T-115 — SpellSlotRow (FR-153) — §5.6
+### T-115 — SpellSlotRow (FR-153) — §5.6 — ✅ done
 
 Reuse ui `SlotPips` (`total`,`used`), **read-only** (no manual toggle). Cantrip row = ∞; levels 1–9 remaining/max. **Accept:** pips reflect used/max; read-only. **Tests:** pip counts from character.
 
