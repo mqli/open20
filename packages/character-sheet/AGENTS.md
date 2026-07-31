@@ -151,7 +151,11 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-104 SkillRow
 - ⏳ T-105 SkillsList (partial — rendered but no search/filter)
 - ✅ T-106 SavingThrows
-- ⏳ T-107–T-128 Pending (16 remaining P0 UI tasks)
+- ✅ T-107 CombatStatCard
+- ✅ T-108 CombatStatsBar
+- ✅ T-118 RestActions (including LongRestDialog)
+- ✅ T-127 Sheet assembly (accordion layout)
+- ⏳ T-109–T-128 Pending (12 remaining P0 UI tasks – T-109/T-110 blocked by T-012)
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -159,14 +163,11 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 The highest-value unblocked P0 tasks, in recommended order:
 
-| Task        | What                              | Why first                                                          |
-| ----------- | --------------------------------- | ------------------------------------------------------------------ |
-| T-107/T-108 | CombatStatCard + CombatStatsBar   | Core already has `combatStats` populated; just display it          |
-| T-118       | RestActions                       | Core has `shortRest`/`longRest`; just wrap in buttons + dialog     |
-| T-127       | Sheet assembly                    | Wire completed components into proper layout (sidebar + accordion) |
-| T-119       | CharacterSelector                 | Multi-character list picker; no blockers                           |
-| T-114/T-115 | SpellcastingHeader + SpellSlotRow | Reuses `SlotPips` from ui; needs `classSpellData` from character   |
-| T-111/T-112 | SpeciesPanel + BackgroundPanel    | ContentResolver already does lookups; just display                 |
-| T-128       | App states (empty/loading/error)  | Polish what's already wired                                        |
+| Task        | What                              | Why first                                                        |
+| ----------- | --------------------------------- | ---------------------------------------------------------------- |
+| T-119       | CharacterSelector                 | Multi-character list picker; no blockers                         |
+| T-114/T-115 | SpellcastingHeader + SpellSlotRow | Reuses `SlotPips` from ui; needs `classSpellData` from character |
+| T-111/T-112 | SpeciesPanel + BackgroundPanel    | ContentResolver already does lookups; just display               |
+| T-128       | App states (empty/loading/error)  | Polish what's already wired                                      |
 
 **Do NOT start** T-109/T-110 (WeaponAttackCard/List) until T-012 lands — they need the CharacterAttack→Weapon adapter. Similarly, T-219 needs T-014, T-208 needs T-015, T-215 needs T-016.

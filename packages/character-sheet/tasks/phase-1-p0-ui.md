@@ -39,11 +39,11 @@ Single skill row: proficiency mark (○/▣/★ **icon**, NFR-01), name, right-a
 
 `SavingThrowCard` (bonus + roll button, proficient = `--color-primary-600` border + non-color cue) + grid (ability-scores pattern). Tap → `rollAdapter.rollSave` (supplies `getClass`). **Accept:** 6 saves, proficiency non-color-only, tap rolls. **Tests:** proficiency indicator; roll per ability.
 
-### T-107 — CombatStatCard (FR-111~115) — §6.5
+### T-107 — CombatStatCard (FR-111~115) — §6.5 — ✅ done
 
 Single stat card: icon + label + value (`Text` variants). Optional `onTap` for rollable stats. **Accept:** renders icon/label/value; tap fires when provided. **Tests:** render + tap.
 
-### T-108 — CombatStatsBar (FR-111~115) — §6.5
+### T-108 — CombatStatsBar (FR-111~115) — §6.5 — ✅ done
 
 **Depends on:** T-107 · Compose AC / Initiative (tap → `rollAdapter.rollInitiative`) / Speed / PP / PB cards from `character.combatStats` (do **not** call `calculateAC`). Desktop row; mobile 2×2. Leave an Inspiration slot (filled by T-219). **Accept:** values from stored combatStats; initiative taps roll. **Tests:** values render; initiative tap → adapter.
 
@@ -83,7 +83,7 @@ Reuse ui `SlotPips` (`total`,`used`), **read-only** (no manual toggle). Cantrip 
 
 **Depends on:** T-102 (damage signal), T-005 · Amber banner when `character.concentration` set: resolved spell name (**prop-injected**, don't call a service inside), dismiss → **Store `endConcentration`**; also `startConcentration`. On damage-while-concentrating: show `DC {max(10,⌊½dmg⌋)} CON save` + `[Roll CON Save]` → `rollAdapter.rollSave('CON')`; auto-end on fail is manual. `calcConcentrationDC(dmg)` helper. **Accept:** banner from state; prompt w/ correct DC; roll opens overlay. **Tests:** visibility; `calcConcentrationDC` (8→10, 30→15); roll callback.
 
-### T-118 — RestActions + LongRestDialog (FR-138~139) — §6.13, §7.3
+### T-118 — RestActions + LongRestDialog (FR-138~139) — §6.13, §7.3 — ✅ done
 
 **Depends on:** T-005 · Two full-width buttons. Long Rest → confirm dialog (§7.3 checklist) → **Store `longRest(char,deps)`**. Short Rest → simple total-HD prompt (rich per-class selector is T-206) → **Store `shortRest(char,total,deps,restRng)`** using the **rest RNG `{d(max)}`** shape (README §2.1). **Accept:** rests apply + persist; correct rng shape. **Tests:** store actions call core w/ deps + rng shape.
 
@@ -119,7 +119,7 @@ Confirmation dialog ("Are you sure? This cannot be undone.") → **Store `delete
 
 56px bottom bar: Combat/Skills/Spells/More; active = `--color-primary-600`. "More" → Equipment/Features/Notes/Settings/Rest overflow. **Accept:** tab selects/scrolls to section; More opens overflow. **Tests:** tab selection; More menu.
 
-### T-127 — Accordion + layout polish (FR-142) — §4, §6
+### T-127 — Accordion + layout polish (FR-142) — §4, §6 — ✅ done
 
 **Depends on:** T-101–T-126 · All components are already wired into the shell. This task adds accordion behavior and final layout tuning: desktop sidebar + stacked accordion main; mobile hero strip + accordion (one open at a time) + bottom tabs. Combat always visible; optional sections collapsed by default on mobile. **Accept:** full sheet usable at all breakpoints; tap-to-roll end-to-end; character switch within NFR-06 budget; offline works. **Tests:** breakpoint structure; accordion single-open mobile; end-to-end roll.
 

@@ -1,13 +1,21 @@
 // ContentArea.tsx
-// Main content area. Renders the active section's content.
-// Desktop: uses Tabs for section switching (synchronized with Sidebar).
-// All existing character components are embedded into their respective sections.
-// Unfinished sections show a SectionHeader + EmptyState placeholder.
+// Accordion-based content area. All sections are stacked vertically with collapse/expand behavior.
+// Combat section is always visible (non-collapsible).
+// Controlled by expandedSections/onToggleSection from AppShell.
 
+import {
+  Shield,
+  Dumbbell,
+  ScrollText,
+  WandSparkles,
+  Package,
+  Feather,
+  FileText,
+} from 'lucide-react';
 import { getSkillBonus } from 'open20-core';
 import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
 import type { SkillEntry, AbilityName } from 'open20-core/types';
-import { Surface, Text, SectionHeader, Divider, EmptyState, cn } from '@open20/ui';
+import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
@@ -18,22 +26,24 @@ import { SkillRow } from '@/components/character/Skills';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import type { SectionKey } from './Sidebar';
+import { SectionCollapse } from './SectionCollapse';
 
 export interface ContentAreaProps {
   character: AppCharacter;
-  activeSection: SectionKey;
+  expandedSections: Record<SectionKey, boolean>;
+  onToggleSection: (key: SectionKey) => void;
   modifyHP: (delta: number) => void;
   toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
   className?: string;
 }
 
-// ─── Combat Section ───────────────────────────────────────
+// ─── Combat Section (internal) ─────────────────────────────
 
 function CombatSection({
   character,
   modifyHP,
   toggleDeathSave,
-}: Omit<ContentAreaProps, 'activeSection' | 'className'>) {
+}: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'className'>) {
   return (
     <div className="flex flex-col gap-4">
       <HpBar
@@ -76,7 +86,7 @@ function CombatSection({
   );
 }
 
-// ─── Abilities Section ────────────────────────────────────
+// ─── Abilities Section (internal) ──────────────────────────
 
 function AbilitiesSection({ character }: { character: AppCharacter }) {
   return (
@@ -95,7 +105,7 @@ function AbilitiesSection({ character }: { character: AppCharacter }) {
   );
 }
 
-// ─── Skills Section ───────────────────────────────────────
+// ─── Skills Section (internal) ─────────────────────────────
 
 function SkillsSection({ character }: { character: AppCharacter }) {
   const pb = character.combatStats.proficiencyBonus;
@@ -146,7 +156,7 @@ function SkillsSection({ character }: { character: AppCharacter }) {
   );
 }
 
-// ─── Placeholder Section ──────────────────────────────────
+// ─── Placeholder Section (internal) ────────────────────────
 
 function PlaceholderSection({ title, description }: { title: string; description: string }) {
   return (
@@ -160,71 +170,96 @@ function PlaceholderSection({ title, description }: { title: string; description
   );
 }
 
-// ─── ContentArea ───────────────────────────────────────────
+// ─── Section definitions ───────────────────────────────────
+
+interface SectionDefinition {
+  key: SectionKey;
+  title: string;
+  icon: typeof Shield;
+}
+
+const SECTIONS: SectionDefinition[] = [
+  { key: 'combat', title: 'Combat', icon: Shield },
+  { key: 'abilities', title: 'Ability Scores', icon: Dumbbell },
+  { key: 'skills', title: 'Skills', icon: ScrollText },
+  { key: 'spells', title: 'Spellcasting', icon: WandSparkles },
+  { key: 'equipment', title: 'Equipment', icon: Package },
+  { key: 'features', title: 'Features & Traits', icon: Feather },
+  { key: 'notes', title: 'Notes', icon: FileText },
+];
+
+// ─── ContentArea ────────────────────────────────────────────
 
 export function ContentArea({
   character,
-  activeSection,
+  expandedSections,
+  onToggleSection,
   modifyHP,
   toggleDeathSave,
   className,
 }: ContentAreaProps) {
+  const renderSectionContent = (key: SectionKey) => {
+    switch (key) {
+      case 'combat':
+        return (
+          <CombatSection
+            character={character}
+            modifyHP={modifyHP}
+            toggleDeathSave={toggleDeathSave}
+          />
+        );
+      case 'abilities':
+        return <AbilitiesSection character={character} />;
+      case 'skills':
+        return <SkillsSection character={character} />;
+      case 'spells':
+        return (
+          <PlaceholderSection
+            title="Spellcasting"
+            description="Spell management coming in the next update. Manage spell slots, prepared spells, and casting."
+          />
+        );
+      case 'equipment':
+        return (
+          <PlaceholderSection
+            title="Equipment"
+            description="Inventory management coming soon. Track weapons, armor, gear, and currency."
+          />
+        );
+      case 'features':
+        return (
+          <PlaceholderSection
+            title="Features & Traits"
+            description="Species, background, feats, and class features display coming soon."
+          />
+        );
+      case 'notes':
+        return (
+          <PlaceholderSection
+            title="Notes"
+            description="Free-form notes for your character will be available in a future update."
+          />
+        );
+    }
+  };
+
   return (
     <main className={cn('flex-1 overflow-y-auto p-4 md:p-6 lg:p-8', className)}>
-      {/* Section Header */}
-      <SectionHeader
-        title={
-          activeSection === 'combat'
-            ? 'Combat'
-            : activeSection === 'abilities'
-              ? 'Ability Scores'
-              : activeSection === 'skills'
-                ? 'Skills'
-                : activeSection === 'spells'
-                  ? 'Spellcasting'
-                  : activeSection === 'equipment'
-                    ? 'Equipment'
-                    : activeSection === 'features'
-                      ? 'Features & Traits'
-                      : 'Notes'
-        }
-        className="mb-4"
-      />
-
-      {/* Section Content */}
-      {activeSection === 'combat' && (
-        <CombatSection
-          character={character}
-          modifyHP={modifyHP}
-          toggleDeathSave={toggleDeathSave}
-        />
-      )}
-      {activeSection === 'abilities' && <AbilitiesSection character={character} />}
-      {activeSection === 'skills' && <SkillsSection character={character} />}
-      {activeSection === 'spells' && (
-        <PlaceholderSection
-          title="Spellcasting"
-          description="Spell management coming in the next update. Manage spell slots, prepared spells, and casting."
-        />
-      )}
-      {activeSection === 'equipment' && (
-        <PlaceholderSection
-          title="Equipment"
-          description="Inventory management coming soon. Track weapons, armor, gear, and currency."
-        />
-      )}
-      {activeSection === 'features' && (
-        <PlaceholderSection
-          title="Features & Traits"
-          description="Species, background, feats, and class features display coming soon."
-        />
-      )}
-      {activeSection === 'notes' && (
-        <PlaceholderSection
-          title="Notes"
-          description="Free-form notes for your character will be available in a future update."
-        />
-      )}
+      <div className="flex flex-col gap-4">
+        {SECTIONS.map(({ key, title, icon }) => (
+          <SectionCollapse
+            key={key}
+            id={`section-${key}`}
+            title={title}
+            icon={icon}
+            expanded={expandedSections[key]}
+            onToggle={() => onToggleSection(key)}
+            disabled={key === 'combat'}
+          >
+            {renderSectionContent(key)}
+          </SectionCollapse>
+        ))}
+      </div>
     </main>
   );
 }

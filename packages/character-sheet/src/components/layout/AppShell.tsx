@@ -1,14 +1,15 @@
 // AppShell.tsx
 // Responsive scaffold implementing Wireframe_Design.md §4 layout architecture.
 //
-// Desktop (>= 1024px): Sidebar (250px) + ContentArea side by side
-// Tablet  (768-1023px): HeroStrip + ContentArea + MobileBottomBar
-// Mobile  (< 768px):    HeroStrip + ContentArea + MobileBottomBar
+// Desktop (>= 1024px): Sidebar (250px) + ContentArea (accordion) side by side
+// Tablet  (768-1023px): HeroStrip + ContentArea (accordion) + MobileBottomBar
+// Mobile  (< 768px):    HeroStrip + ContentArea (accordion) + MobileBottomBar
 //
-// Navigation: activeSection state drives both Sidebar tabs and MobileBottomBar tabs.
-// All existing character components are embedded inside ContentArea sections.
+// Navigation: Sidebar tabs / MobileBottomBar tabs expand the target section and scroll to it.
+// Desktop: multi-open accordion (all sections independently togglable).
+// Mobile: single-open accordion (only one section open at a time, combat always open).
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { createCharacter, type AbilityName } from 'open20-core';
 import { Surface, Text, Button, EmptyState } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
@@ -49,10 +50,90 @@ function createSampleCharacter() {
   return { ...char, id: crypto.randomUUID() };
 }
 
+const ALL_SECTIONS: SectionKey[] = [
+  'combat',
+  'abilities',
+  'skills',
+  'spells',
+  'equipment',
+  'features',
+  'notes',
+];
+
 export function AppShell() {
   const { isDesktop } = useIsLargeScreen();
   const { character, error, modifyHP, toggleDeathSave, upsertCharacter } = useCharacterStore();
-  const [activeSection, setActiveSection] = useState<SectionKey>('combat');
+
+  // Accordion state: combat is always expanded.
+  // Desktop: all sections start expanded (multi-open).
+  // Mobile: only combat expanded by default (single-open).
+  const [expandedSections, setExpandedSections] = useState<Record<SectionKey, boolean>>(() => {
+    const initial = { combat: true } as Record<SectionKey, boolean>;
+    // On mobile, only combat starts expanded; desktop has all open.
+    // isDesktop defaults to true before matchMedia resolves (safe for SSR).
+    ALL_SECTIONS.forEach((k) => {
+      initial[k] = isDesktop || k === 'combat';
+    });
+    return initial;
+  });
+
+  // Track which section the user last navigated to (for sidebar/bottom-bar highlight).
+  const [lastNavigatedSection, setLastNavigatedSection] = useState<SectionKey>('combat');
+
+  // Toggle a section's expanded state.
+  // Desktop: toggle independently.
+  // Mobile: single-open (close other sections besides combat).
+  const handleToggleSection = useCallback(
+    (key: SectionKey) => {
+      if (key === 'combat') return; // never collapse combat
+      if (isDesktop) {
+        setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+      } else {
+        // Single-open: close all other sections, toggle the target.
+        // Use functional updater to avoid stale closure on expandedSections.
+        setExpandedSections((prev) => {
+          const next = { combat: true } as Record<SectionKey, boolean>;
+          ALL_SECTIONS.forEach((k) => {
+            next[k] = k === key ? !prev[key] : k === 'combat';
+          });
+          return next;
+        });
+      }
+    },
+    [isDesktop],
+  );
+
+  // Navigation handler: expand target section, scroll to it after React commit,
+  // and update the highlighted nav item.
+  const handleSectionChange = useCallback(
+    (key: SectionKey) => {
+      setLastNavigatedSection(key);
+
+      setExpandedSections((prev) => {
+        const next = { combat: true } as Record<SectionKey, boolean>;
+        if (isDesktop) {
+          // Desktop: preserve other sections, expand target
+          ALL_SECTIONS.forEach((k) => {
+            next[k] = k === key ? true : prev[k];
+          });
+        } else {
+          // Mobile: single-open, only combat + target
+          ALL_SECTIONS.forEach((k) => {
+            next[k] = k === 'combat' || k === key;
+          });
+        }
+        return next;
+      });
+
+      // Defer scroll until React has committed the expanded state update.
+      // Without this, the target section may still be collapsed (grid-rows-[0fr])
+      // and scrollIntoView would land on the wrong position.
+      requestAnimationFrame(() => {
+        document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: 'smooth' });
+      });
+    },
+    [isDesktop],
+  );
 
   // ── Empty state ────────────────────────────────────────────
   if (!character) {
@@ -78,7 +159,7 @@ export function AppShell() {
     </Surface>
   );
 
-  // ── Desktop layout ─────────────────────────────────────────
+  // ── Desktop layout ─���───────────────────────────────────────
   if (isDesktop) {
     return (
       <div className="relative flex h-screen overflow-hidden bg-bg-primary">
@@ -87,14 +168,15 @@ export function AppShell() {
         {/* Sidebar */}
         <Sidebar
           character={character}
-          activeSection={activeSection}
-          onSectionChange={setActiveSection}
+          activeSection={lastNavigatedSection}
+          onSectionChange={handleSectionChange}
         />
 
-        {/* Content */}
+        {/* Content — accordion */}
         <ContentArea
           character={character}
-          activeSection={activeSection}
+          expandedSections={expandedSections}
+          onToggleSection={handleToggleSection}
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
         />
@@ -103,7 +185,7 @@ export function AppShell() {
   }
 
   // ── Tablet / Mobile layout ─────────────────────────────────
-  // HeroStrip + ContentArea + MobileBottomBar
+  // HeroStrip + accordion ContentArea + MobileBottomBar
   const totalLevel = character.classes.reduce((sum, c) => sum + c.level, 0);
   const classLabel = character.classes.map((c) => getClassName(c.classId)).join(' / ');
 
@@ -130,11 +212,12 @@ export function AppShell() {
         <HeroStrip character={character} className="border-b border-border" />
       </div>
 
-      {/* Content */}
+      {/* Content — accordion */}
       <div className="flex-1 pb-[56px]">
         <ContentArea
           character={character}
-          activeSection={activeSection}
+          expandedSections={expandedSections}
+          onToggleSection={handleToggleSection}
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
           className="pb-4"
@@ -142,7 +225,7 @@ export function AppShell() {
       </div>
 
       {/* Bottom Tab Bar */}
-      <MobileBottomBar activeSection={activeSection} onSectionChange={setActiveSection} />
+      <MobileBottomBar activeSection={lastNavigatedSection} onSectionChange={handleSectionChange} />
     </div>
   );
 }
