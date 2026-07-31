@@ -23,6 +23,8 @@ import { SavingThrowsGrid } from '@/components/character/SavingThrows';
 import { DeathSavesTracker } from '@/components/character/DeathSavesTracker';
 import { CombatStatsBar } from '@/components/character/CombatStats';
 import { SkillRow } from '@/components/character/Skills';
+import { SpeciesPanel } from '@/components/character/Species';
+import { BackgroundPanel } from '@/components/character/Background';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import type { SectionKey } from './Sidebar';
@@ -156,6 +158,29 @@ function SkillsSection({ character }: { character: AppCharacter }) {
   );
 }
 
+// ─── Features Section (internal) ─────────────────────────
+
+function FeaturesSection({ character }: { character: AppCharacter }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <SpeciesPanel character={character} />
+      <BackgroundPanel character={character} />
+
+      {/* Feats placeholder (T-113 pending) */}
+      <Surface
+        variant="default"
+        padding="md"
+        className="flex min-h-[100px] items-center justify-center opacity-60"
+      >
+        <EmptyState
+          title="Feats & Class Features"
+          description="Feat list and class feature display coming in the next update."
+        />
+      </Surface>
+    </div>
+  );
+}
+
 // ─── Placeholder Section (internal) ────────────────────────
 
 function PlaceholderSection({ title, description }: { title: string; description: string }) {
@@ -227,12 +252,7 @@ export function ContentArea({
           />
         );
       case 'features':
-        return (
-          <PlaceholderSection
-            title="Features & Traits"
-            description="Species, background, feats, and class features display coming soon."
-          />
-        );
+        return <FeaturesSection character={character} />;
       case 'notes':
         return (
           <PlaceholderSection

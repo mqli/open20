@@ -55,11 +55,11 @@ Single stat card: icon + label + value (`Text` variants). Optional `onTap` for r
 
 **Depends on:** T-109, T-012, T-010 · List `character.combatStats.attacks`; roll → `rollAdapter.rollWeaponAttack` (adapter→Weapon, attack+damage, weapon-mode overlay; crit doubles). "+ Add Weapon" stub (opens T-203 when present). **Accept:** tap → single overlay w/ attack+damage rows. **Tests:** dual-roll callback; `isCritical` propagated.
 
-### T-111 — SpeciesPanel (traits) (FR-118~119) — §6.7
+### T-111 — SpeciesPanel (traits) (FR-118~119) — §6.7 — ✅ done
 
 **Depends on:** T-005 · Species name+subtype (resolved) + traits from resolved species data as expandable cards (collapsed mobile, expanded desktop). Senses/languages/size slot left for T-215. **Accept:** name + traits resolve; expand toggles; fallback for unknown ID. **Tests:** resolved render; expand; fallback.
 
-### T-112 — BackgroundPanel (FR-120) — §6.7
+### T-112 — BackgroundPanel (FR-120) — §6.7 — ✅ done
 
 **Depends on:** T-005 · Background name + feature (resolved). **Accept:** resolves name+feature; fallback. **Tests:** render; fallback.
 

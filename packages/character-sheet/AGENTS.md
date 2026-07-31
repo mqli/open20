@@ -119,7 +119,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 **Before starting a task**, check: is it already claimed (`⏳`)? Is every task in its "Depends on" list marked `✅`? Is it gated by a Phase 0.5 extension that isn't done? If any of these is true, pick a different task or resolve the dependency.
 
-### Current Progress (2026-07-29)
+### Current Progress (2026-07-31)
 
 **Phase 0 (Foundation):**
 
@@ -133,15 +133,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-008 characterStore
 - ✅ T-009 test fixtures
 
-**Phase 0.5 (Core extensions):**
-
-- ✅ T-010 DiceRollOverlay → `@open20/ui`
-- ⏳ T-011 Death-save auto-reset in core (pending; app workaround in place)
-- ⏳ T-012 CharacterAttack → Weapon adapter (pending; blocks T-109/T-110)
-- ✅ T-013 rollCharacterAbilityCheck
-- ⏳ T-014 Character.inspiration field (pending; blocks T-219)
-- ⏳ T-015 Exhaustion auto-penalties (pending; blocks T-208)
-- ⏳ T-016 Senses/languages/size (pending; blocks T-215)
+**Phase 0.5 (Core extensions):** ALL COMPLETE (T-010–T-016)
 
 **Phase 1 (P0 UI):**
 
@@ -153,10 +145,12 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-106 SavingThrows
 - ✅ T-107 CombatStatCard
 - ✅ T-108 CombatStatsBar
+- ✅ T-111 SpeciesPanel
+- ✅ T-112 BackgroundPanel
 - ✅ T-118 RestActions (including LongRestDialog)
-- ✅ T-127 Sheet assembly (accordion layout)
 - ✅ T-119 CharacterSelector (multi-character modal with create/switch/delete)
-- ⏳ T-109–T-128 Pending (11 remaining P0 UI tasks – T-109/T-110 blocked by T-012)
+- ✅ T-127 Sheet assembly (accordion layout)
+- ⏳ 15 remaining P0 tasks: T-109/T-110/T-113~T-117/T-120~T-126/T-128 (+ T-105 finish)
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -167,7 +161,8 @@ The highest-value unblocked P0 tasks, in recommended order:
 | Task        | What                              | Why first                                                        |
 | ----------- | --------------------------------- | ---------------------------------------------------------------- |
 | T-114/T-115 | SpellcastingHeader + SpellSlotRow | Reuses `SlotPips` from ui; needs `classSpellData` from character |
-| T-111/T-112 | SpeciesPanel + BackgroundPanel    | ContentResolver already does lookups; just display               |
+| T-109/T-110 | WeaponAttackCard + WeaponsList    | T-012 adapter is done — now unblocked                            |
+| T-113       | Feats (FeatCard + list)           | ContentResolver already does lookups; just display               |
 | T-128       | App states (empty/loading/error)  | Polish what's already wired                                      |
 
-**Do NOT start** T-109/T-110 (WeaponAttackCard/List) until T-012 lands — they need the CharacterAttack→Weapon adapter. Similarly, T-219 needs T-014, T-208 needs T-015, T-215 needs T-016.
+**Do NOT start** T-219 (needs T-014 inspiration), T-208 (needs T-015 exhaustion), T-215 (needs T-016 senses). These Phase 2 tasks are blocked by pending core extensions.

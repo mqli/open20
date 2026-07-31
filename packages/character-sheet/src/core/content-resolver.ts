@@ -97,7 +97,7 @@ export function getClass(
   return findClass(id, getContentPack());
 }
 
-// ── Entity getters (for pickers) ──────────────────────────
+// ── Entity getters (for pickers / panels) ─────────────────
 
 export const getAllSpecies = (): Species[] => getSpecies(getContentPack());
 export const getAllBackgrounds = (): Background[] => getBackgrounds(getContentPack());
@@ -106,6 +106,14 @@ export const getAllSubclassesForClass = (classId: string): Subclass[] =>
   getSubclassesForClass(classId, getContentPack());
 export const getAllFeats = (): Feat[] => getFeats(getContentPack());
 export const getSpell = (id: string): Spell | undefined => findSpell(id, getContentPack());
+
+/** Look up a Species by its id (e.g. "Elf") — used by SpeciesPanel. */
+export const getSpeciesById = (id: string): Species | undefined =>
+  findSpecies(id, getContentPack());
+
+/** Look up a Background by its id (e.g. "sage") — used by BackgroundPanel. */
+export const getBackgroundById = (id: string): Background | undefined =>
+  findBackground(id, getContentPack());
 
 // ── Display-name resolution ───────────────────────────────
 
