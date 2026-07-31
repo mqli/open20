@@ -9,8 +9,10 @@ export interface SpellcastingHeaderProps {
 }
 
 export function SpellcastingHeader({ character, className }: SpellcastingHeaderProps) {
-  const firstClassData = Object.values(character.spells.classSpellcasting)[0];
-  const spellSaveDC = firstClassData?.spellSaveDC ?? 0;
+  // Iterate all classes and pick the best DC — mirrors getBestSpellAttackBonus logic
+  // so multiclass characters (e.g. Wizard/Cleric) show their highest DC.
+  const classData = Object.values(character.spells.classSpellcasting);
+  const spellSaveDC = classData.reduce((best, data) => Math.max(best, data.spellSaveDC ?? 0), 0);
   const spellAttackBonus = getBestSpellAttackBonus(character);
 
   return (

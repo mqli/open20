@@ -1,16 +1,13 @@
 import { SlotPips, Text } from '@open20/ui';
 import { cn } from '@open20/ui';
 
-const LEVEL_LABELS: Record<string, string> = {
-  Cantrip: 'Cantrip',
-  '1': '1st',
-  '2': '2nd',
-  '3': '3rd',
-};
-
+/** Map spell levels 1-3 to ordinal labels; 4+ use the regular -th suffix. */
 function levelLabel(level: number | 'Cantrip'): string {
   if (level === 'Cantrip') return 'Cantrip';
-  return LEVEL_LABELS[String(level)] ?? `${level}th`;
+  if (level === 1) return '1st';
+  if (level === 2) return '2nd';
+  if (level === 3) return '3rd';
+  return `${level}th`;
 }
 
 export interface SpellSlotRowProps {

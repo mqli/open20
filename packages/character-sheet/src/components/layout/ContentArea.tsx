@@ -17,7 +17,6 @@ import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
 import type { SkillEntry, AbilityName } from 'open20-core/types';
 import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
-import type { SpellLevel } from 'open20-core/types';
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
 import { SavingThrowsGrid } from '@/components/character/SavingThrows';
@@ -162,6 +161,8 @@ function SkillsSection({ character }: { character: AppCharacter }) {
 
 // ─── Spells Section (internal) ──────────────────────────
 
+const SPELL_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
 function SpellsSection({ character }: { character: AppCharacter }) {
   const { spells } = character;
   const hasSpellcasting = Object.keys(spells.classSpellcasting).length > 0;
@@ -172,8 +173,8 @@ function SpellsSection({ character }: { character: AppCharacter }) {
   const cantripCount = firstClassData?.maxCantripsKnown ?? 0;
   slotLevels.push({ level: 'Cantrip', total: cantripCount, used: 0 });
 
-  for (let lvl = 1; lvl <= 9; lvl++) {
-    const slot = spells.spellSlots[lvl as SpellLevel];
+  for (const lvl of SPELL_LEVELS) {
+    const slot = spells.spellSlots[lvl];
     slotLevels.push({
       level: lvl,
       total: slot?.total ?? 0,
