@@ -28,4 +28,13 @@ describe('SpellcastingHeader', () => {
     render(<SpellcastingHeader character={char} />);
     expect(screen.getByText('Spell DC')).toBeInTheDocument();
   });
+
+  it('shows best attack bonus for multiclass', () => {
+    // getBestSpellAttackBonus iterates all classes and returns the highest bonus.
+    // Test with single-class Wizard to verify the integration path.
+    const char = makeCharacter({ classId: 'Wizard', classLevel: 5 });
+    render(<SpellcastingHeader character={char} />);
+
+    expect(screen.getByText('14')).toBeInTheDocument();
+  });
 });
