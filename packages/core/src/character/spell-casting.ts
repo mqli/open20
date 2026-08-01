@@ -189,7 +189,8 @@ function findCastingClasses(char: Character, spellId: string): ClassSpellData[] 
     const knowsSpell =
       csd.knownSpells.includes(spellId) ||
       csd.preparedSpells.includes(spellId) ||
-      (csd.alwaysPreparedSpells ?? []).includes(spellId);
+      (csd.alwaysPreparedSpells ?? []).includes(spellId) ||
+      (csd.knownCantrips ?? []).includes(spellId);
     if (knowsSpell) result.push(csd);
   }
 
