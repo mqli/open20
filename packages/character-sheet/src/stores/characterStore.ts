@@ -14,6 +14,9 @@ import {
   isConcentrating,
   castSpell as coreCastSpell,
   startConcentration,
+  endConcentration as coreEndConcentration,
+  makeConcentrationCheck,
+  defaultRandom,
   type Character,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
@@ -52,6 +55,10 @@ interface CharacterSheetState {
   toggleInspiration: () => void;
   /** Cast a spell: resolve spell, call core castSpell, push roll to overlay, handle concentration, persist. */
   castSpell: (spellId: string, slotLevel: SpellLevel) => void;
+  /** End concentration on the active character (persists + clears lastDamageForConcentration). */
+  endConcentration: () => void;
+  /** Roll a CON save for concentration and auto-end on failure (via core makeConcentrationCheck). */
+  makeConcentrationSave: (damageAmount: number) => void;
 }
 
 export const useCharacterStore = create<CharacterSheetState>((set, get) => {
@@ -204,7 +211,9 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
     longRest: () => {
       set({ lastDamageForConcentration: null });
       applyMutation((char, deps) => {
-        const rested = coreLongRest(char, deps);
+        // End concentration first (long rest = unconscious), then apply long rest
+        const withoutConc = coreEndConcentration(char);
+        const rested = coreLongRest(withoutConc, deps);
         return recomputeDerivedStats(rested, deps);
       });
     },
@@ -245,6 +254,30 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       }
 
       const next: AppCharacter = { ...updated, id: active.id };
+      persist(next);
+    },
+
+    endConcentration: () => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = {
+        ...coreEndConcentration(active),
+        id: active.id,
+      };
+      set({ lastDamageForConcentration: null });
+      persist(next);
+    },
+
+    makeConcentrationSave: (damageAmount) => {
+      const active = get().character;
+      if (!active) return;
+      if (!isConcentrating(active)) return;
+
+      const deps = resolveDeps(active);
+      const { char: updated } = makeConcentrationCheck(active, damageAmount, deps, defaultRandom);
+
+      const next: AppCharacter = { ...updated, id: active.id };
+      set({ lastDamageForConcentration: null });
       persist(next);
     },
   };

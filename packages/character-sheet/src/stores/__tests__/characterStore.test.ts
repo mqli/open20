@@ -413,4 +413,121 @@ describe('characterStore', () => {
       expect(useCharacterStore.getState().character).toBeNull();
     });
   });
+
+  describe('endConcentration', () => {
+    it('clears concentration and lastDamageForConcentration', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      // Set up concentration state
+      useCharacterStore.setState((s) => ({
+        character: s.character
+          ? {
+              ...s.character,
+              concentration: { spellId: 'haste', startedAt: new Date().toISOString() },
+            }
+          : null,
+        lastDamageForConcentration: 15,
+      }));
+
+      useCharacterStore.getState().endConcentration();
+
+      const state = useCharacterStore.getState();
+      expect(state.character!.concentration).toBeNull();
+      expect(state.lastDamageForConcentration).toBeNull();
+    });
+
+    it('persists concentration change to localStorage', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      useCharacterStore.setState((s) => ({
+        character: s.character
+          ? {
+              ...s.character,
+              concentration: { spellId: 'haste', startedAt: new Date().toISOString() },
+            }
+          : null,
+      }));
+
+      useCharacterStore.getState().endConcentration();
+
+      const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
+      expect(stored[char.id].concentration).toBeNull();
+    });
+
+    it('does nothing when no character is active', () => {
+      useCharacterStore.getState().endConcentration();
+      expect(useCharacterStore.getState().character).toBeNull();
+    });
+
+    it('is a no-op when not concentrating', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      // Character is not concentrating
+      expect(useCharacterStore.getState().character!.concentration).toBeNull();
+
+      // Should not throw
+      useCharacterStore.getState().endConcentration();
+      expect(useCharacterStore.getState().character!.concentration).toBeNull();
+    });
+  });
+
+  describe('makeConcentrationSave', () => {
+    it('clears lastDamageForConcentration after save', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      useCharacterStore.setState((s) => ({
+        character: s.character
+          ? {
+              ...s.character,
+              concentration: { spellId: 'haste', startedAt: new Date().toISOString() },
+            }
+          : null,
+        lastDamageForConcentration: 12,
+      }));
+
+      useCharacterStore.getState().makeConcentrationSave(12);
+      expect(useCharacterStore.getState().lastDamageForConcentration).toBeNull();
+    });
+
+    it('does nothing when no character is active', () => {
+      useCharacterStore.getState().makeConcentrationSave(10);
+      expect(useCharacterStore.getState().character).toBeNull();
+    });
+
+    it('does nothing when not concentrating', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      // Not concentrating — should no-op
+      useCharacterStore.getState().makeConcentrationSave(10);
+      expect(useCharacterStore.getState().character!.concentration).toBeNull();
+    });
+  });
+
+  describe('longRest ends concentration', () => {
+    it('clears concentration during long rest', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      useCharacterStore.setState((s) => ({
+        character: s.character
+          ? {
+              ...s.character,
+              concentration: { spellId: 'haste', startedAt: new Date().toISOString() },
+            }
+          : null,
+        lastDamageForConcentration: 10,
+      }));
+
+      useCharacterStore.getState().longRest();
+
+      const state = useCharacterStore.getState();
+      expect(state.character!.concentration).toBeNull();
+      expect(state.lastDamageForConcentration).toBeNull();
+    });
+  });
 });

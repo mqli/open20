@@ -12,7 +12,12 @@ import {
   Feather,
   FileText,
 } from 'lucide-react';
-import { getSkillBonus } from 'open20-core';
+import {
+  getSkillBonus,
+  isConcentrating,
+  getConcentratingSpellId,
+  calculateConcentrationDC,
+} from 'open20-core';
 import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
 import type { SkillEntry, AbilityName, SkillName } from 'open20-core/types';
 import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
@@ -30,10 +35,12 @@ import {
   SpellcastingHeader,
   SpellSlotRow,
   PreparedSpellList,
+  ConcentrationBanner,
 } from '@/components/character/Spellcasting';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
+import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import type { SectionKey } from './Sidebar';
 import { SectionCollapse } from './SectionCollapse';
@@ -56,9 +63,33 @@ function CombatSection({
   toggleDeathSave,
   toggleInspiration,
 }: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'className'>) {
+  const concentrating = isConcentrating(character);
+  const concentratingSpellId = getConcentratingSpellId(character);
+  const lastDamage = useCharacterStore((s) => s.lastDamageForConcentration);
+
+  const spellName = concentratingSpellId ? getSpellName(concentratingSpellId) : null;
+  const concentrationDC = lastDamage !== null ? calculateConcentrationDC(lastDamage) : null;
+
   return (
     <Surface variant="default" padding="sm">
       <div className="flex flex-col gap-3">
+        {/* Concentration Banner (T-117) */}
+        {concentrating && spellName && (
+          <ConcentrationBanner
+            spellName={spellName}
+            damageAmount={lastDamage}
+            concentrationDC={concentrationDC}
+            onEndConcentration={() => {
+              useCharacterStore.getState().endConcentration();
+            }}
+            onRollConcentrationSave={() => {
+              if (lastDamage !== null) {
+                useCharacterStore.getState().makeConcentrationSave(lastDamage);
+              }
+            }}
+          />
+        )}
+
         {/* HP Bar — no Surface wrapper (embedded in merged panel) */}
         <HpBar
           current={character.hitPoints.current}

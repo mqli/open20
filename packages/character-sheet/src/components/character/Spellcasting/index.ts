@@ -4,3 +4,5 @@ export { PreparedSpellCard } from './PreparedSpellCard';
 export type { PreparedSpellCardProps } from './PreparedSpellCard';
 export { PreparedSpellList } from './PreparedSpellList';
 export type { PreparedSpellListProps } from './PreparedSpellList';
+export { ConcentrationBanner } from './ConcentrationBanner';
+export type { ConcentrationBannerProps } from './ConcentrationBanner';

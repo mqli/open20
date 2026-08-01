@@ -15,6 +15,7 @@ import {
   createCharacter,
   addEquipment,
   recomputeDerivedStats,
+  startConcentration,
   type AbilityName,
 } from 'open20-core';
 import { Surface, Text, Button, EmptyState } from '@open20/ui';
@@ -60,7 +61,9 @@ function createSampleCharacter() {
     },
     deps,
   );
-  return { ...char, id: crypto.randomUUID() };
+  // Demo: Tharion is concentrating on Fly (level 3 transmutation)
+  const withConc = startConcentration(char, 'fly');
+  return { ...withConc, id: crypto.randomUUID() };
 }
 
 const MONK_SCORES: Record<AbilityName, number> = {
