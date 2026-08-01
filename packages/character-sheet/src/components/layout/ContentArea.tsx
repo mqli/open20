@@ -25,6 +25,7 @@ import { CombatStatsBar } from '@/components/character/CombatStats';
 import { SkillRow } from '@/components/character/Skills';
 import { SpeciesPanel } from '@/components/character/Species';
 import { BackgroundPanel } from '@/components/character/Background';
+import { FeatList } from '@/components/character/Feats';
 import { SpellcastingHeader, SpellSlotRow } from '@/components/character/Spellcasting';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
@@ -223,17 +224,8 @@ function FeaturesSection({ character }: { character: AppCharacter }) {
       <SpeciesPanel character={character} />
       <BackgroundPanel character={character} />
 
-      {/* Feats placeholder (T-113 pending) */}
-      <Surface
-        variant="default"
-        padding="sm"
-        className="flex min-h-[100px] items-center justify-center opacity-60"
-      >
-        <EmptyState
-          title="Feats & Class Features"
-          description="Feat list and class feature display coming in the next update."
-        />
-      </Surface>
+      {/* Feats (T-113) */}
+      <FeatList character={character} />
     </div>
   );
 }

@@ -56,6 +56,7 @@ function createSampleCharacter() {
       classId: 'Wizard',
       classLevel: 5,
       abilityScores: SAMPLE_SCORES,
+      featIds: ['magic-initiate', 'ability-score-improvement'], // Sage origin feat + Lv4 ASI
     },
     deps,
   );
@@ -85,6 +86,7 @@ function createMonkCharacter() {
       classId: 'Monk',
       classLevel: 5,
       abilityScores: MONK_SCORES,
+      featIds: ['magic-initiate', 'grappler'], // Acolyte origin feat + Lv4 General feat
     },
     deps,
   );

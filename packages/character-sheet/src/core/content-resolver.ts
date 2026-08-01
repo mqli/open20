@@ -115,6 +115,9 @@ export const getSpeciesById = (id: string): Species | undefined =>
 export const getBackgroundById = (id: string): Background | undefined =>
   findBackground(id, getContentPack());
 
+/** Look up a Feat by its id (e.g. "alert") — used by FeatList. */
+export const getFeatById = (id: string): Feat | undefined => findFeat(id, getContentPack());
+
 // ── Display-name resolution ───────────────────────────────
 
 /** Humanize an ID as a last-resort fallback: 'high-elf' → 'High Elf'. */

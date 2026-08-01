@@ -28,6 +28,7 @@ export interface MakeCharacterOptions {
   classId?: string;
   classLevel?: number;
   abilityScores?: Partial<Record<AbilityName, number>>;
+  featIds?: string[];
 }
 
 /** Build a valid, recomputed AppCharacter (default: Level-5 High Elf Wizard). */
@@ -48,6 +49,7 @@ export function makeCharacter(options: MakeCharacterOptions = {}): AppCharacter 
       classId,
       classLevel,
       abilityScores: { ...DEFAULT_SCORES, ...options.abilityScores },
+      featIds: options.featIds ?? [], // tests opt-in to feats; default empty for back-compat
     },
     deps,
   );

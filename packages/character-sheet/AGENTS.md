@@ -152,9 +152,10 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-114 SpellcastingHeader
 - ✅ T-115 SpellSlotRow
 - ✅ T-118 RestActions (including LongRestDialog)
+- ✅ T-113 Feats (FeatCard + list)
 - ✅ T-119 CharacterSelector (multi-character modal with create/switch/delete)
 - ✅ T-127 Sheet assembly (accordion layout)
-- ⏳ 11 remaining P0 tasks: T-113/T-116/T-117/T-120~T-126/T-128 (+ T-105 finish)
+- ⏳ 10 remaining P0 tasks: T-116/T-117/T-120~T-126/T-128 (+ T-105 finish)
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -164,7 +165,6 @@ The highest-value unblocked P0 tasks, in recommended order:
 
 | Task        | What                              | Why first                                                  |
 | ----------- | --------------------------------- | ---------------------------------------------------------- |
-| T-113       | Feats (FeatCard + list)           | ContentResolver already does lookups; just display         |
 | T-116/T-117 | PreparedSpellList + Concentration | Spell section now has header+slots; next: spell management |
 | T-128       | App states (empty/loading/error)  | Polish what's already wired                                |
 

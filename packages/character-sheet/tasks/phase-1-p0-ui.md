@@ -63,7 +63,7 @@ Single stat card: icon + label + value (`Text` variants). Optional `onTap` for r
 
 **Depends on:** T-005 · Background name + feature (resolved). **Accept:** resolves name+feature; fallback. **Tests:** render; fallback.
 
-### T-113 — Feats (FeatCard + list) (FR-121) — §6.7
+### T-113 — Feats (FeatCard + list) (FR-121) — §6.7 — ✅ done
 
 **Depends on:** T-005 · `character.feats` → cards expandable to description + granted benefits (resolve via `getFeatName` + feat data). Reuse ui `FeatCard` if props fit, else local. **Accept:** feats render; expand shows description; unknown → humanized. **Tests:** render; expand; fallback.
 
