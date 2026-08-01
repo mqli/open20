@@ -1,9 +1,9 @@
 // SavingThrowsGrid.tsx (T-106)
 // 6 saving throw cards in ability-scores grid pattern.
-// Proficiency: ring-2 ring-primary-600 border + Shield icon (NFR-01 non-color cue).
+// Proficiency: ring-2 ring-primary-600 border + CircleDot icon (NFR-01 non-color cue).
 // Roll: ▲ / bonus / ▼ row, calls onRollSave which delegates to rollAdapter.rollSave.
 
-import { Shield, ShieldOff } from 'lucide-react';
+import { Circle, CircleDot } from 'lucide-react';
 import { getSavingThrowBonus, type AbilityName, type Character } from 'open20-core';
 import { Surface, Text, cn } from '@open20/ui';
 
@@ -51,25 +51,26 @@ export function SavingThrowCard({
   isProficient,
   onRollSave,
 }: SavingThrowCardProps) {
-  const ProficiencyIcon = isProficient ? Shield : ShieldOff;
+  const ProficiencyIcon = isProficient ? CircleDot : Circle;
 
   return (
     <Surface
       variant="default"
       padding="sm"
       className={cn(
-        'flex min-h-[72px] min-w-[76px] flex-col items-center justify-center gap-0.5',
+        'flex min-h-[60px] min-w-[76px] flex-col items-center justify-center gap-0.5',
         isProficient && 'ring-2 ring-primary-600',
       )}
     >
-      <Text variant="labelSm" color="secondary">
-        {short}
-      </Text>
-
-      <ProficiencyIcon
-        className={cn('h-4 w-4', isProficient ? 'text-primary-600' : 'text-text-tertiary')}
-        aria-hidden
-      />
+      <span className="flex items-center gap-1">
+        <Text variant="labelSm" color="secondary">
+          {short}
+        </Text>
+        <ProficiencyIcon
+          className={cn('h-3.5 w-3.5', isProficient ? 'text-primary-600' : 'text-text-tertiary')}
+          aria-hidden
+        />
+      </span>
 
       {/* Roll row: ▲ / bonus / ▼ */}
       <RollModifierRow ariaLabel={`${ability} saving throw`} onRoll={(m) => onRollSave(ability, m)}>

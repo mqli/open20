@@ -38,7 +38,7 @@ function DeathSaveCircle({
       disabled={!isToggleable}
       aria-label={label}
       className={cn(
-        'flex size-11 items-center justify-center rounded-full border-2',
+        'flex size-8 items-center justify-center rounded-full border-2',
         'focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:outline-none',
         'disabled:cursor-not-allowed disabled:opacity-60',
         filled
@@ -113,23 +113,6 @@ export function DeathSavesTracker({
           );
         })}
       </div>
-
-      {/* Status text */}
-      <Text variant="labelSm" color="secondary">
-        {isStable ? 'Stable' : `${successes} / 3 successes · ${failures} / 3 failures`}
-      </Text>
-
-      {/* Threshold warnings */}
-      {successes >= 3 && (
-        <Text variant="labelSm" className="text-success">
-          Stable at 3 successes
-        </Text>
-      )}
-      {failures >= 3 && (
-        <Text variant="labelSm" className="text-danger">
-          Death at 3 failures
-        </Text>
-      )}
     </Surface>
   );
 }

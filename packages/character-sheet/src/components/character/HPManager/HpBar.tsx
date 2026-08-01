@@ -74,11 +74,15 @@ export function HpBar({ current, max, temporary, onAdjust, className, noSurface 
             }}
           />
         )}
+        <span
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ textShadow: '0 0 4px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.4)' }}
+        >
+          <Text variant="body" weight="bold" className="tabular-nums text-text-primary">
+            {current} / {max}
+          </Text>
+        </span>
       </div>
-
-      <Text variant="body" weight="bold" className="tabular-nums">
-        {current} / {max}
-      </Text>
 
       {/* Three-group layout: grid columns on sm+, stacked on mobile */}
       <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-[1fr_auto_1fr] sm:items-center">

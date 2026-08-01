@@ -34,16 +34,16 @@ export function CombatStatCard({
       variant="default"
       padding="sm"
       className={cn(
-        'flex min-h-[64px] min-w-[68px] flex-col items-center justify-center gap-0.5',
+        'flex min-h-[36px] items-center gap-2',
         isInteractive && 'cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/20',
         className,
       )}
     >
-      <Icon className="h-5 w-5 text-text-secondary" aria-hidden />
-      <Text variant="labelSm" color="secondary">
+      <Icon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
+      <Text variant="labelSm" color="secondary" className="shrink-0">
         {label}
       </Text>
-      <Text variant="headingSm" weight="bold" className="tabular-nums leading-none">
+      <Text variant="headingSm" weight="bold" className="tabular-nums leading-none ml-auto">
         {value}
       </Text>
     </Surface>
