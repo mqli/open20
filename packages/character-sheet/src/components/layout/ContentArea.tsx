@@ -26,10 +26,15 @@ import { SkillRow } from '@/components/character/Skills';
 import { SpeciesPanel } from '@/components/character/Species';
 import { BackgroundPanel } from '@/components/character/Background';
 import { FeatList } from '@/components/character/Feats';
-import { SpellcastingHeader, SpellSlotRow } from '@/components/character/Spellcasting';
+import {
+  SpellcastingHeader,
+  SpellSlotRow,
+  PreparedSpellList,
+} from '@/components/character/Spellcasting';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
+import { useCharacterStore } from '@/stores/characterStore';
 import type { SectionKey } from './Sidebar';
 import { SectionCollapse } from './SectionCollapse';
 
@@ -201,17 +206,13 @@ function SpellsSection({ character }: { character: AppCharacter }) {
         </div>
       </Surface>
 
-      {/* Prepared spells placeholder (T-116 pending) */}
-      <Surface
-        variant="default"
-        padding="sm"
-        className="flex min-h-[80px] items-center justify-center"
-      >
-        <EmptyState
-          title="Prepared Spells"
-          description="Spell preparation and casting coming in the next update."
-        />
-      </Surface>
+      {/* Prepared spells list (T-116) */}
+      <PreparedSpellList
+        character={character}
+        onCastSpell={(spellId, slotLevel) => {
+          useCharacterStore.getState().castSpell(spellId, slotLevel);
+        }}
+      />
     </div>
   );
 }

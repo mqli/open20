@@ -12,12 +12,15 @@ import {
   longRest as coreLongRest,
   toggleInspiration as coreToggleInspiration,
   isConcentrating,
+  castSpell as coreCastSpell,
+  startConcentration,
   type Character,
   type RecomputeDerivedStatsDeps,
+  type SpellLevel,
 } from 'open20-core';
 import type { AppCharacter } from '@/types';
-import { resolveDeps } from '@/core/content-resolver';
-import { restRng } from '@/core/roll-adapter';
+import { resolveDeps, getSpell } from '@/core/content-resolver';
+import { restRng, rollSpellCast } from '@/core/roll-adapter';
 import { storageService, StorageQuotaError } from '@/core/storage-service';
 
 interface CharacterSheetState {
@@ -47,6 +50,8 @@ interface CharacterSheetState {
   longRest: () => void;
   /** Toggle inspiration on/off. */
   toggleInspiration: () => void;
+  /** Cast a spell: resolve spell, call core castSpell, push roll to overlay, handle concentration, persist. */
+  castSpell: (spellId: string, slotLevel: SpellLevel) => void;
 }
 
 export const useCharacterStore = create<CharacterSheetState>((set, get) => {
@@ -208,6 +213,38 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       const active = get().character;
       if (!active) return;
       const next: AppCharacter = { ...coreToggleInspiration(active), id: active.id };
+      persist(next);
+    },
+
+    castSpell: (spellId, slotLevel) => {
+      const spell = getSpell(spellId);
+      if (!spell) {
+        set({ error: `Spell not found: ${spellId}` });
+        return;
+      }
+
+      const active = get().character;
+      if (!active) return;
+
+      const result = coreCastSpell(active, spell, slotLevel);
+
+      if (!result.success) {
+        set({ error: result.message ?? 'Failed to cast spell.' });
+        return;
+      }
+
+      // Push roll overlay (side effect before persist)
+      if (result.castingClassId) {
+        rollSpellCast(result.char, spell, slotLevel, result.castingClassId);
+      }
+
+      // Set concentration if the spell requires it
+      let updated = result.char;
+      if (spell.concentration) {
+        updated = startConcentration(updated, spell.id);
+      }
+
+      const next: AppCharacter = { ...updated, id: active.id };
       persist(next);
     },
   };

@@ -29,6 +29,12 @@ export interface MakeCharacterOptions {
   classLevel?: number;
   abilityScores?: Partial<Record<AbilityName, number>>;
   featIds?: string[];
+  /** Spell IDs to set as prepared spells for the first spellcasting class. */
+  preparedSpells?: string[];
+  /** Spell IDs to set as known cantrips for the first spellcasting class. */
+  knownCantrips?: string[];
+  /** Spell IDs to set as known spells for the first spellcasting class. */
+  knownSpells?: string[];
 }
 
 /** Build a valid, recomputed AppCharacter (default: Level-5 High Elf Wizard). */
@@ -41,7 +47,7 @@ export function makeCharacter(options: MakeCharacterOptions = {}): AppCharacter 
   const classLevel = options.classLevel ?? 5;
 
   const deps = buildDepsForCreate({ speciesId, backgroundId, classId });
-  const char = createCharacter(
+  let char = createCharacter(
     {
       name: options.name ?? 'Tharion',
       speciesId,
@@ -53,6 +59,32 @@ export function makeCharacter(options: MakeCharacterOptions = {}): AppCharacter 
     },
     deps,
   );
+
+  // Inject spells if requested
+  if (options.preparedSpells || options.knownCantrips || options.knownSpells) {
+    const classKeys = Object.keys(char.spells.classSpellcasting);
+    const firstClassKey = classKeys[0];
+
+    if (firstClassKey) {
+      const updates: Record<string, string[]> = {};
+      if (options.preparedSpells) updates.preparedSpells = options.preparedSpells;
+      if (options.knownCantrips) updates.knownCantrips = options.knownCantrips;
+      if (options.knownSpells) updates.knownSpells = options.knownSpells;
+
+      char = {
+        ...char,
+        spells: {
+          ...char.spells,
+          classSpellcasting: Object.fromEntries(
+            Object.entries(char.spells.classSpellcasting).map(([classId, data]) => [
+              classId,
+              classId === firstClassKey ? { ...data, ...updates } : data,
+            ]),
+          ),
+        },
+      };
+    }
+  }
 
   return { ...char, id: options.id ?? 'test-character-1' };
 }

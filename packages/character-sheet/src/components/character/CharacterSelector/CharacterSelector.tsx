@@ -32,7 +32,7 @@ function createNewCharacter(): AppCharacter {
     backgroundId: 'sage',
     classId: 'Wizard',
   });
-  const char = createCharacter(
+  const base = createCharacter(
     {
       name: 'New Character',
       speciesId: 'Elf',
@@ -43,6 +43,31 @@ function createNewCharacter(): AppCharacter {
     },
     deps,
   );
+
+  // Inject default spells into first spellcasting class
+  const classKeys = Object.keys(base.spells.classSpellcasting);
+  const firstClassKey = classKeys[0];
+  const char = firstClassKey
+    ? {
+        ...base,
+        spells: {
+          ...base.spells,
+          classSpellcasting: Object.fromEntries(
+            Object.entries(base.spells.classSpellcasting).map(([classId, data]) => [
+              classId,
+              classId === firstClassKey
+                ? {
+                    ...data,
+                    knownCantrips: ['fire-bolt', 'light', 'mage-hand'],
+                    preparedSpells: ['magic-missile'],
+                  }
+                : data,
+            ]),
+          ),
+        },
+      }
+    : base;
+
   return { ...char, id: crypto.randomUUID() };
 }
 
