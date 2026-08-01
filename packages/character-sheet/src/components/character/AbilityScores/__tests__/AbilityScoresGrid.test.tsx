@@ -64,7 +64,7 @@ describe('AbilityScoresGrid', () => {
     const char = makeCharacter();
     const onRollCheck = vi.fn();
     render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
-    fireEvent.click(screen.getByLabelText('Roll Strength with advantage'));
+    fireEvent.click(screen.getByLabelText('Roll Strength check with advantage'));
     expect(onRollCheck).toHaveBeenCalledWith('Strength', 'advantage');
   });
 
@@ -72,7 +72,7 @@ describe('AbilityScoresGrid', () => {
     const char = makeCharacter();
     const onRollCheck = vi.fn();
     render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
-    fireEvent.click(screen.getByLabelText('Roll Strength with disadvantage'));
+    fireEvent.click(screen.getByLabelText('Roll Strength check with disadvantage'));
     expect(onRollCheck).toHaveBeenCalledWith('Strength', 'disadvantage');
   });
 

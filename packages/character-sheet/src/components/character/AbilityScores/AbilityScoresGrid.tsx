@@ -4,10 +4,10 @@
 // - advantage (ChevronUp) / disadvantage (ChevronDown) flanking the modifier
 // Saving throws are handled by T-106 SavingThrows.
 
-import { ChevronUp, ChevronDown } from 'lucide-react';
 import { getModifier, getTotalScore, type AbilityScores, type AbilityName } from 'open20-core';
 import { Surface, Text, Badge, cn } from '@open20/ui';
 
+import { RollModifierRow } from '@/components/character/RollModifierRow';
 import type { RollModifierType } from '@/core/roll-adapter';
 
 const ORDER: readonly { ability: AbilityName; short: string }[] = [
@@ -51,39 +51,15 @@ export function AbilityScoreCard({
         {score}
       </Text>
       {/* Roll row: ▲ / modifier / ▼ */}
-      <div className="flex items-center gap-0.5">
-        <button
-          type="button"
-          className="inline-flex h-5 w-5 items-center justify-center rounded text-primary-600 hover:bg-primary-100 dark:hover:bg-primary-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
-          onClick={() => onRollCheck(ability, 'advantage')}
-          aria-label={`Roll ${ability} with advantage`}
+      <RollModifierRow ariaLabel={`${ability} check`} onRoll={(m) => onRollCheck(ability, m)}>
+        <Badge
+          variant={modifier > 0 ? 'primary' : modifier < 0 ? 'danger' : 'secondary'}
+          size="sm"
+          className="tabular-nums cursor-pointer hover:opacity-80 transition-opacity"
         >
-          <ChevronUp className="h-3.5 w-3.5" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onRollCheck(ability, 'none')}
-          aria-label={`Roll ${ability} check`}
-        >
-          <Badge
-            variant={modifier > 0 ? 'primary' : modifier < 0 ? 'danger' : 'secondary'}
-            size="sm"
-            className="tabular-nums cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            {fmt(modifier)}
-          </Badge>
-        </button>
-
-        <button
-          type="button"
-          className="inline-flex h-5 w-5 items-center justify-center rounded text-danger hover:bg-danger/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
-          onClick={() => onRollCheck(ability, 'disadvantage')}
-          aria-label={`Roll ${ability} with disadvantage`}
-        >
-          <ChevronDown className="h-3.5 w-3.5" />
-        </button>
-      </div>
+          {fmt(modifier)}
+        </Badge>
+      </RollModifierRow>
     </Surface>
   );
 }
