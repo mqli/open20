@@ -11,10 +11,20 @@
 
 import { useState, useCallback } from 'react';
 import { Users } from 'lucide-react';
-import { createCharacter, type AbilityName } from 'open20-core';
+import {
+  createCharacter,
+  addEquipment,
+  recomputeDerivedStats,
+  type AbilityName,
+} from 'open20-core';
 import { Surface, Text, Button, EmptyState } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
-import { buildDepsForCreate, getClassName, getSpeciesName } from '@/core/content-resolver';
+import {
+  buildDepsForCreate,
+  resolveDeps,
+  getClassName,
+  getSpeciesName,
+} from '@/core/content-resolver';
 import { useIsLargeScreen } from '@/hooks/useIsLargeScreen';
 import { Sidebar } from './Sidebar';
 import type { SectionKey } from './Sidebar';
@@ -49,6 +59,58 @@ function createSampleCharacter() {
     },
     deps,
   );
+  return { ...char, id: crypto.randomUUID() };
+}
+
+const MONK_SCORES: Record<AbilityName, number> = {
+  Strength: 12,
+  Dexterity: 18,
+  Constitution: 14,
+  Intelligence: 10,
+  Wisdom: 16,
+  Charisma: 8,
+};
+
+function createMonkCharacter() {
+  const deps = buildDepsForCreate({
+    speciesId: 'Human',
+    backgroundId: 'acolyte',
+    classId: 'Monk',
+  });
+  let char = createCharacter(
+    {
+      name: 'Lian',
+      speciesId: 'Human',
+      backgroundId: 'acolyte',
+      classId: 'Monk',
+      classLevel: 5,
+      abilityScores: MONK_SCORES,
+    },
+    deps,
+  );
+
+  // Equip monk weapons
+  char = addEquipment(char, {
+    id: 'spear',
+    name: 'Spear',
+    type: 'weapon',
+    weight: 3,
+    equipped: true,
+    quantity: 1,
+  });
+  char = addEquipment(char, {
+    id: 'dagger',
+    name: 'Dagger',
+    type: 'weapon',
+    weight: 1,
+    equipped: true,
+    quantity: 5,
+  });
+
+  // Recompute with deps that now include weapons
+  const depsWithWeapons = resolveDeps(char);
+  char = recomputeDerivedStats(char, depsWithWeapons);
+
   return { ...char, id: crypto.randomUUID() };
 }
 
@@ -154,9 +216,14 @@ export function AppShell() {
             title="No Character Yet"
             description="Create a sample D&D 2024 character to explore the sheet."
             action={
-              <Button variant="primary" onClick={() => upsertCharacter(createSampleCharacter())}>
-                Create sample character
-              </Button>
+              <div className="flex flex-col items-center gap-2">
+                <Button variant="primary" onClick={() => upsertCharacter(createSampleCharacter())}>
+                  Create Wizard (Elf)
+                </Button>
+                <Button variant="primary" onClick={() => upsertCharacter(createMonkCharacter())}>
+                  Create Monk (Human)
+                </Button>
+              </div>
             }
           />
         </div>

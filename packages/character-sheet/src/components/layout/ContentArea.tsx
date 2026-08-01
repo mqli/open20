@@ -28,6 +28,7 @@ import { BackgroundPanel } from '@/components/character/Background';
 import { SpellcastingHeader, SpellSlotRow } from '@/components/character/Spellcasting';
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
+import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
 import type { SectionKey } from './Sidebar';
 import { SectionCollapse } from './SectionCollapse';
 
@@ -90,6 +91,11 @@ function CombatSection({
             rollSave(character, ability, rollModifier)
           }
         />
+
+        <Divider />
+
+        {/* Weapon Attacks (T-109/T-110) */}
+        <WeaponAttacksList character={character} />
       </div>
     </Surface>
   );
