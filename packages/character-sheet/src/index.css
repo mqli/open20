@@ -1,2 +1,12 @@
 @import 'tailwindcss';
 @import '@open20/ui/styles.css';
+
+/* Prevent body-level scrollbars — scrolling happens inside ContentArea */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}

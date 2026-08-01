@@ -175,7 +175,7 @@ export function AppShell() {
   // ── Desktop layout ─���───────────────────────────────────────
   if (isDesktop) {
     return (
-      <div className="relative flex h-screen overflow-hidden bg-bg-primary">
+      <div className="relative flex h-screen overflow-hidden bg-bg-primary max-w-7xl mx-auto">
         {errorBanner && <div className="absolute top-0 left-0 right-0 z-50 p-2">{errorBanner}</div>}
 
         {/* Sidebar */}
@@ -208,7 +208,7 @@ export function AppShell() {
   const classLabel = character.classes.map((c) => getClassName(c.classId)).join(' / ');
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg-primary">
+    <div className="flex min-h-screen flex-col bg-bg-primary max-w-7xl mx-auto">
       {/* Error banner */}
       {errorBanner}
 

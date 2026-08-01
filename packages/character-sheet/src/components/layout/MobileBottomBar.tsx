@@ -88,10 +88,9 @@ export function MobileBottomBar({
   return (
     <nav
       className={cn(
-        'fixed bottom-0 left-0 right-0 z-30 flex items-center border-t border-border bg-bg-secondary lg:hidden',
+        'sticky bottom-0 z-30 flex items-center border-t border-border bg-bg-secondary lg:hidden h-[56px]',
         className,
       )}
-      style={{ height: '56px' }}
       role="tablist"
       aria-label="Character sheet navigation"
     >
