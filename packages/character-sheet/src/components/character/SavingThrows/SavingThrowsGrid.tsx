@@ -60,7 +60,7 @@ export function SavingThrowCard({
       variant="default"
       padding="sm"
       className={cn(
-        'flex min-h-[96px] min-w-[76px] flex-col items-center justify-center gap-1',
+        'flex min-h-[72px] min-w-[76px] flex-col items-center justify-center gap-0.5',
         isProficient && 'ring-2 ring-primary-600',
       )}
     >

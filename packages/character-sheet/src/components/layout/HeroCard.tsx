@@ -29,18 +29,18 @@ function StatItem({
   accent?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <Icon
-        className={cn('h-4 w-4 shrink-0', accent ? 'text-primary-400' : 'text-text-secondary')}
+        className={cn('h-3.5 w-3.5 shrink-0', accent ? 'text-primary-400' : 'text-text-secondary')}
         aria-hidden="true"
       />
-      <Text variant="bodySm" color="secondary" className="min-w-0 flex-1">
+      <Text variant="bodySm" color="secondary">
         {label}
       </Text>
       <Text
         variant="bodySm"
         weight="bold"
-        className={cn('tabular-nums shrink-0', accent && 'text-primary-400')}
+        className={cn('tabular-nums ml-auto', accent && 'text-primary-400')}
       >
         {value}
       </Text>
@@ -54,7 +54,7 @@ export function HeroCard({ character, className }: HeroCardProps) {
   const { combatStats, hitPoints } = character;
 
   return (
-    <Surface variant="elevated" padding="md" className={cn('flex flex-col gap-3', className)}>
+    <Surface variant="elevated" padding="sm" className={cn('flex flex-col gap-2', className)}>
       {/* Name */}
       <div>
         <Text variant="headingSm" weight="bold" className="truncate">
@@ -69,8 +69,8 @@ export function HeroCard({ character, className }: HeroCardProps) {
       <Divider />
 
       {/* HP Summary */}
-      <div className="flex items-center gap-2">
-        <Heart className="h-4 w-4 shrink-0 text-danger" aria-hidden="true" />
+      <div className="flex items-center gap-1.5">
+        <Heart className="h-3.5 w-3.5 shrink-0 text-danger" aria-hidden="true" />
         <Text variant="bodySm" color="secondary">
           HP
         </Text>
@@ -84,22 +84,13 @@ export function HeroCard({ character, className }: HeroCardProps) {
         )}
       </div>
 
-      {/* Combat Stats */}
-      <div className="flex flex-col gap-1.5">
-        <StatItem icon={Shield} label="Armor Class" value={String(combatStats.AC)} accent />
-        <StatItem icon={Swords} label="Initiative" value={fmt(combatStats.initiative)} />
+      {/* Combat Stats — 2-column grid for compact display */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+        <StatItem icon={Shield} label="AC" value={String(combatStats.AC)} accent />
+        <StatItem icon={Swords} label="Init" value={fmt(combatStats.initiative)} />
         <StatItem icon={Footprints} label="Speed" value={`${combatStats.speed} ft`} />
-        <StatItem
-          icon={Eye}
-          label="Passive Perception"
-          value={String(combatStats.passivePerception)}
-        />
-        <StatItem
-          icon={Star}
-          label="Proficiency"
-          value={fmt(combatStats.proficiencyBonus)}
-          accent
-        />
+        <StatItem icon={Eye} label="PP" value={String(combatStats.passivePerception)} />
+        <StatItem icon={Star} label="PB" value={fmt(combatStats.proficiencyBonus)} accent />
       </div>
     </Surface>
   );

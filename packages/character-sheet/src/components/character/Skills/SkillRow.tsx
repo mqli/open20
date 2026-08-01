@@ -36,7 +36,7 @@ function ProficiencyIcon({ skillEntry }: { skillEntry: SkillEntry }) {
 
 export function SkillRow({ skill, bonus, skillEntry, onRoll }: SkillRowProps) {
   return (
-    <div className="flex items-center justify-between gap-3 py-2">
+    <div className="flex items-center justify-between gap-3 py-1.5">
       {/* Left: proficiency icon + name */}
       <div className="flex items-center gap-2 min-w-0">
         <ProficiencyIcon skillEntry={skillEntry} />

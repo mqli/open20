@@ -13,11 +13,13 @@ export interface HpBarProps {
   temporary: number;
   onAdjust: (delta: number) => void;
   className?: string;
+  /** When true, skip the outer Surface wrapper — for embedding in a merged panel. */
+  noSurface?: boolean;
 }
 
 const DELTAS = [-10, -5, -1, 1, 5, 10] as const;
 
-export function HpBar({ current, max, temporary, onAdjust, className }: HpBarProps) {
+export function HpBar({ current, max, temporary, onAdjust, className, noSurface }: HpBarProps) {
   const pct = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
   const isDanger = max > 0 && current / max < 0.25;
 
@@ -31,8 +33,8 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
     setCustomValue('');
   }
 
-  return (
-    <Surface variant="default" padding="md" className={cn('flex flex-col gap-2', className)}>
+  const content = (
+    <>
       <div className="flex items-center justify-between">
         <Text variant="labelSm" color="secondary" className="uppercase tracking-wide">
           Hit Points
@@ -78,10 +80,10 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
         {current} / {max}
       </Text>
 
-      {/* Three-group layout: stacks vertically on mobile, side-by-side on sm+ */}
-      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
-        {/* Damage — left-aligned on sm+ */}
-        <div className="flex justify-start gap-1">
+      {/* Three-group layout: grid columns on sm+, stacked on mobile */}
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+        {/* Damage */}
+        <div className="flex gap-1">
           {DELTAS.filter((d) => d < 0).map((d) => (
             <Button
               key={d}
@@ -96,7 +98,7 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
           ))}
         </div>
 
-        {/* Custom input: − left, input center, + right */}
+        {/* Custom input: − input + */}
         <div className="flex items-center justify-center gap-0.5">
           <Button
             variant="danger"
@@ -135,8 +137,8 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
           </Button>
         </div>
 
-        {/* Heal — right-aligned on sm+ */}
-        <div className="flex justify-end gap-1">
+        {/* Heal */}
+        <div className="flex gap-1 sm:justify-end">
           {DELTAS.filter((d) => d > 0).map((d) => (
             <Button
               key={d}
@@ -151,6 +153,16 @@ export function HpBar({ current, max, temporary, onAdjust, className }: HpBarPro
           ))}
         </div>
       </div>
+    </>
+  );
+
+  if (noSurface) {
+    return <div className={cn('flex flex-col gap-1.5', className)}>{content}</div>;
+  }
+
+  return (
+    <Surface variant="default" padding="sm" className={cn('flex flex-col gap-1.5', className)}>
+      {content}
     </Surface>
   );
 }

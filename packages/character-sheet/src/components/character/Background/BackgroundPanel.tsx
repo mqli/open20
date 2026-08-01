@@ -20,7 +20,7 @@ export function BackgroundPanel({ character, className }: BackgroundPanelProps) 
   if (!background) {
     const fallbackName = getBackgroundName(character.background);
     return (
-      <Surface variant="default" padding="md" className={className}>
+      <Surface variant="default" padding="sm" className={className}>
         <div className="flex items-center gap-2 mb-2">
           <Bookmark className="h-5 w-5 text-primary-500 shrink-0" aria-hidden />
           <Text variant="label" weight="bold">
@@ -40,7 +40,7 @@ export function BackgroundPanel({ character, className }: BackgroundPanelProps) 
   const displayName = background.name ?? background.id;
 
   return (
-    <Surface variant="default" padding="md" className={cn('flex flex-col gap-3', className)}>
+    <Surface variant="default" padding="sm" className={cn('flex flex-col gap-2', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
         <Bookmark className="h-5 w-5 text-primary-500 shrink-0" aria-hidden />

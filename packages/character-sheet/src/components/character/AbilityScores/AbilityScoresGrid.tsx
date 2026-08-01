@@ -45,7 +45,7 @@ export function AbilityScoreCard({
     <Surface
       variant="default"
       padding="sm"
-      className={cn('flex min-h-[96px] min-w-[76px] flex-col items-center justify-center gap-1')}
+      className={cn('flex min-h-[72px] min-w-[76px] flex-col items-center justify-center gap-0.5')}
     >
       <Text variant="labelSm" color="secondary">
         {short}

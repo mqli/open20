@@ -100,18 +100,14 @@ function TraitCard({ trait, initiallyExpanded }: TraitCardProps) {
 /** Future: senses/languages/size placeholder (T-215). */
 function SensesPlaceholder() {
   return (
-    <Surface
-      variant="default"
-      padding="sm"
-      className="border border-dashed border-border bg-bg-tertiary/50"
-    >
+    <div className="rounded-lg border border-dashed border-border bg-bg-tertiary/50 p-2">
       <Text variant="labelSm" color="secondary" className="mb-1">
         Senses, Languages & Size
       </Text>
       <Text variant="bodySm" color="secondary">
         Coming in the next update
       </Text>
-    </Surface>
+    </div>
   );
 }
 
@@ -128,7 +124,7 @@ export function SpeciesPanel({ character, className }: SpeciesPanelProps) {
   if (!species) {
     const fallbackName = getSpeciesName(character.species);
     return (
-      <Surface variant="default" padding="md" className={className}>
+      <Surface variant="default" padding="sm" className={className}>
         <div className="flex items-center gap-2 mb-2">
           <Leaf className="h-5 w-5 text-primary-500 shrink-0" aria-hidden />
           <Text variant="label" weight="bold">
@@ -150,7 +146,7 @@ export function SpeciesPanel({ character, className }: SpeciesPanelProps) {
   const speciesLabel = subtype ? subtype.name : species.id;
 
   return (
-    <Surface variant="default" padding="md" className={cn('flex flex-col gap-3', className)}>
+    <Surface variant="default" padding="sm" className={cn('flex flex-col gap-2', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
         <Leaf className="h-5 w-5 text-primary-500 shrink-0" aria-hidden />

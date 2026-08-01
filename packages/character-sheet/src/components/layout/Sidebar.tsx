@@ -68,12 +68,12 @@ export function Sidebar({
       )}
     >
       {/* Hero Card — sticky top */}
-      <div className="p-4 pb-0">
+      <div className="p-3 pb-0">
         <HeroCard character={character} />
       </div>
 
       {/* Character management trigger */}
-      <div className="px-4 pt-2">
+      <div className="px-3 pt-2">
         <Button
           variant="ghost"
           size="sm"
@@ -87,10 +87,7 @@ export function Sidebar({
       </div>
 
       {/* Nav Tabs — vertical pills */}
-      <div className="flex-1 p-4">
-        <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
-          Navigation
-        </Text>
+      <div className="flex-1 px-3 py-2">
         <Tabs.Root
           value={activeSection}
           onValueChange={(v) => onSectionChange(v as SectionKey)}
@@ -113,7 +110,7 @@ export function Sidebar({
       </div>
 
       {/* Rest Actions — sticky bottom */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border p-3">
         <RestActions />
       </div>
     </aside>

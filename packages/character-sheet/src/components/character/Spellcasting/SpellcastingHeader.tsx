@@ -16,25 +16,25 @@ export function SpellcastingHeader({ character, className }: SpellcastingHeaderP
   const spellAttackBonus = getBestSpellAttackBonus(character);
 
   return (
-    <Surface variant="default" padding="md" className={className}>
-      <div className="flex items-center gap-2 mb-3">
+    <Surface variant="default" padding="sm" className={className}>
+      <div className="flex items-center gap-2 mb-2">
         <WandSparkles className="h-5 w-5 text-primary-500 shrink-0" aria-hidden />
         <Text variant="label" weight="bold">
           Spellcasting
         </Text>
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex-1 rounded-lg border border-border bg-bg-secondary p-3 text-center">
-          <Text variant="labelSm" color="secondary" className="mb-1">
+      <div className="flex gap-2">
+        <div className="flex-1 rounded-lg border border-border bg-bg-secondary p-2 text-center">
+          <Text variant="labelSm" color="secondary" className="mb-0.5">
             Spell DC
           </Text>
           <Text variant="heading" className="text-primary-600 tabular-nums">
             {spellSaveDC}
           </Text>
         </div>
-        <div className="flex-1 rounded-lg border border-border bg-bg-secondary p-3 text-center">
-          <Text variant="labelSm" color="secondary" className="mb-1">
+        <div className="flex-1 rounded-lg border border-border bg-bg-secondary p-2 text-center">
+          <Text variant="labelSm" color="secondary" className="mb-0.5">
             Atk Bonus
           </Text>
           <Text variant="heading" className="text-primary-600 tabular-nums">

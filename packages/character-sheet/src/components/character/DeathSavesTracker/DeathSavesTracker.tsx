@@ -67,7 +67,7 @@ export function DeathSavesTracker({
   className,
 }: DeathSavesTrackerProps) {
   return (
-    <Surface variant="default" padding="md" className={cn('flex flex-col gap-2', className)}>
+    <Surface variant="default" padding="sm" className={cn('flex flex-col gap-1.5', className)}>
       <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
         Death Saves
       </Text>

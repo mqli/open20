@@ -34,7 +34,7 @@ export function CombatStatCard({
       variant="default"
       padding="sm"
       className={cn(
-        'flex min-h-[80px] min-w-[68px] flex-col items-center justify-center gap-1',
+        'flex min-h-[64px] min-w-[68px] flex-col items-center justify-center gap-0.5',
         isInteractive && 'cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/20',
         className,
       )}

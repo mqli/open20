@@ -61,7 +61,7 @@ export function SectionCollapse({
           variant="ghost"
           size="md"
           className={cn(
-            'w-full justify-between gap-2 py-3 px-0',
+            'w-full justify-between gap-2 py-2 px-0',
             'focus-visible:ring-2 focus-visible:ring-primary-600 rounded-md',
           )}
           onClick={onToggle}

@@ -50,29 +50,27 @@ function CombatSection({
   toggleInspiration,
 }: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'className'>) {
   return (
-    <div className="flex flex-col gap-4">
-      <HpBar
-        current={character.hitPoints.current}
-        max={character.hitPoints.max}
-        temporary={character.hitPoints.temporary}
-        onAdjust={modifyHP}
-      />
+    <Surface variant="default" padding="sm">
+      <div className="flex flex-col gap-3">
+        {/* HP Bar — no Surface wrapper (embedded in merged panel) */}
+        <HpBar
+          current={character.hitPoints.current}
+          max={character.hitPoints.max}
+          temporary={character.hitPoints.temporary}
+          onAdjust={modifyHP}
+          noSurface
+        />
 
-      {/* Unified panel: Combat Stats + Death Saves side-by-side on desktop */}
-      <Surface variant="default" padding="md">
-        <div className="flex flex-col gap-4 md:flex-row md:gap-0 md:items-center">
-          {/* Left: Combat Stats */}
+        <Divider />
+
+        {/* Combat Stats + Death Saves side-by-side on desktop */}
+        <div className="flex flex-col gap-3 md:flex-row md:gap-0 md:items-center">
           <div className="flex-1 min-w-0 md:pr-6">
-            <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
-              Combat Stats
-            </Text>
             <CombatStatsBar character={character} onToggleInspiration={toggleInspiration} />
           </div>
 
-          {/* Divider: horizontal on mobile, vertical on desktop */}
           <Divider className="md:hidden" />
 
-          {/* Right: Death Saves (with left border on desktop) */}
           <DeathSavesTracker
             successes={character.hitPoints.deathSaves.successes}
             failures={character.hitPoints.deathSaves.failures}
@@ -82,21 +80,18 @@ function CombatSection({
             className="p-0 border-none shadow-none bg-transparent md:border-l md:border-border md:pl-6"
           />
         </div>
-      </Surface>
 
-      {/* Saving Throws */}
-      <Surface variant="default" padding="md">
-        <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
-          Saving Throws
-        </Text>
+        <Divider />
+
+        {/* Saving Throws */}
         <SavingThrowsGrid
           character={character}
           onRollSave={(ability: AbilityName, rollModifier: RollModifierType) =>
             rollSave(character, ability, rollModifier)
           }
         />
-      </Surface>
-    </div>
+      </div>
+    </Surface>
   );
 }
 
@@ -104,13 +99,7 @@ function CombatSection({
 
 function AbilitiesSection({ character }: { character: AppCharacter }) {
   return (
-    <Surface variant="default" padding="md">
-      <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
-        Ability Scores
-      </Text>
-      <Text variant="bodySm" color="secondary" className="mb-3">
-        Tap any score to roll an ability check
-      </Text>
+    <Surface variant="default" padding="sm">
       <AbilityScoresGrid
         abilityScores={character.abilityScores}
         onRollCheck={(ability, rollModifier) => rollAbility(character, ability, rollModifier)}
@@ -125,10 +114,7 @@ function SkillsSection({ character }: { character: AppCharacter }) {
   const pb = character.combatStats.proficiencyBonus;
 
   return (
-    <Surface variant="default" padding="md">
-      <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
-        Skills
-      </Text>
+    <Surface variant="default" padding="sm">
       {(['Strength', 'Dexterity', 'Intelligence', 'Wisdom', 'Charisma'] as const).map((ability) => {
         const skillsForAbility = SKILL_NAMES.filter((s) => SKILL_ABILITY_MAP[s] === ability);
         if (skillsForAbility.length === 0) return null;
@@ -195,7 +181,7 @@ function SpellsSection({ character }: { character: AppCharacter }) {
 
   if (!hasSpellcasting) {
     return (
-      <Surface variant="default" padding="md">
+      <Surface variant="default" padding="sm">
         <Text variant="bodySm" color="secondary">
           This character does not have spellcasting.
         </Text>
@@ -204,13 +190,10 @@ function SpellsSection({ character }: { character: AppCharacter }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <SpellcastingHeader character={character} />
 
-      <Surface variant="default" padding="md">
-        <Text variant="labelSm" color="secondary" className="mb-2 uppercase tracking-wide">
-          Spell Slots
-        </Text>
+      <Surface variant="default" padding="sm">
         <div className="divide-y divide-border">
           {slotLevels.map((slot) => (
             <SpellSlotRow key={slot.level} level={slot.level} total={slot.total} used={slot.used} />
@@ -221,7 +204,7 @@ function SpellsSection({ character }: { character: AppCharacter }) {
       {/* Prepared spells placeholder (T-116 pending) */}
       <Surface
         variant="default"
-        padding="md"
+        padding="sm"
         className="flex min-h-[80px] items-center justify-center"
       >
         <EmptyState
@@ -237,14 +220,14 @@ function SpellsSection({ character }: { character: AppCharacter }) {
 
 function FeaturesSection({ character }: { character: AppCharacter }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <SpeciesPanel character={character} />
       <BackgroundPanel character={character} />
 
       {/* Feats placeholder (T-113 pending) */}
       <Surface
         variant="default"
-        padding="md"
+        padding="sm"
         className="flex min-h-[100px] items-center justify-center opacity-60"
       >
         <EmptyState
@@ -262,7 +245,7 @@ function PlaceholderSection({ title, description }: { title: string; description
   return (
     <Surface
       variant="default"
-      padding="md"
+      padding="sm"
       className="flex min-h-[200px] items-center justify-center"
     >
       <EmptyState title={title} description={description} />
@@ -336,8 +319,8 @@ export function ContentArea({
   };
 
   return (
-    <main className={cn('flex-1 overflow-y-auto p-4 md:p-6 lg:p-8', className)}>
-      <div className="flex flex-col gap-4">
+    <main className={cn('flex-1 overflow-y-auto p-3 md:p-4 lg:p-5', className)}>
+      <div className="flex flex-col gap-2">
         {SECTIONS.map(({ key, title, icon }) => (
           <SectionCollapse
             key={key}
