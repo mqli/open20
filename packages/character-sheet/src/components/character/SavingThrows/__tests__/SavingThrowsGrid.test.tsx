@@ -19,7 +19,7 @@ describe('SavingThrowsGrid', () => {
     expect(screen.getByText('CHA')).toBeInTheDocument();
   });
 
-  it('renders saving throw bonus with + prefix', () => {
+  it('renders saving throw bonus with + prefix (clickable)', () => {
     const char = makeCharacter();
     render(<SavingThrowsGrid character={char} onRollSave={noop} />);
     // Wizard has INT 16 (+3) and PB +3 -> INT save +6
@@ -65,7 +65,7 @@ describe('SavingThrowsGrid', () => {
     expect(onRollSave).toHaveBeenCalledWith('Dexterity', 'none');
   });
 
-  it('ADV button rolls with advantage', () => {
+  it('ChevronUp button rolls with advantage', () => {
     const char = makeCharacter();
     const onRollSave = vi.fn();
     render(<SavingThrowsGrid character={char} onRollSave={onRollSave} />);
@@ -73,7 +73,7 @@ describe('SavingThrowsGrid', () => {
     expect(onRollSave).toHaveBeenCalledWith('Dexterity', 'advantage');
   });
 
-  it('DIS button rolls with disadvantage', () => {
+  it('ChevronDown button rolls with disadvantage', () => {
     const char = makeCharacter();
     const onRollSave = vi.fn();
     render(<SavingThrowsGrid character={char} onRollSave={onRollSave} />);

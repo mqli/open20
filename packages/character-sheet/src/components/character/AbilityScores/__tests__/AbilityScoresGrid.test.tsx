@@ -60,19 +60,19 @@ describe('AbilityScoresGrid', () => {
 
   // --- advantage / disadvantage ---
 
-  it('ADV button rolls with advantage immediately', () => {
+  it('ChevronUp button rolls with advantage immediately', () => {
     const char = makeCharacter();
     const onRollCheck = vi.fn();
     render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
-    fireEvent.click(screen.getAllByLabelText('Roll Strength with advantage')[0]);
+    fireEvent.click(screen.getByLabelText('Roll Strength with advantage'));
     expect(onRollCheck).toHaveBeenCalledWith('Strength', 'advantage');
   });
 
-  it('DIS button rolls with disadvantage immediately', () => {
+  it('ChevronDown button rolls with disadvantage immediately', () => {
     const char = makeCharacter();
     const onRollCheck = vi.fn();
     render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
-    fireEvent.click(screen.getAllByLabelText('Roll Strength with disadvantage')[0]);
+    fireEvent.click(screen.getByLabelText('Roll Strength with disadvantage'));
     expect(onRollCheck).toHaveBeenCalledWith('Strength', 'disadvantage');
   });
 

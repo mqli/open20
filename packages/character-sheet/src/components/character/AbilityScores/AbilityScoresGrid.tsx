@@ -1,10 +1,10 @@
 // AbilityScoresGrid.tsx (T-103)
 // 6 ability scores with modifiers. Each card supports:
-// - ability check roll (dice icon)
-// - advantage / normal / disadvantage mode toggle (per-card local state)
+// - normal ability check roll (click modifier badge)
+// - advantage (ChevronUp) / disadvantage (ChevronDown) flanking the modifier
 // Saving throws are handled by T-106 SavingThrows.
 
-import { Dices } from 'lucide-react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { getModifier, getTotalScore, type AbilityScores, type AbilityName } from 'open20-core';
 import { Surface, Text, Badge, cn } from '@open20/ui';
 
@@ -31,9 +31,6 @@ function fmt(mod: number): string {
   return mod >= 0 ? `+${mod}` : `${mod}`;
 }
 
-const CHIP =
-  'rounded px-1 py-px text-[10px] font-semibold uppercase leading-tight transition-colors';
-
 export function AbilityScoreCard({
   short,
   ability,
@@ -53,47 +50,38 @@ export function AbilityScoreCard({
       <Text variant="heading" weight="bold" className="tabular-nums leading-none">
         {score}
       </Text>
-      <Badge
-        variant={modifier > 0 ? 'primary' : modifier < 0 ? 'danger' : 'secondary'}
-        size="sm"
-        className="tabular-nums"
-      >
-        {fmt(modifier)}
-      </Badge>
-
-      {/* ADV / dice / DIS row — each button rolls immediately */}
-      <div className="flex items-center gap-1">
+      {/* Roll row: ▲ / modifier / ▼ */}
+      <div className="flex items-center gap-0.5">
         <button
           type="button"
-          className={cn(
-            CHIP,
-            'bg-bg-tertiary text-text-tertiary hover:bg-primary-100 hover:text-primary-600',
-          )}
+          className="inline-flex h-5 w-5 items-center justify-center rounded text-primary-600 hover:bg-primary-100 dark:hover:bg-primary-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
           onClick={() => onRollCheck(ability, 'advantage')}
           aria-label={`Roll ${ability} with advantage`}
         >
-          ADV
+          <ChevronUp className="h-3.5 w-3.5" />
         </button>
 
         <button
           type="button"
-          className="inline-flex h-6 w-6 items-center justify-center rounded text-primary-600 hover:bg-primary-100 dark:hover:bg-primary-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
           onClick={() => onRollCheck(ability, 'none')}
           aria-label={`Roll ${ability} check`}
         >
-          <Dices className="h-3.5 w-3.5" />
+          <Badge
+            variant={modifier > 0 ? 'primary' : modifier < 0 ? 'danger' : 'secondary'}
+            size="sm"
+            className="tabular-nums cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            {fmt(modifier)}
+          </Badge>
         </button>
 
         <button
           type="button"
-          className={cn(
-            CHIP,
-            'bg-bg-tertiary text-text-tertiary hover:bg-danger/20 hover:text-danger',
-          )}
+          className="inline-flex h-5 w-5 items-center justify-center rounded text-danger hover:bg-danger/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
           onClick={() => onRollCheck(ability, 'disadvantage')}
           aria-label={`Roll ${ability} with disadvantage`}
         >
-          DIS
+          <ChevronDown className="h-3.5 w-3.5" />
         </button>
       </div>
     </Surface>
