@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { getSkillBonus } from 'open20-core';
 import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
-import type { SkillEntry, AbilityName } from 'open20-core/types';
+import type { SkillEntry, AbilityName, SkillName } from 'open20-core/types';
 import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
 import { HpBar } from '@/components/character/HPManager';
@@ -110,48 +110,41 @@ function AbilitiesSection({ character }: { character: AppCharacter }) {
 
 // ─── Skills Section (internal) ─────────────────────────────
 
+const LEFT_ABILITIES = ['Strength', 'Dexterity', 'Intelligence'] as const;
+const RIGHT_ABILITIES = ['Wisdom', 'Charisma'] as const;
+
 function SkillsSection({ character }: { character: AppCharacter }) {
   const pb = character.combatStats.proficiencyBonus;
 
+  const renderSkills = (abilities: readonly string[]) =>
+    abilities.flatMap((ability) => SKILL_NAMES.filter((s) => SKILL_ABILITY_MAP[s] === ability));
+
+  const renderSkillRow = (skill: SkillName) => {
+    const entry: SkillEntry = character.skills[skill] ?? {
+      proficient: false,
+      expertise: false,
+    };
+    const bonus = getSkillBonus(character.abilityScores, entry, SKILL_ABILITY_MAP[skill], pb);
+    return (
+      <SkillRow
+        key={skill}
+        skill={skill}
+        bonus={bonus}
+        skillEntry={entry}
+        onRoll={(s, mod) => rollSkill(character, s, mod)}
+      />
+    );
+  };
+
+  const leftSkills = renderSkills(LEFT_ABILITIES);
+  const rightSkills = renderSkills(RIGHT_ABILITIES);
+
   return (
     <Surface variant="default" padding="sm">
-      {(['Strength', 'Dexterity', 'Intelligence', 'Wisdom', 'Charisma'] as const).map((ability) => {
-        const skillsForAbility = SKILL_NAMES.filter((s) => SKILL_ABILITY_MAP[s] === ability);
-        if (skillsForAbility.length === 0) return null;
-        return (
-          <div key={ability}>
-            <Text
-              variant="labelSm"
-              color="secondary"
-              className="mt-3 mb-1 first:mt-0 uppercase tracking-wide"
-            >
-              {ability}
-            </Text>
-            <Divider className="mb-1" />
-            {skillsForAbility.map((skill) => {
-              const entry: SkillEntry = character.skills[skill] ?? {
-                proficient: false,
-                expertise: false,
-              };
-              const bonus = getSkillBonus(
-                character.abilityScores,
-                entry,
-                SKILL_ABILITY_MAP[skill],
-                pb,
-              );
-              return (
-                <SkillRow
-                  key={skill}
-                  skill={skill}
-                  bonus={bonus}
-                  skillEntry={entry}
-                  onRoll={(s, mod) => rollSkill(character, s, mod)}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+        <div className="flex flex-col">{leftSkills.map(renderSkillRow)}</div>
+        <div className="flex flex-col">{rightSkills.map(renderSkillRow)}</div>
+      </div>
     </Surface>
   );
 }
