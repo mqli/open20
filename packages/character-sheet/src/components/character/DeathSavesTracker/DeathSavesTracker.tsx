@@ -66,11 +66,18 @@ export function DeathSavesTracker({
   onToggleFailure,
   className,
 }: DeathSavesTrackerProps) {
+  const statusText = isStable ? 'Stable' : `${successes} / 3 successes · ${failures} / 3 failures`;
+
   return (
     <Surface variant="default" padding="sm" className={cn('flex flex-col gap-1.5', className)}>
-      <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
-        Death Saves
-      </Text>
+      <div className="flex items-center justify-between">
+        <Text variant="labelSm" color="secondary" className="mb-3 uppercase tracking-wide">
+          Death Saves
+        </Text>
+        <Text variant="labelSm" color={isStable ? 'primary' : 'secondary'}>
+          {statusText}
+        </Text>
+      </div>
 
       {/* Success row */}
       <div className="flex items-center gap-2" role="group" aria-label="Death save successes">
@@ -113,6 +120,18 @@ export function DeathSavesTracker({
           );
         })}
       </div>
+
+      {/* Threshold labels */}
+      {successes >= 3 && (
+        <Text variant="labelSm" className="mt-1 text-success">
+          Stable at 3 successes
+        </Text>
+      )}
+      {failures >= 3 && (
+        <Text variant="labelSm" className="mt-1 text-danger">
+          Death at 3 failures
+        </Text>
+      )}
     </Surface>
   );
 }

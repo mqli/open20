@@ -30,7 +30,7 @@ describe('SavingThrowsGrid', () => {
 
   // --- proficiency indicators ---
 
-  it('shows proficient ring border and Shield icon for proficient saves', () => {
+  it('shows proficient ring border and CircleDot icon for proficient saves', () => {
     const char = makeCharacter();
     const { container } = render(<SavingThrowsGrid character={char} onRollSave={noop} />);
     // Wizard has INT and WIS proficiency
@@ -38,21 +38,21 @@ describe('SavingThrowsGrid', () => {
     expect(intCard).not.toBeNull();
     expect(intCard?.className).toContain('ring-primary-600');
 
-    // Verify Shield icons exist (exact count = 2 proficient saves)
-    const shields = container.querySelectorAll('.lucide-shield');
-    expect(shields.length).toBe(2);
+    // Verify CircleDot icons exist (exact count = 2 proficient saves)
+    const circleDots = container.querySelectorAll('.lucide-circle-dot');
+    expect(circleDots.length).toBe(2);
   });
 
-  it('does not show ring border and uses ShieldOff for non-proficient saves', () => {
+  it('does not show ring border and uses Circle for non-proficient saves', () => {
     const char = makeCharacter();
     const { container } = render(<SavingThrowsGrid character={char} onRollSave={noop} />);
     // STR is non-proficient for Wizard — no ring class
     const strCard = screen.getByText('STR').closest('[class*="flex"]');
     expect(strCard?.className).not.toContain('ring-2');
 
-    // ShieldOff icons for the 4 non-proficient saves
-    const shieldOffs = container.querySelectorAll('.lucide-shield-off');
-    expect(shieldOffs.length).toBe(4);
+    // Circle icons for the 4 non-proficient saves
+    const circles = container.querySelectorAll('.lucide-circle');
+    expect(circles.length).toBe(4);
   });
 
   // --- roll interaction ---
