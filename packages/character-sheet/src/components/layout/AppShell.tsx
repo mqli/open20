@@ -212,10 +212,18 @@ export function AppShell() {
     <CharacterSelector open={showCharacterSelector} onOpenChange={setShowCharacterSelector} />
   );
 
+  // ── Error banner (rendered before empty state so errors are visible even without a character) ──
+  const errorBanner = error && (
+    <Surface variant="warning" padding="sm" className="m-2 lg:m-0" role="alert">
+      <Text variant="bodySm">{error}</Text>
+    </Surface>
+  );
+
   // ── Empty state ──���─────────────────────────────────────────
   if (!character) {
     return (
       <>
+        {errorBanner}
         <div className="flex min-h-screen items-center justify-center p-6">
           <EmptyState
             title="No Character Yet"
@@ -236,13 +244,6 @@ export function AppShell() {
       </>
     );
   }
-
-  // ── Error banner ───────────────────────────────────────────
-  const errorBanner = error && (
-    <Surface variant="warning" padding="sm" className="m-2 lg:m-0" role="alert">
-      <Text variant="bodySm">{error}</Text>
-    </Surface>
-  );
 
   // ── Desktop layout ─���───────────────────────────────────────
   if (isDesktop) {

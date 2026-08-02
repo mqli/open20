@@ -141,7 +141,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-102 DeathSavesTracker
 - ✅ T-103 Ability Scores
 - ✅ T-104 SkillRow
-- ⏳ T-105 SkillsList (partial — rendered but no search/filter)
+- ✅ T-105 SkillsList (extracted component from ContentArea)
 - ✅ T-106 SavingThrows
 - ✅ T-107 CombatStatCard
 - ✅ T-108 CombatStatsBar
@@ -157,7 +157,8 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-117 ConcentrationBanner (amber banner, CON save prompt, end concentration)
 - ✅ T-119 CharacterSelector (multi-character modal with create/switch/delete)
 - ✅ T-127 Sheet assembly (accordion layout)
-- ⏳ 8 remaining P0 tasks: T-105 (finish) / T-120~T-126 / T-128
+- ✅ T-128 App states (loading skeleton, reduced-motion, error polish)
+- ⏳ 6 remaining P0 tasks: T-120~T-126
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -165,10 +166,9 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 The highest-value unblocked P0 tasks, in recommended order:
 
-| Task  | What                             | Why first                   |
-| ----- | -------------------------------- | --------------------------- |
-| T-128 | App states (empty/loading/error) | Polish what's already wired |
-| T-105 | SkillsList search/filter         | Finish partially-done task  |
-| T-120 | CharacterCreateWizard            | Complete character CRUD     |
+| Task  | What                  | Why first                |
+| ----- | --------------------- | ------------------------ |
+| T-120 | CharacterCreateWizard | Complete character CRUD  |
+| T-121 | CharacterEditDialog   | Edit any character field |
 
 **Do NOT start** T-219 (needs T-014 inspiration), T-208 (needs T-015 exhaustion), T-215 (needs T-016 senses). These Phase 2 tasks are blocked by pending core extensions.

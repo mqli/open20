@@ -12,14 +12,8 @@ import {
   Feather,
   FileText,
 } from 'lucide-react';
-import {
-  getSkillBonus,
-  isConcentrating,
-  getConcentratingSpellId,
-  calculateConcentrationDC,
-} from 'open20-core';
-import { SKILL_ABILITY_MAP, SKILL_NAMES } from 'open20-core/types';
-import type { SkillEntry, AbilityName, SkillName } from 'open20-core/types';
+import { isConcentrating, getConcentratingSpellId, calculateConcentrationDC } from 'open20-core';
+import type { AbilityName } from 'open20-core/types';
 import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
 import { HpBar } from '@/components/character/HPManager';
@@ -27,7 +21,7 @@ import { AbilityScoresGrid } from '@/components/character/AbilityScores';
 import { SavingThrowsGrid } from '@/components/character/SavingThrows';
 import { DeathSavesTracker } from '@/components/character/DeathSavesTracker';
 import { CombatStatsBar } from '@/components/character/CombatStats';
-import { SkillRow } from '@/components/character/Skills';
+import { SkillsList } from '@/components/character/Skills';
 import { SpeciesPanel } from '@/components/character/Species';
 import { BackgroundPanel } from '@/components/character/Background';
 import { FeatList } from '@/components/character/Feats';
@@ -153,42 +147,12 @@ function AbilitiesSection({ character }: { character: AppCharacter }) {
 
 // ─── Skills Section (internal) ─────────────────────────────
 
-const LEFT_ABILITIES = ['Strength', 'Dexterity', 'Intelligence'] as const;
-const RIGHT_ABILITIES = ['Wisdom', 'Charisma'] as const;
-
 function SkillsSection({ character }: { character: AppCharacter }) {
-  const pb = character.combatStats.proficiencyBonus;
-
-  const renderSkills = (abilities: readonly string[]) =>
-    abilities.flatMap((ability) => SKILL_NAMES.filter((s) => SKILL_ABILITY_MAP[s] === ability));
-
-  const renderSkillRow = (skill: SkillName) => {
-    const entry: SkillEntry = character.skills[skill] ?? {
-      proficient: false,
-      expertise: false,
-    };
-    const bonus = getSkillBonus(character.abilityScores, entry, SKILL_ABILITY_MAP[skill], pb);
-    return (
-      <SkillRow
-        key={skill}
-        skill={skill}
-        bonus={bonus}
-        skillEntry={entry}
-        onRoll={(s, mod) => rollSkill(character, s, mod)}
-      />
-    );
-  };
-
-  const leftSkills = renderSkills(LEFT_ABILITIES);
-  const rightSkills = renderSkills(RIGHT_ABILITIES);
-
   return (
-    <Surface variant="default" padding="sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-        <div className="flex flex-col">{leftSkills.map(renderSkillRow)}</div>
-        <div className="flex flex-col">{rightSkills.map(renderSkillRow)}</div>
-      </div>
-    </Surface>
+    <SkillsList
+      character={character}
+      onRollSkill={(skill, mod) => rollSkill(character, skill, mod)}
+    />
   );
 }
 

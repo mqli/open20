@@ -3,7 +3,20 @@ import { I18nProvider, DiceRollOverlay, defaultTranslations, zhCNTranslations } 
 import { AppShell } from '@/components/layout/AppShell';
 import { useCharacterStore } from '@/stores/characterStore';
 
+function LoadingSkeleton() {
+  return (
+    <div className="flex h-screen flex-col gap-3 p-4" aria-label="Loading character sheet">
+      <div className="h-12 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+      <div className="h-24 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+      <div className="h-32 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+      <div className="h-20 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+      <div className="h-20 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+    </div>
+  );
+}
+
 export function App() {
+  const isLoaded = useCharacterStore((s) => s.isLoaded);
   const load = useCharacterStore((s) => s.load);
 
   useEffect(() => {
@@ -16,8 +29,14 @@ export function App() {
       initialLocale="en"
       translationsSet={{ en: defaultTranslations, 'zh-CN': zhCNTranslations }}
     >
-      <AppShell />
-      <DiceRollOverlay />
+      {isLoaded ? (
+        <>
+          <AppShell />
+          <DiceRollOverlay />
+        </>
+      ) : (
+        <LoadingSkeleton />
+      )}
     </I18nProvider>
   );
 }
