@@ -1,5 +1,8 @@
+import { useSpellCardSurface as useSharedSpellCardSurface } from '@open20/ui';
+import { useCharacterStore } from '@/stores/characterStore';
+import { resolveDeps } from '@/core/content-resolver';
+import { useMemo } from 'react';
 import type { Spell } from 'open20-core';
-import { useSpellCapabilities } from './useSpellCapabilities';
 
 /**
  * Calculate the appropriate surface variant for a spell card
@@ -8,11 +11,10 @@ import { useSpellCapabilities } from './useSpellCapabilities';
 export function useSpellCardSurface(
   spell: Spell | null | undefined,
 ): 'default' | 'tint' | 'selected' | 'warning' | 'info' {
-  const { isConcentratingOnThis, isPrepared, isKnown, isCantripKnown } =
-    useSpellCapabilities(spell);
-
-  if (isConcentratingOnThis) return 'warning';
-  if (isPrepared) return 'selected';
-  if (isKnown || isCantripKnown) return 'info';
-  return 'default';
+  const activeCharacter = useCharacterStore((s) => s.activeCharacter);
+  const deps = useMemo(
+    () => (activeCharacter ? resolveDeps(activeCharacter) : { classes: {} }),
+    [activeCharacter],
+  );
+  return useSharedSpellCardSurface(spell, activeCharacter, deps);
 }

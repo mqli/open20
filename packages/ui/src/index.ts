@@ -80,6 +80,9 @@ export { useRollStore } from './stores/rollStore';
 export type { RollResult, RollResultRow } from './stores/rollStore';
 export { Surface } from './components/base/Surface/index';
 export type { SurfaceProps } from './components/base/Surface/index';
+
+export { useSpellCapabilities, useSpellCastLevel, useSpellCardSurface } from './hooks/spell';
+export type { SpellCapabilities } from './hooks/spell';
 export { Switch } from './components/base/Switch/index';
 export type { SwitchProps } from './components/base/Switch/index';
 export { Tabs };

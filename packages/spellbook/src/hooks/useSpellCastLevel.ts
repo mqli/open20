@@ -1,67 +1,8 @@
-import { useMemo, useState } from 'react';
-import type { Spell, SpellLevel } from 'open20-core';
-import { getAvailableCastLevels, getScaledDamageEntries, getScaledHealDice } from 'open20-core';
-import type { AppCharacter } from '@/core/types';
+import { useSpellCastLevel as useSharedSpellCastLevel } from '@open20/ui';
+import type { Spell } from 'open20-core';
+import { useCharacterStore } from '@/stores/characterStore';
 
-function getInitialCastLevel(
-  spell: Spell,
-  activeCharacter: AppCharacter | null | undefined,
-): SpellLevel {
-  const levels = getAvailableCastLevels(activeCharacter, spell);
-  if (levels.length === 0) return spell.level as SpellLevel;
-  return levels.find((level) => level >= spell.level) ?? levels[0]!;
-}
-
-export function useSpellCastLevel(spell: Spell, activeCharacter: AppCharacter | null | undefined) {
-  const availableCastLevels = useMemo(
-    () => getAvailableCastLevels(activeCharacter, spell),
-    [activeCharacter, spell],
-  );
-
-  const characterLevel = useMemo(
-    () =>
-      activeCharacter ? activeCharacter.classes.reduce((sum, c) => sum + c.level, 0) : undefined,
-    [activeCharacter],
-  );
-
-  const [selectedCastLevel, setSelectedCastLevel] = useState<SpellLevel>(() =>
-    getInitialCastLevel(spell, activeCharacter),
-  );
-
-  const effectiveCastLevel = useMemo<SpellLevel>(() => {
-    if (spell.level === 0) return 0 as SpellLevel;
-    if (availableCastLevels.includes(selectedCastLevel)) return selectedCastLevel;
-    return availableCastLevels[0] ?? (spell.level as SpellLevel);
-  }, [selectedCastLevel, availableCastLevels, spell.level]);
-
-  const [prevAvailable, setPrevAvailable] = useState(availableCastLevels);
-  if (prevAvailable !== availableCastLevels) {
-    setPrevAvailable(availableCastLevels);
-    if (
-      availableCastLevels.length > 0 &&
-      spell.level > 0 &&
-      !availableCastLevels.includes(selectedCastLevel)
-    ) {
-      setSelectedCastLevel(availableCastLevels[0]!);
-    }
-  }
-
-  const effectiveDamageEntries = useMemo(
-    () => getScaledDamageEntries(spell, effectiveCastLevel, characterLevel),
-    [spell, effectiveCastLevel, characterLevel],
-  );
-
-  const effectiveHealDice = useMemo(
-    () => getScaledHealDice(spell, effectiveCastLevel),
-    [spell, effectiveCastLevel],
-  );
-
-  return {
-    availableCastLevels,
-    selectedCastLevel,
-    setSelectedCastLevel,
-    effectiveCastLevel,
-    effectiveDamageEntries,
-    effectiveHealDice,
-  };
+export function useSpellCastLevel(spell: Spell) {
+  const activeCharacter = useCharacterStore((s) => s.activeCharacter);
+  return useSharedSpellCastLevel(spell, activeCharacter);
 }

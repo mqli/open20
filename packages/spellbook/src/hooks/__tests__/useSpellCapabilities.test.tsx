@@ -1,429 +1,157 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import type { Spell } from 'open20-core';
-import { useSpellCapabilities } from '../useSpellCapabilities';
-import { useCharacterStore } from '@/stores/characterStore';
-import { spellService } from '@/core/spell-service';
-import {
-  getCasterTypeForClass,
-  getMatchingClassIds,
-  getSpellClassStates,
-  getAvailableSlots,
-  canCastSpellWithSlots,
-  getBestSpellAttackBonus,
-  pickBestClassId,
-  knowsSpell,
-  isSpellPrepared,
-} from 'open20-core/spells';
+import type { Spell, SpellLevel, SpellSchool } from 'open20-core';
+import type { SpellCapabilities } from '@open20/ui';
 
-// Mock the stores and services
+// Use vi.hoisted so the variable is available when vi.mock is hoisted
+const { mockSharedCapabilities, storeState } = vi.hoisted(() => ({
+  mockSharedCapabilities: vi.fn(),
+  storeState: { activeCharacter: null as any },
+}));
+
+vi.mock('@open20/ui', () => ({
+  useSpellCapabilities: mockSharedCapabilities,
+  useSpellCastLevel: vi.fn(),
+  useSpellCardSurface: vi.fn(),
+}));
+
 vi.mock('@/stores/characterStore', () => ({
-  useCharacterStore: vi.fn(),
+  useCharacterStore: vi.fn((selector?: (s: any) => any) =>
+    selector ? selector(storeState) : storeState,
+  ),
 }));
 
-vi.mock('@/core/spell-service', () => ({
-  spellService: {
-    isSpellKnown: vi.fn(),
-    isSpellPrepared: vi.fn(),
-    isSpellForCharacter: vi.fn(),
-  },
-}));
-
-vi.mock('open20-core/spells', () => ({
-  getCasterTypeForClass: vi.fn(() => ({
-    canLearn: false,
-    canPrepare: false,
-  })),
-  getMatchingClassIds: vi.fn(() => []),
-  getSpellClassStates: vi.fn(() => []),
-  getAvailableSlots: vi.fn(() => ({ hasRegularSlot: false, hasPactSlot: false })),
-  canCastSpellWithSlots: vi.fn(() => false),
-  getBestSpellAttackBonus: vi.fn(() => 0),
-  pickBestClassId: vi.fn(() => null),
-  knowsSpell: vi.fn(() => false),
-  isSpellPrepared: vi.fn(() => false),
-}));
-
-// Mock content-resolver (used by useSpellCapabilities)
 vi.mock('@/core/content-resolver', () => ({
-  resolveDeps: vi.fn(() => ({})),
+  resolveDeps: vi.fn(() => ({ classes: {} })),
 }));
 
+import { useSpellCapabilities } from '../useSpellCapabilities';
 import { resolveDeps } from '@/core/content-resolver';
 
-// Get mocked function references
-const mockUseCharacterStore = vi.mocked(useCharacterStore);
-const mockSpellService = vi.mocked(spellService);
-const mockGetCasterTypeForClass = vi.mocked(getCasterTypeForClass);
-const mockGetMatchingClassIds = vi.mocked(getMatchingClassIds);
-const mockGetSpellClassStates = vi.mocked(getSpellClassStates);
-const mockGetAvailableSlots = vi.mocked(getAvailableSlots);
-const mockCanCastSpellWithSlots = vi.mocked(canCastSpellWithSlots);
-const mockGetBestSpellAttackBonus = vi.mocked(getBestSpellAttackBonus);
-const mockPickBestClassId = vi.mocked(pickBestClassId);
-const mockKnowsSpell = vi.mocked(knowsSpell);
-const mockIsSpellPrepared = vi.mocked(isSpellPrepared);
 const mockResolveDeps = vi.mocked(resolveDeps);
 
 describe('useSpellCapabilities', () => {
+  const emptyCaps: SpellCapabilities = {
+    isKnown: false,
+    isPrepared: false,
+    isCantripKnown: false,
+    isClassSpell: false,
+    isConcentratingOnThis: false,
+    knows: false,
+    canCast: false,
+    showPrepareButton: false,
+    showLearnButton: false,
+    showCantripButton: false,
+    hasRegularSlot: false,
+    hasPactSlot: false,
+    isWarlock: false,
+    matchingClassIds: [],
+    accessibleClassIds: [],
+    preparedClassIds: [],
+    alwaysPreparedClassIds: [],
+    cantripKnownClassIds: [],
+    spellAttackBonus: 0,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseCharacterStore.mockReturnValue({ activeCharacter: null });
-    mockGetMatchingClassIds.mockReturnValue([]);
-    mockGetSpellClassStates.mockReturnValue([]);
-    mockGetAvailableSlots.mockReturnValue({ hasRegularSlot: false, hasPactSlot: false });
-    mockCanCastSpellWithSlots.mockReturnValue(false);
-    mockGetBestSpellAttackBonus.mockReturnValue(0);
-    mockPickBestClassId.mockReturnValue(null);
-    mockKnowsSpell.mockReturnValue(false);
-    mockIsSpellPrepared.mockReturnValue(false);
-    mockSpellService.isSpellKnown.mockReturnValue(false);
-    mockSpellService.isSpellPrepared.mockReturnValue(false);
-    mockSpellService.isSpellForCharacter.mockReturnValue(false);
+    storeState.activeCharacter = null;
+    mockResolveDeps.mockReturnValue({ classes: {} });
+    mockSharedCapabilities.mockReturnValue(emptyCaps);
   });
 
-  const createMockCharacter = (overrides = {}) => ({
-    id: 'char1',
-    name: 'Test Character',
-    classes: [
-      {
-        classId: 'Wizard',
-        level: 1,
-        subclassId: null,
-        subclassLevel: null,
-        hitDice: { die: 'd6' as const, used: 0 },
-      },
-    ],
-    spells: {
-      classSpellcasting: {
-        Wizard: {
-          knownSpells: [],
-          preparedSpells: [],
-          alwaysPreparedSpells: [],
-          knownCantrips: [],
-          spellAttackBonus: 5,
-          maxPrepared: 3,
-        },
-      },
-      spellSlots: {},
-      pactMagicSlots: null,
-    },
-    concentration: null,
-    ...overrides,
-  });
-
-  const createMockSpell = (overrides: Partial<Spell> = {}): Spell =>
-    ({
+  function makeSpell(overrides: Partial<Spell> = {}): Spell {
+    return {
       id: 'test-spell',
       name: 'Test Spell',
-      level: 1,
-      school: 'Evocation',
+      level: 1 as SpellLevel,
+      school: 'Evocation' as SpellSchool,
       castingTime: '1 action',
       range: '60 ft.',
       duration: 'Instantaneous',
       attack: false,
       concentration: false,
       ritual: false,
-      source: 'SRD' as const,
-      components: ['V', 'S'] as const,
-      description: [] as readonly string[],
-      classes: ['Wizard'] as readonly string[],
+      source: 'SRD',
+      components: ['V', 'S'],
+      description: [],
+      classes: ['Wizard'],
       ...overrides,
-    }) as unknown as Spell;
+    } as Spell;
+  }
 
-  it('should return empty capabilities when no character', () => {
-    const spell = createMockSpell();
+  it('passes null character and empty deps when no character', () => {
+    const spell = makeSpell();
 
-    const { result } = renderHook(() => useSpellCapabilities(spell));
+    renderHook(() => useSpellCapabilities(spell));
 
-    expect(result.current.isKnown).toBe(false);
-    expect(result.current.isPrepared).toBe(false);
-    expect(result.current.canCast).toBe(false);
-    expect(result.current.spellAttackBonus).toBe(0);
+    expect(mockSharedCapabilities).toHaveBeenCalledWith(spell, null, { classes: {} });
   });
 
-  it('should return empty capabilities when no spell', () => {
-    const mockCharacter = createMockCharacter();
-    mockUseCharacterStore.mockReturnValue({ activeCharacter: mockCharacter });
-
-    const { result } = renderHook(() => useSpellCapabilities(null));
-
-    expect(result.current.isKnown).toBe(false);
-    expect(result.current.canCast).toBe(false);
-  });
-
-  it('should detect class spell correctly', () => {
-    const mockCharacter = createMockCharacter();
-    mockUseCharacterStore.mockReturnValue({ activeCharacter: mockCharacter });
-    mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-
-    const spell = createMockSpell();
-    const { result } = renderHook(() => useSpellCapabilities(spell));
-
-    expect(result.current.isClassSpell).toBe(true);
-    expect(result.current.matchingClassIds).toContain('Wizard');
-  });
-
-  it('should compute canCast for cantrips', () => {
-    const mockCharacter = createMockCharacter({
-      spells: {
-        classSpellcasting: {
-          Wizard: {
-            knownSpells: [],
-            preparedSpells: [],
-            alwaysPreparedSpells: [],
-            knownCantrips: ['test-cantrip'],
-            spellAttackBonus: 5,
-            maxPrepared: 3,
-          },
-        },
-        spellSlots: {},
-        pactMagicSlots: null,
-      },
-    });
-    mockUseCharacterStore.mockReturnValue({ activeCharacter: mockCharacter });
-    mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-    mockGetSpellClassStates.mockReturnValue([
-      {
-        classId: 'Wizard',
-        isKnown: true,
-        isPrepared: false,
-        isAlwaysPrepared: false,
-        isCantripKnown: true,
-      },
-    ]);
-    mockKnowsSpell.mockReturnValue(true);
-    mockCanCastSpellWithSlots.mockReturnValue(true);
-
-    const spell = createMockSpell({
-      id: 'test-cantrip',
-      level: 0 as const,
-      classes: ['Wizard'] as readonly string[],
-    });
-    const { result } = renderHook(() => useSpellCapabilities(spell));
-
-    expect(result.current.isClassSpell).toBe(true);
-    expect(result.current.canCast).toBe(true);
-  });
-
-  describe('multiclass spell level access', () => {
-    const createMulticlassCharacter = () => ({
-      id: 'char1',
-      name: 'Multiclass Character',
-      // Cleric 5 + Wizard 1 → combined caster level 6 → 3rd-level slots
+  it('passes active character and resolved deps from store', () => {
+    const mockCharacter = {
       classes: [
-        {
-          classId: 'Cleric',
-          level: 5,
-          subclassId: null,
-          subclassLevel: null,
-          hitDice: { die: 'd8' as const, used: 0 },
-        },
         {
           classId: 'Wizard',
           level: 1,
           subclassId: null,
           subclassLevel: null,
-          hitDice: { die: 'd6' as const, used: 0 },
+          hitDice: { die: 'd6', used: 0 },
         },
       ],
       spells: {
         classSpellcasting: {
-          Cleric: {
-            knownSpells: [],
-            preparedSpells: [],
-            alwaysPreparedSpells: [],
-            knownCantrips: [],
-            spellAttackBonus: 7,
-            maxPrepared: 8,
-          },
           Wizard: {
-            knownSpells: ['shield', 'mage-armor'],
-            preparedSpells: ['shield'],
+            knownSpells: ['test-spell'],
+            preparedSpells: ['test-spell'],
             alwaysPreparedSpells: [],
             knownCantrips: [],
             spellAttackBonus: 5,
             maxPrepared: 3,
           },
         },
-        // Combined multiclass slots (total caster level 6 = Cleric 5 + Wizard 1)
-        spellSlots: {
-          1: { total: 4, used: 0 } as { total: number; used: number },
-          2: { total: 3, used: 0 } as { total: number; used: number },
-          3: { total: 3, used: 0 } as { total: number; used: number },
-        },
+        spellSlots: { 1: { total: 2, used: 0 } },
         pactMagicSlots: null,
+        featSpells: {},
       },
       concentration: null,
+    };
+
+    const resolvedDeps = {
+      classes: { Wizard: { spellSlotsByLevel: { 1: [2] } } },
+    };
+
+    storeState.activeCharacter = mockCharacter;
+    mockResolveDeps.mockReturnValue(resolvedDeps as any);
+
+    const spell = makeSpell();
+    renderHook(() => useSpellCapabilities(spell));
+
+    expect(mockSharedCapabilities).toHaveBeenCalledWith(spell, mockCharacter, resolvedDeps);
+  });
+
+  it('forwards the shared hook result', () => {
+    mockSharedCapabilities.mockReturnValue({
+      ...emptyCaps,
+      isKnown: true,
+      isPrepared: true,
+      canCast: true,
+      spellAttackBonus: 5,
     });
 
-    beforeEach(() => {
-      // resolveDeps returns per-class spell slot tables for calculateSpellSlots
-      mockResolveDeps.mockReturnValue({
-        classes: {
-          // Cleric 5: spellSlotsByLevel[5] = [4, 3, 2] → 3rd-level access
-          Cleric: { spellSlotsByLevel: { 5: [4, 3, 2] } },
-          // Wizard 1: spellSlotsByLevel[1] = [2] → only 1st-level access
-          Wizard: { spellSlotsByLevel: { 1: [2] } },
-        },
-      } as any);
-      // Per-class caster type for all multiclass logic
-      mockGetCasterTypeForClass.mockImplementation((classId: string) => {
-        if (classId === 'Cleric') {
-          return { canLearn: false, canPrepare: true };
-        }
-        if (classId === 'Wizard') {
-          return { canLearn: true, canPrepare: true };
-        }
-        return { canLearn: false, canPrepare: false };
-      });
-      mockGetSpellClassStates.mockReturnValue([]);
-      mockGetAvailableSlots.mockReturnValue({ hasRegularSlot: false, hasPactSlot: false });
-      mockCanCastSpellWithSlots.mockReturnValue(false);
-      mockGetBestSpellAttackBonus.mockReturnValue(0);
-      mockPickBestClassId.mockReturnValue(null);
-      mockKnowsSpell.mockReturnValue(false);
-      mockIsSpellPrepared.mockReturnValue(false);
-    });
+    const spell = makeSpell();
+    const { result } = renderHook(() => useSpellCapabilities(spell));
 
-    it('should allow 3rd-level spell when at least one matching class can access it', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      // Spell is on both Cleric and Wizard lists
-      mockGetMatchingClassIds.mockReturnValue(['Cleric', 'Wizard']);
-      mockKnowsSpell.mockReturnValue(true);
+    expect(result.current.isKnown).toBe(true);
+    expect(result.current.isPrepared).toBe(true);
+    expect(result.current.canCast).toBe(true);
+    expect(result.current.spellAttackBonus).toBe(5);
+  });
 
-      const spell = createMockSpell({
-        id: 'spirit-guardians',
-        level: 3,
-        classes: ['Cleric', 'Wizard'],
-      });
-      const { result } = renderHook(() => useSpellCapabilities(spell));
+  it('passes null spell through to shared hook', () => {
+    renderHook(() => useSpellCapabilities(null));
 
-      // Cleric 5 can access 3rd-level spells → prepare button should show
-      expect(result.current.isClassSpell).toBe(true);
-      expect(result.current.matchingClassIds).toEqual(['Cleric', 'Wizard']);
-      // Only Cleric 5 can access 3rd level; Wizard 1 cannot
-      expect(result.current.accessibleClassIds).toEqual(['Cleric']);
-      expect(result.current.showPrepareButton).toBe(true);
-    });
-
-    it('should deny 3rd-level spell when only a low-level class matches', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      // Spell is only on Wizard list
-      mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-      mockKnowsSpell.mockReturnValue(true);
-
-      const spell = createMockSpell({ id: 'fireball', level: 3, classes: ['Wizard'] });
-      const { result } = renderHook(() => useSpellCapabilities(spell));
-
-      // Wizard 1 can NOT access 3rd-level spells → prepare button hidden
-      expect(result.current.isClassSpell).toBe(true);
-      expect(result.current.matchingClassIds).toEqual(['Wizard']);
-      expect(result.current.accessibleClassIds).toEqual([]);
-      expect(result.current.showPrepareButton).toBe(false);
-    });
-
-    it('should allow 1st-level spell for any class', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-      mockKnowsSpell.mockReturnValue(true);
-
-      const spell = createMockSpell({ id: 'shield', level: 1, classes: ['Wizard'] });
-      const { result } = renderHook(() => useSpellCapabilities(spell));
-
-      // Wizard 1 can access 1st-level spells → prepare button should show
-      expect(result.current.accessibleClassIds).toEqual(['Wizard']);
-      expect(result.current.showPrepareButton).toBe(true);
-    });
-
-    it('should only include accessible classes in accessibleClassIds for multiclass', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      // Spell is on both Cleric and Wizard lists
-      mockGetMatchingClassIds.mockReturnValue(['Cleric', 'Wizard']);
-      mockKnowsSpell.mockReturnValue(true);
-
-      // 1st-level: both Cleric 5 and Wizard 1 can access
-      const l1Spell = createMockSpell({ id: 'shield', level: 1, classes: ['Cleric', 'Wizard'] });
-      const { result: l1 } = renderHook(() => useSpellCapabilities(l1Spell));
-      expect(l1.current.accessibleClassIds).toEqual(['Cleric', 'Wizard']);
-
-      // 3rd-level: only Cleric 5 can access
-      const l3Spell = createMockSpell({
-        id: 'spirit-guardians',
-        level: 3,
-        classes: ['Cleric', 'Wizard'],
-      });
-      const { result: l3 } = renderHook(() => useSpellCapabilities(l3Spell));
-      expect(l3.current.accessibleClassIds).toEqual(['Cleric']);
-    });
-
-    it('should hide prepare button for unlearned Wizard-only spell even with accessible level', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      // Only Wizard matches this spell
-      mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-      // Wizard 1 can access 1st-level spells (canAccessSpellLevel = true)
-      // But Wizard hasn't learned it (isKnown = false)
-      mockKnowsSpell.mockReturnValue(false);
-
-      const spell = createMockSpell({ id: 'magic-missile', level: 1, classes: ['Wizard'] });
-      const { result } = renderHook(() => useSpellCapabilities(spell));
-
-      // Wizard is spellbook caster → must learn before preparing → knows = false
-      expect(result.current.showPrepareButton).toBe(false);
-      // But learn button should be visible (Wizard CAN learn it)
-      expect(result.current.showLearnButton).toBe(true);
-    });
-
-    it('should show prepare button for learned Wizard-only spell when level accessible', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-      mockKnowsSpell.mockReturnValue(true); // Wizard has learned it
-
-      const spell = createMockSpell({ id: 'magic-missile', level: 1, classes: ['Wizard'] });
-      const { result } = renderHook(() => useSpellCapabilities(spell));
-
-      // Wizard learned the spell → knows = true → can prepare
-      expect(result.current.showPrepareButton).toBe(true);
-      expect(result.current.showLearnButton).toBe(true); // learn button is a toggle
-    });
-
-    it('should show prepare button for Cleric spell when Wizards learns in multiclass', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      // Only Cleric matches → non-spellbook caster → knows = true regardless of isKnown
-      mockGetMatchingClassIds.mockReturnValue(['Cleric']);
-      mockKnowsSpell.mockReturnValue(false); // not in Wizard's "known" set
-
-      const spell = createMockSpell({ id: 'bless', level: 1, classes: ['Cleric'] });
-      const { result } = renderHook(() => useSpellCapabilities(spell));
-
-      // Cleric is not a spellbook caster → knows = true without needing to "learn"
-      expect(result.current.showPrepareButton).toBe(true);
-      expect(result.current.showLearnButton).toBe(false); // Cleric doesn't learn spells
-    });
-
-    it('should show learn button only when per-class level allows it', () => {
-      const char = createMulticlassCharacter();
-      mockUseCharacterStore.mockReturnValue({ activeCharacter: char });
-      mockGetMatchingClassIds.mockReturnValue(['Wizard']);
-      mockKnowsSpell.mockReturnValue(false);
-
-      // 3rd-level Wizard-only spell: Wizard 1 can't learn it
-      const highSpell = createMockSpell({ id: 'fireball', level: 3, classes: ['Wizard'] });
-      const { result: resultHigh } = renderHook(() => useSpellCapabilities(highSpell));
-      expect(resultHigh.current.showLearnButton).toBe(false);
-
-      // 1st-level Wizard spell: Wizard 1 can learn it
-      const lowSpell = createMockSpell({ id: 'shield', level: 1, classes: ['Wizard'] });
-      const { result: resultLow } = renderHook(() => useSpellCapabilities(lowSpell));
-      expect(resultLow.current.showLearnButton).toBe(true);
-    });
+    expect(mockSharedCapabilities).toHaveBeenCalledWith(null, null, { classes: {} });
   });
 });

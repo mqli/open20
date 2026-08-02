@@ -49,7 +49,7 @@ export function SpellCardActions({
   } = useCharacterStore();
   const { addRoll } = useRollStore();
   const capabilities = useSpellCapabilities(spell);
-  const castLevelState = useSpellCastLevel(spell, activeCharacter);
+  const castLevelState = useSpellCastLevel(spell);
 
   const isIconStyle = actionStyle === 'icon';
   const hasDamageEntries =
