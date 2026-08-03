@@ -20,6 +20,7 @@ import {
   defaultRandom,
   type AbilityName,
   type Character,
+  type CharacterClass,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
 } from 'open20-core';
@@ -44,6 +45,19 @@ export interface CreateCharacterInput {
   featIds?: string[];
   skillChoices?: string[];
   additionalClasses?: Array<{ classId: string; level: number; subclassId?: string }>;
+}
+
+/**
+ * T-121: Partial character identity fields for editing. All fields are
+ * optional — the edit dialog sends only what was changed.
+ */
+export interface UpdateCharacterInput {
+  name?: string;
+  species?: string;
+  speciesSubtype?: string | null;
+  background?: string;
+  classes?: readonly CharacterClass[];
+  abilityScores?: { base: Record<AbilityName, number> };
 }
 
 interface CharacterSheetState {
@@ -85,6 +99,9 @@ interface CharacterSheetState {
   endConcentration: () => void;
   /** Roll a CON save for concentration and auto-end on failure (via core makeConcentrationCheck). */
   makeConcentrationSave: (damageAmount: number) => void;
+
+  /** T-121: Merge identity patches, recompute derived stats, and persist. */
+  updateCharacter: (input: UpdateCharacterInput) => void;
 }
 
 export const useCharacterStore = create<CharacterSheetState>((set, get) => {
@@ -334,6 +351,38 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
 
       const next: AppCharacter = { ...updated, id: active.id };
       set({ lastDamageForConcentration: null });
+      persist(next);
+    },
+
+    updateCharacter: (input) => {
+      const active = get().character;
+      if (!active) return;
+
+      // Merge identity patches onto a shallow copy. Because Character fields
+      // are readonly, we cast through `as Record<string,unknown>` to build a
+      // mutable intermediate object, then restore readonly fields.
+      const draft = { ...active } as Record<string, unknown>;
+
+      if (input.name !== undefined) draft.name = input.name;
+      if (input.species !== undefined) draft.species = input.species;
+      if (input.speciesSubtype !== undefined) draft.speciesSubtype = input.speciesSubtype;
+      if (input.background !== undefined) draft.background = input.background;
+      if (input.classes !== undefined) draft.classes = input.classes;
+      if (input.abilityScores) {
+        const prev = draft.abilityScores as Character['abilityScores'];
+        draft.abilityScores = { ...prev, ...input.abilityScores };
+      }
+
+      // Resolve deps from the patched character — critical when species,
+      // background, or classes changed.
+      const patched = draft as unknown as Character;
+      const deps = resolveDeps(patched);
+      const recomputed = recomputeDerivedStats(patched, deps);
+      const next: AppCharacter = {
+        ...recomputed,
+        id: active.id,
+        updatedAt: new Date().toISOString(),
+      };
       persist(next);
     },
   };

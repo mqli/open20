@@ -10,7 +10,7 @@
 // Mobile: single-open accordion (only one section open at a time, combat always open).
 
 import { useState, useCallback } from 'react';
-import { Plus, Users } from 'lucide-react';
+import { Plus, Users, Pencil } from 'lucide-react';
 import { Surface, Text, Button, EmptyState } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
 import { getClassName, getSpeciesName } from '@/core/content-resolver';
@@ -22,6 +22,7 @@ import { ContentArea } from './ContentArea';
 import { MobileBottomBar } from './MobileBottomBar';
 import { CharacterSelector } from '@/components/character/CharacterSelector';
 import { CharacterCreateWizard } from '@/components/character/CharacterCreateWizard';
+import { CharacterEditDialog } from '@/components/character/CharacterEditDialog';
 
 const ALL_SECTIONS: SectionKey[] = [
   'combat',
@@ -56,6 +57,7 @@ export function AppShell() {
   // Character-management dialog state
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   // Toggle a section's expanded state.
   // Desktop: toggle independently.
@@ -126,6 +128,7 @@ export function AppShell() {
         }}
       />
       <CharacterCreateWizard open={showCreateWizard} onOpenChange={setShowCreateWizard} />
+      <CharacterEditDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
     </>
   );
 
@@ -170,6 +173,7 @@ export function AppShell() {
           activeSection={lastNavigatedSection}
           onSectionChange={handleSectionChange}
           onOpenCharacterSelector={() => setShowCharacterSelector(true)}
+          onEditCharacter={() => setShowEditDialog(true)}
         />
 
         {/* Content — accordion */}
@@ -210,6 +214,15 @@ export function AppShell() {
               {getSpeciesName(character.species)} · Lv.{totalLevel} {classLabel}
             </Text>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setShowEditDialog(true)}
+            aria-label="Edit character"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"

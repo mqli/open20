@@ -160,7 +160,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-120 CharacterCreateWizard (3 steps; point buy / standard array / manual)
 - ✅ T-127 Sheet assembly (accordion layout)
 - ✅ T-128 App states (loading skeleton, reduced-motion, error polish)
-- ⏳ 5 remaining P0 tasks: T-121~T-126
+- ⏳ 4 remaining P0 tasks: T-122~T-126
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 

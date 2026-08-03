@@ -660,4 +660,100 @@ describe('characterStore', () => {
       expect(state.character!.id).toBe(existing.id);
     });
   });
+
+  describe('updateCharacter (T-121)', () => {
+    it('updates identity fields and recomputes derived stats', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      useCharacterStore.getState().updateCharacter({
+        name: 'Renamed',
+        species: 'Human',
+      });
+
+      const updated = useCharacterStore.getState().character!;
+      expect(updated.name).toBe('Renamed');
+      expect(updated.species).toBe('Human');
+      // combatStats should still be valid (recomputed)
+      expect(updated.combatStats.AC).toBeGreaterThan(0);
+    });
+
+    it('preserves non-identity fields across edits', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      const hpBefore = char.hitPoints.current;
+      const featsBefore = char.feats.length;
+
+      useCharacterStore.getState().updateCharacter({ name: 'NewName' });
+
+      const updated = useCharacterStore.getState().character!;
+      expect(updated.hitPoints.current).toBe(hpBefore);
+      expect(updated.feats).toHaveLength(featsBefore);
+    });
+
+    it('recomputes after class changes', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      // Change Wizard level 5 → 8
+      const newClasses = char.classes.map((c) => ({ ...c, level: 8 }));
+      useCharacterStore.getState().updateCharacter({ classes: newClasses });
+
+      const updated = useCharacterStore.getState().character!;
+      expect(updated.classes[0].level).toBe(8);
+      // Verify recomputed stats still exist
+      expect(updated.combatStats.proficiencyBonus).toBeGreaterThan(0);
+    });
+
+    it('recomputes after ability score changes', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      const oldAc = char.combatStats.AC;
+
+      // Increase Dexterity base score → should affect AC
+      useCharacterStore.getState().updateCharacter({
+        abilityScores: { base: { ...char.abilityScores.base, Dexterity: 18 } },
+      });
+
+      const updated = useCharacterStore.getState().character!;
+      expect(updated.abilityScores.base.Dexterity).toBe(18);
+      expect(updated.combatStats.AC).toBeGreaterThan(oldAc);
+    });
+
+    it('no-ops when no active character', () => {
+      // Should not throw
+      useCharacterStore.getState().updateCharacter({ name: 'Nobody' });
+      expect(useCharacterStore.getState().character).toBeNull();
+    });
+
+    it('persists to localStorage', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      useCharacterStore.getState().updateCharacter({ name: 'Persisted' });
+
+      const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
+      expect(stored[char.id].name).toBe('Persisted');
+    });
+
+    it('preserves hitDice.used across non-class edits', () => {
+      const char = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(char);
+
+      // Spend some hit dice via short rest
+      useCharacterStore.getState().modifyHP(-10);
+      useCharacterStore.getState().shortRest({ Wizard: 2 });
+
+      const hdUsedBefore = useCharacterStore.getState().character!.classes[0].hitDice.used;
+      expect(hdUsedBefore).toBe(2);
+
+      // Edit only name — hit dice should be preserved by recompute
+      useCharacterStore.getState().updateCharacter({ name: 'StillSpent' });
+
+      const updated = useCharacterStore.getState().character!;
+      expect(updated.classes[0].hitDice.used).toBe(hdUsedBefore);
+    });
+  });
 });

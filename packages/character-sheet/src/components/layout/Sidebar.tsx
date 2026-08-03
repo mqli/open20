@@ -16,6 +16,7 @@ import {
   Feather,
   FileText,
   Users,
+  Pencil,
 } from 'lucide-react';
 import type { AppCharacter } from '@/types';
 import { Tabs, Text, Button, cn } from '@open20/ui';
@@ -36,6 +37,7 @@ export interface SidebarProps {
   activeSection: SectionKey;
   onSectionChange: (section: SectionKey) => void;
   onOpenCharacterSelector: () => void;
+  onEditCharacter: () => void;
   className?: string;
 }
 
@@ -58,6 +60,7 @@ export function Sidebar({
   activeSection,
   onSectionChange,
   onOpenCharacterSelector,
+  onEditCharacter,
   className,
 }: SidebarProps) {
   return (
@@ -72,8 +75,8 @@ export function Sidebar({
         <HeroCard character={character} />
       </div>
 
-      {/* Character management trigger */}
-      <div className="px-3 pt-2">
+      {/* Character management triggers */}
+      <div className="flex gap-1 px-3 pt-2">
         <Button
           variant="ghost"
           size="sm"
@@ -83,6 +86,15 @@ export function Sidebar({
         >
           <Users className="h-4 w-4" />
           <Text variant="bodySm">Characters</Text>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="shrink-0 text-text-secondary hover:text-text-primary"
+          onClick={onEditCharacter}
+          aria-label="Edit character"
+        >
+          <Pencil className="h-4 w-4" />
         </Button>
       </div>
 
