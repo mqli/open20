@@ -6,7 +6,7 @@ import type { Character, Spell, SpellLevel, SpellSchool } from 'open20-core';
 // Use vi.hoisted so variables are available when vi.mock is hoisted
 const { mockSharedCastLevel, storeState } = vi.hoisted(() => ({
   mockSharedCastLevel: vi.fn(),
-  storeState: { activeCharacter: null as Character | null },
+  storeState: { activeCharacter: null as any },
 }));
 
 vi.mock('@open20/ui', () => ({
@@ -66,7 +66,7 @@ describe('useSpellCastLevel', () => {
         pactMagicSlots: null,
         featSpells: {},
       },
-    };
+    } as unknown as Character;
     storeState.activeCharacter = mockCharacter;
 
     const spell = makeSpell();
