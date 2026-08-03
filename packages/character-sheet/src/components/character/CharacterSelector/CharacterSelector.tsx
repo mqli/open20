@@ -5,70 +5,16 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, User } from 'lucide-react';
-import { createCharacter, type AbilityName } from 'open20-core';
 import type { AppCharacter } from '@/types';
 import { useCharacterStore } from '@/stores/characterStore';
-import { getClassName, buildDepsForCreate, initContent } from '@/core/content-resolver';
+import { getClassName } from '@/core/content-resolver';
 import { Button, Text, Surface, Dialog, cn } from '@open20/ui';
 
 export interface CharacterSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-const DEFAULT_SCORES: Record<AbilityName, number> = {
-  Strength: 10,
-  Dexterity: 10,
-  Constitution: 10,
-  Intelligence: 10,
-  Wisdom: 10,
-  Charisma: 10,
-};
-
-function createNewCharacter(): AppCharacter {
-  initContent();
-  const deps = buildDepsForCreate({
-    speciesId: 'Elf',
-    backgroundId: 'sage',
-    classId: 'Wizard',
-  });
-  const base = createCharacter(
-    {
-      name: 'New Character',
-      speciesId: 'Elf',
-      backgroundId: 'sage',
-      classId: 'Wizard',
-      classLevel: 1,
-      abilityScores: DEFAULT_SCORES,
-    },
-    deps,
-  );
-
-  // Inject default spells into first spellcasting class
-  const classKeys = Object.keys(base.spells.classSpellcasting);
-  const firstClassKey = classKeys[0];
-  const char = firstClassKey
-    ? {
-        ...base,
-        spells: {
-          ...base.spells,
-          classSpellcasting: Object.fromEntries(
-            Object.entries(base.spells.classSpellcasting).map(([classId, data]) => [
-              classId,
-              classId === firstClassKey
-                ? {
-                    ...data,
-                    knownCantrips: ['fire-bolt', 'light', 'mage-hand'],
-                    preparedSpells: ['magic-missile'],
-                  }
-                : data,
-            ]),
-          ),
-        },
-      }
-    : base;
-
-  return { ...char, id: crypto.randomUUID() };
+  /** Ask the host to open the create wizard (T-120) — rendered as a sibling dialog. */
+  onRequestCreate: () => void;
 }
 
 function CharacterCard({
@@ -176,12 +122,11 @@ function CharacterCard({
   );
 }
 
-export function CharacterSelector({ open, onOpenChange }: CharacterSelectorProps) {
+export function CharacterSelector({ open, onOpenChange, onRequestCreate }: CharacterSelectorProps) {
   const characters = useCharacterStore((s) => s.characters);
   const activeId = useCharacterStore((s) => s.activeCharacterId);
   const setActiveCharacter = useCharacterStore((s) => s.setActiveCharacter);
   const deleteCharacter = useCharacterStore((s) => s.deleteCharacter);
-  const upsertCharacter = useCharacterStore((s) => s.upsertCharacter);
 
   const charList = Object.values(characters);
 
@@ -190,11 +135,11 @@ export function CharacterSelector({ open, onOpenChange }: CharacterSelectorProps
     onOpenChange(false);
   };
 
+  // Close first: the wizard is a sibling dialog, never nested (stacked Radix
+  // focus traps misbehave).
   const handleNew = () => {
-    const newChar = createNewCharacter();
-    upsertCharacter(newChar);
-    setActiveCharacter(newChar.id);
     onOpenChange(false);
+    onRequestCreate();
   };
 
   const handleDelete = (id: string) => {

@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import {
+  createCharacter as coreCreateCharacter,
   modifyHP as coreModifyHP,
   setTemporaryHP as coreSetTemporaryHP,
   recomputeDerivedStats,
@@ -17,14 +18,33 @@ import {
   endConcentration as coreEndConcentration,
   makeConcentrationCheck,
   defaultRandom,
+  type AbilityName,
   type Character,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
 } from 'open20-core';
 import type { AppCharacter } from '@/types';
-import { resolveDeps, getSpell } from '@/core/content-resolver';
+import { resolveDeps, getSpell, buildDepsForCreate } from '@/core/content-resolver';
 import { restRng, rollSpellCast } from '@/core/roll-adapter';
 import { storageService, StorageQuotaError } from '@/core/storage-service';
+
+/**
+ * Everything the create wizard collects. Mirrors core's `CreateCharacterParams`
+ * — the store resolves the deps bag and mints the id.
+ */
+export interface CreateCharacterInput {
+  name: string;
+  speciesId: string;
+  speciesSubtypeId?: string;
+  backgroundId: string;
+  classId: string;
+  classLevel?: number;
+  subclassId?: string;
+  abilityScores: Record<AbilityName, number>;
+  featIds?: string[];
+  skillChoices?: string[];
+  additionalClasses?: Array<{ classId: string; level: number; subclassId?: string }>;
+}
 
 interface CharacterSheetState {
   character: AppCharacter | null;
@@ -39,8 +59,14 @@ interface CharacterSheetState {
   loadCharacter: (id: string) => void;
   setActiveCharacter: (id: string) => void;
   deleteCharacter: (id: string) => void;
-  /** Add/replace a character (e.g. from creation or import) and make it active. */
+  /** Add/replace a character (e.g. from import or restore) and make it active. */
   upsertCharacter: (character: AppCharacter) => void;
+  /**
+   * Create a character from wizard input: resolve deps → core `createCharacter`
+   * → recompute → persist → set active. Returns the new id, or null on failure
+   * (the reason lands in `error`).
+   */
+  createCharacter: (input: CreateCharacterInput) => string | null;
 
   // Reference mutation pair (other feature tasks add more via applyMutation).
   modifyHP: (delta: number) => void;
@@ -150,6 +176,36 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       storageService.setActiveId(character.id);
       persist(character);
       set({ activeCharacterId: character.id });
+    },
+
+    createCharacter: (input) => {
+      try {
+        const deps = buildDepsForCreate(input);
+        // core createCharacter already runs recomputeDerivedStats internally.
+        const created = coreCreateCharacter(input, deps);
+        // Second pass with character-resolved deps. `buildDepsForCreate` has no
+        // Character to read feat ids from, so it cannot populate `deps.feats`
+        // and core's internal recompute runs feat-blind — it skips feat ability
+        // bonuses, AC/attack bonuses and feat spells. No current SRD feat has an
+        // unconditional grant, so this changes nothing today; it is here so that
+        // a feat which does (or equipment, once creation grants any) is applied
+        // rather than silently dropped.
+        const recomputed = recomputeDerivedStats(created, resolveDeps(created));
+        const next: AppCharacter = {
+          ...recomputed,
+          // A feat grant can raise CON and therefore max HP; recompute clamps
+          // current down to max but never heals, so top up after the fact.
+          hitPoints: { ...recomputed.hitPoints, current: recomputed.hitPoints.max },
+          id: crypto.randomUUID(),
+        };
+        storageService.setActiveId(next.id);
+        persist(next);
+        set({ activeCharacterId: next.id });
+        return next.id;
+      } catch (e) {
+        set({ error: e instanceof Error ? e.message : 'Could not create character.' });
+        return null;
+      }
     },
 
     modifyHP: (delta) => {

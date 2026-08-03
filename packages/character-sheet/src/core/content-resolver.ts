@@ -22,6 +22,7 @@ import {
   findSpecies,
   findBackground,
   findClass,
+  findSubclass,
   findFeat,
   getSpecies,
   getBackgrounds,
@@ -83,6 +84,20 @@ export function buildDepsForCreate(params: {
     const ak = findClass(additional.classId, p);
     if (ak) deps.classes[ak.id] = ak;
   }
+
+  // Subclasses must be resolved too — core reads deps.subclasses for subclass
+  // features and always-prepared spells (e.g. Life Domain domain spells).
+  const subclasses: Record<string, Subclass> = {};
+  const addSubclass = (id: string | null | undefined): void => {
+    if (!id) return;
+    const sub = findSubclass(id, p);
+    if (sub) subclasses[sub.id] = sub;
+  };
+  addSubclass(params.subclassId);
+  for (const additional of params.additionalClasses ?? []) {
+    addSubclass(additional.subclassId);
+  }
+  if (Object.keys(subclasses).length > 0) deps.subclasses = subclasses;
 
   return deps;
 }

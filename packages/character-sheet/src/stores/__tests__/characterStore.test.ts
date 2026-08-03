@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useCharacterStore } from '@/stores/characterStore';
 import { initContent } from '@/core/content-resolver';
+import { storageService } from '@/core/storage-service';
 import { makeCharacter } from '@/test/fixtures';
 
 describe('characterStore', () => {
@@ -528,6 +529,135 @@ describe('characterStore', () => {
       const state = useCharacterStore.getState();
       expect(state.character!.concentration).toBeNull();
       expect(state.lastDamageForConcentration).toBeNull();
+    });
+  });
+
+  describe('createCharacter (T-120)', () => {
+    const SCORES = {
+      Strength: 10,
+      Dexterity: 14,
+      Constitution: 14,
+      Intelligence: 15,
+      Wisdom: 12,
+      Charisma: 8,
+    };
+
+    it('produces a valid, recomputed, persisted, active character', () => {
+      const id = useCharacterStore.getState().createCharacter({
+        name: 'Nyx',
+        speciesId: 'Elf',
+        backgroundId: 'sage',
+        classId: 'Wizard',
+        classLevel: 3,
+        abilityScores: SCORES,
+      });
+
+      expect(id).toBeTruthy();
+      const state = useCharacterStore.getState();
+      expect(state.error).toBeNull();
+      expect(state.activeCharacterId).toBe(id);
+
+      const char = state.character!;
+      expect(char.name).toBe('Nyx');
+      expect(char.combatStats.proficiencyBonus).toBe(2);
+      expect(char.combatStats.speed).toBe(30);
+      expect(char.hitPoints.max).toBeGreaterThan(0);
+      expect(char.hitPoints.current).toBe(char.hitPoints.max);
+      // Background skill proficiencies prove deps.background reached core.
+      expect(char.skills.Arcana.proficient).toBe(true);
+
+      const stored = JSON.parse(localStorage.getItem('open20-character-sheet-characters')!);
+      expect(stored[id!]).toBeDefined();
+      expect(storageService.getActiveId()).toBe(id);
+    });
+
+    it('supports multiclass creation', () => {
+      const id = useCharacterStore.getState().createCharacter({
+        name: 'Multi',
+        speciesId: 'Human',
+        backgroundId: 'soldier',
+        classId: 'Wizard',
+        classLevel: 3,
+        abilityScores: SCORES,
+        additionalClasses: [{ classId: 'Fighter', level: 2 }],
+      });
+
+      expect(id).toBeTruthy();
+      const char = useCharacterStore.getState().character!;
+      expect(char.classes).toHaveLength(2);
+      expect(char.classes.reduce((sum, c) => sum + c.level, 0)).toBe(5);
+      expect(char.combatStats.proficiencyBonus).toBe(3);
+    });
+
+    it('resolves subclass deps so subclass content is applied', () => {
+      const id = useCharacterStore.getState().createCharacter({
+        name: 'Devoted',
+        speciesId: 'Human',
+        backgroundId: 'acolyte',
+        classId: 'Cleric',
+        // Life Domain's domain spells start at level 3.
+        classLevel: 3,
+        subclassId: 'Life Domain',
+        abilityScores: SCORES,
+      });
+
+      expect(id).toBeTruthy();
+      const char = useCharacterStore.getState().character!;
+      expect(char.classes[0].subclassId).toBe('Life Domain');
+      // Domain spells only appear when deps.subclasses was populated.
+      expect(char.spells.classSpellcasting.Cleric?.alwaysPreparedSpells ?? []).toContain('bless');
+    });
+
+    it('records the requested feats on the character', () => {
+      const id = useCharacterStore.getState().createCharacter({
+        name: 'Initiate',
+        speciesId: 'Human',
+        backgroundId: 'sage',
+        classId: 'Fighter',
+        classLevel: 1,
+        abilityScores: SCORES,
+        featIds: ['magic-initiate'],
+      });
+
+      expect(id).toBeTruthy();
+      expect(useCharacterStore.getState().character!.feats.map((f) => f.featId)).toEqual([
+        'magic-initiate',
+      ]);
+    });
+
+    it('returns null and records an error for an unknown class id', () => {
+      const id = useCharacterStore.getState().createCharacter({
+        name: 'Nobody',
+        speciesId: 'Elf',
+        backgroundId: 'sage',
+        classId: 'Bogus',
+        abilityScores: SCORES,
+      });
+
+      expect(id).toBeNull();
+      const state = useCharacterStore.getState();
+      expect(state.error).toMatch(/classId/i);
+      expect(state.character).toBeNull();
+      expect(Object.keys(state.characters)).toHaveLength(0);
+      expect(localStorage.getItem('open20-character-sheet-characters')).toBeNull();
+    });
+
+    it('leaves the existing active character untouched when creation fails', () => {
+      const existing = makeCharacter();
+      useCharacterStore.getState().upsertCharacter(existing);
+
+      const id = useCharacterStore.getState().createCharacter({
+        name: 'Nobody',
+        speciesId: 'Nonexistent',
+        backgroundId: 'sage',
+        classId: 'Wizard',
+        abilityScores: SCORES,
+      });
+
+      expect(id).toBeNull();
+      const state = useCharacterStore.getState();
+      expect(state.activeCharacterId).toBe(existing.id);
+      expect(state.character!.id).toBe(existing.id);
     });
   });
 });

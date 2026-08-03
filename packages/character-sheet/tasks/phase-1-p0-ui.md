@@ -91,9 +91,17 @@ Reuse ui `SlotPips` (`total`,`used`), **read-only** (no manual toggle). Cantrip 
 
 **Depends on:** T-005 · List saved characters (resolved name + `Lvl N Class`, HP/AC/PP), active highlighted (`--color-primary-600` left border), Edit per card, `+ New`. **Store:** `setActiveCharacter`. **Accept:** lists + highlights active; switch works. **Tests:** highlight active; select callback.
 
-### T-120 — CharacterCreateWizard (FR-144) — §7.4
+### T-120 — CharacterCreateWizard (FR-144) — §7.4 — ✅ done
 
 **Depends on:** T-005 · Multi-step: (1) name/species/background/alignment, (2) class(es)+level (multiclass add), (3) ability scores w/ method toggle **Point Buy / Standard Array / Manual** (point-buy budget = 27). Finish → `buildDepsForCreate` → **Store `createCharacter`** (core `createCharacter` + `recomputeDerivedStats`) → persist + set active. **Accept:** produces valid recomputed persisted active character; point-buy enforced. **Tests:** create calls core w/ deps + persists; point-buy validation.
+
+**Deviations:**
+
+- **Alignment omitted.** Neither core's `Character` nor `CreateCharacterParams` has an alignment field, and T-120 does not change the publishable core package. Species **subtype** (lineage) takes its place on step 1 — real SRD data, but display-only (`RecomputeDerivedStatsDeps` has no subtype slot).
+- **3 steps, not the wireframe's "Step 1 of 5".** §7.4 only ever specifies three.
+- **No spell selection.** The demo spell injection in the old `createNewCharacter()` is gone; wizard-created casters start with empty spell lists until the Spell Browser (T-217, §7.6) lands.
+- **`buildDepsForCreate` fixed** — it accepted `subclassId` but never populated `deps.subclasses`, so subclass features and always-prepared spells were silently dropped at creation.
+- **Demo factories deleted.** `createSampleCharacter` / `createMonkCharacter` are gone from `AppShell`; the empty state now opens the wizard. Point-buy tables live in the new `src/lib/point-buy.ts`.
 
 ### T-121 — CharacterEditDialog (FR-145) — §4.16
 

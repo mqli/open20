@@ -10,22 +10,10 @@
 // Mobile: single-open accordion (only one section open at a time, combat always open).
 
 import { useState, useCallback } from 'react';
-import { Users } from 'lucide-react';
-import {
-  createCharacter,
-  addEquipment,
-  recomputeDerivedStats,
-  startConcentration,
-  type AbilityName,
-} from 'open20-core';
+import { Plus, Users } from 'lucide-react';
 import { Surface, Text, Button, EmptyState } from '@open20/ui';
 import { useCharacterStore } from '@/stores/characterStore';
-import {
-  buildDepsForCreate,
-  resolveDeps,
-  getClassName,
-  getSpeciesName,
-} from '@/core/content-resolver';
+import { getClassName, getSpeciesName } from '@/core/content-resolver';
 import { useIsLargeScreen } from '@/hooks/useIsLargeScreen';
 import { Sidebar } from './Sidebar';
 import type { SectionKey } from './Sidebar';
@@ -33,91 +21,7 @@ import { HeroStrip } from './HeroStrip';
 import { ContentArea } from './ContentArea';
 import { MobileBottomBar } from './MobileBottomBar';
 import { CharacterSelector } from '@/components/character/CharacterSelector';
-
-const SAMPLE_SCORES: Record<AbilityName, number> = {
-  Strength: 10,
-  Dexterity: 14,
-  Constitution: 14,
-  Intelligence: 16,
-  Wisdom: 12,
-  Charisma: 10,
-};
-
-function createSampleCharacter() {
-  const deps = buildDepsForCreate({
-    speciesId: 'Elf',
-    backgroundId: 'sage',
-    classId: 'Wizard',
-  });
-  const char = createCharacter(
-    {
-      name: 'Tharion',
-      speciesId: 'Elf',
-      backgroundId: 'sage',
-      classId: 'Wizard',
-      classLevel: 5,
-      abilityScores: SAMPLE_SCORES,
-      featIds: ['magic-initiate', 'ability-score-improvement'], // Sage origin feat + Lv4 ASI
-    },
-    deps,
-  );
-  // Demo: Tharion is concentrating on Fly (level 3 transmutation)
-  const withConc = startConcentration(char, 'fly');
-  return { ...withConc, id: crypto.randomUUID() };
-}
-
-const MONK_SCORES: Record<AbilityName, number> = {
-  Strength: 12,
-  Dexterity: 18,
-  Constitution: 14,
-  Intelligence: 10,
-  Wisdom: 16,
-  Charisma: 8,
-};
-
-function createMonkCharacter() {
-  const deps = buildDepsForCreate({
-    speciesId: 'Human',
-    backgroundId: 'acolyte',
-    classId: 'Monk',
-  });
-  let char = createCharacter(
-    {
-      name: 'Lian',
-      speciesId: 'Human',
-      backgroundId: 'acolyte',
-      classId: 'Monk',
-      classLevel: 5,
-      abilityScores: MONK_SCORES,
-      featIds: ['magic-initiate', 'grappler'], // Acolyte origin feat + Lv4 General feat
-    },
-    deps,
-  );
-
-  // Equip monk weapons
-  char = addEquipment(char, {
-    id: 'spear',
-    name: 'Spear',
-    type: 'weapon',
-    weight: 3,
-    equipped: true,
-    quantity: 1,
-  });
-  char = addEquipment(char, {
-    id: 'dagger',
-    name: 'Dagger',
-    type: 'weapon',
-    weight: 1,
-    equipped: true,
-    quantity: 5,
-  });
-
-  // Recompute with deps that now include weapons
-  const depsWithWeapons = resolveDeps(char);
-  char = recomputeDerivedStats(char, depsWithWeapons);
-
-  return { ...char, id: crypto.randomUUID() };
-}
+import { CharacterCreateWizard } from '@/components/character/CharacterCreateWizard';
 
 const ALL_SECTIONS: SectionKey[] = [
   'combat',
@@ -131,8 +35,7 @@ const ALL_SECTIONS: SectionKey[] = [
 
 export function AppShell() {
   const { isDesktop } = useIsLargeScreen();
-  const { character, error, modifyHP, toggleDeathSave, toggleInspiration, upsertCharacter } =
-    useCharacterStore();
+  const { character, error, modifyHP, toggleDeathSave, toggleInspiration } = useCharacterStore();
 
   // Accordion state: combat is always expanded.
   // Desktop: all sections start expanded (multi-open).
@@ -150,8 +53,11 @@ export function AppShell() {
   // Track which section the user last navigated to (for sidebar/bottom-bar highlight).
   const [lastNavigatedSection, setLastNavigatedSection] = useState<SectionKey>('combat');
 
-  // CharacterSelector dialog state
-  const [showCharacterSelector, setShowCharacterSelector] = useState(false); // Toggle a section's expanded state.
+  // Character-management dialog state
+  const [showCharacterSelector, setShowCharacterSelector] = useState(false);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
+
+  // Toggle a section's expanded state.
   // Desktop: toggle independently.
   // Mobile: single-open (close other sections besides combat).
   const handleToggleSection = useCallback(
@@ -206,10 +112,21 @@ export function AppShell() {
     [isDesktop],
   );
 
-  // CharacterSelector dialog — rendered at top level so it persists when
-  // the active character is deleted (store sets character→null).
-  const characterSelectorDialog = (
-    <CharacterSelector open={showCharacterSelector} onOpenChange={setShowCharacterSelector} />
+  // Character dialogs — rendered at top level so they persist when the active
+  // character is deleted (store sets character→null), and so the wizard is a
+  // sibling of the selector rather than nested inside it.
+  const characterDialogs = (
+    <>
+      <CharacterSelector
+        open={showCharacterSelector}
+        onOpenChange={setShowCharacterSelector}
+        onRequestCreate={() => {
+          setShowCharacterSelector(false);
+          setShowCreateWizard(true);
+        }}
+      />
+      <CharacterCreateWizard open={showCreateWizard} onOpenChange={setShowCreateWizard} />
+    </>
   );
 
   // ── Error banner (rendered before empty state so errors are visible even without a character) ──
@@ -227,20 +144,16 @@ export function AppShell() {
         <div className="flex min-h-screen items-center justify-center p-6">
           <EmptyState
             title="No Character Yet"
-            description="Create a sample D&D 2024 character to explore the sheet."
+            description="Create your first D&D 2024 character to get started."
             action={
-              <div className="flex flex-col items-center gap-2">
-                <Button variant="primary" onClick={() => upsertCharacter(createSampleCharacter())}>
-                  Create Wizard (Elf)
-                </Button>
-                <Button variant="primary" onClick={() => upsertCharacter(createMonkCharacter())}>
-                  Create Monk (Human)
-                </Button>
-              </div>
+              <Button variant="primary" onClick={() => setShowCreateWizard(true)}>
+                <Plus className="mr-1 h-4 w-4" />
+                Create Character
+              </Button>
             }
           />
         </div>
-        {characterSelectorDialog}
+        {characterDialogs}
       </>
     );
   }
@@ -269,8 +182,8 @@ export function AppShell() {
           toggleInspiration={toggleInspiration}
         />
 
-        {/* CharacterSelector dialog — renders at top level */}
-        {characterSelectorDialog}
+        {/* Character dialogs — render at top level */}
+        {characterDialogs}
       </div>
     );
   }
@@ -332,8 +245,8 @@ export function AppShell() {
       {/* Bottom Tab Bar */}
       <MobileBottomBar activeSection={lastNavigatedSection} onSectionChange={handleSectionChange} />
 
-      {/* CharacterSelector dialog — renders at top level */}
-      {characterSelectorDialog}
+      {/* Character dialogs — render at top level */}
+      {characterDialogs}
     </div>
   );
 }

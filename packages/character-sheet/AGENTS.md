@@ -52,6 +52,7 @@ src/
 │   └── characterStore.ts # Character state management
 ├── core/                 # Core integration layer
 │   └── content-resolver.ts  # Content pack resolution
+├── lib/                  # Pure app-level helpers (point-buy / standard-array tables)
 └── types/                # App-specific types
 ```
 
@@ -119,7 +120,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 **Before starting a task**, check: is it already claimed (`⏳`)? Is every task in its "Depends on" list marked `✅`? Is it gated by a Phase 0.5 extension that isn't done? If any of these is true, pick a different task or resolve the dependency.
 
-### Current Progress (2026-07-31)
+### Current Progress (2026-08-03)
 
 **Phase 0 (Foundation):**
 
@@ -156,9 +157,10 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-116 PreparedSpellList (Prepared/Known toggle, class groups, feat spells, cast button)
 - ✅ T-117 ConcentrationBanner (amber banner, CON save prompt, end concentration)
 - ✅ T-119 CharacterSelector (multi-character modal with create/switch/delete)
+- ✅ T-120 CharacterCreateWizard (3 steps; point buy / standard array / manual)
 - ✅ T-127 Sheet assembly (accordion layout)
 - ✅ T-128 App states (loading skeleton, reduced-motion, error polish)
-- ⏳ 6 remaining P0 tasks: T-120~T-126
+- ⏳ 5 remaining P0 tasks: T-121~T-126
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -166,9 +168,10 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 The highest-value unblocked P0 tasks, in recommended order:
 
-| Task  | What                  | Why first                |
-| ----- | --------------------- | ------------------------ |
-| T-120 | CharacterCreateWizard | Complete character CRUD  |
-| T-121 | CharacterEditDialog   | Edit any character field |
+| Task        | What                                             | Why first                                                             |
+| ----------- | ------------------------------------------------ | --------------------------------------------------------------------- |
+| T-121       | CharacterEditDialog                              | Edit any character field — completes CRUD alongside T-120             |
+| T-122       | DeleteConfirm                                    | Small; `CharacterSelector` already has an inline confirm to formalise |
+| T-123–T-126 | HeroCard / HeroStrip / Sidebar / MobileBottomBar | Already built and wired — they need tests plus small spec gaps closed |
 
-**Do NOT start** T-219 (needs T-014 inspiration), T-208 (needs T-015 exhaustion), T-215 (needs T-016 senses). These Phase 2 tasks are blocked by pending core extensions.
+All Phase 0.5 core extensions (T-010–T-016) are done, so T-219 (inspiration), T-208 (exhaustion) and T-215 (senses) are **unblocked**.
