@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nProvider, defaultTranslations } from '@open20/ui';
 import { AbilityScoresStep } from '../AbilityScoresStep';
-import { defaultScoresFor, type AbilityScoreMethod, type Scores } from '@/lib/point-buy';
+import { defaultScoresFor, type AbilityScoreMethod, type Scores } from 'open20-core';
 
 function renderWithI18n(ui: React.ReactElement) {
   return render(

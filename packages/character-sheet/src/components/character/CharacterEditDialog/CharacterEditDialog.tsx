@@ -6,7 +6,23 @@
 
 import { useMemo, useState } from 'react';
 import { Button, Dialog, Input, Surface, Text } from '@open20/ui';
-import type { AbilityName, DieType, CharacterClass } from 'open20-core';
+import {
+  canDecrementPointBuy,
+  canIncrementPointBuy,
+  canSwapStandardArray,
+  defaultScoresFor,
+  MANUAL_MAX,
+  MANUAL_MIN,
+  pointsRemaining,
+  swapStandardArray,
+  validateAbilityScores,
+  type AbilityScoreMethod,
+  type Scores,
+  type AbilityName,
+  type DieType,
+  type CharacterClass,
+} from 'open20-core';
+import { ABILITY_NAMES } from 'open20-core/types';
 import { useCharacterStore } from '@/stores/characterStore';
 import { initContent } from '@/core/content-resolver';
 import {
@@ -17,17 +33,6 @@ import {
   getSpeciesById,
 } from '@/core/content-resolver';
 import {
-  canDecrementPointBuy,
-  canIncrementPointBuy,
-  canSwapStandardArray,
-  defaultScoresFor,
-  pointsRemaining,
-  swapStandardArray,
-  validateAbilityScores,
-  type AbilityScoreMethod,
-  type Scores,
-} from '@/lib/point-buy';
-import {
   OptionGrid,
   type GridOption,
 } from '@/components/character/CharacterCreateWizard/OptionGrid';
@@ -35,14 +40,6 @@ import type { AppCharacter } from '@/types';
 import type { ClassEntry } from '@/components/character/CharacterCreateWizard/ClassesStep';
 
 const MAX_TOTAL_LEVEL = 20;
-const ABILITY_NAMES: AbilityName[] = [
-  'Strength',
-  'Dexterity',
-  'Constitution',
-  'Intelligence',
-  'Wisdom',
-  'Charisma',
-];
 
 const NONE = '__none__';
 
@@ -489,7 +486,7 @@ export function CharacterEditDialog({ open, onOpenChange }: CharacterEditDialogP
                     <Button
                       variant="ghost"
                       size="sm"
-                      disabled={scores[ability] <= 1}
+                      disabled={scores[ability] <= MANUAL_MIN}
                       aria-label={`Decrease ${ability} score`}
                       onClick={() =>
                         patch({ scores: { ...scores, [ability]: scores[ability] - 1 } })
@@ -517,7 +514,7 @@ export function CharacterEditDialog({ open, onOpenChange }: CharacterEditDialogP
                     <Button
                       variant="ghost"
                       size="sm"
-                      disabled={scores[ability] >= 20}
+                      disabled={scores[ability] >= MANUAL_MAX}
                       aria-label={`Increase ${ability} score`}
                       onClick={() =>
                         patch({ scores: { ...scores, [ability]: scores[ability] + 1 } })

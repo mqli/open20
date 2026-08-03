@@ -5,10 +5,8 @@
 import { useState } from 'react';
 import { Check, Minus, Plus } from 'lucide-react';
 import { Button, Input, Surface, Text, cn } from '@open20/ui';
-import { getModifier } from 'open20-core';
-import { ABILITY_NAMES } from 'open20-core/types';
-import type { AbilityName } from 'open20-core';
 import {
+  getModifier,
   MANUAL_MAX,
   MANUAL_MIN,
   POINT_BUY_BUDGET,
@@ -22,7 +20,9 @@ import {
   validateAbilityScores,
   type AbilityScoreMethod,
   type Scores,
-} from '@/lib/point-buy';
+  type AbilityName,
+} from 'open20-core';
+import { ABILITY_NAMES } from 'open20-core/types';
 
 const METHODS: Array<{ id: AbilityScoreMethod; label: string }> = [
   { id: 'point-buy', label: 'Point Buy' },

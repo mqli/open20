@@ -73,6 +73,26 @@ export type { ContentPack, ContentPackMeta } from './content';
 
 // ── Engine (pure functions) ─────────────────────────────
 export { getModifier, getTotalScore } from './engine';
+export {
+  POINT_BUY_BUDGET,
+  POINT_BUY_MIN,
+  POINT_BUY_MAX,
+  POINT_BUY_COSTS,
+  STANDARD_ARRAY,
+  MANUAL_MIN,
+  MANUAL_MAX,
+  pointBuyCost,
+  totalPointBuyCost,
+  pointsRemaining,
+  canIncrementPointBuy,
+  canDecrementPointBuy,
+  defaultScoresFor,
+  isValidStandardArray,
+  canSwapStandardArray,
+  swapStandardArray,
+  validateAbilityScores,
+} from './engine';
+export type { AbilityScoreMethod, Scores, ScoreValidation } from './engine';
 export { getProficiencyBonus } from './engine';
 export { getSkillBonus, getAllSkillBonuses } from './engine';
 export { getSavingThrowBonus } from './engine';

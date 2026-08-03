@@ -2,6 +2,26 @@
 // Barrel export — engine 模块公共API
 
 export { getModifier, getTotalScore } from './ability-modifier';
+export {
+  POINT_BUY_BUDGET,
+  POINT_BUY_MIN,
+  POINT_BUY_MAX,
+  POINT_BUY_COSTS,
+  STANDARD_ARRAY,
+  MANUAL_MIN,
+  MANUAL_MAX,
+  pointBuyCost,
+  totalPointBuyCost,
+  pointsRemaining,
+  canIncrementPointBuy,
+  canDecrementPointBuy,
+  defaultScoresFor,
+  isValidStandardArray,
+  canSwapStandardArray,
+  swapStandardArray,
+  validateAbilityScores,
+} from './point-buy';
+export type { AbilityScoreMethod, Scores, ScoreValidation } from './point-buy';
 export { getProficiencyBonus } from './proficiency-bonus';
 export { getSkillBonus, getAllSkillBonuses } from './skill-bonus';
 export { getSavingThrowBonus } from './saving-throw';

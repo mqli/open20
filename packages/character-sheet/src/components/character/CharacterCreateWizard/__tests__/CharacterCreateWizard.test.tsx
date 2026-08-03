@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nProvider, defaultTranslations } from '@open20/ui';
 import { CharacterCreateWizard } from '../CharacterCreateWizard';
 import { initContent } from '@/core/content-resolver';
-import { defaultScoresFor } from '@/lib/point-buy';
+import { defaultScoresFor } from 'open20-core';
 
 function renderWithI18n(ui: React.ReactElement) {
   return render(

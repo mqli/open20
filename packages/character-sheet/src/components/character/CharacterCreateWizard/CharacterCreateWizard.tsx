@@ -5,15 +5,15 @@
 
 import { useMemo, useState } from 'react';
 import { Button, Dialog, Surface, Text, cn } from '@open20/ui';
-import type { AbilityName } from 'open20-core';
-import { useCharacterStore, type CreateCharacterInput } from '@/stores/characterStore';
-import { getBackgroundById, initContent } from '@/core/content-resolver';
 import {
   defaultScoresFor,
   validateAbilityScores,
   type AbilityScoreMethod,
   type Scores,
-} from '@/lib/point-buy';
+  type AbilityName,
+} from 'open20-core';
+import { useCharacterStore, type CreateCharacterInput } from '@/stores/characterStore';
+import { getBackgroundById, initContent } from '@/core/content-resolver';
 import { BasicsStep } from './BasicsStep';
 import { ClassesStep, MAX_TOTAL_LEVEL, type ClassEntry } from './ClassesStep';
 import { AbilityScoresStep } from './AbilityScoresStep';

@@ -1,10 +1,10 @@
 // point-buy.ts (T-120)
-// Pure ability-score-generation helpers for the character create wizard.
+// Pure ability-score-generation helpers for character creation.
 // No React, no content pack, no core mutations — just the 2024 PHB tables and
-// the validators the wizard uses to gate its Finish button.
+// the validators used to gate creation completion.
 
-import { ABILITY_NAMES } from 'open20-core/types';
-import type { AbilityName } from 'open20-core';
+import { ABILITY_NAMES } from '../types/ability';
+import type { AbilityName } from '../types/ability';
 
 /** How the player is assigning their six base scores. */
 export type AbilityScoreMethod = 'point-buy' | 'standard-array' | 'manual';
@@ -77,8 +77,10 @@ export function defaultScoresFor(method: AbilityScoreMethod): Scores {
   if (method === 'point-buy') return fill(POINT_BUY_MIN);
   if (method === 'manual') return fill(10);
   // standard-array: hand out the array in ABILITY_NAMES order.
+  // Both arrays always have 6 elements; ! satisfies noUncheckedIndexedAccess
+  // and fails loudly if the invariant is ever broken.
   return ABILITY_NAMES.reduce((acc, ability, i) => {
-    acc[ability] = STANDARD_ARRAY[i];
+    acc[ability] = STANDARD_ARRAY[i]!;
     return acc;
   }, {} as Scores);
 }

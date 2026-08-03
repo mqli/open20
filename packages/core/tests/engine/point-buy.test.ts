@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { AbilityName } from 'open20-core';
+import type { AbilityName } from '../../src/types/ability';
 import {
   POINT_BUY_BUDGET,
   POINT_BUY_COSTS,
@@ -15,7 +15,7 @@ import {
   totalPointBuyCost,
   validateAbilityScores,
   type Scores,
-} from '../point-buy';
+} from '../../src/engine/point-buy';
 
 function scores(overrides: Partial<Record<AbilityName, number>> = {}, base = 8): Scores {
   return {
