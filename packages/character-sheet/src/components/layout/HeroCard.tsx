@@ -61,15 +61,20 @@ export function HeroCard({ character, className }: HeroCardProps) {
           {character.name}
         </Text>
         <Text variant="bodySm" color="secondary" className="truncate">
-          {getSpeciesName(character.species)} <span className="text-text-tertiary">·</span> Lv.
-          {totalLevel} {classLabel}
+          {getSpeciesName(character.species)} <span className="text-text-tertiary">·</span> Lvl
+          {totalLevel} {classLabel || 'No class'}
         </Text>
       </div>
 
       <Divider />
 
       {/* HP Summary */}
-      <div className="flex items-center gap-1.5">
+      <div
+        className="flex items-center gap-1.5"
+        role="status"
+        aria-live="polite"
+        aria-label={`Hit points: ${hitPoints.current} of ${hitPoints.max}`}
+      >
         <Heart className="h-3.5 w-3.5 shrink-0 text-danger" aria-hidden="true" />
         <Text variant="bodySm" color="secondary">
           HP

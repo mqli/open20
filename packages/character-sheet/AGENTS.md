@@ -162,7 +162,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-122 DeleteConfirm (confirmation dialog for character deletion)
 - ✅ T-127 Sheet assembly (accordion layout)
 - ✅ T-128 App states (loading skeleton, reduced-motion, error polish)
-- ��� 4 remaining P0 tasks: T-123~T-126
+- ��� 3 remaining P0 tasks: T-124~T-126
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -170,8 +170,10 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 The highest-value unblocked P0 tasks, in recommended order:
 
-| Task        | What                                             | Why first                                                             |
-| ----------- | ------------------------------------------------ | --------------------------------------------------------------------- |
-| T-123–T-126 | HeroCard / HeroStrip / Sidebar / MobileBottomBar | Already built and wired — they need tests plus small spec gaps closed |
+| Task  | What                                      | Why first                                                         |
+| ----- | ----------------------------------------- | ----------------------------------------------------------------- |
+| T-124 | HeroStrip — compact mobile combat summary | Already built and wired — needs tests plus small spec gaps closed |
+| T-125 | Sidebar + nav tabs (desktop)              | Already built and wired — needs tests plus small spec gaps closed |
+| T-126 | MobileBottomBar + MoreMenu                | Already built and wired — needs tests plus small spec gaps closed |
 
 All Phase 0.5 core extensions (T-010–T-016) are done, so T-219 (inspiration), T-208 (exhaustion) and T-215 (senses) are **unblocked**.

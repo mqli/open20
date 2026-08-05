@@ -111,7 +111,7 @@ Reuse ui `SlotPips` (`total`,`used`), **read-only** (no manual toggle). Cantrip 
 
 Confirmation dialog ("Are you sure? This cannot be undone.") → **Store `deleteCharacter`**. **Accept:** confirmed delete removes + persists; cancel no-ops. **Tests:** confirm deletes; cancel no-ops.
 
-### T-123 — HeroCard (desktop) (FR-140) — §4.1
+### T-123 — HeroCard (desktop) (FR-140) — §4.1 — ✅ done
 
 **Depends on:** T-005 · Sidebar identity card: resolved name, `Lvl N Class`, HP + AC/Init/Speed/PP/PB (read-only). **Accept:** shows resolved identity + stats. **Tests:** render from fixture.
 
