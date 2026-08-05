@@ -9,6 +9,7 @@ import type { AppCharacter } from '@/types';
 import { useCharacterStore } from '@/stores/characterStore';
 import { getClassName } from '@/core/content-resolver';
 import { Button, Text, Surface, Dialog, cn } from '@open20/ui';
+import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 
 export interface CharacterSelectorProps {
   open: boolean;
@@ -28,7 +29,6 @@ function CharacterCard({
   onSelect: () => void;
   onDelete: () => void;
 }) {
-  const [confirming, setConfirming] = useState(false);
   const classes = char.classes ?? [];
   const totalLevel = classes.reduce((sum, c) => sum + c.level, 0);
   const classLabel = classes.map((c) => getClassName(c.classId)).join(' / ') || 'Unknown';
@@ -47,14 +47,6 @@ function CharacterCard({
     attacks: [],
   };
 
-  const handleDelete = () => {
-    if (confirming) {
-      onDelete();
-    } else {
-      setConfirming(true);
-    }
-  };
-
   return (
     <Surface
       variant="default"
@@ -65,12 +57,12 @@ function CharacterCard({
           ? 'border-l-primary-600 bg-primary-50 dark:bg-primary-900/10'
           : 'border-l-transparent hover:bg-bg-tertiary',
       )}
-      onClick={!confirming ? onSelect : undefined}
+      onClick={onSelect}
       role="button"
       tabIndex={0}
       aria-label={`Select ${char.name}`}
       onKeyDown={(e) => {
-        if (!confirming && (e.key === 'Enter' || e.key === ' ')) {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onSelect();
         }
@@ -105,16 +97,15 @@ function CharacterCard({
             </Text>
           )}
           <Button
-            variant={confirming ? 'danger' : 'ghost'}
+            variant="ghost"
             size="sm"
-            aria-label={confirming ? 'Confirm delete' : `Delete ${char.name}`}
+            aria-label={`Delete ${char.name}`}
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete();
+              onDelete();
             }}
           >
             <Trash2 className="h-4 w-4" />
-            {confirming && <span className="ml-1 text-xs">Sure?</span>}
           </Button>
         </div>
       </div>
@@ -128,7 +119,10 @@ export function CharacterSelector({ open, onOpenChange, onRequestCreate }: Chara
   const setActiveCharacter = useCharacterStore((s) => s.setActiveCharacter);
   const deleteCharacter = useCharacterStore((s) => s.deleteCharacter);
 
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
   const charList = Object.values(characters);
+  const deleteTarget = deleteTargetId ? characters[deleteTargetId] : null;
 
   const handleSelect = (id: string) => {
     setActiveCharacter(id);
@@ -142,52 +136,72 @@ export function CharacterSelector({ open, onOpenChange, onRequestCreate }: Chara
     onRequestCreate();
   };
 
-  const handleDelete = (id: string) => {
-    deleteCharacter(id);
+  const handleDeleteRequest = (id: string) => {
+    setDeleteTargetId(id);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteTargetId) {
+      deleteCharacter(deleteTargetId);
+      setDeleteTargetId(null);
+    }
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content size="sm">
-        <Dialog.Header>
-          <Dialog.Title>Characters</Dialog.Title>
-          <Dialog.Description>Select a character or create a new one.</Dialog.Description>
-        </Dialog.Header>
+    <>
+      <Dialog.Root open={open} onOpenChange={onOpenChange}>
+        <Dialog.Content size="sm">
+          <Dialog.Header>
+            <Dialog.Title>Characters</Dialog.Title>
+            <Dialog.Description>Select a character or create a new one.</Dialog.Description>
+          </Dialog.Header>
 
-        <div className="mb-4 flex justify-end">
-          <Button variant="primary" size="sm" onClick={handleNew}>
-            <Plus className="h-4 w-4" />
-            New
-          </Button>
-        </div>
-
-        {charList.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-8 text-center">
-            <User className="h-10 w-10 text-text-tertiary" aria-hidden="true" />
-            <Text variant="body" color="secondary">
-              No characters yet. Create one to get started.
-            </Text>
+          <div className="mb-4 flex justify-end">
+            <Button variant="primary" size="sm" onClick={handleNew}>
+              <Plus className="h-4 w-4" />
+              New
+            </Button>
           </div>
-        ) : (
-          <div className="flex flex-col gap-2 mb-4 max-h-[60vh] overflow-y-auto">
-            {charList.map((char) => (
-              <CharacterCard
-                key={char.id}
-                char={char}
-                isActive={char.id === activeId}
-                onSelect={() => handleSelect(char.id)}
-                onDelete={() => handleDelete(char.id)}
-              />
-            ))}
-          </div>
-        )}
 
-        <div className="flex justify-end">
-          <Dialog.Close asChild>
-            <Button variant="ghost">Done</Button>
-          </Dialog.Close>
-        </div>
-      </Dialog.Content>
-    </Dialog.Root>
+          {charList.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <User className="h-10 w-10 text-text-tertiary" aria-hidden="true" />
+              <Text variant="body" color="secondary">
+                No characters yet. Create one to get started.
+              </Text>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 mb-4 max-h-[60vh] overflow-y-auto">
+              {charList.map((char) => (
+                <CharacterCard
+                  key={char.id}
+                  char={char}
+                  isActive={char.id === activeId}
+                  onSelect={() => handleSelect(char.id)}
+                  onDelete={() => handleDeleteRequest(char.id)}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-end">
+            <Dialog.Close asChild>
+              <Button variant="ghost">Done</Button>
+            </Dialog.Close>
+          </div>
+        </Dialog.Content>
+      </Dialog.Root>
+
+      {deleteTarget && (
+        <DeleteConfirmDialog
+          open
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setDeleteTargetId(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+          characterName={deleteTarget.name}
+        />
+      )}
+    </>
   );
 }

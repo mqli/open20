@@ -98,7 +98,7 @@ describe('CharacterSelector', () => {
     expect(storeState.setActiveCharacter).toHaveBeenCalledWith(char.id);
   });
 
-  it('shows delete confirmation on first click', () => {
+  it('opens DeleteConfirm dialog on delete click', () => {
     const char = makeCharacter();
     storeState.characters = { [char.id]: char };
     storeState.activeCharacterId = null;
@@ -107,10 +107,41 @@ describe('CharacterSelector', () => {
       <CharacterSelector open onOpenChange={vi.fn()} onRequestCreate={onRequestCreate} />,
     );
 
-    // Click delete button once (first click = confirm state)
+    // Click delete button — opens DeleteConfirm dialog
     const deleteBtn = screen.getByLabelText(`Delete ${char.name}`);
     fireEvent.click(deleteBtn);
-    expect(screen.getByText('Sure?')).toBeInTheDocument();
+    expect(screen.getByText('Delete Tharion?')).toBeInTheDocument();
+    expect(screen.getByText('Are you sure? This cannot be undone.')).toBeInTheDocument();
+  });
+
+  it('confirming delete removes character', () => {
+    const char = makeCharacter();
+    storeState.characters = { [char.id]: char };
+    storeState.activeCharacterId = null;
+
+    renderWithI18n(
+      <CharacterSelector open onOpenChange={vi.fn()} onRequestCreate={onRequestCreate} />,
+    );
+
+    // Click delete, then confirm
+    fireEvent.click(screen.getByLabelText(`Delete ${char.name}`));
+    fireEvent.click(screen.getByText('Delete'));
+    expect(storeState.deleteCharacter).toHaveBeenCalledWith(char.id);
+  });
+
+  it('canceling delete keeps character', () => {
+    const char = makeCharacter();
+    storeState.characters = { [char.id]: char };
+    storeState.activeCharacterId = null;
+
+    renderWithI18n(
+      <CharacterSelector open onOpenChange={vi.fn()} onRequestCreate={onRequestCreate} />,
+    );
+
+    // Click delete, then cancel
+    fireEvent.click(screen.getByLabelText(`Delete ${char.name}`));
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(storeState.deleteCharacter).not.toHaveBeenCalled();
   });
 
   it('renders dialog title and description', () => {

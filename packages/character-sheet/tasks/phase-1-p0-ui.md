@@ -107,7 +107,7 @@ Reuse ui `SlotPips` (`total`,`used`), **read-only** (no manual toggle). Cantrip 
 
 **Depends on:** T-005 · Edit any field → **Store `updateCharacter`** → `recomputeDerivedStats`. **Accept:** edits recompute + persist. **Tests:** edit recomputes derived stats.
 
-### T-122 — DeleteConfirm (FR-146) — §7.1
+### T-122 — DeleteConfirm (FR-146) — §7.1 ✅ done
 
 Confirmation dialog ("Are you sure? This cannot be undone.") → **Store `deleteCharacter`**. **Accept:** confirmed delete removes + persists; cancel no-ops. **Tests:** confirm deletes; cancel no-ops.
 

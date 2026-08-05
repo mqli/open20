@@ -158,9 +158,11 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-117 ConcentrationBanner (amber banner, CON save prompt, end concentration)
 - ✅ T-119 CharacterSelector (multi-character modal with create/switch/delete)
 - ✅ T-120 CharacterCreateWizard (3 steps; point buy / standard array / manual)
+- ✅ T-121 CharacterEditDialog (edit any character field — completes CRUD alongside T-120)
+- ✅ T-122 DeleteConfirm (confirmation dialog for character deletion)
 - ✅ T-127 Sheet assembly (accordion layout)
 - ✅ T-128 App states (loading skeleton, reduced-motion, error polish)
-- ⏳ 4 remaining P0 tasks: T-122~T-126
+- ��� 4 remaining P0 tasks: T-123~T-126
 
 **Phase 2 (P1) and Phase 3 (P2):** Not started.
 
@@ -170,8 +172,6 @@ The highest-value unblocked P0 tasks, in recommended order:
 
 | Task        | What                                             | Why first                                                             |
 | ----------- | ------------------------------------------------ | --------------------------------------------------------------------- |
-| T-121       | CharacterEditDialog                              | Edit any character field — completes CRUD alongside T-120             |
-| T-122       | DeleteConfirm                                    | Small; `CharacterSelector` already has an inline confirm to formalise |
 | T-123–T-126 | HeroCard / HeroStrip / Sidebar / MobileBottomBar | Already built and wired — they need tests plus small spec gaps closed |
 
 All Phase 0.5 core extensions (T-010–T-016) are done, so T-219 (inspiration), T-208 (exhaustion) and T-215 (senses) are **unblocked**.
