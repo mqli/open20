@@ -50,3 +50,4 @@ catalog:
   workbox-window: ^7.4.1
   zod: ^4.4.3
   zustand: ^5.0.13
+  jspdf: ^3.0.1
