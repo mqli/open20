@@ -45,18 +45,38 @@ export interface TileGrid {
   orientation: 'portrait' | 'landscape';
 }
 
-export type PaperPreset = 'A4' | 'LETTER' | 'A3' | 'TABLOID' | 'CUSTOM';
+export type PaperPreset =
+  | 'A4'
+  | 'LETTER'
+  | 'LEGAL'
+  | 'A3'
+  | 'A2'
+  | 'A1'
+  | 'TABLOID'
+  | 'B4'
+  | 'B5'
+  | 'CUSTOM';
 
 export function paperPresetDimensions(preset: PaperPreset): { w: number; h: number } {
   switch (preset) {
     case 'A4':
       return { w: 210, h: 297 };
-    case 'LETTER':
-      return { w: 215.9, h: 279.4 };
     case 'A3':
       return { w: 297, h: 420 };
+    case 'A2':
+      return { w: 420, h: 594 };
+    case 'A1':
+      return { w: 594, h: 841 };
+    case 'LETTER':
+      return { w: 215.9, h: 279.4 };
+    case 'LEGAL':
+      return { w: 215.9, h: 355.6 };
     case 'TABLOID':
       return { w: 279.4, h: 431.8 };
+    case 'B4':
+      return { w: 257, h: 364 };
+    case 'B5':
+      return { w: 182, h: 257 };
     case 'CUSTOM':
       return { w: 0, h: 0 };
   }

@@ -15,11 +15,14 @@ interface GridState {
   color: string;
   /** Grid line opacity (0-1) */
   opacity: number;
+  /** Whether the tile split overlay is visible */
+  tileOverlayVisible: boolean;
 
   /** Actions */
   setCellPx: (px: number) => void;
   setOffset: (x: number, y: number) => void;
   toggleVisibility: () => void;
+  toggleTileOverlay: () => void;
   setColor: (color: string) => void;
   setOpacity: (op: number) => void;
   autoDetect: () => Promise<boolean>;
@@ -31,6 +34,7 @@ export const useGridStore = create<GridState>((set) => ({
   offsetX: 0,
   offsetY: 0,
   visible: true,
+  tileOverlayVisible: true,
   color: 'rgba(255, 0, 0, 0.8)',
   opacity: 0.8,
 
@@ -39,6 +43,8 @@ export const useGridStore = create<GridState>((set) => ({
   setOffset: (x: number, y: number) => set({ offsetX: x, offsetY: y }),
 
   toggleVisibility: () => set((state) => ({ visible: !state.visible })),
+
+  toggleTileOverlay: () => set((state) => ({ tileOverlayVisible: !state.tileOverlayVisible })),
 
   setColor: (color: string) => set({ color }),
 
@@ -80,6 +86,7 @@ export const useGridStore = create<GridState>((set) => ({
       offsetX: 0,
       offsetY: 0,
       visible: true,
+      tileOverlayVisible: true,
       color: 'rgba(255, 0, 0, 0.8)',
       opacity: 0.8,
     }),

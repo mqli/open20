@@ -11,6 +11,8 @@ export function ToolPalette() {
 
   const gridVisible = useGridStore((s) => s.visible);
   const toggleGrid = useGridStore((s) => s.toggleVisibility);
+  const tileOverlayVisible = useGridStore((s) => s.tileOverlayVisible);
+  const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
 
   const handleZoomIn = () => setZoom(zoom * 1.2);
   const handleZoomOut = () => setZoom(zoom / 1.2);
@@ -41,7 +43,11 @@ export function ToolPalette() {
       <ToolButton title="Toggle calibration grid" active={gridVisible} onClick={toggleGrid}>
         <Grid3x3 size={16} />
       </ToolButton>
-      <ToolButton title="Tile overlay" active={true}>
+      <ToolButton
+        title="Toggle tile overlay"
+        active={tileOverlayVisible}
+        onClick={toggleTileOverlay}
+      >
         <LayoutGrid size={16} />
       </ToolButton>
       <div className="flex items-center justify-center h-7 text-xs text-text-secondary tabular-nums">

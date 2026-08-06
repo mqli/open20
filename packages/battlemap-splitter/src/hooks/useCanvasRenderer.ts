@@ -71,7 +71,7 @@ export function useCanvasRenderer(
     }
 
     // Draw tile overlay
-    if (tileStore.tiles.length > 0) {
+    if (grid.tileOverlayVisible && tileStore.tiles.length > 0) {
       drawTiles(ctx, tileStore.tiles);
     }
 

@@ -189,57 +189,86 @@ function drawTileLabel(
  * Generate the assembly guide page.
  * Creates a scaled-down map preview with tile grid overlay.
  */
-function generateAssemblyGuide(img: HTMLImageElement, cols: number, rows: number): string {
-  // Scale preview to fit within 170×220mm on the page
-  const previewMaxW = 170;
-  const previewMaxH = 220;
+function drawAssemblyGuidePage(
+  img: HTMLImageElement,
+  cols: number,
+  rows: number,
+  doc: jsPDF,
+  config: PdfGenerationConfig,
+): void {
+  const pw = config.paperW;
+  const ph = config.paperH;
+  const ml = config.marginLeft;
+  const mr = config.marginRight;
+  const mt = config.marginTop;
+  const mb = config.marginBottom;
+
+  // ── Title ──
+  doc.setFontSize(16);
+  doc.setTextColor(30, 30, 30);
+  doc.text('Tile Assembly Guide', pw / 2, mt + 8, { align: 'center' });
+
+  // ── Info ──
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  const info = `${cols} x ${rows} = ${cols * rows} pages | 1 cell = 25.4mm | Source ${config.cellPx} DPI`;
+  doc.text(info, pw / 2, mt + 17, { align: 'center' });
+
+  // ── Map preview ──
+  const previewY = mt + 24;
+  const previewMaxW = pw - ml - mr;
+  const previewMaxH = ph - previewY - mb - 40;
+
   const scale = Math.min(previewMaxW / img.naturalWidth, previewMaxH / img.naturalHeight);
-  const prevW = Math.round(img.naturalWidth * scale);
-  const prevH = Math.round(img.naturalHeight * scale);
+  const prevW = img.naturalWidth * scale;
+  const prevH = img.naturalHeight * scale;
+  const prevX = (pw - prevW) / 2;
 
-  const canvas = document.createElement('canvas');
-  canvas.width = prevW;
-  canvas.height = prevH;
-  const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(img, 0, 0, prevW, prevH);
+  // Render map as crisp 2x preview on a canvas
+  const pCanvas = document.createElement('canvas');
+  pCanvas.width = Math.round(prevW * 2);
+  pCanvas.height = Math.round(prevH * 2);
+  const pCtx = pCanvas.getContext('2d')!;
+  pCtx.drawImage(img, 0, 0, pCanvas.width, pCanvas.height);
+  doc.addImage(pCanvas.toDataURL('image/jpeg', 0.85), 'JPEG', prevX, previewY, prevW, prevH);
 
-  // Draw tile grid overlay
+  // ── Tile grid overlay (vector, drawn ON the PDF, not rasterized) ──
   const cellW = prevW / cols;
   const cellH = prevH / rows;
 
-  ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-  ctx.lineWidth = 2;
+  doc.setLineWidth(0.3);
+  doc.setDrawColor(200, 40, 40);
 
-  // Grid lines
-  for (let row = 0; row <= rows; row++) {
-    const y = Math.round(row * cellH);
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(prevW, y);
-    ctx.stroke();
-  }
-  for (let col = 0; col <= cols; col++) {
-    const x = Math.round(col * cellW);
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, prevH);
-    ctx.stroke();
-  }
+  for (let r = 0; r <= rows; r++)
+    doc.line(prevX, previewY + r * cellH, prevX + prevW, previewY + r * cellH);
+  for (let c = 0; c <= cols; c++)
+    doc.line(prevX + c * cellW, previewY, prevX + c * cellW, previewY + prevH);
 
-  // Row/col labels
-  ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
-  ctx.font = '14px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const cx = (col + 0.5) * cellW;
-      const cy = (row + 0.5) * cellH;
-      ctx.fillText(`R${row + 1}C${col + 1}`, cx, cy);
+  // ── Labels ──
+  doc.setFontSize(12);
+  doc.setTextColor(200, 40, 40);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      doc.text(`R${r + 1}C${c + 1}`, prevX + (c + 0.5) * cellW, previewY + (r + 0.5) * cellH, {
+        align: 'center',
+        baseline: 'middle',
+      });
     }
   }
 
-  return canvas.toDataURL('image/jpeg', 0.9);
+  // ── Instructions ──
+  const instY = previewY + prevH + 10;
+  doc.setFontSize(8);
+  doc.setTextColor(80, 80, 80);
+
+  const steps = [
+    `1. Print all ${cols * rows} pages at 100% scale (no "fit to page").`,
+    '2. Cut along the L-shaped crop marks on each page.',
+    '3. Arrange by tile labels shown above (R1C1, R1C2...).',
+    '4. Align overlap areas and tape together from the back.',
+    '5. Verify: one grid square = exactly 25.4mm (1 inch).',
+  ];
+  for (let i = 0; i < steps.length; i++) doc.text(steps[i], ml, instY + i * 5);
 }
 
 /**
@@ -261,49 +290,7 @@ export async function generatePdf(
 
   // Assembly guide (first page)
   if (config.includeGuide) {
-    const guideUrl = generateAssemblyGuide(img, totalCols, totalRows);
-
-    const contentW = config.paperW - config.marginLeft - config.marginRight;
-    const contentH = config.paperH - config.marginTop - config.marginBottom;
-
-    // Scale guide to fit content area
-    const guideScale = Math.min(contentW / 170, contentH / 220);
-    const guideW = 170 * guideScale;
-    const guideH = 220 * guideScale;
-    const guideX = (config.paperW - guideW) / 2;
-    const guideY = config.marginTop + 30;
-
-    doc.addImage(guideUrl, 'JPEG', guideX, guideY, guideW, guideH);
-
-    // Title
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`拼接指南 — ${config.mapLabel}`, config.paperW / 2, 20, { align: 'center' });
-
-    // Info
-    doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-    doc.text(
-      `${totalCols} 列 × ${totalRows} 行 = ${totalCols * totalRows} 张 A4, 1格=25.4mm`,
-      config.paperW / 2,
-      28,
-      { align: 'center' },
-    );
-
-    // Instructions
-    const instY = guideY + guideH + 15;
-    const instructions = [
-      `打印所有 ${totalCols * totalRows} 张，使用 A4 纸，100% 比例，无缩放。`,
-      '沿 L 形裁剪标记裁切每张纸。',
-      '按 R行C列 编号排列，重叠区对齐图案。',
-      '用透明胶带从背面拼接。',
-      '',
-      `网格尺度：1格 = 25.4mm (1英寸), 源图 ${config.cellPx} DPI。`,
-    ];
-    for (let i = 0; i < instructions.length; i++) {
-      doc.text(instructions[i], config.marginLeft + 5, instY + i * 6);
-    }
-
+    drawAssemblyGuidePage(img, totalCols, totalRows, doc, config);
     if (tiles.length > 0) {
       doc.addPage();
     }

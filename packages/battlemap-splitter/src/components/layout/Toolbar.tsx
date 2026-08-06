@@ -65,7 +65,7 @@ export function Toolbar({ onUploadClick, onExportClick }: ToolbarProps) {
           open={flyout === 'paper'}
           onClick={() => toggleFlyout('paper')}
           panel={<PaperConfigPanel />}
-          width={340}
+          width={360}
         />
 
         {/* Grid pill */}

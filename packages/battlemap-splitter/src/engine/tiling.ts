@@ -86,6 +86,7 @@ export function computeTileGrid(
   imageH: number,
   cellPx: number,
   paper: PaperConfig,
+  orientation: 'auto' | 'portrait' | 'landscape' = 'auto',
   labelHeightMm = 12,
 ): TileGrid {
   const overlapMm = paper.overlapMm ?? OVERLAP_MM;
@@ -116,7 +117,11 @@ export function computeTileGrid(
   let cols: number;
   let rows: number;
 
-  if (landscape.pages < portrait.pages) {
+  if (orientation === 'landscape') {
+    useLandscape = true;
+  } else if (orientation === 'portrait') {
+    useLandscape = false;
+  } else if (landscape.pages < portrait.pages) {
     useLandscape = true;
   } else if (landscape.pages === portrait.pages && landscape.waste < portrait.waste - 1) {
     useLandscape = true;

@@ -19,6 +19,8 @@ export interface TileInfo {
   /** Content area on paper in mm */
   contentW: number;
   contentH: number;
+  /** Thumbnail preview data URL (generated during empty tile detection) */
+  previewUrl?: string;
 }
 
 interface TileState {
@@ -39,8 +41,9 @@ function engineTileToTileInfo(t: EngineTileInfo): TileInfo {
   return {
     row: t.row,
     col: t.col,
-    selected: true, // All non-empty tiles selected by default
+    selected: true,
     isEmpty: false,
+    previewUrl: undefined,
     srcX: t.srcX,
     srcY: t.srcY,
     srcW: t.srcW,
@@ -66,15 +69,21 @@ export const useTileStore = create<TileState>((set, get) => ({
       return;
     }
 
-    const grid = computeTileGrid(mapState.width, mapState.height, gridState.cellPx, {
-      widthMm: paperState.getPaperWidth(),
-      heightMm: paperState.getPaperHeight(),
-      marginLeft: paperState.getMarginLeft(),
-      marginRight: paperState.getMarginRight(),
-      marginTop: paperState.getMarginTop(),
-      marginBottom: paperState.getMarginBottom(),
-      overlapMm: paperState.overlap,
-    });
+    const grid = computeTileGrid(
+      mapState.width,
+      mapState.height,
+      gridState.cellPx,
+      {
+        widthMm: paperState.getPaperWidth(),
+        heightMm: paperState.getPaperHeight(),
+        marginLeft: paperState.getMarginLeft(),
+        marginRight: paperState.getMarginRight(),
+        marginTop: paperState.getMarginTop(),
+        marginBottom: paperState.getMarginBottom(),
+        overlapMm: paperState.overlap,
+      },
+      paperState.orientation,
+    );
 
     const tiles: TileInfo[][] = grid.tiles.map((row) => row.map(engineTileToTileInfo));
 
@@ -140,6 +149,11 @@ export const useTileStore = create<TileState>((set, get) => ({
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
+      // Also generate preview thumbnails (separate canvas to avoid conflicts)
+      const thumbCanvas = document.createElement('canvas');
+      const thumbCtx = thumbCanvas.getContext('2d');
+      const THUMB_MAX = 150;
+
       const newTiles = await Promise.all(
         tiles.map(async (row) =>
           Promise.all(
@@ -174,10 +188,41 @@ export const useTileStore = create<TileState>((set, get) => ({
                 return {
                   ...t,
                   isEmpty: variance < 5.0,
-                  selected: variance >= 5.0, // Auto-deselect empty tiles
+                  selected: variance >= 5.0,
+                  previewUrl: generatePreview(),
                 };
+
+                function generatePreview(): string | undefined {
+                  if (!thumbCtx || thumbCanvas.width === 0) return undefined;
+                  try {
+                    const previewW = Math.min(
+                      THUMB_MAX,
+                      Math.round(THUMB_MAX * (t.srcW / Math.max(t.srcW, t.srcH))),
+                    );
+                    const previewH = Math.min(
+                      THUMB_MAX,
+                      Math.round(THUMB_MAX * (t.srcH / Math.max(t.srcW, t.srcH))),
+                    );
+                    thumbCanvas.width = previewW;
+                    thumbCanvas.height = previewH;
+                    thumbCtx.drawImage(
+                      img,
+                      t.srcX,
+                      t.srcY,
+                      t.srcW,
+                      t.srcH,
+                      0,
+                      0,
+                      previewW,
+                      previewH,
+                    );
+                    return thumbCanvas.toDataURL('image/jpeg', 0.5);
+                  } catch {
+                    return undefined;
+                  }
+                }
               } catch {
-                // Canvas tainted — can't check emptiness
+                // Canvas tainted — can't check emptiness or preview
                 return { ...t, isEmpty: false };
               }
             }),

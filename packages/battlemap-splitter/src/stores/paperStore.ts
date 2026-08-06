@@ -48,9 +48,14 @@ interface PaperState {
 
 const PRESET_DIMENSIONS: Record<Exclude<PaperPreset, 'CUSTOM'>, { w: number; h: number }> = {
   A4: { w: 210, h: 297 },
-  LETTER: { w: 215.9, h: 279.4 },
   A3: { w: 297, h: 420 },
+  A2: { w: 420, h: 594 },
+  A1: { w: 594, h: 841 },
+  LETTER: { w: 215.9, h: 279.4 },
+  LEGAL: { w: 215.9, h: 355.6 },
   TABLOID: { w: 279.4, h: 431.8 },
+  B4: { w: 257, h: 364 },
+  B5: { w: 182, h: 257 },
 };
 
 export const usePaperStore = create<PaperState>((set, get) => ({
