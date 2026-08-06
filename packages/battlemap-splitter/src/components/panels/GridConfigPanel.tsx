@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGridStore } from '@/stores/gridStore';
+import { usePaperStore } from '@/stores/paperStore';
 import { showToast } from '@/utils/toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
@@ -12,14 +13,31 @@ const COLORS = [
 
 export function GridConfigPanel() {
   const cellPx = useGridStore((s) => s.cellPx);
+  const offsetX = useGridStore((s) => s.offsetX);
+  const offsetY = useGridStore((s) => s.offsetY);
   const visible = useGridStore((s) => s.visible);
+  const tileOverlayVisible = useGridStore((s) => s.tileOverlayVisible);
   const color = useGridStore((s) => s.color);
   const opacity = useGridStore((s) => s.opacity);
   const setCellPx = useGridStore((s) => s.setCellPx);
+  const setOffset = useGridStore((s) => s.setOffset);
   const toggleVisibility = useGridStore((s) => s.toggleVisibility);
+  const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
   const setColor = useGridStore((s) => s.setColor);
   const setOpacity = useGridStore((s) => s.setOpacity);
   const autoDetect = useGridStore((s) => s.autoDetect);
+
+  // Paper store — for dynamic scale reference
+  const margin = usePaperStore((s) => s.margin);
+  const getPaperWidth = usePaperStore((s) => s.getPaperWidth);
+  const getPaperHeight = usePaperStore((s) => s.getPaperHeight);
+  const paperW = getPaperWidth();
+  const paperH = getPaperHeight();
+  const contentW = paperW - 2 * margin;
+  const contentH = paperH - 2 * margin;
+  const squaresW = (contentW / 25.4).toFixed(1);
+  const squaresH = (contentH / 25.4).toFixed(1);
+
   const [detecting, setDetecting] = useState(false);
 
   const handleAutoDetect = async () => {
@@ -34,9 +52,6 @@ export function GridConfigPanel() {
       setDetecting(false);
     }
   };
-
-  // Scale reference is constant — content area (194×269mm) divided by cell size (25.4mm)
-  // gives ~7.6 × 10.6 squares per A4 page regardless of source DPI.
 
   return (
     <div className="space-y-4">
@@ -79,13 +94,51 @@ export function GridConfigPanel() {
 
       <div className="border-t border-border-primary" />
 
+      {/* Grid offset */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-text-primary">Grid Offset</label>
+        <p className="text-[11px] text-text-disabled leading-relaxed">
+          Nudge the grid alignment if auto-detect is slightly off. Values are in source-image
+          pixels.
+        </p>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <label className="text-[10px] text-text-disabled">X</label>
+            <input
+              type="number"
+              value={offsetX}
+              onChange={(e) => setOffset(+e.target.value || 0, offsetY)}
+              min={0}
+              step={1}
+              className="w-full mt-0.5 px-2 py-1 text-xs bg-bg-tertiary border border-border-primary rounded text-text-primary"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="text-[10px] text-text-disabled">Y</label>
+            <input
+              type="number"
+              value={offsetY}
+              onChange={(e) => setOffset(offsetX, +e.target.value || 0)}
+              min={0}
+              step={1}
+              className="w-full mt-0.5 px-2 py-1 text-xs bg-bg-tertiary border border-border-primary rounded text-text-primary"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-border-primary" />
+
       {/* Scale reference */}
       <div className="space-y-1">
         <label className="text-xs font-medium text-text-primary">Scale Reference</label>
         <p className="text-[11px] text-text-disabled leading-relaxed">
-          At this DPI, one A4 page contains approximately{' '}
-          <strong className="text-text-secondary">7.6 × 10.6</strong> grid squares (194×269mm
-          content area).
+          At this grid size, each page contains approximately{' '}
+          <strong className="text-text-secondary">
+            {squaresW} × {squaresH}
+          </strong>{' '}
+          grid squares ({contentW.toFixed(0)}×{contentH.toFixed(0)}mm content area with {margin}mm
+          margins).
         </p>
       </div>
 
@@ -109,6 +162,27 @@ export function GridConfigPanel() {
         >
           {visible ? <Eye size={12} /> : <EyeOff size={12} />}
           {visible ? 'Visible' : 'Hidden'}
+        </button>
+      </div>
+
+      {/* Tile overlay visibility */}
+      <div className="flex items-center justify-between">
+        <div>
+          <label className="text-xs font-medium text-text-primary">Tile Overlay</label>
+          <p className="text-[11px] text-text-disabled">
+            Show/hide the tile split overlay on the map
+          </p>
+        </div>
+        <button
+          onClick={toggleTileOverlay}
+          className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+            tileOverlayVisible
+              ? 'border-primary-500 bg-primary-500/15 text-primary-400'
+              : 'border-border-primary text-text-secondary'
+          }`}
+        >
+          {tileOverlayVisible ? <Eye size={12} /> : <EyeOff size={12} />}
+          {tileOverlayVisible ? 'Visible' : 'Hidden'}
         </button>
       </div>
 

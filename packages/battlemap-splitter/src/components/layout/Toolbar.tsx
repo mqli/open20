@@ -71,7 +71,7 @@ export function Toolbar({ onUploadClick, onExportClick }: ToolbarProps) {
         {/* Grid pill */}
         <FlyoutPill
           label="Grid"
-          value={`${cellPx} DPI`}
+          value={`${cellPx}px`}
           open={flyout === 'grid'}
           onClick={() => toggleFlyout('grid')}
           panel={<GridConfigPanel />}
