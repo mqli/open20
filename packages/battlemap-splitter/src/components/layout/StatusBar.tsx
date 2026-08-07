@@ -2,7 +2,12 @@ import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
 import { useTileStore } from '@/stores/tileStore';
 
-export function StatusBar() {
+interface StatusBarProps {
+  calibrationMode: boolean;
+  calibrationFeet: 5 | 10;
+}
+
+export function StatusBar({ calibrationMode, calibrationFeet }: StatusBarProps) {
   const width = useMapStore((s) => s.width);
   const height = useMapStore((s) => s.height);
   const imageUrl = useMapStore((s) => s.imageUrl);
@@ -19,6 +24,11 @@ export function StatusBar() {
 
   return (
     <div className="h-5 bg-bg-tertiary border-t border-border-primary flex items-center gap-3 px-3 text-[11px] text-text-disabled shrink-0">
+      {calibrationMode && (
+        <span className="text-primary-400 font-medium">
+          Calibrating: draw a 2×2 rectangle across {calibrationFeet}ft squares on the map
+        </span>
+      )}
       <span>
         Image: {width}×{height}px
       </span>

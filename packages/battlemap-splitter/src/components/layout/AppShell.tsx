@@ -5,6 +5,7 @@ import { Toolbar } from '@/components/layout/Toolbar';
 import { StatusBar } from '@/components/layout/StatusBar';
 import { ToastContainer } from '@/components/layout/ToastContainer';
 import { TileSidebar } from '@/components/panels/TileSidebar';
+import { GridPanel } from '@/components/panels/GridPanel';
 import { UploadDialog } from '@/components/dialogs/UploadDialog';
 import { ExportDialog } from '@/components/dialogs/ExportDialog';
 import { useSessionPersistence } from '@/hooks/useSessionPersistence';
@@ -47,25 +48,24 @@ export function AppShell() {
             calibrationMode={calibrationMode}
             onCalibrateDone={() => setCalibrationMode(false)}
           />
-          <ToolPalette
+          <ToolPalette />
+          <TileSidebar
+            onUploadClick={() => setShowUpload(true)}
+            onExportClick={() => setShowExport(true)}
+          />
+          <GridPanel
             calibrationMode={calibrationMode}
             calibrationFeet={calibrationFeet}
             onToggleCalibration={() => {
               setCalibrationMode((v) => !v);
             }}
-            onCycleFeet={() => {
-              setCalibrationFeet((f) => (f === 5 ? 10 : 5));
-            }}
-          />
-          <TileSidebar
-            onUploadClick={() => setShowUpload(true)}
-            onExportClick={() => setShowExport(true)}
+            onSetFeet={setCalibrationFeet}
           />
         </div>
       </div>
 
       {/* Status bar */}
-      <StatusBar />
+      <StatusBar calibrationMode={calibrationMode} calibrationFeet={calibrationFeet} />
 
       {/* Dialogs */}
       {showUpload && <UploadDialog onClose={() => setShowUpload(false)} />}

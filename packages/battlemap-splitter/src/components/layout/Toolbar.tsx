@@ -1,18 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PaperConfigPanel } from '@/components/panels/PaperConfigPanel';
 import { PaperSizePanel } from '@/components/panels/PaperSizePanel';
-import { GridConfigPanel } from '@/components/panels/GridConfigPanel';
 import { usePaperStore } from '@/stores/paperStore';
-import { useGridStore } from '@/stores/gridStore';
 import { ChevronDown } from 'lucide-react';
 
-type Flyout = null | 'size' | 'print' | 'grid';
+type Flyout = null | 'size' | 'print';
 
 export function Toolbar() {
   const [flyout, setFlyout] = useState<Flyout>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const preset = usePaperStore((s) => s.preset);
-  const cellPx = useGridStore((s) => s.cellPx);
 
   const closeFlyout = useCallback(() => setFlyout(null), []);
 
@@ -72,16 +69,6 @@ export function Toolbar() {
           onClick={() => toggleFlyout('print')}
           panel={<PaperConfigPanel />}
           width={400}
-        />
-
-        {/* Grid pill */}
-        <FlyoutPill
-          label="Grid"
-          value={`${cellPx}px`}
-          open={flyout === 'grid'}
-          onClick={() => toggleFlyout('grid')}
-          panel={<GridConfigPanel />}
-          width={320}
         />
       </div>
     </div>

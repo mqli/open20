@@ -1,0 +1,186 @@
+import { useGridStore } from '@/stores/gridStore';
+import { useMapStore } from '@/stores/mapStore';
+import { Ruler, Grid3x3, LayoutGrid, X, Eye, EyeOff } from 'lucide-react';
+
+interface GridPanelProps {
+  calibrationMode: boolean;
+  calibrationFeet: 5 | 10;
+  onToggleCalibration: () => void;
+  onSetFeet: (feet: 5 | 10) => void;
+}
+
+const COLORS = [
+  { value: 'rgba(239, 68, 68, 0.8)', label: 'Red' },
+  { value: 'rgba(59, 130, 246, 0.8)', label: 'Blue' },
+  { value: 'rgba(255, 255, 255, 0.8)', label: 'White' },
+  { value: 'rgba(250, 204, 21, 0.8)', label: 'Yellow' },
+] as const;
+
+export function GridPanel({
+  calibrationMode,
+  calibrationFeet,
+  onToggleCalibration,
+  onSetFeet,
+}: GridPanelProps) {
+  const imageUrl = useMapStore((s) => s.imageUrl);
+  const mapWidth = useMapStore((s) => s.width);
+  const mapHeight = useMapStore((s) => s.height);
+
+  const cellPx = useGridStore((s) => s.cellPx);
+  const gridVisible = useGridStore((s) => s.visible);
+  const tileOverlayVisible = useGridStore((s) => s.tileOverlayVisible);
+  const color = useGridStore((s) => s.color);
+  const opacity = useGridStore((s) => s.opacity);
+  const toggleGrid = useGridStore((s) => s.toggleVisibility);
+  const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
+  const setColor = useGridStore((s) => s.setColor);
+  const setOpacity = useGridStore((s) => s.setOpacity);
+
+  const squaresW = cellPx > 0 ? Math.floor(mapWidth / cellPx) : 0;
+  const squaresH = cellPx > 0 ? Math.floor(mapHeight / cellPx) : 0;
+
+  // Don't show panel if no image loaded
+  if (!imageUrl) return null;
+
+  return (
+    <div className="absolute top-4 left-[316px] z-20">
+      <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-3.5 space-y-3">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
+            Grid Calibration
+          </h3>
+          <span className="text-xs font-mono text-primary-400 tabular-nums">{cellPx} px</span>
+        </div>
+
+        {/* Calibrate button + ft toggle */}
+        <div className="flex gap-1.5">
+          <button
+            type="button"
+            onClick={onToggleCalibration}
+            className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-md text-sm font-medium transition-colors ${
+              calibrationMode
+                ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
+                : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
+            }`}
+          >
+            {calibrationMode ? (
+              <>
+                <X size={16} />
+                Cancel
+              </>
+            ) : (
+              <>
+                <Ruler size={16} />
+                Calibrate Grid
+              </>
+            )}
+          </button>
+
+          {/* ft toggle */}
+          <div className="flex rounded-md border border-border-primary overflow-hidden shrink-0 h-9">
+            <button
+              type="button"
+              onClick={() => onSetFeet(5)}
+              className={`w-10 text-xs font-medium transition-colors ${
+                calibrationFeet === 5
+                  ? 'bg-primary-500/20 text-primary-400'
+                  : 'text-text-disabled hover:bg-bg-tertiary'
+              }`}
+            >
+              5ft
+            </button>
+            <button
+              type="button"
+              onClick={() => onSetFeet(10)}
+              className={`w-10 text-xs font-medium transition-colors border-l border-border-primary ${
+                calibrationFeet === 10
+                  ? 'bg-primary-500/20 text-primary-400'
+                  : 'text-text-disabled hover:bg-bg-tertiary'
+              }`}
+            >
+              10ft
+            </button>
+          </div>
+        </div>
+
+        {calibrationMode ? (
+          <p className="text-[10px] text-primary-400 text-center leading-snug">
+            Draw a rectangle covering 2&times;2 grid squares ({calibrationFeet} ft).
+          </p>
+        ) : (
+          <p className="text-[10px] text-text-disabled text-center leading-snug">
+            Draw 2&times;2 squares on the map ({calibrationFeet} ft).
+          </p>
+        )}
+
+        {/* Overlay toggles */}
+        <div className="space-y-1">
+          <p className="text-[10px] text-text-disabled leading-snug">Overlays</p>
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={toggleGrid}
+              className={`flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] transition-colors ${
+                gridVisible
+                  ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
+                  : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
+              }`}
+            >
+              <Grid3x3 size={12} />
+              Grid
+              {gridVisible ? <Eye size={10} /> : <EyeOff size={10} />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleTileOverlay}
+              className={`flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] transition-colors ${
+                tileOverlayVisible
+                  ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
+                  : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
+              }`}
+            >
+              <LayoutGrid size={12} />
+              Tiles
+              {tileOverlayVisible ? <Eye size={10} /> : <EyeOff size={10} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Color + Opacity */}
+        <div className="space-y-1.5">
+          <p className="text-[10px] text-text-disabled leading-snug">
+            Grid color &mdash; {squaresW}&times;{squaresH} squares. Pick a color that contrasts with
+            your map.
+          </p>
+          <div className="flex items-center gap-1.5">
+            {COLORS.map((c) => (
+              <button
+                key={c.value}
+                onClick={() => setColor(c.value)}
+                title={c.label}
+                className={`w-5 h-5 rounded-full border-2 transition-transform shrink-0 ${
+                  color === c.value
+                    ? 'border-primary-400 scale-110'
+                    : 'border-transparent hover:scale-105'
+                }`}
+                style={{ backgroundColor: c.value.replace(/[\d.]+\)$/, '1)') }}
+              />
+            ))}
+            <span className="text-[10px] text-text-disabled shrink-0 leading-none">Opacity</span>
+            <input
+              type="range"
+              value={opacity}
+              onChange={(e) => setOpacity(+e.target.value)}
+              min={0.1}
+              max={1}
+              step={0.05}
+              title={`Grid opacity: ${Math.round(opacity * 100)}%`}
+              className="flex-1 accent-primary-600 h-3 min-w-0"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
