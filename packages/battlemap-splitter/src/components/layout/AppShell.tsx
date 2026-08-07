@@ -38,10 +38,7 @@ export function AppShell() {
   return (
     <div className="h-screen flex flex-col bg-bg-primary text-text-primary">
       {/* Toolbar */}
-      <Toolbar
-        onUploadClick={() => setShowUpload(true)}
-        onExportClick={() => setShowExport(true)}
-      />
+      <Toolbar />
 
       {/* Workspace */}
       <div className="flex-1 flex overflow-hidden">
@@ -60,8 +57,11 @@ export function AppShell() {
               setCalibrationFeet((f) => (f === 5 ? 10 : 5));
             }}
           />
+          <TileSidebar
+            onUploadClick={() => setShowUpload(true)}
+            onExportClick={() => setShowExport(true)}
+          />
         </div>
-        <TileSidebar />
       </div>
 
       {/* Status bar */}

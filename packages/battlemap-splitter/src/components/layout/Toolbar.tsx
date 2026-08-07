@@ -4,16 +4,11 @@ import { PaperSizePanel } from '@/components/panels/PaperSizePanel';
 import { GridConfigPanel } from '@/components/panels/GridConfigPanel';
 import { usePaperStore } from '@/stores/paperStore';
 import { useGridStore } from '@/stores/gridStore';
-import { Upload, Download, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 type Flyout = null | 'size' | 'print' | 'grid';
 
-interface ToolbarProps {
-  onUploadClick?: () => void;
-  onExportClick?: () => void;
-}
-
-export function Toolbar({ onUploadClick, onExportClick }: ToolbarProps) {
+export function Toolbar() {
   const [flyout, setFlyout] = useState<Flyout>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const preset = usePaperStore((s) => s.preset);
@@ -88,22 +83,6 @@ export function Toolbar({ onUploadClick, onExportClick }: ToolbarProps) {
           panel={<GridConfigPanel />}
           width={320}
         />
-
-        <div className="flex-1" />
-
-        <button
-          onClick={onUploadClick}
-          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
-        >
-          <Upload size={13} /> Upload
-        </button>
-
-        <button
-          onClick={onExportClick}
-          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-primary-600 text-white hover:bg-primary-500 transition-colors"
-        >
-          <Download size={13} /> PDF
-        </button>
       </div>
     </div>
   );

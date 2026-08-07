@@ -1,9 +1,7 @@
 import { useRef, useCallback, useEffect } from 'react';
 import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
-import { useTileStore } from '@/stores/tileStore';
 import { useCanvasRenderer } from '@/hooks/useCanvasRenderer';
-import { hitTestTile } from './TileOverlay';
 import { DropZone } from './DropZone';
 
 interface MapCanvasProps {
@@ -145,8 +143,8 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
         return;
       }
 
-      if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
-        // Middle button or Shift+Left → pan
+      if (e.button === 2 || (e.button === 0 && e.shiftKey)) {
+        // Right button or Shift+Left → pan
         const map = useMapStore.getState();
         dragRef.current = {
           active: true,
@@ -156,32 +154,8 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
           startPanY: map.panY,
         };
       } else if (e.button === 0) {
-        // Left click — check tiles first, then grid drag
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const map = useMapStore.getState();
+        // Left click — start grid drag (if grid visible)
         const grid = useGridStore.getState();
-        const tileStore = useTileStore.getState();
-
-        // Convert screen coords to map coords (canvas buffer = CSS pixels now)
-        const mapW = map.width * map.zoom;
-        const mapH = map.height * map.zoom;
-        const offsetX = (canvas.width - mapW) / 2 + map.panX;
-        const offsetY = (canvas.height - mapH) / 2 + map.panY;
-        const mx = (x - offsetX) / map.zoom;
-        const my = (y - offsetY) / map.zoom;
-
-        // Check tile click first
-        if (tileStore.tiles.length > 0) {
-          const hit = hitTestTile(mx, my, tileStore.tiles);
-          if (hit) {
-            tileStore.toggleTile(hit.row, hit.col);
-            return;
-          }
-        }
-
-        // Otherwise, start grid drag (if grid visible)
         if (grid.visible) {
           gridDragRef.current = {
             active: true,
@@ -209,8 +183,16 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
         const mapH = map.height * map.zoom;
         const offX = (canvas.width - mapW) / 2 + map.panX;
         const offY = (canvas.height - mapH) / 2 + map.panY;
-        calibrateRef.current.endX = (x - offX) / map.zoom;
-        calibrateRef.current.endY = (y - offY) / map.zoom;
+        // Constrain to 1:1 square — use the larger axis delta
+        const rawEndX = (x - offX) / map.zoom;
+        const rawEndY = (y - offY) / map.zoom;
+        const dx = rawEndX - calibrateRef.current.startX;
+        const dy = rawEndY - calibrateRef.current.startY;
+        const size = Math.max(Math.abs(dx), Math.abs(dy));
+        const sx = dx >= 0 ? size : -size;
+        const sy = dy >= 0 ? size : -size;
+        calibrateRef.current.endX = calibrateRef.current.startX + sx;
+        calibrateRef.current.endY = calibrateRef.current.startY + sy;
         return;
       }
 
@@ -305,6 +287,11 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
         </div>
       )}
       {!imageUrl && <DropZone />}
+      {imageUrl && (
+        <div className="absolute bottom-2 left-2 text-[10px] text-text-disabled/60 select-none pointer-events-none">
+          Right-click or Shift+Left-click + drag to pan &middot; Scroll to zoom
+        </div>
+      )}
     </div>
   );
 }

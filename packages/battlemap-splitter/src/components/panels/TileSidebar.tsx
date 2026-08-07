@@ -1,6 +1,12 @@
+import { Upload, Download } from 'lucide-react';
 import { useTileStore } from '@/stores/tileStore';
 
-export function TileSidebar() {
+interface TileSidebarProps {
+  onUploadClick?: () => void;
+  onExportClick?: () => void;
+}
+
+export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) {
   const tiles = useTileStore((s) => s.tiles);
   const tileCols = useTileStore((s) => s.tileCols);
   const tileRows = useTileStore((s) => s.tileRows);
@@ -13,14 +19,20 @@ export function TileSidebar() {
 
   if (tiles.length === 0) {
     return (
-      <div className="w-72 bg-bg-secondary border-l border-border-primary p-4">
-        <div className="text-xs text-text-disabled text-center mt-8">Upload a map to see tiles</div>
+      <div className="absolute top-4 left-4 w-64 bg-bg-secondary rounded-lg shadow-lg border border-border-primary p-4 flex flex-col items-center gap-3">
+        <div className="text-xs text-text-disabled text-center">Upload a map to see tiles</div>
+        <button
+          onClick={onUploadClick}
+          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
+        >
+          <Upload size={13} /> Upload
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="w-72 bg-bg-secondary border-l border-border-primary flex flex-col">
+    <div className="absolute top-4 left-4 bottom-4 w-72 bg-bg-secondary rounded-lg shadow-lg border border-border-primary flex flex-col">
       {/* Header */}
       <div className="p-3 border-b border-border-primary shrink-0">
         <h3 className="text-sm font-semibold text-text-primary">Tiles</h3>
@@ -40,37 +52,41 @@ export function TileSidebar() {
           >
             None
           </button>
+          <button
+            onClick={onUploadClick}
+            className="flex items-center gap-1 text-xs px-2 py-1 rounded border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
+            title="Upload map"
+          >
+            <Upload size={12} />
+          </button>
+          <button
+            onClick={onExportClick}
+            className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-primary-600 text-white hover:bg-primary-500 transition-colors"
+            title="Export PDF"
+          >
+            <Download size={12} />
+          </button>
         </div>
       </div>
 
-      {/* Tile list with previews */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
-        {tiles.map((row) =>
-          row.map((tile) => {
-            if (tile.isEmpty) return null;
+      {/* Tile grid */}
+      <div className="flex-1 overflow-y-auto p-2">
+        <div className="grid grid-cols-3 gap-1.5">
+          {tiles.map((row) =>
+            row.map((tile) => {
+              if (tile.isEmpty) return null;
 
-            const aspectRatio = tile.srcW / tile.srcH;
-
-            return (
-              <label
-                key={`${tile.row}-${tile.col}`}
-                className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer transition-colors ${
-                  tile.selected
-                    ? 'bg-primary-600/20 text-text-primary ring-1 ring-primary-500/30'
-                    : 'text-text-secondary hover:bg-bg-tertiary'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={tile.selected}
-                  onChange={() => toggleTile(tile.row, tile.col)}
-                  className="accent-primary-600 shrink-0"
-                />
-
-                {/* Thumbnail preview */}
-                <div
-                  className="shrink-0 rounded overflow-hidden border border-border-primary bg-bg-tertiary"
-                  style={{ width: 48, height: 48 }}
+              return (
+                <button
+                  key={`${tile.row}-${tile.col}`}
+                  type="button"
+                  onClick={() => toggleTile(tile.row, tile.col)}
+                  title={`R${tile.row + 1}C${tile.col + 1} (${tile.srcW}\u00d7${tile.srcH}px)`}
+                  className={`aspect-square rounded overflow-hidden border-2 transition-colors bg-bg-tertiary ${
+                    tile.selected
+                      ? 'border-primary-500 ring-1 ring-primary-500/30'
+                      : 'border-transparent hover:border-border-primary'
+                  }`}
                 >
                   {tile.previewUrl ? (
                     <img
@@ -80,24 +96,14 @@ export function TileSidebar() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[10px] text-text-disabled">
-                      {Math.round(aspectRatio * 10) / 10}
+                      R{tile.row + 1}C{tile.col + 1}
                     </div>
                   )}
-                </div>
-
-                {/* Label */}
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-medium truncate">
-                    R{tile.row + 1}C{tile.col + 1}
-                  </div>
-                  <div className="text-[10px] text-text-disabled tabular-nums">
-                    {tile.srcW}×{tile.srcH}px
-                  </div>
-                </div>
-              </label>
-            );
-          }),
-        )}
+                </button>
+              );
+            }),
+          )}
+        </div>
       </div>
     </div>
   );
