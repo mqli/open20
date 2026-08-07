@@ -16,7 +16,7 @@ export function AppShell() {
   const [showUpload, setShowUpload] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [calibrationMode, setCalibrationMode] = useState(false);
-  const [calibrationSquares, setCalibrationSquares] = useState(1);
+  const [calibrationFeet, setCalibrationFeet] = useState<5 | 10>(5);
 
   useSessionPersistence();
   useTileRecalc();
@@ -48,17 +48,16 @@ export function AppShell() {
         <div className="flex-1 relative flex flex-col">
           <MapCanvas
             calibrationMode={calibrationMode}
-            calibrationSquares={calibrationSquares}
             onCalibrateDone={() => setCalibrationMode(false)}
           />
           <ToolPalette
             calibrationMode={calibrationMode}
-            calibrationSquares={calibrationSquares}
+            calibrationFeet={calibrationFeet}
             onToggleCalibration={() => {
               setCalibrationMode((v) => !v);
             }}
-            onCycleSquares={() => {
-              setCalibrationSquares((s) => (s === 1 ? 2 : 1));
+            onCycleFeet={() => {
+              setCalibrationFeet((f) => (f === 5 ? 10 : 5));
             }}
           />
         </div>

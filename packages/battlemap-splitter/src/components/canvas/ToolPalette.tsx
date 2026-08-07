@@ -4,16 +4,16 @@ import { Ruler, ZoomIn, ZoomOut, Maximize, Grid3x3, LayoutGrid } from 'lucide-re
 
 interface ToolPaletteProps {
   calibrationMode: boolean;
-  calibrationSquares: number;
+  calibrationFeet: 5 | 10;
   onToggleCalibration: () => void;
-  onCycleSquares: () => void;
+  onCycleFeet: () => void;
 }
 
 export function ToolPalette({
   calibrationMode,
-  calibrationSquares,
+  calibrationFeet,
   onToggleCalibration,
-  onCycleSquares,
+  onCycleFeet,
 }: ToolPaletteProps) {
   const zoom = useMapStore((s) => s.zoom);
   const setZoom = useMapStore((s) => s.setZoom);
@@ -53,19 +53,19 @@ export function ToolPalette({
       </ToolButton>
       <div className="mx-1 border-t border-border-primary" />
       <ToolButton
-        title={`Calibrate grid — draw a rectangle across ${calibrationSquares} square${calibrationSquares > 1 ? 's' : ''}`}
+        title={`Calibrate grid — draw a 2×2 rectangle across the map grid (${calibrationFeet}ft squares)`}
         active={calibrationMode}
         onClick={onToggleCalibration}
         onContextMenu={(e) => {
           e.preventDefault();
-          onCycleSquares();
+          onCycleFeet();
         }}
       >
         <Ruler size={16} />
       </ToolButton>
       {calibrationMode && (
         <div className="text-[10px] text-center text-primary-400 leading-none pb-0.5">
-          {calibrationSquares} sq
+          {calibrationFeet}ft
         </div>
       )}
       <div className="mx-1 border-t border-border-primary" />

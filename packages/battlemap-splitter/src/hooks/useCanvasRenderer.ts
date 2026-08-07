@@ -92,10 +92,23 @@ export function useCanvasRenderer(
       const h = Math.abs(c.endY - c.startY);
 
       ctx.save();
-      ctx.setLineDash([4, 4]);
       ctx.strokeStyle = 'rgba(0, 200, 255, 0.9)';
-      ctx.lineWidth = 2 / map.zoom;
+      ctx.lineWidth = 1.5 / map.zoom;
+
+      // Outer rect (solid)
+      ctx.setLineDash([]);
       ctx.strokeRect(x, y, w, h);
+
+      // Inner 2×2 grid lines (dashed)
+      ctx.setLineDash([3, 3]);
+      const cellW = w / 2;
+      const cellH = h / 2;
+      ctx.beginPath();
+      ctx.moveTo(x + cellW, y);
+      ctx.lineTo(x + cellW, y + h);
+      ctx.moveTo(x, y + cellH);
+      ctx.lineTo(x + w, y + cellH);
+      ctx.stroke();
       ctx.setLineDash([]);
 
       // Tinted fill

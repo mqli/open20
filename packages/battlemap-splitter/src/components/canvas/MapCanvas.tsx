@@ -8,15 +8,10 @@ import { DropZone } from './DropZone';
 
 interface MapCanvasProps {
   calibrationMode: boolean;
-  calibrationSquares?: number;
   onCalibrateDone: () => void;
 }
 
-export function MapCanvas({
-  calibrationMode,
-  calibrationSquares = 1,
-  onCalibrateDone,
-}: MapCanvasProps) {
+export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -248,15 +243,22 @@ export function MapCanvas({
 
     if (calibrateRef.current.active) {
       calibrateRef.current.active = false;
-      const { startX, endX } = calibrateRef.current;
-      const w = Math.abs(endX - startX);
-      if (w > 5) {
-        const cellPx = Math.round(w / calibrationSquares);
-        useGridStore.getState().setCellPx(Math.max(10, cellPx));
+      const c = calibrateRef.current;
+      const x = Math.min(c.startX, c.endX);
+      const y = Math.min(c.startY, c.endY);
+      const w = Math.abs(c.endX - c.startX);
+      const h = Math.abs(c.endY - c.startY);
+      // 2×2 grid: average of width/2 and height/2
+      if (w > 5 && h > 5) {
+        const cellPx = Math.floor((w / 2 + h / 2) / 2);
+        const grid = useGridStore.getState();
+        grid.setCellPx(Math.max(10, cellPx));
+        // Align grid to the drawn rectangle origin
+        grid.setOffset(Math.round(x % cellPx), Math.round(y % cellPx));
       }
       onCalibrateDone();
     }
-  }, [calibrationSquares, onCalibrateDone]);
+  }, [onCalibrateDone]);
 
   // Resize canvas to fill container via ResizeObserver
   useEffect(() => {
