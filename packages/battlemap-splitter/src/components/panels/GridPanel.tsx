@@ -1,12 +1,26 @@
 import { useGridStore } from '@/stores/gridStore';
 import { useMapStore } from '@/stores/mapStore';
-import { Ruler, Grid3x3, LayoutGrid, X, Eye, EyeOff } from 'lucide-react';
+import {
+  Ruler,
+  Grid3x3,
+  LayoutGrid,
+  X,
+  Eye,
+  EyeOff,
+  MousePointer2,
+  Sparkles,
+  Minus,
+  Plus,
+} from 'lucide-react';
+import type { CalibrateMode } from '@/types';
 
 interface GridPanelProps {
   calibrationMode: boolean;
   calibrationFeet: 5 | 10;
+  calibrateMode: CalibrateMode;
   onToggleCalibration: () => void;
   onSetFeet: (feet: 5 | 10) => void;
+  onSetCalibrateMode: (mode: CalibrateMode) => void;
 }
 
 const COLORS = [
@@ -19,8 +33,10 @@ const COLORS = [
 export function GridPanel({
   calibrationMode,
   calibrationFeet,
+  calibrateMode,
   onToggleCalibration,
   onSetFeet,
+  onSetCalibrateMode,
 }: GridPanelProps) {
   const imageUrl = useMapStore((s) => s.imageUrl);
   const mapWidth = useMapStore((s) => s.width);
@@ -35,6 +51,7 @@ export function GridPanel({
   const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
   const setColor = useGridStore((s) => s.setColor);
   const setOpacity = useGridStore((s) => s.setOpacity);
+  const adjustCellPx = useGridStore((s) => s.adjustCellPx);
 
   const squaresW = cellPx > 0 ? Math.floor(mapWidth / cellPx) : 0;
   const squaresH = cellPx > 0 ? Math.floor(mapHeight / cellPx) : 0;
@@ -50,7 +67,27 @@ export function GridPanel({
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
             Grid Calibration
           </h3>
-          <span className="text-xs font-mono text-primary-400 tabular-nums">{cellPx} px</span>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => adjustCellPx(-1)}
+              className="w-5 h-5 flex items-center justify-center rounded text-text-disabled hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
+              title="Decrease DPI"
+            >
+              <Minus size={12} />
+            </button>
+            <span className="text-xs font-mono text-primary-400 tabular-nums w-10 text-center">
+              {cellPx}
+            </span>
+            <button
+              type="button"
+              onClick={() => adjustCellPx(1)}
+              className="w-5 h-5 flex items-center justify-center rounded text-text-disabled hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
+              title="Increase DPI"
+            >
+              <Plus size={12} />
+            </button>
+          </div>
         </div>
 
         {/* Calibrate button + ft toggle */}
@@ -104,9 +141,57 @@ export function GridPanel({
           </div>
         </div>
 
+        {/* Calibrate mode selector (always visible) */}
+        <div className="flex rounded-md border border-border-primary overflow-hidden h-8">
+          <button
+            type="button"
+            onClick={() => onSetCalibrateMode('smart')}
+            className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+              calibrateMode === 'smart'
+                ? 'bg-primary-500/20 text-primary-400'
+                : 'text-text-disabled hover:bg-bg-tertiary'
+            }`}
+            title="Auto-detect grid from rough selection"
+          >
+            <Sparkles size={12} />
+            Smart
+          </button>
+          <button
+            type="button"
+            onClick={() => onSetCalibrateMode('manual')}
+            className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+              calibrateMode === 'manual'
+                ? 'bg-primary-500/20 text-primary-400'
+                : 'text-text-disabled hover:bg-bg-tertiary'
+            }`}
+            title="Manually draw precise 2×2 rectangle"
+          >
+            <MousePointer2 size={12} />
+            Manual
+          </button>
+        </div>
+
         {calibrationMode ? (
-          <p className="text-[10px] text-primary-400 text-center leading-snug">
-            Draw a rectangle covering 2&times;2 grid squares ({calibrationFeet} ft).
+          <>
+            <p className="text-[10px] text-primary-400 text-center leading-snug">
+              {calibrateMode === 'manual'
+                ? `Draw a rectangle covering exactly 2\u00d72 grid squares (${calibrationFeet} ft).`
+                : `Roughly select a region containing 2\u00d72 grid squares (${calibrationFeet} ft).`}
+            </p>
+            <p className="text-[10px] text-text-disabled/70 text-center leading-snug">
+              Pick an area with clear, unobstructed grid lines for best results.
+            </p>
+            {calibrateMode === 'smart' && (
+              <p className="text-[10px] text-text-disabled/70 text-center leading-snug">
+                Not accurate? Switch to <span className="text-text-secondary">Manual</span> and draw
+                the grid precisely.
+              </p>
+            )}
+          </>
+        ) : !gridVisible ? (
+          <p className="text-[10px] text-primary-400 text-center leading-snug font-medium">
+            Click <span className="text-primary-300">Calibrate Grid</span> to align the grid with
+            your map.
           </p>
         ) : (
           <p className="text-[10px] text-text-disabled text-center leading-snug">
@@ -150,8 +235,7 @@ export function GridPanel({
         {/* Color + Opacity */}
         <div className="space-y-1.5">
           <p className="text-[10px] text-text-disabled leading-snug">
-            Grid color &mdash; {squaresW}&times;{squaresH} squares. Pick a color that contrasts with
-            your map.
+            Grid {squaresW}&times;{squaresH} squares
           </p>
           <div className="flex items-center gap-1.5">
             {COLORS.map((c) => (

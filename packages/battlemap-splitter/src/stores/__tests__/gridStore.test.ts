@@ -6,10 +6,11 @@ describe('gridStore', () => {
     useGridStore.getState().reset();
   });
 
-  it('starts with default 149.5 DPI', () => {
+  it('starts with default 143 DPI, grid hidden', () => {
     const state = useGridStore.getState();
-    expect(state.cellPx).toBe(149.5);
-    expect(state.visible).toBe(true);
+    expect(state.cellPx).toBe(143);
+    expect(state.visible).toBe(false);
+    expect(state.tileOverlayVisible).toBe(false);
     expect(state.offsetX).toBe(0);
     expect(state.offsetY).toBe(0);
   });
@@ -24,11 +25,22 @@ describe('gridStore', () => {
     expect(useGridStore.getState().cellPx).toBe(100);
   });
 
+  it('adjustCellPx increments and decrements, clamped to min 10', () => {
+    useGridStore.getState().setCellPx(50);
+    useGridStore.getState().adjustCellPx(5);
+    expect(useGridStore.getState().cellPx).toBe(55);
+    useGridStore.getState().adjustCellPx(-3);
+    expect(useGridStore.getState().cellPx).toBe(52);
+    useGridStore.getState().setCellPx(11);
+    useGridStore.getState().adjustCellPx(-5);
+    expect(useGridStore.getState().cellPx).toBe(10);
+  });
+
   it('toggles visibility', () => {
     useGridStore.getState().toggleVisibility();
-    expect(useGridStore.getState().visible).toBe(false);
-    useGridStore.getState().toggleVisibility();
     expect(useGridStore.getState().visible).toBe(true);
+    useGridStore.getState().toggleVisibility();
+    expect(useGridStore.getState().visible).toBe(false);
   });
 
   it('sets color', () => {
@@ -60,10 +72,10 @@ describe('gridStore', () => {
     useGridStore.getState().reset();
 
     const state = useGridStore.getState();
-    expect(state.cellPx).toBe(149.5);
+    expect(state.cellPx).toBe(143);
     expect(state.offsetX).toBe(0);
     expect(state.offsetY).toBe(0);
-    expect(state.visible).toBe(true);
-    expect(state.color).toBe('rgba(255, 0, 0, 0.8)');
+    expect(state.visible).toBe(false);
+    expect(state.color).toBe('rgba(239, 68, 68, 0.8)');
   });
 });

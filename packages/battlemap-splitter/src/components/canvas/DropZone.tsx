@@ -34,9 +34,6 @@ export function DropZone() {
           overlapMm: paperState.overlap,
         });
         paperState.setOrientation(best);
-        gridState.autoDetect().catch(() => {
-          // Grid detection may fail silently (cross-origin images, etc.)
-        });
         setTimeout(() => useTileStore.getState().recalculate(), 100);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load map');

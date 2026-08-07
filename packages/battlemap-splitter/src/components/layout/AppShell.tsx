@@ -12,12 +12,14 @@ import { useSessionPersistence } from '@/hooks/useSessionPersistence';
 import { useTileRecalc } from '@/hooks/useTileRecalc';
 import { useMapStore } from '@/stores/mapStore';
 import { showToast } from '@/utils/toast';
+import type { CalibrateMode } from '@/types';
 
 export function AppShell() {
   const [showUpload, setShowUpload] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [calibrationMode, setCalibrationMode] = useState(false);
   const [calibrationFeet, setCalibrationFeet] = useState<5 | 10>(5);
+  const [calibrateMode, setCalibrateMode] = useState<CalibrateMode>('smart');
 
   useSessionPersistence();
   useTileRecalc();
@@ -46,6 +48,7 @@ export function AppShell() {
         <div className="flex-1 relative flex flex-col">
           <MapCanvas
             calibrationMode={calibrationMode}
+            calibrateMode={calibrateMode}
             onCalibrateDone={() => setCalibrationMode(false)}
           />
           <ToolPalette />
@@ -56,10 +59,12 @@ export function AppShell() {
           <GridPanel
             calibrationMode={calibrationMode}
             calibrationFeet={calibrationFeet}
+            calibrateMode={calibrateMode}
             onToggleCalibration={() => {
               setCalibrationMode((v) => !v);
             }}
             onSetFeet={setCalibrationFeet}
+            onSetCalibrateMode={setCalibrateMode}
           />
         </div>
       </div>

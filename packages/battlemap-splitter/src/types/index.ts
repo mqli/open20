@@ -1,7 +1,29 @@
+/** Calibrate mode: manual 2x2 draw vs smart region analysis */
+export type CalibrateMode = 'manual' | 'smart';
+
+/** Result of projection-based grid detection on a region of the image */
 export interface GridDetectResult {
   cellPx: number;
   offsetX: number;
   offsetY: number;
+}
+
+/** Configuration for the grid snap algorithm */
+export interface SnapWindowConfig {
+  /** Search radius in image pixels (default: 60) */
+  radius: number;
+  /** Gray value threshold below which pixels are considered "dark" grid lines (0-255, default: 100) */
+  darkThreshold: number;
+}
+
+/** Result of a local grid intersection search */
+export interface IntersectionResult {
+  /** Intersection X coordinate (image pixels) */
+  x: number;
+  /** Intersection Y coordinate (image pixels) */
+  y: number;
+  /** Detection confidence (0-1) */
+  confidence: number;
 }
 
 export interface PaperConfig {

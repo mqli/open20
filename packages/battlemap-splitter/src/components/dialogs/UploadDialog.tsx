@@ -46,15 +46,9 @@ export function UploadDialog({ onClose }: UploadDialogProps) {
       setError(null);
       try {
         await loadImageFromFile(file);
-        // Evaluate best orientation and auto-detect grid
+        // Evaluate best orientation
         const mapState = useMapStore.getState();
         evaluateOrientation(mapState.width, mapState.height);
-        useGridStore
-          .getState()
-          .autoDetect()
-          .catch(() => {
-            // Grid detection may fail silently (cross-origin images, etc.)
-          });
         // Trigger tile recalculation on successful load
         setTimeout(() => useTileStore.getState().recalculate(), 100);
         onClose();
@@ -91,15 +85,9 @@ export function UploadDialog({ onClose }: UploadDialogProps) {
       setError(null);
       try {
         await loadImageFromUrl(urlValue.trim());
-        // Evaluate best orientation and auto-detect grid
+        // Evaluate best orientation
         const mapState = useMapStore.getState();
         evaluateOrientation(mapState.width, mapState.height);
-        useGridStore
-          .getState()
-          .autoDetect()
-          .catch(() => {
-            // Grid detection may fail silently (cross-origin images, etc.)
-          });
         setTimeout(() => useTileStore.getState().recalculate(), 100);
         onClose();
       } catch (err) {

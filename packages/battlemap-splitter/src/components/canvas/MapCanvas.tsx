@@ -2,14 +2,17 @@ import { useRef, useCallback, useEffect } from 'react';
 import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
 import { useCanvasRenderer } from '@/hooks/useCanvasRenderer';
+import { snapCorner, detectGridFromRegion } from '@/engine/gridCalibration';
 import { DropZone } from './DropZone';
+import type { CalibrateMode } from '@/types';
 
 interface MapCanvasProps {
   calibrationMode: boolean;
+  calibrateMode: CalibrateMode;
   onCalibrateDone: () => void;
 }
 
-export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) {
+export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: MapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -37,6 +40,9 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
     endY: number;
   }>({ active: false, startX: 0, startY: 0, endX: 0, endY: 0 });
 
+  /** Cached full-image ImageData for snap detection (extracted on demand) */
+  const imageDataRef = useRef<ImageData | null>(null);
+
   // Sync image ref with store
   useEffect(() => {
     const unsub = useMapStore.subscribe((state) => {
@@ -45,9 +51,12 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
         img.src = state.imageUrl;
         img.onload = () => {
           imageRef.current = img;
+          // Clear cached ImageData when image changes
+          imageDataRef.current = null;
         };
       } else {
         imageRef.current = null;
+        imageDataRef.current = null;
       }
     });
 
@@ -114,6 +123,40 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
     };
   }, []);
 
+  /** Convert canvas point to map coordinate */
+  const toMapCoord = useCallback((canvasX: number, canvasY: number) => {
+    const map = useMapStore.getState();
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+
+    const mapW = map.width * map.zoom;
+    const mapH = map.height * map.zoom;
+    const offX = (canvas.width - mapW) / 2 + map.panX;
+    const offY = (canvas.height - mapH) / 2 + map.panY;
+    return {
+      x: (canvasX - offX) / map.zoom,
+      y: (canvasY - offY) / map.zoom,
+    };
+  }, []);
+
+  /** Extract full ImageData from the current image (cached in ref) */
+  const ensureImageData = useCallback(() => {
+    if (imageDataRef.current) return imageDataRef.current;
+
+    const img = imageRef.current;
+    if (!img) return null;
+
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = img.naturalWidth;
+    offCanvas.height = img.naturalHeight;
+    const ctx = offCanvas.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.drawImage(img, 0, 0);
+    imageDataRef.current = ctx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+    return imageDataRef.current;
+  }, []);
+
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const store = useMapStore.getState();
@@ -127,19 +170,14 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
       const { x, y } = getCanvasPoint(e.clientX, e.clientY);
 
       if (calibrationMode && e.button === 0) {
-        // Calibration mode: start drawing rect
-        const map = useMapStore.getState();
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const mapW = map.width * map.zoom;
-        const mapH = map.height * map.zoom;
-        const offX = (canvas.width - mapW) / 2 + map.panX;
-        const offY = (canvas.height - mapH) / 2 + map.panY;
-        const mx = (x - offX) / map.zoom;
-        const my = (y - offY) / map.zoom;
-
-        calibrateRef.current = { active: true, startX: mx, startY: my, endX: mx, endY: my };
+        const mapCoord = toMapCoord(x, y);
+        calibrateRef.current = {
+          active: true,
+          startX: mapCoord.x,
+          startY: mapCoord.y,
+          endX: mapCoord.x,
+          endY: mapCoord.y,
+        };
         return;
       }
 
@@ -167,7 +205,7 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
         }
       }
     },
-    [getCanvasPoint, calibrationMode],
+    [getCanvasPoint, toMapCoord, calibrationMode],
   );
 
   const handleMouseMove = useCallback(
@@ -175,24 +213,24 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
       const { x, y } = getCanvasPoint(e.clientX, e.clientY);
 
       if (calibrateRef.current.active) {
-        const map = useMapStore.getState();
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+        const mapCoord = toMapCoord(x, y);
+        const rawEndX = mapCoord.x;
+        const rawEndY = mapCoord.y;
 
-        const mapW = map.width * map.zoom;
-        const mapH = map.height * map.zoom;
-        const offX = (canvas.width - mapW) / 2 + map.panX;
-        const offY = (canvas.height - mapH) / 2 + map.panY;
-        // Constrain to 1:1 square — use the larger axis delta
-        const rawEndX = (x - offX) / map.zoom;
-        const rawEndY = (y - offY) / map.zoom;
-        const dx = rawEndX - calibrateRef.current.startX;
-        const dy = rawEndY - calibrateRef.current.startY;
-        const size = Math.max(Math.abs(dx), Math.abs(dy));
-        const sx = dx >= 0 ? size : -size;
-        const sy = dy >= 0 ? size : -size;
-        calibrateRef.current.endX = calibrateRef.current.startX + sx;
-        calibrateRef.current.endY = calibrateRef.current.startY + sy;
+        // Manual mode: constrain to 1:1 square
+        if (calibrateMode === 'manual') {
+          const dx = rawEndX - calibrateRef.current.startX;
+          const dy = rawEndY - calibrateRef.current.startY;
+          const size = Math.max(Math.abs(dx), Math.abs(dy));
+          const sx = dx >= 0 ? size : -size;
+          const sy = dy >= 0 ? size : -size;
+          calibrateRef.current.endX = calibrateRef.current.startX + sx;
+          calibrateRef.current.endY = calibrateRef.current.startY + sy;
+        } else {
+          // Smart mode: free-form rectangle
+          calibrateRef.current.endX = rawEndX;
+          calibrateRef.current.endY = rawEndY;
+        }
         return;
       }
 
@@ -216,7 +254,7 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
         );
       }
     },
-    [getCanvasPoint],
+    [getCanvasPoint, toMapCoord, calibrateMode],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -226,21 +264,59 @@ export function MapCanvas({ calibrationMode, onCalibrateDone }: MapCanvasProps) 
     if (calibrateRef.current.active) {
       calibrateRef.current.active = false;
       const c = calibrateRef.current;
-      const x = Math.min(c.startX, c.endX);
-      const y = Math.min(c.startY, c.endY);
-      const w = Math.abs(c.endX - c.startX);
-      const h = Math.abs(c.endY - c.startY);
-      // 2×2 grid: average of width/2 and height/2
-      if (w > 5 && h > 5) {
+      let x = Math.min(c.startX, c.endX);
+      let y = Math.min(c.startY, c.endY);
+      let w = Math.abs(c.endX - c.startX);
+      let h = Math.abs(c.endY - c.startY);
+
+      if (w <= 5 || h <= 5) {
+        imageDataRef.current = null;
+        onCalibrateDone();
+        return;
+      }
+
+      if (calibrateMode === 'manual') {
+        // Manual mode: snap 4 corners with vote algorithm, compute cellPx from 2×2 rect
+        const imgData = ensureImageData();
+        if (imgData) {
+          const x2 = x + w;
+          const y2 = y + h;
+
+          const tl = snapCorner(imgData, x, y);
+          const tr = snapCorner(imgData, x2, y);
+          const bl = snapCorner(imgData, x, y2);
+          const br = snapCorner(imgData, x2, y2);
+
+          x = Math.min(tl.x, tr.x, bl.x, br.x);
+          y = Math.min(tl.y, tr.y, bl.y, br.y);
+          w = Math.abs(Math.max(tl.x, tr.x, bl.x, br.x) - x);
+          h = Math.abs(Math.max(tl.y, tr.y, bl.y, br.y) - y);
+        }
+
         const cellPx = Math.floor((w / 2 + h / 2) / 2);
         const grid = useGridStore.getState();
         grid.setCellPx(Math.max(10, cellPx));
-        // Align grid to the drawn rectangle origin
         grid.setOffset(Math.round(x % cellPx), Math.round(y % cellPx));
+        useGridStore.setState({ visible: true, tileOverlayVisible: true });
+      } else {
+        // Smart mode: use projection-based detection on the selected region
+        const imgData = ensureImageData();
+        if (imgData) {
+          const result = detectGridFromRegion(imgData, x, y, w, h, true);
+          if (result) {
+            const grid = useGridStore.getState();
+            grid.setCellPx(Math.max(10, result.cellPx));
+            grid.setOffset(result.offsetX, result.offsetY);
+            useGridStore.setState({ visible: true, tileOverlayVisible: true });
+          }
+        }
       }
+
+      // Clear cached ImageData
+      imageDataRef.current = null;
       onCalibrateDone();
     }
-  }, [onCalibrateDone]);
+  }, [onCalibrateDone, calibrateMode, ensureImageData]);
 
   // Resize canvas to fill container via ResizeObserver
   useEffect(() => {

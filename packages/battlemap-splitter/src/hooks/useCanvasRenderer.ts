@@ -114,6 +114,26 @@ export function useCanvasRenderer(
       // Tinted fill
       ctx.fillStyle = 'rgba(0, 150, 255, 0.1)';
       ctx.fillRect(x, y, w, h);
+
+      // Snap crosshair marks at corners
+      ctx.strokeStyle = 'rgba(255, 200, 0, 0.9)';
+      ctx.lineWidth = 2 / map.zoom;
+      const crossLen = 8 / map.zoom;
+      const corners = [
+        { cx: x, cy: y },
+        { cx: x + w, cy: y },
+        { cx: x, cy: y + h },
+        { cx: x + w, cy: y + h },
+      ];
+      for (const { cx, cy } of corners) {
+        ctx.beginPath();
+        ctx.moveTo(cx - crossLen, cy);
+        ctx.lineTo(cx + crossLen, cy);
+        ctx.moveTo(cx, cy - crossLen);
+        ctx.lineTo(cx, cy + crossLen);
+        ctx.stroke();
+      }
+
       ctx.restore();
     }
 
