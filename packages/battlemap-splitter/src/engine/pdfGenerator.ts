@@ -12,7 +12,6 @@ import type { TileInfo } from '@/types';
 const TILE_JPEG_QUALITY = 0.92;
 const CROP_MARK_LENGTH_MM = 5;
 const CROP_MARK_OFFSET_MM = 2;
-const LABEL_HEIGHT_MM = 12;
 const LABEL_FONT_SIZE_PT = 9;
 const SUB_LABEL_FONT_SIZE_PT = 7;
 
@@ -311,7 +310,7 @@ export async function generatePdf(
 
     // Content area available on page (minus label)
     const availW = config.paperW - config.marginLeft - config.marginRight;
-    const availH = config.paperH - config.marginTop - config.marginBottom - LABEL_HEIGHT_MM;
+    const availH = config.paperH - config.marginTop - config.marginBottom;
 
     // Center the tile in the content area
     const tileX = config.marginLeft + (availW - tileContentW) / 2;

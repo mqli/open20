@@ -52,14 +52,14 @@ export function PaperConfigPanel() {
           <span className="text-xs font-mono text-primary-400">{margin}mm</span>
         </div>
         <p className="text-[11px] text-text-disabled leading-relaxed">
-          Blank space around the edge of each page. Most printers can&apos;t print to the very edge
-          (full bleed).
+          Minimum 15mm — provides room for the tile label and crop marks. Increase for more border
+          around each page.
         </p>
         <input
           type="range"
           value={margin}
           onChange={(e) => setMargin(+e.target.value)}
-          min={0}
+          min={15}
           max={30}
           className="w-full accent-primary-600"
         />

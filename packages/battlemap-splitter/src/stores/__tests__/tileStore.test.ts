@@ -66,18 +66,19 @@ describe('tileStore', () => {
     });
 
     it('responds to grid DPI changes', () => {
+      // Higher DPI = smaller physical map → fewer tiles for the same map
+      useGridStore.getState().setCellPx(50);
       setupMapWithImage(1400, 1400);
-      // At 70 DPI: 1400/70*25.4 = 508mm × 508mm → multiple tiles
+      // At 50 DPI: 1400/50*25.4 = 711mm → A4 portrait (180mm content) → ceil((711-5)/175) = 5 cols
       useTileStore.getState().recalculate();
-      const colsAt70 = useTileStore.getState().tileCols;
+      const colsAt50 = useTileStore.getState().tileCols;
+      expect(colsAt50).toBeGreaterThan(2);
 
-      // At 100 DPI: 1400/100*25.4 = 355.6mm × 355.6mm → may need fewer tiles
-      useGridStore.getState().setCellPx(100);
+      // At 150 DPI: 1400/150*25.4 = 237mm → ceil((237-5)/175) = 2 cols
+      useGridStore.getState().setCellPx(150);
       useTileStore.getState().recalculate();
-      const colsAt100 = useTileStore.getState().tileCols;
-
-      // Higher DPI = smaller physical size = could need same or fewer tiles
-      expect(colsAt100).toBeLessThanOrEqual(colsAt70);
+      const colsAt150 = useTileStore.getState().tileCols;
+      expect(colsAt150).toBeLessThan(colsAt50);
     });
   });
 

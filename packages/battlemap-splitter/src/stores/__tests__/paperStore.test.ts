@@ -7,7 +7,7 @@ describe('paperStore', () => {
     const store = usePaperStore.getState();
     store.setPreset('A4');
     store.setOrientation('portrait');
-    store.setMargin(8);
+    store.setMargin(15);
     store.setMarginTop(null);
     store.setMarginBottom(null);
     store.setMarginLeft(null);
@@ -22,7 +22,7 @@ describe('paperStore', () => {
     expect(state.preset).toBe('A4');
     expect(state.getPaperWidth()).toBe(210);
     expect(state.getPaperHeight()).toBe(297);
-    expect(state.margin).toBe(8);
+    expect(state.margin).toBe(15);
     expect(state.overlap).toBe(5);
     expect(state.outputDpi).toBe(150);
     expect(state.scaleLocked).toBe(true);
@@ -30,23 +30,23 @@ describe('paperStore', () => {
 
   it('resolves per-edge margins from uniform default', () => {
     // All null → use uniform margin
-    expect(usePaperStore.getState().getMarginTop()).toBe(8);
-    expect(usePaperStore.getState().getMarginBottom()).toBe(8);
-    expect(usePaperStore.getState().getMarginLeft()).toBe(8);
-    expect(usePaperStore.getState().getMarginRight()).toBe(8);
+    expect(usePaperStore.getState().getMarginTop()).toBe(15);
+    expect(usePaperStore.getState().getMarginBottom()).toBe(15);
+    expect(usePaperStore.getState().getMarginLeft()).toBe(15);
+    expect(usePaperStore.getState().getMarginRight()).toBe(15);
   });
 
   it('uses per-edge override when set', () => {
     usePaperStore.getState().setMarginTop(20);
     expect(usePaperStore.getState().getMarginTop()).toBe(20);
     // Other edges still use uniform
-    expect(usePaperStore.getState().getMarginBottom()).toBe(8);
+    expect(usePaperStore.getState().getMarginBottom()).toBe(15);
   });
 
   it('resetting per-edge to null falls back to uniform', () => {
     usePaperStore.getState().setMarginTop(20);
     usePaperStore.getState().setMarginTop(null);
-    expect(usePaperStore.getState().getMarginTop()).toBe(8);
+    expect(usePaperStore.getState().getMarginTop()).toBe(15);
   });
 
   it('handles LETTER preset', () => {
@@ -74,9 +74,9 @@ describe('paperStore', () => {
     expect(usePaperStore.getState().getPaperHeight()).toBe(400);
   });
 
-  it('enforces non-negative margins', () => {
+  it('enforces minimum 15mm margin for tile label', () => {
     usePaperStore.getState().setMargin(-5);
-    expect(usePaperStore.getState().margin).toBe(0);
+    expect(usePaperStore.getState().margin).toBe(15);
   });
 
   it('enforces non-negative overlap', () => {

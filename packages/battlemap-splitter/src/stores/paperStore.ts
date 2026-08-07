@@ -63,7 +63,7 @@ export const usePaperStore = create<PaperState>((set, get) => ({
   customW: 210,
   customH: 297,
   orientation: 'portrait',
-  margin: 8,
+  margin: 15,
   marginTop: null,
   marginBottom: null,
   marginLeft: null,
@@ -78,7 +78,7 @@ export const usePaperStore = create<PaperState>((set, get) => ({
 
   setOrientation: (o) => set({ orientation: o }),
 
-  setMargin: (m) => set({ margin: Math.max(0, m) }),
+  setMargin: (m) => set({ margin: Math.max(15, m) }),
 
   setMarginTop: (mt) => set({ marginTop: mt !== null ? Math.max(0, mt) : null }),
   setMarginBottom: (mb) => set({ marginBottom: mb !== null ? Math.max(0, mb) : null }),

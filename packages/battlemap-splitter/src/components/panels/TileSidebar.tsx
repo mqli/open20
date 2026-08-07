@@ -123,7 +123,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
             row.map((tile) => {
               if (tile.isEmpty) return null;
 
-              // Printable area on paper (mm)
+              // Printable area on paper (mm) — matches PDF generator (includes label reservation)
               const availW = paperW - marginLeftMm - marginRightMm;
               const availH = paperH - marginTopMm - marginBottomMm;
 
