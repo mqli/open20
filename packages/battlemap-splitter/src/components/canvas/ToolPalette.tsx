@@ -40,11 +40,15 @@ export function ToolPalette() {
         <Maximize size={16} />
       </ToolButton>
       <div className="mx-1 border-t border-border-primary" />
-      <ToolButton title="Toggle calibration grid" active={gridVisible} onClick={toggleGrid}>
+      <ToolButton
+        title="Toggle calibration grid overlay on the map"
+        active={gridVisible}
+        onClick={toggleGrid}
+      >
         <Grid3x3 size={16} />
       </ToolButton>
       <ToolButton
-        title="Toggle tile overlay"
+        title="Toggle tile split overlay on the map"
         active={tileOverlayVisible}
         onClick={toggleTileOverlay}
       >

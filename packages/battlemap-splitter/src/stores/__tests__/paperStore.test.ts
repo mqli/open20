@@ -6,7 +6,7 @@ describe('paperStore', () => {
     // Reset by calling setters back to defaults
     const store = usePaperStore.getState();
     store.setPreset('A4');
-    store.setOrientation('auto');
+    store.setOrientation('portrait');
     store.setMargin(8);
     store.setMarginTop(null);
     store.setMarginBottom(null);

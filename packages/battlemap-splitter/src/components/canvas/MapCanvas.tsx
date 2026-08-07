@@ -29,13 +29,13 @@ export function MapCanvas() {
   // Sync image ref with store
   useEffect(() => {
     const unsub = useMapStore.subscribe((state) => {
-      if (state.imageUrl && !imageRef.current) {
+      if (state.imageUrl) {
         const img = new Image();
         img.src = state.imageUrl;
         img.onload = () => {
           imageRef.current = img;
         };
-      } else if (!state.imageUrl) {
+      } else {
         imageRef.current = null;
       }
     });

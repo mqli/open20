@@ -8,8 +8,8 @@ interface PaperState {
   customW: number;
   /** Custom height in mm (only used when preset is CUSTOM) */
   customH: number;
-  /** Orientation: auto-evaluate, force portrait, or force landscape */
-  orientation: 'auto' | 'portrait' | 'landscape';
+  /** Orientation */
+  orientation: 'portrait' | 'landscape';
   /** Uniform margin in mm (default for all edges) */
   margin: number;
   /** Per-edge overrides (null = use uniform margin) */
@@ -27,7 +27,7 @@ interface PaperState {
   /** Actions */
   setPreset: (preset: PaperPreset) => void;
   setCustomDimensions: (w: number, h: number) => void;
-  setOrientation: (o: 'auto' | 'portrait' | 'landscape') => void;
+  setOrientation: (o: 'portrait' | 'landscape') => void;
   setMargin: (m: number) => void;
   setMarginTop: (m: number | null) => void;
   setMarginBottom: (m: number | null) => void;
@@ -62,7 +62,7 @@ export const usePaperStore = create<PaperState>((set, get) => ({
   preset: 'A4',
   customW: 210,
   customH: 297,
-  orientation: 'auto',
+  orientation: 'portrait',
   margin: 8,
   marginTop: null,
   marginBottom: null,

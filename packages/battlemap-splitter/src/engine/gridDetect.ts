@@ -110,34 +110,51 @@ export function findContentBounds(
 // ── Phase B: Profile Extraction & Autocorrelation ──
 
 /**
- * Extract a 1D profile by averaging a band of rows from the content region.
+ * Extract a single row as a 1D grayscale profile.
  */
-export function extractHorizontalProfile(
-  g: GrayscaleData,
-  contentR0: number,
-  contentR1: number,
-): Float64Array {
+function extractRowProfile(g: GrayscaleData, y: number): Float64Array {
   const { data, width } = g;
-  const contentHeight = contentR1 - contentR0;
-  const chStart = Math.max(0, Math.floor(contentHeight / 2) - PROFILE_BAND);
-  const chEnd = Math.min(contentHeight, Math.floor(contentHeight / 2) + PROFILE_BAND);
-  const bandSize = chEnd - chStart;
-
-  if (bandSize <= 0) return new Float64Array(width);
-
   const profile = new Float64Array(width);
-  for (let y = contentR0 + chStart; y < contentR0 + chEnd; y++) {
-    const rowStart = y * width * 4;
-    for (let x = 0; x < width; x++) {
-      profile[x] += pixelGray(data, rowStart + x * 4);
-    }
-  }
+  const rowStart = y * width * 4;
   for (let x = 0; x < width; x++) {
-    profile[x] /= bandSize;
+    profile[x] = pixelGray(data, rowStart + x * 4);
   }
   return profile;
 }
 
+/**
+ * Compute averaged autocorrelation across evenly-spaced rows from
+ * the content region. This reinforces grid-line periodicity (consistent
+ * across rows) while smoothing out border/artifact patterns.
+ */
+function averageAutocorrelation(
+  g: GrayscaleData,
+  contentR0: number,
+  contentR1: number,
+): Float64Array {
+  const numRows = contentR1 - contentR0;
+  const samples = Math.min(30, numRows);
+  const step = Math.max(1, Math.floor(numRows / samples));
+  const corrLen = Math.min(g.width, MAX_GAP + 1);
+  const accCorr = new Float64Array(corrLen);
+  let count = 0;
+
+  for (let i = contentR0; i < contentR1; i += step) {
+    const profile = extractRowProfile(g, i);
+    const corr = autocorrelate(profile);
+    for (let j = 0; j < corrLen; j++) {
+      accCorr[j] += corr[j];
+    }
+    count++;
+  }
+
+  if (count === 0) return new Float64Array(corrLen);
+
+  for (let j = 0; j < corrLen; j++) {
+    accCorr[j] /= count;
+  }
+  return accCorr;
+}
 /**
  * Extract a 1D profile by averaging a band of columns from the content region.
  */
@@ -253,11 +270,25 @@ export function scorePeak(p: Peak): number {
 }
 
 /**
- * Find the best grid spacing from autocorrelation peaks.
+ * Count how many harmonic multiples exist among detected peaks for a given gap.
  */
-export function findGridSpacing(profile: Float64Array): number | null {
-  const corr = autocorrelate(profile);
+function harmonicCount(gap: number, allGaps: number[]): number {
+  let count = 0;
+  for (const other of allGaps) {
+    if (other <= gap) continue;
+    const ratio = other / gap;
+    const nearest = Math.round(ratio);
+    if (nearest >= 2 && nearest <= 4 && Math.abs(ratio - nearest) < 0.15) {
+      count++;
+    }
+  }
+  return count;
+}
 
+/**
+ * Find the best grid spacing from a pre-computed autocorrelation array.
+ */
+function findGridSpacingFromCorr(corr: Float64Array): number | null {
   let meanAbs = 0;
   for (let i = 0; i < corr.length; i++) meanAbs += Math.abs(corr[i]);
   meanAbs /= corr.length;
@@ -265,8 +296,22 @@ export function findGridSpacing(profile: Float64Array): number | null {
   const peaks = findPeaks(corr, meanAbs, PEAK_START, MAX_GAP);
   if (peaks.length === 0) return null;
 
-  peaks.sort((a, b) => scorePeak(b) - scorePeak(a));
-  return peaks[0].gap;
+  const peakGaps = peaks.map((p) => p.gap);
+
+  // Require at least 2 harmonic multiples — real grids have harmonics
+  const withHarmonics = peaks.filter((p) => harmonicCount(p.gap, peakGaps) >= 2);
+  const candidates = withHarmonics.length > 0 ? withHarmonics : peaks;
+
+  candidates.sort((a, b) => scorePeak(b) - scorePeak(a));
+  return candidates[0].gap;
+}
+
+/**
+ * Find the best grid spacing from autocorrelation peaks.
+ * Peaks are in the coordinate space of the input profile.
+ */
+export function findGridSpacing(profile: Float64Array): number | null {
+  return findGridSpacingFromCorr(autocorrelate(profile));
 }
 
 // ── Phase D: Fallback Chain ──
@@ -310,12 +355,12 @@ export function detectGridDpiFromData(g: GrayscaleData): GridDetectResult | null
 
   if (!rowBounds || !colBounds) return null;
 
-  // Phase B: Profiles
-  const hProfile = extractHorizontalProfile(g, rowBounds[0], rowBounds[1]);
+  // Phase B: Horizontal profile — average AC across multiple rows
+  const hCorr = averageAutocorrelation(g, rowBounds[0], rowBounds[1]);
   const vProfile = extractVerticalProfile(g, colBounds[0], colBounds[1]);
 
   // Phase C+D: Grid spacing + fallback
-  const hSpacing = findGridSpacing(hProfile);
+  const hSpacing = findGridSpacingFromCorr(hCorr);
   const vSpacing = findGridSpacing(vProfile);
   const dpi = selectDpi(hSpacing, vSpacing);
 

@@ -30,7 +30,7 @@ interface GridState {
 }
 
 export const useGridStore = create<GridState>((set) => ({
-  cellPx: 149.5,
+  cellPx: 143,
   offsetX: 0,
   offsetY: 0,
   visible: true,

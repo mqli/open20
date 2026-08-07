@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PaperConfigPanel } from '@/components/panels/PaperConfigPanel';
+import { PaperSizePanel } from '@/components/panels/PaperSizePanel';
 import { GridConfigPanel } from '@/components/panels/GridConfigPanel';
 import { usePaperStore } from '@/stores/paperStore';
 import { useGridStore } from '@/stores/gridStore';
 import { Upload, Download, ChevronDown } from 'lucide-react';
 
-type Flyout = null | 'paper' | 'grid';
+type Flyout = null | 'size' | 'print' | 'grid';
 
 interface ToolbarProps {
   onUploadClick?: () => void;
@@ -58,14 +59,24 @@ export function Toolbar({ onUploadClick, onExportClick }: ToolbarProps) {
           Battlemap Splitter
         </span>
 
-        {/* Paper pill */}
+        {/* Paper size pill */}
         <FlyoutPill
-          label="Paper"
+          label="Size"
           value={preset}
-          open={flyout === 'paper'}
-          onClick={() => toggleFlyout('paper')}
+          open={flyout === 'size'}
+          onClick={() => toggleFlyout('size')}
+          panel={<PaperSizePanel />}
+          width={300}
+        />
+
+        {/* Print settings pill */}
+        <FlyoutPill
+          label="Print"
+          value="Settings"
+          open={flyout === 'print'}
+          onClick={() => toggleFlyout('print')}
           panel={<PaperConfigPanel />}
-          width={360}
+          width={400}
         />
 
         {/* Grid pill */}

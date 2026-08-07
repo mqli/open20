@@ -21,7 +21,7 @@ export function drawGrid(
   ctx.save();
   ctx.globalAlpha = grid.opacity;
   ctx.strokeStyle = grid.color;
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 2;
 
   const startX = grid.offsetX % grid.cellPx;
   const startY = grid.offsetY % grid.cellPx;

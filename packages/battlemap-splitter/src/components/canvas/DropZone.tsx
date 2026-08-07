@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react';
 import { useMapStore } from '@/stores/mapStore';
 import { useTileStore } from '@/stores/tileStore';
+import { useGridStore } from '@/stores/gridStore';
+import { usePaperStore } from '@/stores/paperStore';
+import { evaluateBestOrientation } from '@/engine/tiling';
 import { Upload, Loader2 } from 'lucide-react';
 
 const ACCEPTED_TYPES = ['.png', '.jpg', '.jpeg', '.webp', '.avif'];
@@ -17,6 +20,23 @@ export function DropZone() {
       setError(null);
       try {
         await loadImage(file);
+        // Evaluate best orientation and auto-detect grid
+        const mapState = useMapStore.getState();
+        const paperState = usePaperStore.getState();
+        const gridState = useGridStore.getState();
+        const best = evaluateBestOrientation(mapState.width, mapState.height, gridState.cellPx, {
+          widthMm: paperState.getPaperWidth(),
+          heightMm: paperState.getPaperHeight(),
+          marginLeft: paperState.getMarginLeft(),
+          marginRight: paperState.getMarginRight(),
+          marginTop: paperState.getMarginTop(),
+          marginBottom: paperState.getMarginBottom(),
+          overlapMm: paperState.overlap,
+        });
+        paperState.setOrientation(best);
+        gridState.autoDetect().catch(() => {
+          // Grid detection may fail silently (cross-origin images, etc.)
+        });
         setTimeout(() => useTileStore.getState().recalculate(), 100);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load map');

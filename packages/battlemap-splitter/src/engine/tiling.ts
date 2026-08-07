@@ -72,6 +72,40 @@ function mmToSrcPx(mm: number, cellPx: number): number {
 }
 
 /**
+ * Evaluate which orientation (portrait or landscape) yields fewer pages for
+ * the given map and paper configuration. Uses the same decision logic that
+ * was previously part of computeTileGrid's "auto" mode.
+ */
+export function evaluateBestOrientation(
+  imageW: number,
+  imageH: number,
+  cellPx: number,
+  paper: PaperConfig,
+  labelHeightMm = 12,
+): 'portrait' | 'landscape' {
+  const overlayMm = paper.overlapMm ?? OVERLAP_MM;
+
+  const mapW = (imageW / cellPx) * 25.4;
+  const mapH = (imageH / cellPx) * 25.4;
+
+  const ca = contentArea(paper);
+  const portraitCA = { w: ca.w, h: ca.h - labelHeightMm };
+  const landscapeCA = { w: ca.h - labelHeightMm, h: ca.w };
+
+  const portraitResult = calcGrid(mapW, mapH, portraitCA.w, portraitCA.h, overlayMm);
+  const landscapeResult = calcGrid(mapW, mapH, landscapeCA.w, landscapeCA.h, overlayMm);
+
+  if (landscapeResult.pages < portraitResult.pages) return 'landscape';
+  if (
+    landscapeResult.pages === portraitResult.pages &&
+    landscapeResult.waste < portraitResult.waste - 1
+  ) {
+    return 'landscape';
+  }
+  return 'portrait';
+}
+
+/**
  * Compute the tile grid for a battle map.
  *
  * @param imageW - Source image width in pixels
@@ -86,7 +120,7 @@ export function computeTileGrid(
   imageH: number,
   cellPx: number,
   paper: PaperConfig,
-  orientation: 'auto' | 'portrait' | 'landscape' = 'auto',
+  orientation: 'portrait' | 'landscape' = 'portrait',
   labelHeightMm = 12,
 ): TileGrid {
   const overlapMm = paper.overlapMm ?? OVERLAP_MM;
@@ -110,22 +144,12 @@ export function computeTileGrid(
   const portrait = calcGrid(mapW, mapH, portraitCA.w, portraitCA.h, overlapMm);
   const landscape = calcGrid(mapW, mapH, landscapeCA.w, landscapeCA.h, overlapMm);
 
-  // Decision: fewer pages wins; if tied, less waste wins (≥1% difference); else portrait
-  let useLandscape = false;
+  // Decision: use the specified orientation
+  const useLandscape = orientation === 'landscape';
   let sliceW: number;
   let sliceH: number;
   let cols: number;
   let rows: number;
-
-  if (orientation === 'landscape') {
-    useLandscape = true;
-  } else if (orientation === 'portrait') {
-    useLandscape = false;
-  } else if (landscape.pages < portrait.pages) {
-    useLandscape = true;
-  } else if (landscape.pages === portrait.pages && landscape.waste < portrait.waste - 1) {
-    useLandscape = true;
-  }
 
   if (useLandscape) {
     cols = landscape.cols;

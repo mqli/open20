@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { useGridStore } from '@/stores/gridStore';
 import { usePaperStore } from '@/stores/paperStore';
-import { showToast } from '@/utils/toast';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const COLORS = [
   { label: 'Red', value: 'rgba(255, 0, 0, 0.8)' },
@@ -15,17 +14,12 @@ export function GridConfigPanel() {
   const cellPx = useGridStore((s) => s.cellPx);
   const offsetX = useGridStore((s) => s.offsetX);
   const offsetY = useGridStore((s) => s.offsetY);
-  const visible = useGridStore((s) => s.visible);
-  const tileOverlayVisible = useGridStore((s) => s.tileOverlayVisible);
   const color = useGridStore((s) => s.color);
   const opacity = useGridStore((s) => s.opacity);
   const setCellPx = useGridStore((s) => s.setCellPx);
   const setOffset = useGridStore((s) => s.setOffset);
-  const toggleVisibility = useGridStore((s) => s.toggleVisibility);
-  const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
   const setColor = useGridStore((s) => s.setColor);
   const setOpacity = useGridStore((s) => s.setOpacity);
-  const autoDetect = useGridStore((s) => s.autoDetect);
 
   // Paper store — for dynamic scale reference
   const margin = usePaperStore((s) => s.margin);
@@ -38,20 +32,12 @@ export function GridConfigPanel() {
   const squaresW = (contentW / 25.4).toFixed(1);
   const squaresH = (contentH / 25.4).toFixed(1);
 
-  const [detecting, setDetecting] = useState(false);
-
-  const handleAutoDetect = async () => {
-    setDetecting(true);
-    try {
-      const ok = await autoDetect();
-      showToast(
-        ok ? 'Grid auto-detected' : 'Could not detect grid — try manual calibration',
-        ok ? 'success' : 'error',
-      );
-    } finally {
-      setDetecting(false);
-    }
-  };
+  const nudge = useCallback(
+    (dx: number, dy: number) => {
+      setOffset(offsetX + dx, offsetY + dy);
+    },
+    [offsetX, offsetY, setOffset],
+  );
 
   return (
     <div className="space-y-4">
@@ -81,15 +67,21 @@ export function GridConfigPanel() {
           <span>20</span>
           <span>300</span>
         </div>
-
-        <button
-          onClick={handleAutoDetect}
-          disabled={detecting}
-          className="w-full text-xs py-1.5 rounded-md border border-border-primary text-text-secondary hover:bg-bg-tertiary disabled:opacity-50 transition-colors"
-        >
-          {detecting ? <Loader2 size={12} className="animate-spin inline mr-1.5" /> : null}
-          Auto-Detect Grid
-        </button>
+        <div className="flex gap-1 flex-wrap">
+          {[70, 100, 143, 150].map((dpi) => (
+            <button
+              key={dpi}
+              onClick={() => setCellPx(dpi)}
+              className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                Math.abs(cellPx - dpi) < 1
+                  ? 'border-primary-500 bg-primary-500/15 text-primary-400'
+                  : 'border-border-primary text-text-disabled hover:bg-bg-tertiary'
+              }`}
+            >
+              {dpi}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="border-t border-border-primary" />
@@ -98,32 +90,26 @@ export function GridConfigPanel() {
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-text-primary">Grid Offset</label>
         <p className="text-[11px] text-text-disabled leading-relaxed">
-          Nudge the grid alignment if auto-detect is slightly off. Values are in source-image
-          pixels.
+          Nudge the grid alignment if auto-detect is slightly off.
         </p>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <label className="text-[10px] text-text-disabled">X</label>
-            <input
-              type="number"
-              value={offsetX}
-              onChange={(e) => setOffset(+e.target.value || 0, offsetY)}
-              min={0}
-              step={1}
-              className="w-full mt-0.5 px-2 py-1 text-xs bg-bg-tertiary border border-border-primary rounded text-text-primary"
-            />
+        <div className="flex flex-col items-center gap-0.5">
+          <NudgeButton onClick={() => nudge(0, -1)} title="Up">
+            <ChevronUp size={14} />
+          </NudgeButton>
+          <div className="flex items-center gap-0.5">
+            <NudgeButton onClick={() => nudge(-1, 0)} title="Left">
+              <ChevronLeft size={14} />
+            </NudgeButton>
+            <span className="w-16 text-center text-xs text-text-secondary tabular-nums select-none">
+              {offsetX},{offsetY}
+            </span>
+            <NudgeButton onClick={() => nudge(1, 0)} title="Right">
+              <ChevronRight size={14} />
+            </NudgeButton>
           </div>
-          <div className="flex-1">
-            <label className="text-[10px] text-text-disabled">Y</label>
-            <input
-              type="number"
-              value={offsetY}
-              onChange={(e) => setOffset(offsetX, +e.target.value || 0)}
-              min={0}
-              step={1}
-              className="w-full mt-0.5 px-2 py-1 text-xs bg-bg-tertiary border border-border-primary rounded text-text-primary"
-            />
-          </div>
+          <NudgeButton onClick={() => nudge(0, 1)} title="Down">
+            <ChevronDown size={14} />
+          </NudgeButton>
         </div>
       </div>
 
@@ -140,50 +126,6 @@ export function GridConfigPanel() {
           grid squares ({contentW.toFixed(0)}×{contentH.toFixed(0)}mm content area with {margin}mm
           margins).
         </p>
-      </div>
-
-      <div className="border-t border-border-primary" />
-
-      {/* Visibility */}
-      <div className="flex items-center justify-between">
-        <div>
-          <label className="text-xs font-medium text-text-primary">Grid Overlay</label>
-          <p className="text-[11px] text-text-disabled">
-            Show/hide the calibration grid on the map
-          </p>
-        </div>
-        <button
-          onClick={toggleVisibility}
-          className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
-            visible
-              ? 'border-primary-500 bg-primary-500/15 text-primary-400'
-              : 'border-border-primary text-text-secondary'
-          }`}
-        >
-          {visible ? <Eye size={12} /> : <EyeOff size={12} />}
-          {visible ? 'Visible' : 'Hidden'}
-        </button>
-      </div>
-
-      {/* Tile overlay visibility */}
-      <div className="flex items-center justify-between">
-        <div>
-          <label className="text-xs font-medium text-text-primary">Tile Overlay</label>
-          <p className="text-[11px] text-text-disabled">
-            Show/hide the tile split overlay on the map
-          </p>
-        </div>
-        <button
-          onClick={toggleTileOverlay}
-          className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
-            tileOverlayVisible
-              ? 'border-primary-500 bg-primary-500/15 text-primary-400'
-              : 'border-border-primary text-text-secondary'
-          }`}
-        >
-          {tileOverlayVisible ? <Eye size={12} /> : <EyeOff size={12} />}
-          {tileOverlayVisible ? 'Visible' : 'Hidden'}
-        </button>
       </div>
 
       {/* Color */}
@@ -224,5 +166,26 @@ export function GridConfigPanel() {
         />
       </div>
     </div>
+  );
+}
+
+function NudgeButton({
+  children,
+  onClick,
+  title,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className="w-8 h-8 flex items-center justify-center rounded-md border border-border-primary text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-colors"
+    >
+      {children}
+    </button>
   );
 }
