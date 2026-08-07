@@ -15,6 +15,8 @@ import { showToast } from '@/utils/toast';
 export function AppShell() {
   const [showUpload, setShowUpload] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [calibrationMode, setCalibrationMode] = useState(false);
+  const [calibrationSquares, setCalibrationSquares] = useState(1);
 
   useSessionPersistence();
   useTileRecalc();
@@ -44,8 +46,21 @@ export function AppShell() {
       {/* Workspace */}
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 relative flex flex-col">
-          <MapCanvas />
-          <ToolPalette />
+          <MapCanvas
+            calibrationMode={calibrationMode}
+            calibrationSquares={calibrationSquares}
+            onCalibrateDone={() => setCalibrationMode(false)}
+          />
+          <ToolPalette
+            calibrationMode={calibrationMode}
+            calibrationSquares={calibrationSquares}
+            onToggleCalibration={() => {
+              setCalibrationMode((v) => !v);
+            }}
+            onCycleSquares={() => {
+              setCalibrationSquares((s) => (s === 1 ? 2 : 1));
+            }}
+          />
         </div>
         <TileSidebar />
       </div>

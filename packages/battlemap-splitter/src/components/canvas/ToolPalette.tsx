@@ -1,8 +1,20 @@
 import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
-import { ZoomIn, ZoomOut, Maximize, Grid3x3, LayoutGrid } from 'lucide-react';
+import { Ruler, ZoomIn, ZoomOut, Maximize, Grid3x3, LayoutGrid } from 'lucide-react';
 
-export function ToolPalette() {
+interface ToolPaletteProps {
+  calibrationMode: boolean;
+  calibrationSquares: number;
+  onToggleCalibration: () => void;
+  onCycleSquares: () => void;
+}
+
+export function ToolPalette({
+  calibrationMode,
+  calibrationSquares,
+  onToggleCalibration,
+  onCycleSquares,
+}: ToolPaletteProps) {
   const zoom = useMapStore((s) => s.zoom);
   const setZoom = useMapStore((s) => s.setZoom);
   const setPan = useMapStore((s) => s.setPan);
@@ -41,6 +53,23 @@ export function ToolPalette() {
       </ToolButton>
       <div className="mx-1 border-t border-border-primary" />
       <ToolButton
+        title={`Calibrate grid — draw a rectangle across ${calibrationSquares} square${calibrationSquares > 1 ? 's' : ''}`}
+        active={calibrationMode}
+        onClick={onToggleCalibration}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          onCycleSquares();
+        }}
+      >
+        <Ruler size={16} />
+      </ToolButton>
+      {calibrationMode && (
+        <div className="text-[10px] text-center text-primary-400 leading-none pb-0.5">
+          {calibrationSquares} sq
+        </div>
+      )}
+      <div className="mx-1 border-t border-border-primary" />
+      <ToolButton
         title="Toggle calibration grid overlay on the map"
         active={gridVisible}
         onClick={toggleGrid}
@@ -65,11 +94,13 @@ function ToolButton({
   children,
   title,
   onClick,
+  onContextMenu,
   active,
 }: {
   children: React.ReactNode;
   title: string;
   onClick?: () => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
   active?: boolean;
 }) {
   return (
@@ -77,6 +108,7 @@ function ToolButton({
       type="button"
       title={title}
       onClick={onClick}
+      onContextMenu={onContextMenu}
       className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
         active !== false ? 'text-text-primary hover:bg-bg-tertiary' : 'text-text-disabled'
       }`}

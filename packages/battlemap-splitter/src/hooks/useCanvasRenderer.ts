@@ -7,6 +7,14 @@ import { drawTiles } from '@/components/canvas/TileOverlay';
 
 export interface CanvasRendererOptions {
   onDraw?: (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => void;
+  calibrationMode?: boolean;
+  calibrateRef?: React.MutableRefObject<{
+    active: boolean;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+  }>;
 }
 
 export function useCanvasRenderer(
@@ -15,7 +23,7 @@ export function useCanvasRenderer(
 ) {
   const [isReady] = useState(true);
   const rafId = useRef<number>(0);
-  const { onDraw } = options;
+  const { onDraw, calibrationMode, calibrateRef } = options;
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
@@ -75,8 +83,29 @@ export function useCanvasRenderer(
       drawTiles(ctx, tileStore.tiles);
     }
 
+    // Draw calibration rectangle
+    if (calibrationMode && calibrateRef?.current.active) {
+      const c = calibrateRef.current;
+      const x = Math.min(c.startX, c.endX);
+      const y = Math.min(c.startY, c.endY);
+      const w = Math.abs(c.endX - c.startX);
+      const h = Math.abs(c.endY - c.startY);
+
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(0, 200, 255, 0.9)';
+      ctx.lineWidth = 2 / map.zoom;
+      ctx.strokeRect(x, y, w, h);
+      ctx.setLineDash([]);
+
+      // Tinted fill
+      ctx.fillStyle = 'rgba(0, 150, 255, 0.1)';
+      ctx.fillRect(x, y, w, h);
+      ctx.restore();
+    }
+
     ctx.restore();
-  }, [canvasRef, onDraw]);
+  }, [canvasRef, onDraw, calibrationMode, calibrateRef]);
 
   useEffect(() => {
     const loop = () => {

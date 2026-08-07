@@ -6,7 +6,17 @@ import { useCanvasRenderer } from '@/hooks/useCanvasRenderer';
 import { hitTestTile } from './TileOverlay';
 import { DropZone } from './DropZone';
 
-export function MapCanvas() {
+interface MapCanvasProps {
+  calibrationMode: boolean;
+  calibrationSquares?: number;
+  onCalibrateDone: () => void;
+}
+
+export function MapCanvas({
+  calibrationMode,
+  calibrationSquares = 1,
+  onCalibrateDone,
+}: MapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -25,6 +35,14 @@ export function MapCanvas() {
     startOffsetX: number;
     startOffsetY: number;
   }>({ active: false, startX: 0, startY: 0, startOffsetX: 0, startOffsetY: 0 });
+
+  const calibrateRef = useRef<{
+    active: boolean;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+  }>({ active: false, startX: 0, startY: 0, endX: 0, endY: 0 });
 
   // Sync image ref with store
   useEffect(() => {
@@ -59,7 +77,11 @@ export function MapCanvas() {
     }
   }, []);
 
-  const { isReady } = useCanvasRenderer(canvasRef, { onDraw });
+  const { isReady } = useCanvasRenderer(canvasRef, {
+    onDraw,
+    calibrationMode,
+    calibrateRef,
+  });
   const imageUrl = useMapStore((s) => s.imageUrl);
   const imageW = useMapStore((s) => s.width);
   const imageH = useMapStore((s) => s.height);
@@ -111,6 +133,23 @@ export function MapCanvas() {
     (e: React.MouseEvent) => {
       const { x, y } = getCanvasPoint(e.clientX, e.clientY);
 
+      if (calibrationMode && e.button === 0) {
+        // Calibration mode: start drawing rect
+        const map = useMapStore.getState();
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const mapW = map.width * map.zoom;
+        const mapH = map.height * map.zoom;
+        const offX = (canvas.width - mapW) / 2 + map.panX;
+        const offY = (canvas.height - mapH) / 2 + map.panY;
+        const mx = (x - offX) / map.zoom;
+        const my = (y - offY) / map.zoom;
+
+        calibrateRef.current = { active: true, startX: mx, startY: my, endX: mx, endY: my };
+        return;
+      }
+
       if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
         // Middle button or Shift+Left → pan
         const map = useMapStore.getState();
@@ -159,12 +198,26 @@ export function MapCanvas() {
         }
       }
     },
-    [getCanvasPoint],
+    [getCanvasPoint, calibrationMode],
   );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       const { x, y } = getCanvasPoint(e.clientX, e.clientY);
+
+      if (calibrateRef.current.active) {
+        const map = useMapStore.getState();
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const mapW = map.width * map.zoom;
+        const mapH = map.height * map.zoom;
+        const offX = (canvas.width - mapW) / 2 + map.panX;
+        const offY = (canvas.height - mapH) / 2 + map.panY;
+        calibrateRef.current.endX = (x - offX) / map.zoom;
+        calibrateRef.current.endY = (y - offY) / map.zoom;
+        return;
+      }
 
       if (dragRef.current.active) {
         const dx = x - dragRef.current.startX;
@@ -192,7 +245,18 @@ export function MapCanvas() {
   const handleMouseUp = useCallback(() => {
     dragRef.current.active = false;
     gridDragRef.current.active = false;
-  }, []);
+
+    if (calibrateRef.current.active) {
+      calibrateRef.current.active = false;
+      const { startX, endX } = calibrateRef.current;
+      const w = Math.abs(endX - startX);
+      if (w > 5) {
+        const cellPx = Math.round(w / calibrationSquares);
+        useGridStore.getState().setCellPx(Math.max(10, cellPx));
+      }
+      onCalibrateDone();
+    }
+  }, [calibrationSquares, onCalibrateDone]);
 
   // Resize canvas to fill container via ResizeObserver
   useEffect(() => {
