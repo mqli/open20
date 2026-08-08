@@ -9,15 +9,20 @@
     <!-- Preconnect to external origins (reduces critical path latency) -->
     <link rel="preconnect" href="https://static.cloudflareinsights.com" crossorigin />
 
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
     <!-- Primary SEO -->
     <title>Battlemap Splitter — Print Tabletop Maps at Scale</title>
     <meta
       name="description"
-      content="Upload a battle map, calibrate the grid, and split it into printable A4/US Letter tiles at correct tabletop scale (1 inch = 25.4mm per grid square). Free, browser-based, no upload required — all processing happens locally."
+      content="Upload a battle map, calibrate the grid, and split it into printable A4/US Letter tiles at correct tabletop scale (1 inch = 25.4mm per grid square). Free, browser-based — your images stay on your device."
     />
     <meta
       name="keywords"
-      content="battlemap, tabletop, D&D, Dungeons and Dragons, map splitter, printable tiles, grid calibration, A4 print, US Letter, PDF, TTRPG, battle map, tile splitter, paper minis, warhammer, grid overlay"
+      content="battlemap, tabletop, D&D, Dungeons and Dragons, map splitter, printable tiles, grid calibration, A4 print, US Letter, PDF, TTRPG, battle map, tile splitter, paper minis, warhammer, grid overlay, battle map printer, D&D map to PDF, map tiler, battlemap tiler, print battle map, rpg map printing, battle grid tool"
     />
     <meta name="author" content="Open20" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -54,11 +59,15 @@
         {
           "@context": "https://schema.org",
           "@type": "WebApplication",
+          "@id": "https://battlemap.open-20.com/#webapp",
           "name": "Open20 Battlemap Splitter",
+          "alternateName": ["Battlemap Tiler", "Battle Map Printer", "D&D Map to PDF"],
           "url": "https://battlemap.open-20.com",
           "description": "Free browser-based tool for splitting tabletop battle maps into printable PDF tiles at correct scale. Upload any map, calibrate the grid, adjust paper size and margins, then export as print-ready PDF tiles with crop marks and assembly guides.",
           "applicationCategory": "MultimediaApplication",
           "operatingSystem": "Web, Windows, macOS, Linux",
+          "datePublished": "2025-08-01",
+          "dateModified": "2026-08-08",
           "offers": {
             "@type": "Offer",
             "price": "0",
@@ -71,7 +80,7 @@
           "about": {
             "@type": "Thing",
             "name": "Tabletop Role-Playing Game Map Printing",
-            "description": "Split digital battle maps into printable paper tiles for tabletop RPG sessions"
+            "description": "Split digital battle maps into printable paper tiles for tabletop RPG sessions. Also known as a battlemap tiler, map splitter, or battle grid printing tool."
           },
           "browserRequirements": "Requires JavaScript",
           "featureList": [
@@ -84,6 +93,74 @@
             "PDF export with crop marks and assembly guides",
             "Tile selection — export only the tiles you need",
             "100% browser-based — images stay on your device"
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "@id": "https://battlemap.open-20.com/#software",
+          "name": "Open20 Battlemap Splitter",
+          "alternateName": ["Battlemap Tiler", "Battle Map Printer"],
+          "url": "https://battlemap.open-20.com",
+          "description": "Free browser-based tool for splitting tabletop battle maps into printable PDF tiles at correct scale.",
+          "applicationCategory": "MultimediaApplication",
+          "operatingSystem": "Web, Windows, macOS, Linux",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "author": {
+            "@type": "Organization",
+            "name": "Open20"
+          },
+          "datePublished": "2025-08-01",
+          "dateModified": "2026-08-08"
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How do I calibrate the grid on my battle map?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Toggle the grid overlay, then adjust the cell size (pixels per grid square) until the overlay matches your map's built-in grid. You can enter a known DPI directly (e.g., 70 for 5etools maps, 72 for Dungeondraft, 100-150 for Patreon maps) or use the Auto-Detect button. Drag the overlay to align it perfectly with your map."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What DPI should I use for my battle map?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Common DPI values: 70 DPI for 5etools maps, 72 DPI for Dungeondraft exports, 100 DPI for Forgotten Adventures and most Patreon maps, 150 DPI for high-resolution maps. The DPI equals the number of pixels per grid square (1 inch = 25.4mm). You can also use the Auto-Detect feature to find it automatically."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I print on US Letter or A4 paper?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, the Battlemap Splitter supports A4, US Letter, A3, Tabloid, Legal, B4, B5, and custom paper sizes. You can adjust orientation (portrait or landscape), margins (default 15mm), and tile overlap (default 5mm). The tool automatically calculates how many tiles are needed to cover your map."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is my map image uploaded to a server?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. The Battlemap Splitter is 100% browser-based. Your map image never leaves your device — all image processing, grid detection, and PDF generation happens locally using the Canvas API and jsPDF. There is no upload to any server."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I assemble the printed tiles?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Each PDF includes crop marks and dashed cut lines for precise trimming. Tiles overlap by your configured overlap amount (default 5mm) so you can align them perfectly. An assembly guide page shows a scaled-down preview with row/column labels. Print pages 2+ for the actual tiles, and trim along the dashed lines."
+              }
+            }
           ]
         }
       ]

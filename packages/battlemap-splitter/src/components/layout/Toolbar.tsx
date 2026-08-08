@@ -47,9 +47,9 @@ export function Toolbar() {
     >
       {/* Header bar */}
       <div className="h-10 flex items-center gap-2 px-3">
-        <span className="text-sm font-semibold text-text-primary shrink-0 select-none mr-1">
+        <h1 className="text-sm font-semibold text-text-primary shrink-0 select-none mr-1">
           Battlemap Splitter
-        </span>
+        </h1>
 
         {/* Paper size pill */}
         <FlyoutPill
