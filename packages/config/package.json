@@ -50,8 +50,12 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/qrcode": "^1.5.6",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "typescript": "catalog:"
+    "qrcode": "^1.5.4",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-cloudflare-tunnel": "^1.0.12"
   }
 }

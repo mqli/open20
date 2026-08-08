@@ -3,8 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import cloudflareTunnel from 'vite-plugin-cloudflare-tunnel';
 import QRCode from 'qrcode';
-import { createAlias, createGithubPagesBase } from '@open20/config/vite';
-import { tunnelQrcodePlugin } from '@open20/config/vite/plugin-tunnel-qrcode';
+import { createAlias, createGithubPagesBase, createTunnelPlugins } from '@open20/config/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,9 +11,7 @@ export default defineConfig({
     tailwindcss(),
     react(),
     // Cloudflare tunnel for mobile testing — opt-in via TUNNEL=true
-    ...(process.env.TUNNEL === 'true'
-      ? [cloudflareTunnel({ port: 5173 }), tunnelQrcodePlugin(QRCode)]
-      : []),
+    ...createTunnelPlugins({ cloudflareTunnel, QRCode, port: 5173 }),
   ],
   base: createGithubPagesBase({ pagesBase: '/open20/battlemap-splitter/' }),
   resolve: {

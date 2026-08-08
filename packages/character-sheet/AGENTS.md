@@ -85,11 +85,16 @@ src/
 
 ```bash
 pnpm --filter @open20/character-sheet dev        # Start dev server
+pnpm --filter @open20/character-sheet dev:tunnel # Start dev server with public tunnel + QR code
 pnpm --filter @open20/character-sheet build      # Production build
 pnpm --filter @open20/character-sheet test       # Run tests
 pnpm --filter @open20/character-sheet typecheck  # Type-check only
 pnpm --filter @open20/character-sheet lint       # Lint
 ```
+
+### Mobile Testing
+
+Use `pnpm dev:tunnel` (or `TUNNEL=true pnpm dev`) to start a Cloudflare tunnel with a public URL and terminal QR code for testing on phones/tablets. Configured via `createTunnelPlugins()` from `@open20/config/vite`.
 
 ## Design System
 

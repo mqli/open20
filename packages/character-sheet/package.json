@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tunnel": "TUNNEL=true vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -53,11 +54,13 @@
     "globals": "catalog:",
     "happy-dom": "catalog:",
     "jsdom": "catalog:",
+    "qrcode": "^1.5.4",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-cloudflare-tunnel": "^1.0.12",
     "vite-plugin-pwa": "catalog:",
     "vitest": "catalog:"
   }

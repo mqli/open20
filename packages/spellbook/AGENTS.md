@@ -246,6 +246,7 @@ Available wrapped components:
 
 ```bash
 pnpm dev             # Start dev server
+pnpm dev:tunnel      # Start dev server with public tunnel URL + QR code for mobile testing
 pnpm build           # Production build (tsc -b + vite build)
 pnpm test            # Run tests
 pnpm typecheck       # Type check only
@@ -253,6 +254,10 @@ pnpm lint            # Lint code
 ```
 
 Or from the monorepo root: `pnpm --filter @open20/spellbook <script>`
+
+### Mobile Testing
+
+Use `pnpm dev:tunnel` (or `TUNNEL=true pnpm dev`) to start a Cloudflare tunnel with a public URL and terminal QR code. The tunnel is configured via `createTunnelPlugins()` from `@open20/config/vite` — no per-package setup needed beyond the `dev:tunnel` script and devDependencies (`vite-plugin-cloudflare-tunnel`, `qrcode`).
 
 ### Key Files to Read First
 

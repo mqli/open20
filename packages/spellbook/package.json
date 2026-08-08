@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tunnel": "TUNNEL=true vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -21,6 +22,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@open20/content": "workspace:*",
+    "@open20/content-srd": "workspace:*",
     "@open20/ui": "workspace:*",
     "@radix-ui/react-dialog": "catalog:",
     "@radix-ui/react-dropdown-menu": "catalog:",
@@ -33,8 +36,6 @@
     "clsx": "catalog:",
     "lucide-react": "catalog:",
     "open20-core": "workspace:*",
-    "@open20/content": "workspace:*",
-    "@open20/content-srd": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-router-dom": "catalog:",
@@ -59,11 +60,13 @@
     "globals": "catalog:",
     "happy-dom": "catalog:",
     "jsdom": "catalog:",
+    "qrcode": "^1.5.4",
     "tailwindcss": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-cloudflare-tunnel": "^1.0.12",
     "vite-plugin-pwa": "catalog:",
     "vitest": "catalog:"
   }
