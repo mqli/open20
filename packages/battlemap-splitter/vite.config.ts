@@ -15,4 +15,22 @@ export default defineConfig({
       })),
     ],
   },
+  build: {
+    // Target modern browsers to reduce transpilation/polyfill overhead
+    target: 'es2020',
+    // Ensure CSS is minified (default is true, explicit for clarity)
+    cssMinify: true,
+    // Skip modulepreload polyfill — all modern browsers support it natively
+    modulePreload: {
+      polyfill: false,
+    },
+    rollupOptions: {
+      output: {
+        // Split vendor chunks for better long-term caching
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+        },
+      },
+    },
+  },
 });

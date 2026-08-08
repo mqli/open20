@@ -3,7 +3,6 @@ import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
 import { usePaperStore } from '@/stores/paperStore';
 import { useTileStore } from '@/stores/tileStore';
-import { generatePdf } from '@/engine/pdfGenerator';
 
 interface PdfProgress {
   current: number;
@@ -47,7 +46,8 @@ export function usePdfGenerator() {
         img.onerror = () => reject(new Error('Failed to load image for PDF generation'));
       });
 
-      const pdfBlob = await generatePdf(
+      const { generatePdf: generatePdfFn } = await import('@/engine/pdfGenerator');
+      const pdfBlob = await generatePdfFn(
         img,
         selectedTiles,
         tileStore.tileRows,
