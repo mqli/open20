@@ -46,7 +46,7 @@ export function GridPanel({
     <div className="absolute top-4 left-[316px] z-20 max-md:top-auto max-md:bottom-4 max-md:left-4 max-md:right-[64px]">
       <div className="w-72 max-md:w-full bg-bg-secondary border border-border-primary rounded-lg shadow-lg max-md:max-h-[40vh] max-md:overflow-y-auto">
         {/* Header */}
-        <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center justify-between">
+        <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center gap-2 max-md:justify-between">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
             Grid Calibration
           </h3>
@@ -75,12 +75,35 @@ export function GridPanel({
 
         {/* Body */}
         <div className="p-3 space-y-2 max-md:p-2 max-md:space-y-1">
+          {/* Calibrate button */}
+          <button
+            type="button"
+            onClick={onToggleCalibration}
+            className={`w-full flex items-center justify-center gap-2 h-7 max-md:h-6 rounded text-[10px] font-medium transition-colors max-md:hidden ${
+              calibrationMode
+                ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
+                : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
+            }`}
+          >
+            {calibrationMode ? (
+              <>
+                <X size={12} />
+                Cancel
+              </>
+            ) : (
+              <>
+                <Ruler size={12} />
+                Calibrate Grid
+              </>
+            )}
+          </button>
+
           {/* Calibrate button + mode selector (merged on mobile) */}
           <div className="max-md:flex max-md:gap-1">
             <button
               type="button"
               onClick={onToggleCalibration}
-              className={`w-full flex items-center justify-center gap-2 h-7 max-md:h-6 max-md:flex-1 rounded text-[10px] font-medium transition-colors ${
+              className={`w-full flex items-center justify-center gap-2 h-7 max-md:h-6 max-md:flex-1 rounded text-[10px] font-medium transition-colors hidden max-md:flex ${
                 calibrationMode
                   ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
                   : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'

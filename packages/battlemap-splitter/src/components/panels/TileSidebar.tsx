@@ -73,8 +73,8 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
   // Empty state: no tiles (no image loaded or recalibrated)
   if (tiles.length === 0) {
     return (
-      <div className="absolute top-4 left-4 z-10">
-        <div className="w-72 max-md:w-[calc(100%-2rem)] bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-4 max-md:p-2">
+      <div className="absolute top-4 left-4 z-10 max-md:left-4 max-md:right-4">
+        <div className="w-72 max-md:w-full bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-4 max-md:p-2">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider mb-3">
             Tiles
           </h3>
@@ -96,10 +96,10 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
   }
 
   return (
-    <div className="absolute top-4 left-4 bottom-4 z-10 max-md:left-4 max-md:right-4 max-md:bottom-auto">
+    <div className="absolute top-4 left-4 bottom-4 z-10 max-md:left-4 max-md:right-4 max-md:bottom-auto max-md:w-auto">
       <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg flex flex-col h-full max-md:w-full max-md:h-auto">
         {/* Header */}
-        <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center justify-between">
+        <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center gap-1.5 max-md:justify-between">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
             Tiles
           </h3>
@@ -162,11 +162,11 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
           </div>
         </div>
 
-        {/* Body */}
-        <div className="p-3 space-y-2 max-md:p-2 max-md:space-y-1">
-          {/* ft toggle + Auto/Custom mode toggle (hidden on mobile; merged into header) */}
-          <div className="max-md:hidden">
-            <div className="flex rounded-md border border-border-primary overflow-hidden h-7 max-md:h-6 max-md:flex-1">
+        {/* Body (desktop-only; mobile toggle controls are in header) */}
+        <div className="p-3 space-y-2 hidden md:block">
+          {/* ft toggle + Auto/Custom mode toggle (desktop only; merged into header on mobile) */}
+          <div className="hidden md:flex md:gap-1">
+            <div className="flex rounded-md border border-border-primary overflow-hidden h-7 flex-1">
               <button
                 type="button"
                 onClick={() => useTileStore.getState().setCalibrationFeet(5)}
@@ -191,7 +191,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
               </button>
             </div>
 
-            <div className="flex rounded-md border border-border-primary overflow-hidden h-7 max-md:h-6 max-md:flex-1">
+            <div className="flex rounded-md border border-border-primary overflow-hidden h-7 flex-1">
               <button
                 type="button"
                 onClick={() => setMode('auto')}
@@ -222,7 +222,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
           <button
             type="button"
             onClick={toggleTileOverlay}
-            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full max-md:hidden ${
+            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full hidden md:flex ${
               tileOverlayVisible
                 ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
                 : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
