@@ -74,7 +74,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
   if (tiles.length === 0) {
     return (
       <div className="absolute top-4 left-4 z-10">
-        <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-4">
+        <div className="w-72 max-md:w-[calc(100%-2rem)] bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-4 max-md:p-2">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider mb-3">
             Tiles
           </h3>
@@ -85,7 +85,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
           <button
             type="button"
             onClick={onUploadClick}
-            className="w-full flex items-center justify-center gap-2 h-9 rounded-md text-sm font-medium bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20 transition-colors"
+            className="w-full flex items-center justify-center gap-2 h-9 max-md:h-7 rounded-md text-sm font-medium bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20 transition-colors"
           >
             <Upload size={16} />
             Upload Map Image
@@ -96,10 +96,10 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
   }
 
   return (
-    <div className="absolute top-4 left-4 bottom-4 z-10">
-      <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg flex flex-col h-full">
+    <div className="absolute top-4 left-4 bottom-4 z-10 max-md:left-4 max-md:right-4 max-md:bottom-auto">
+      <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg flex flex-col h-full max-md:w-full max-md:h-auto">
         {/* Header */}
-        <div className="p-3 border-b border-border-primary flex items-center justify-between">
+        <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center justify-between">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
             Tiles
           </h3>
@@ -111,42 +111,35 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
             <Upload size={11} />
             Change
           </button>
-        </div>
 
-        {/* Body */}
-        <div className="p-3 space-y-2">
-          {/* ft toggle */}
-          <div className="flex rounded-md border border-border-primary overflow-hidden h-7">
+          {/* Compact-only toggles merged into header (same line) */}
+          <div className="hidden max-md:flex max-md:items-center max-md:gap-1">
             <button
               type="button"
               onClick={() => useTileStore.getState().setCalibrationFeet(5)}
-              className={`flex-1 text-[10px] font-medium transition-colors ${
+              className={`h-5 px-1.5 rounded text-[10px] font-medium transition-colors ${
                 calibrationFeet === 5
                   ? 'bg-primary-500/20 text-primary-400'
                   : 'text-text-disabled hover:bg-bg-tertiary'
               }`}
             >
-              5 ft
+              5ft
             </button>
             <button
               type="button"
               onClick={() => useTileStore.getState().setCalibrationFeet(10)}
-              className={`flex-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+              className={`h-5 px-1.5 rounded text-[10px] font-medium transition-colors ${
                 calibrationFeet === 10
                   ? 'bg-primary-500/20 text-primary-400'
                   : 'text-text-disabled hover:bg-bg-tertiary'
               }`}
             >
-              10 ft
+              10ft
             </button>
-          </div>
-
-          {/* Auto/Custom mode toggle */}
-          <div className="flex rounded-md border border-border-primary overflow-hidden h-7">
             <button
               type="button"
               onClick={() => setMode('auto')}
-              className={`flex-1 text-[10px] font-medium transition-colors ${
+              className={`h-5 px-1.5 rounded text-[10px] font-medium transition-colors ${
                 mode === 'auto'
                   ? 'bg-primary-500/20 text-primary-400'
                   : 'text-text-disabled hover:bg-bg-tertiary'
@@ -157,7 +150,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
             <button
               type="button"
               onClick={() => setMode('custom')}
-              className={`flex-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+              className={`h-5 px-1.5 rounded text-[10px] font-medium transition-colors ${
                 mode === 'custom'
                   ? 'bg-primary-500/20 text-primary-400'
                   : 'text-text-disabled hover:bg-bg-tertiary'
@@ -167,12 +160,69 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
               Custom
             </button>
           </div>
+        </div>
 
-          {/* Tile overlay toggle */}
+        {/* Body */}
+        <div className="p-3 space-y-2 max-md:p-2 max-md:space-y-1">
+          {/* ft toggle + Auto/Custom mode toggle (hidden on mobile; merged into header) */}
+          <div className="max-md:hidden">
+            <div className="flex rounded-md border border-border-primary overflow-hidden h-7 max-md:h-6 max-md:flex-1">
+              <button
+                type="button"
+                onClick={() => useTileStore.getState().setCalibrationFeet(5)}
+                className={`flex-1 text-[10px] font-medium transition-colors ${
+                  calibrationFeet === 5
+                    ? 'bg-primary-500/20 text-primary-400'
+                    : 'text-text-disabled hover:bg-bg-tertiary'
+                }`}
+              >
+                5 ft
+              </button>
+              <button
+                type="button"
+                onClick={() => useTileStore.getState().setCalibrationFeet(10)}
+                className={`flex-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+                  calibrationFeet === 10
+                    ? 'bg-primary-500/20 text-primary-400'
+                    : 'text-text-disabled hover:bg-bg-tertiary'
+                }`}
+              >
+                10 ft
+              </button>
+            </div>
+
+            <div className="flex rounded-md border border-border-primary overflow-hidden h-7 max-md:h-6 max-md:flex-1">
+              <button
+                type="button"
+                onClick={() => setMode('auto')}
+                className={`flex-1 text-[10px] font-medium transition-colors ${
+                  mode === 'auto'
+                    ? 'bg-primary-500/20 text-primary-400'
+                    : 'text-text-disabled hover:bg-bg-tertiary'
+                }`}
+              >
+                Auto
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('custom')}
+                className={`flex-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+                  mode === 'custom'
+                    ? 'bg-primary-500/20 text-primary-400'
+                    : 'text-text-disabled hover:bg-bg-tertiary'
+                }`}
+                title="Drag tiles to reposition, R to rotate"
+              >
+                Custom
+              </button>
+            </div>
+          </div>
+
+          {/* Tile overlay toggle (desktop only; mobile in ToolPalette) */}
           <button
             type="button"
             onClick={toggleTileOverlay}
-            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full ${
+            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full max-md:hidden ${
               tileOverlayVisible
                 ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
                 : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
@@ -186,7 +236,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
 
         {/* Custom mode: selected tile controls */}
         {mode === 'custom' && selectedTile && (
-          <div className="px-3 pt-2 pb-1 space-y-1.5 border-b border-border-primary">
+          <div className="px-3 pt-2 pb-1 space-y-1.5 border-b border-border-primary max-md:px-2">
             <p className="text-[10px] text-text-disabled">
               Selected: R{selectedTile.row + 1}C{selectedTile.col + 1}
             </p>
@@ -194,7 +244,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
               <button
                 type="button"
                 onClick={() => rotateTile(selectedTile.row, selectedTile.col)}
-                className="flex items-center gap-1 py-1 px-2 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
+                className="flex items-center gap-1 py-1 px-2 max-md:py-0.5 max-md:px-1.5 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
               >
                 <RotateCw size={10} />
                 Rotate
@@ -210,7 +260,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
                     current === 'landscape' ? 'portrait' : 'landscape',
                   );
                 }}
-                className="flex items-center gap-1 py-1 px-2 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
+                className="flex items-center gap-1 py-1 px-2 max-md:py-0.5 max-md:px-1.5 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
               >
                 {(() => {
                   const tile = tiles[selectedTile.row]?.[selectedTile.col];
@@ -231,12 +281,12 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
           </div>
         )}
 
-        {/* Select all + tile count */}
-        <div className="px-3 pt-2 pb-1 flex items-center justify-between">
+        {/* Select all + tile count + Export (merged on mobile) */}
+        <div className="px-3 pt-2 pb-1 flex items-center justify-between max-md:px-2">
           <button
             type="button"
             onClick={allSelected ? selectNone : selectAll}
-            className="flex items-center justify-center gap-1 py-1 px-2 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
+            className="flex items-center justify-center gap-1 py-1 px-2 max-md:py-0.5 max-md:px-1.5 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
           >
             {allSelected ? <Square size={12} /> : <CheckSquare size={12} />}
             {allSelected ? 'None' : 'All'}
@@ -246,12 +296,22 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
               ? `${selectedCount} of ${totalCount} selected`
               : `${totalCount} tiles`}
           </span>
+          {/* Mobile-only inline export */}
+          <button
+            type="button"
+            onClick={onExportClick}
+            disabled={selectedCount === 0}
+            className="hidden max-md:flex items-center justify-center gap-1 py-0.5 px-1.5 rounded text-[10px] font-medium bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Download size={10} />
+            Export
+          </button>
         </div>
 
         {/* Tile thumbnails */}
-        <div className="flex-1 overflow-y-auto px-3 pb-3">
+        <div className="flex-1 overflow-y-auto px-3 pb-3 max-md:flex-none max-md:overflow-x-auto max-md:overflow-y-hidden max-md:flex max-md:gap-1 max-md:px-2 max-md:pb-2 max-md:h-16">
           <div
-            className="grid gap-2"
+            className="grid gap-2 max-md:flex max-md:gap-1"
             style={{
               gridTemplateColumns: `repeat(${tileCols}, 1fr)`,
             }}
@@ -279,7 +339,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
                     onClick={() => toggleTile(tile.row, tile.col)}
                     title={`R${tile.row + 1}C${tile.col + 1} (${tile.srcW}\u00d7${tile.srcH}px)${tile.rotation ? ` \u21bb${tile.rotation}\u00b0` : ''}`}
                     style={{ aspectRatio: String(paperAspectRatio) }}
-                    className={`rounded overflow-hidden border-2 transition-colors bg-bg-tertiary relative ${
+                    className={`rounded overflow-hidden border-2 transition-colors bg-bg-tertiary relative max-md:w-14 max-md:h-14 max-md:shrink-0 max-md:aspect-auto ${
                       mode === 'custom' &&
                       selectedTile?.row === tile.row &&
                       selectedTile?.col === tile.col
@@ -344,13 +404,13 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
           </div>
         </div>
 
-        {/* Fixed bottom: Export */}
-        <div className="p-3 border-t border-border-primary">
+        {/* Fixed bottom: Export (desktop only; mobile merged into Select-all row) */}
+        <div className="p-3 border-t border-border-primary max-md:hidden">
           <button
             type="button"
             onClick={onExportClick}
             disabled={selectedCount === 0}
-            className="w-full flex items-center justify-center gap-2 h-9 rounded-md text-sm font-medium bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 h-9 max-md:h-7 rounded-md text-sm font-medium bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Download size={16} />
             {selectedCount > 0

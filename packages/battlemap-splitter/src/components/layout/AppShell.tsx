@@ -60,7 +60,7 @@ export function AppShell() {
       <Toolbar />
 
       {/* Workspace */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden max-md:overflow-y-auto">
         <div className="flex-1 relative flex flex-col">
           <MapCanvas
             calibrationMode={calibrationMode}

@@ -1,5 +1,6 @@
 import { useMapStore } from '@/stores/mapStore';
-import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { useGridStore } from '@/stores/gridStore';
+import { ZoomIn, ZoomOut, Maximize, Grid3x3, LayoutGrid } from 'lucide-react';
 
 export function ToolPalette() {
   const zoom = useMapStore((s) => s.zoom);
@@ -7,6 +8,10 @@ export function ToolPalette() {
   const setPan = useMapStore((s) => s.setPan);
   const imageW = useMapStore((s) => s.width);
   const imageH = useMapStore((s) => s.height);
+  const gridVisible = useGridStore((s) => s.visible);
+  const toggleGrid = useGridStore((s) => s.toggleVisibility);
+  const tileOverlayVisible = useGridStore((s) => s.tileOverlayVisible);
+  const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
 
   const handleZoomIn = () => setZoom(zoom * 1.2);
   const handleZoomOut = () => setZoom(zoom / 1.2);
@@ -33,6 +38,23 @@ export function ToolPalette() {
       <ToolButton title="Fit to screen" onClick={handleFitToScreen}>
         <Maximize size={16} />
       </ToolButton>
+      <div className="border-t border-border-primary my-0.5 md:hidden" />
+      <ToolButton
+        title="Toggle grid visibility"
+        onClick={toggleGrid}
+        active={gridVisible}
+        className="md:hidden"
+      >
+        <Grid3x3 size={16} />
+      </ToolButton>
+      <ToolButton
+        title="Toggle tile overlay"
+        onClick={toggleTileOverlay}
+        active={tileOverlayVisible}
+        className="md:hidden"
+      >
+        <LayoutGrid size={16} />
+      </ToolButton>
       <div className="flex items-center justify-center h-7 text-xs text-text-secondary tabular-nums">
         {Math.round(zoom * 100)}%
       </div>
@@ -44,17 +66,23 @@ function ToolButton({
   children,
   title,
   onClick,
+  active,
+  className = '',
 }: {
   children: React.ReactNode;
   title: string;
   onClick?: () => void;
+  active?: boolean;
+  className?: string;
 }) {
   return (
     <button
       type="button"
       title={title}
       onClick={onClick}
-      className="w-8 h-8 flex items-center justify-center rounded transition-colors text-text-primary hover:bg-bg-tertiary"
+      className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
+        active ? 'text-primary-400 bg-primary-500/10' : 'text-text-primary hover:bg-bg-tertiary'
+      } ${className}`}
     >
       {children}
     </button>

@@ -43,10 +43,10 @@ export function GridPanel({
   if (!imageUrl) return null;
 
   return (
-    <div className="absolute top-4 left-[316px] z-20">
-      <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg">
+    <div className="absolute top-4 left-[316px] z-20 max-md:top-auto max-md:bottom-4 max-md:left-4 max-md:right-[64px]">
+      <div className="w-72 max-md:w-full bg-bg-secondary border border-border-primary rounded-lg shadow-lg max-md:max-h-[40vh] max-md:overflow-y-auto">
         {/* Header */}
-        <div className="p-3 border-b border-border-primary flex items-center justify-between">
+        <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center justify-between">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
             Grid Calibration
           </h3>
@@ -74,65 +74,66 @@ export function GridPanel({
         </div>
 
         {/* Body */}
-        <div className="p-3 space-y-2">
-          {/* Calibrate button */}
-          <button
-            type="button"
-            onClick={onToggleCalibration}
-            className={`w-full flex items-center justify-center gap-2 h-7 rounded text-[10px] font-medium transition-colors ${
-              calibrationMode
-                ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
-                : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
-            }`}
-          >
-            {calibrationMode ? (
-              <>
-                <X size={12} />
-                Cancel
-              </>
-            ) : (
-              <>
-                <Ruler size={12} />
-                Calibrate Grid
-              </>
-            )}
-          </button>
+        <div className="p-3 space-y-2 max-md:p-2 max-md:space-y-1">
+          {/* Calibrate button + mode selector (merged on mobile) */}
+          <div className="max-md:flex max-md:gap-1">
+            <button
+              type="button"
+              onClick={onToggleCalibration}
+              className={`w-full flex items-center justify-center gap-2 h-7 max-md:h-6 max-md:flex-1 rounded text-[10px] font-medium transition-colors ${
+                calibrationMode
+                  ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
+                  : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
+              }`}
+            >
+              {calibrationMode ? (
+                <>
+                  <X size={12} />
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <Ruler size={12} />
+                  Calibrate Grid
+                </>
+              )}
+            </button>
 
-          {/* Calibrate mode selector */}
-          <div className="flex rounded-md border border-border-primary overflow-hidden h-7">
-            <button
-              type="button"
-              onClick={() => onSetCalibrateMode('smart')}
-              className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
-                calibrateMode === 'smart'
-                  ? 'bg-primary-500/20 text-primary-400'
-                  : 'text-text-disabled hover:bg-bg-tertiary'
-              }`}
-              title="Auto-detect grid from rough selection"
-            >
-              <Sparkles size={12} />
-              Smart
-            </button>
-            <button
-              type="button"
-              onClick={() => onSetCalibrateMode('manual')}
-              className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
-                calibrateMode === 'manual'
-                  ? 'bg-primary-500/20 text-primary-400'
-                  : 'text-text-disabled hover:bg-bg-tertiary'
-              }`}
-              title="Manually draw precise 2×2 rectangle"
-            >
-              <MousePointer2 size={12} />
-              Manual
-            </button>
+            <div className="flex rounded-md border border-border-primary overflow-hidden h-7 max-md:h-6 max-md:flex-1">
+              <button
+                type="button"
+                onClick={() => onSetCalibrateMode('smart')}
+                className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+                  calibrateMode === 'smart'
+                    ? 'bg-primary-500/20 text-primary-400'
+                    : 'text-text-disabled hover:bg-bg-tertiary'
+                }`}
+                title="Auto-detect grid from rough selection"
+              >
+                <Sparkles size={12} />
+                Smart
+              </button>
+              <button
+                type="button"
+                onClick={() => onSetCalibrateMode('manual')}
+                className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+                  calibrateMode === 'manual'
+                    ? 'bg-primary-500/20 text-primary-400'
+                    : 'text-text-disabled hover:bg-bg-tertiary'
+                }`}
+                title="Manually draw precise 2×2 rectangle"
+              >
+                <MousePointer2 size={12} />
+                Manual
+              </button>
+            </div>
           </div>
 
-          {/* Grid overlay toggle */}
+          {/* Grid overlay toggle (desktop only; mobile in ToolPalette) */}
           <button
             type="button"
             onClick={toggleGrid}
-            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full ${
+            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full max-md:hidden ${
               gridVisible
                 ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
                 : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
