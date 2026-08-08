@@ -1,0 +1,72 @@
+name: Deploy Battlemap Splitter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/battlemap-splitter/**'
+      - 'packages/core/**'
+      - 'packages/ui/**'
+      - 'packages/config/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy-battlemap-splitter.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: 0
+
+      - name: Test battlemap-splitter
+        run: pnpm turbo run test --filter=@open20/battlemap-splitter
+
+      - name: Build battlemap-splitter
+        run: pnpm turbo run build --filter=@open20/battlemap-splitter --force
+        env:
+          DEPLOY_TARGET: github-pages
+
+      - name: Prepare Pages artifact under battlemap-splitter path
+        run: |
+          mkdir -p pages/battlemap-splitter
+          cp -R packages/battlemap-splitter/dist/. pages/battlemap-splitter/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

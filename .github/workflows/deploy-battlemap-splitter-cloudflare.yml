@@ -1,0 +1,68 @@
+name: Deploy Battlemap Splitter to Cloudflare Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: cloudflare-pages-battlemap
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: 0
+
+      - name: Test battlemap-splitter
+        run: pnpm turbo run test --filter=@open20/battlemap-splitter
+
+      - name: Build battlemap-splitter
+        run: pnpm turbo run build --filter=@open20/battlemap-splitter --force
+        env:
+          DEPLOY_TARGET: cloudflare-pages
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: battlemap-splitter-dist
+          path: packages/battlemap-splitter/dist/
+          retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    environment:
+      name: production
+      url: https://battlemap.open-20.com
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: battlemap-splitter-dist
+          path: dist
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --name open20-battlemap --assets dist --compatibility-date 2025-07-06
