@@ -43,7 +43,7 @@ export function Toolbar() {
   return (
     <div
       ref={toolbarRef}
-      className="relative bg-bg-secondary border-b border-border-primary shrink-0"
+      className="relative bg-bg-secondary border-b border-border-primary shrink-0 pt-safe"
     >
       {/* Header bar */}
       <div className="h-10 flex items-center gap-2 px-3">

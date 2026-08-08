@@ -73,7 +73,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
   // Empty state: no tiles (no image loaded or recalibrated)
   if (tiles.length === 0) {
     return (
-      <div className="absolute top-4 left-4 z-10 max-md:left-4 max-md:right-4">
+      <div className="absolute top-4 left-4 z-10 max-md:left-2 max-md:right-2 max-md:top-[calc(1rem+env(safe-area-inset-top,0px))]">
         <div className="w-72 max-md:w-full bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-4 max-md:p-2">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider mb-3">
             Tiles
@@ -96,7 +96,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
   }
 
   return (
-    <div className="absolute top-4 left-4 bottom-4 z-10 max-md:left-4 max-md:right-4 max-md:bottom-auto max-md:w-auto">
+    <div className="absolute top-4 left-4 bottom-4 z-10 max-md:left-2 max-md:right-2 max-md:bottom-auto max-md:w-auto max-md:top-[calc(1rem+env(safe-area-inset-top,0px))]">
       <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg flex flex-col h-full max-md:w-full max-md:h-auto">
         {/* Header */}
         <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center gap-1.5 max-md:justify-between">

@@ -55,13 +55,13 @@ export function AppShell() {
   }, [width, height]);
 
   return (
-    <div className="h-screen flex flex-col bg-bg-primary text-text-primary">
+    <div className="h-dvh flex flex-col bg-bg-primary text-text-primary">
       {/* Toolbar */}
       <Toolbar />
 
-      {/* Workspace */}
-      <div className="flex-1 flex overflow-hidden max-md:overflow-y-auto">
-        <div className="flex-1 relative flex flex-col">
+      {/* Workspace — never scroll at the outer level; scroll inside canvas/panels */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="flex-1 relative flex flex-col min-w-0">
           <MapCanvas
             calibrationMode={calibrationMode}
             calibrateMode={calibrateMode}

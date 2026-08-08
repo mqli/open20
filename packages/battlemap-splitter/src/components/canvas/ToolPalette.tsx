@@ -28,7 +28,7 @@ export function ToolPalette() {
   };
 
   return (
-    <div className="absolute bottom-4 right-4 flex flex-col gap-0.5 bg-bg-secondary rounded-lg shadow-lg p-1 border border-border-primary">
+    <div className="absolute bottom-4 right-4 flex flex-col gap-0.5 bg-bg-secondary rounded-lg shadow-lg p-1 border border-border-primary max-md:bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] max-md:right-2">
       <ToolButton title="Zoom in" onClick={handleZoomIn}>
         <ZoomIn size={16} />
       </ToolButton>
