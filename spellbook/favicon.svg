@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M50 5 L93.3 30 L93.3 70 L50 95 L6.7 70 L6.7 30 Z" fill="#4f46e5" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+
+  <path d="M50 25 L80 65 L20 65 Z" fill="none" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+
+  <path d="M50 5 L50 25
+           M93.3 30 L80 65
+           M93.3 70 L80 65
+           M50 95 L80 65
+           M50 95 L20 65
+           M6.7 70 L20 65
+           M6.7 30 L20 65
+           M50 25 L93.3 30
+           M50 25 L6.7 30" fill="none" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+
+  <text x="50" y="56" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">20</text>
+</svg>
