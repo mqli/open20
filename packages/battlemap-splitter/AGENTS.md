@@ -11,6 +11,23 @@ See `SPEC.md` for the full specification.
 - jsPDF for PDF generation
 - Canvas 2D API for all image processing and overlay rendering
 - Lucide React for icons
+- vite-plugin-cloudflare-tunnel for mobile testing (opt-in via `TUNNEL=true`)
+
+## Mobile Testing
+
+WSL2 NAT networking prevents direct LAN access to the dev server. Use the Cloudflare tunnel for testing on phones/tablets:
+
+```bash
+# Start dev server with public tunnel URL
+pnpm dev:tunnel
+
+# Or from root:
+pnpm --filter @open20/battlemap-splitter dev:tunnel
+```
+
+This outputs a `https://xxx.trycloudflare.com` URL accessible from any device. No Cloudflare account needed.
+
+The tunnel is opt-in via `TUNNEL=true` env var — normal `pnpm dev` does not start it. The plugin is configured in `vite.config.ts` with `port: 5173`.
 
 ## Architecture
 
