@@ -63,7 +63,7 @@ export function usePdfGenerator() {
           overlapMm: paper.overlap,
           cellPx: grid.cellPx,
           mapLabel: 'Battle Map',
-          isLandscape: false, // TODO: get from tile grid orientation
+          isLandscape: tileStore.orientation === 'landscape',
           includeGuide: true,
           onProgress: (current, total) => {
             setProgress({ current, total, phase: 'generating' });

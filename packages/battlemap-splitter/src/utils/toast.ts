@@ -2,7 +2,7 @@
  * Minimal toast notification system.
  */
 
-type ToastType = 'info' | 'success' | 'error';
+type ToastType = 'info' | 'success' | 'error' | 'warning';
 
 export interface Toast {
   id: number;
@@ -44,4 +44,11 @@ export function subscribeToToasts(listener: Listener) {
   return () => {
     listeners.delete(listener);
   };
+}
+
+/** Reset module state (for testing). Clears all toasts and listeners. */
+export function __reset() {
+  toasts = [];
+  nextId = 0;
+  listeners.clear();
 }

@@ -209,16 +209,18 @@ interface GridState {
   offsetX: number; // horizontal offset in px
   offsetY: number; // vertical offset in px
   visible: boolean;
+  tileOverlayVisible: boolean; // whether the tile split overlay is visible
   color: string; // rgba
   opacity: number; // 0 - 1
 
   // Actions
-  setCellPx: (px: number) => void; // also used for direct DPI input
+  setCellPx: (px: number) => void;
+  adjustCellPx: (delta: number) => void;
   setOffset: (x: number, y: number) => void;
   toggleVisibility: () => void;
+  toggleTileOverlay: () => void;
   setColor: (color: string) => void;
   setOpacity: (op: number) => void;
-  autoDetect: () => Promise<void>; // reads mapStore.imageUrl for pixel data
   reset: () => void;
 }
 ```
@@ -233,13 +235,23 @@ interface GridState {
 ### 4.3 `paperStore`
 
 ```ts
-type PaperPreset = 'A4' | 'LETTER' | 'A3' | 'TABLOID' | 'CUSTOM';
+type PaperPreset =
+  | 'A4'
+  | 'LETTER'
+  | 'LEGAL'
+  | 'A3'
+  | 'A2'
+  | 'A1'
+  | 'TABLOID'
+  | 'B4'
+  | 'B5'
+  | 'CUSTOM';
 
 interface PaperState {
   preset: PaperPreset;
   customW: number; // mm
   customH: number; // mm
-  orientation: 'auto' | 'portrait' | 'landscape';
+  orientation: 'portrait' | 'landscape'; // best orientation evaluated on image load
   margin: number; // mm (uniform default); per-edge overrides below
   marginTop: number | null; // null = use `margin`
   marginBottom: number | null;
@@ -248,6 +260,14 @@ interface PaperState {
   overlap: number; // mm
   outputDpi: number; // output PDF DPI
   scaleLocked: boolean; // enforce 1 cell = 25.4 mm
+
+  // Resolved margin getters + paper dimension getters
+  getMarginTop: () => number;
+  getMarginBottom: () => number;
+  getMarginLeft: () => number;
+  getMarginRight: () => number;
+  getPaperWidth: () => number;
+  getPaperHeight: () => number;
 
   // … setters for each field
 }
@@ -266,12 +286,23 @@ interface TileInfo {
   col: number;
   selected: boolean;
   isEmpty: boolean; // tile has negligible map content (see Section 5.5)
+  // Source pixel region (populated by recalculate)
+  srcX: number;
+  srcY: number;
+  srcW: number;
+  srcH: number;
+  // Content area on paper in mm
+  contentW: number;
+  contentH: number;
+  // Thumbnail preview data URL (generated during empty tile detection)
+  previewUrl?: string;
 }
 
 interface TileState {
   tiles: TileInfo[][]; // 2D array [row][col]
   tileCols: number;
   tileRows: number;
+  orientation: 'portrait' | 'landscape'; // from computeTileGrid result
 
   // Derived (computed by selectors, not stored separately)
   // selectedCount: number ��� tiles.flat().filter(t => t.selected).length
@@ -299,25 +330,26 @@ interface TileState {
 
 ### 4.5 Store Defaults
 
-| Store        | Field                 | Default                | Notes                                                  |
-| ------------ | --------------------- | ---------------------- | ------------------------------------------------------ |
-| `mapStore`   | `imageUrl`            | `null`                 | No image on cold start                                 |
-| `mapStore`   | `width`/`height`      | `0`                    | Set on image load                                      |
-| `mapStore`   | `zoom`                | `1`                    | 100% (image pixel → screen pixel at 1:1)               |
-| `mapStore`   | `panX`/`panY`         | `0`                    | Top-left origin                                        |
-| `gridStore`  | `cellPx`              | `70`                   | 5etools default DPI; common for online battle maps     |
-| `gridStore`  | `offsetX`/`offsetY`   | `0`                    | Grid origin at image top-left                          |
-| `gridStore`  | `visible`             | `true`                 | Grid visible by default (immediate calibration needed) |
-| `gridStore`  | `color`               | `rgba(255, 0, 0, 0.8)` | Red, 80% opacity                                       |
-| `gridStore`  | `opacity`             | `0.8`                  |                                                        |
-| `paperStore` | `preset`              | `A4`                   | Most common paper worldwide                            |
-| `paperStore` | `orientation`         | `auto`                 | Optimal layout evaluated automatically                 |
-| `paperStore` | `margin`              | `8`                    | mm; typical printer non-printable margin               |
-| `paperStore` | `overlap`             | `5`                    | mm; balances alignment ease vs. paper waste            |
-| `paperStore` | `outputDpi`           | `150`                  | Balances quality vs. file size                         |
-| `paperStore` | `scaleLocked`         | `true`                 | Enforce 1 cell = 25.4 mm by default                    |
-| `tileStore`  | `tiles`               | `[]`                   | Empty until first `recalculate()`                      |
-| `tileStore`  | `tileCols`/`tileRows` | `0`                    |                                                        |
+| Store        | Field                 | Default                  | Notes                                                                |
+| ------------ | --------------------- | ------------------------ | -------------------------------------------------------------------- |
+| `mapStore`   | `imageUrl`            | `null`                   | No image on cold start                                               |
+| `mapStore`   | `width`/`height`      | `0`                      | Set on image load                                                    |
+| `mapStore`   | `zoom`                | `1`                      | 100% (image pixel → screen pixel at 1:1)                             |
+| `mapStore`   | `panX`/`panY`         | `0`                      | Top-left origin                                                      |
+| `gridStore`  | `cellPx`              | `143`                    | Common DPI for battle maps (approx 5.6 px/mm)                        |
+| `gridStore`  | `offsetX`/`offsetY`   | `0`                      | Grid origin at image top-left                                        |
+| `gridStore`  | `visible`             | `false`                  | Grid hidden by default; shown after calibration                      |
+| `gridStore`  | `tileOverlayVisible`  | `false`                  | Tile split overlay hidden by default                                 |
+| `gridStore`  | `color`               | `rgba(239, 68, 68, 0.8)` | Red (Tailwind red-500), 80% opacity                                  |
+| `gridStore`  | `opacity`             | `0.8`                    |                                                                      |
+| `paperStore` | `preset`              | `A4`                     | Most common paper worldwide                                          |
+| `paperStore` | `orientation`         | `portrait`               | Best orientation evaluated on image load via evaluateBestOrientation |
+| `paperStore` | `margin`              | `15`                     | mm; minimum 15mm to provide room for tile labels                     |
+| `paperStore` | `overlap`             | `5`                      | mm; balances alignment ease vs. paper waste                          |
+| `paperStore` | `outputDpi`           | `150`                    | Balances quality vs. file size                                       |
+| `paperStore` | `scaleLocked`         | `true`                   | Enforce 1 cell = 25.4 mm by default                                  |
+| `tileStore`  | `tiles`               | `[]`                     | Empty until first `recalculate()`                                    |
+| `tileStore`  | `tileCols`/`tileRows` | `0`                      |                                                                      |
 
 **Initial tile selection:** After `recalculate()`, all non-empty tiles are selected
 by default. `detectEmptyTiles()` runs immediately after, setting `isEmpty` on

@@ -1,9 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useMapStore } from '@/stores/mapStore';
-import { useTileStore } from '@/stores/tileStore';
-import { useGridStore } from '@/stores/gridStore';
-import { usePaperStore } from '@/stores/paperStore';
-import { evaluateBestOrientation } from '@/engine/tiling';
+import { evaluateAndRecalculate } from '@/engine/mapLoader';
 import { useDragDrop } from '@/hooks/useDragDrop';
 import { Upload, Link, Clipboard, Loader2, X } from 'lucide-react';
 
@@ -24,33 +21,13 @@ export function UploadDialog({ onClose }: UploadDialogProps) {
   const loadImageFromFile = useMapStore((s) => s.loadImageFromFile);
   const loadImageFromUrl = useMapStore((s) => s.loadImageFromUrl);
 
-  /** Evaluate and set the best orientation for the loaded map dimensions. */
-  const evaluateOrientation = useCallback((imageW: number, imageH: number) => {
-    const paperState = usePaperStore.getState();
-    const gridState = useGridStore.getState();
-    const best = evaluateBestOrientation(imageW, imageH, gridState.cellPx, {
-      widthMm: paperState.getPaperWidth(),
-      heightMm: paperState.getPaperHeight(),
-      marginLeft: paperState.getMarginLeft(),
-      marginRight: paperState.getMarginRight(),
-      marginTop: paperState.getMarginTop(),
-      marginBottom: paperState.getMarginBottom(),
-      overlapMm: paperState.overlap,
-    });
-    paperState.setOrientation(best);
-  }, []);
-
   const handleFileSelect = useCallback(
     async (file: File) => {
       setLoading(true);
       setError(null);
       try {
         await loadImageFromFile(file);
-        // Evaluate best orientation
-        const mapState = useMapStore.getState();
-        evaluateOrientation(mapState.width, mapState.height);
-        // Trigger tile recalculation on successful load
-        setTimeout(() => useTileStore.getState().recalculate(), 100);
+        evaluateAndRecalculate();
         onClose();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load image');
@@ -58,7 +35,7 @@ export function UploadDialog({ onClose }: UploadDialogProps) {
         setLoading(false);
       }
     },
-    [loadImageFromFile, evaluateOrientation, onClose],
+    [loadImageFromFile, onClose],
   );
 
   const { dragBindings, isDragging } = useDragDrop({
@@ -85,10 +62,7 @@ export function UploadDialog({ onClose }: UploadDialogProps) {
       setError(null);
       try {
         await loadImageFromUrl(urlValue.trim());
-        // Evaluate best orientation
-        const mapState = useMapStore.getState();
-        evaluateOrientation(mapState.width, mapState.height);
-        setTimeout(() => useTileStore.getState().recalculate(), 100);
+        evaluateAndRecalculate();
         onClose();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load image from URL');
@@ -96,7 +70,7 @@ export function UploadDialog({ onClose }: UploadDialogProps) {
         setLoading(false);
       }
     },
-    [urlValue, loadImageFromUrl, evaluateOrientation, onClose],
+    [urlValue, loadImageFromUrl, onClose],
   );
 
   // Auto-focus URL input when switching tabs

@@ -13,17 +13,18 @@ function setupMapWithImage(width = 700, height = 700) {
 
 describe('tileStore', () => {
   beforeEach(() => {
-    useTileStore.setState({ tiles: [], tileCols: 0, tileRows: 0 });
+    useTileStore.setState({ tiles: [], tileCols: 0, tileRows: 0, orientation: 'portrait' });
     useMapStore.getState().clear();
     useGridStore.getState().reset();
   });
 
   describe('initial state', () => {
-    it('starts with empty tiles', () => {
+    it('starts with empty tiles and portrait orientation', () => {
       const state = useTileStore.getState();
       expect(state.tiles).toEqual([]);
       expect(state.tileCols).toBe(0);
       expect(state.tileRows).toBe(0);
+      expect(state.orientation).toBe('portrait');
     });
   });
 

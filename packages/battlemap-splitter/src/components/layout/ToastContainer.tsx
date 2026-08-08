@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { subscribeToToasts, dismissToast } from '@/utils/toast';
 import type { Toast } from '@/utils/toast';
-import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
 export function ToastContainer() {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -20,11 +20,14 @@ export function ToastContainer() {
               ? 'bg-red-500/10 border-red-500/30 text-red-400'
               : toast.type === 'success'
                 ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                : 'bg-bg-secondary border-border-primary text-text-primary'
+                : toast.type === 'warning'
+                  ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400'
+                  : 'bg-bg-secondary border-border-primary text-text-primary'
           }`}
         >
           {toast.type === 'error' && <AlertCircle size={16} />}
           {toast.type === 'success' && <CheckCircle2 size={16} />}
+          {toast.type === 'warning' && <AlertTriangle size={16} />}
           {toast.type === 'info' && <Info size={16} />}
           <span className="flex-1">{toast.message}</span>
           <button

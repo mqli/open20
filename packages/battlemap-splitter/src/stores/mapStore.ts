@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { showToast } from '@/utils/toast';
 
 interface MapState {
   /** Source image — always a same-origin blob: URL to avoid CORS canvas tainting */
@@ -73,6 +74,11 @@ export const useMapStore = create<MapState>((set, get) => ({
     } catch {
       // Fallback: load directly (canvas will be tainted, auto-detect disabled)
       console.warn('CORS proxy failed, loading image directly — auto-detect will be unavailable');
+      showToast(
+        'CORS proxy unavailable — grid auto-detect and tile previews are disabled',
+        'warning',
+        6000,
+      );
       imageUrl = url;
     }
 

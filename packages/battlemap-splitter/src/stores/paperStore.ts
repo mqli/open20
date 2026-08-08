@@ -46,7 +46,7 @@ interface PaperState {
   getPaperHeight: () => number;
 }
 
-const PRESET_DIMENSIONS: Record<Exclude<PaperPreset, 'CUSTOM'>, { w: number; h: number }> = {
+export const PRESET_DIMENSIONS: Record<Exclude<PaperPreset, 'CUSTOM'>, { w: number; h: number }> = {
   A4: { w: 210, h: 297 },
   A3: { w: 297, h: 420 },
   A2: { w: 420, h: 594 },

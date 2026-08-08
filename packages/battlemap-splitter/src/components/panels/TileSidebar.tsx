@@ -1,19 +1,7 @@
 import { useTileStore } from '@/stores/tileStore';
-import { usePaperStore } from '@/stores/paperStore';
+import { usePaperStore, PRESET_DIMENSIONS } from '@/stores/paperStore';
 import type { PaperPreset } from '@/types';
 import { Upload, Download, CheckSquare, Square } from 'lucide-react';
-
-const PAPER_DIMS: Record<Exclude<PaperPreset, 'CUSTOM'>, { w: number; h: number }> = {
-  A4: { w: 210, h: 297 },
-  A3: { w: 297, h: 420 },
-  A2: { w: 420, h: 594 },
-  A1: { w: 594, h: 841 },
-  LETTER: { w: 215.9, h: 279.4 },
-  LEGAL: { w: 215.9, h: 355.6 },
-  TABLOID: { w: 279.4, h: 431.8 },
-  B4: { w: 257, h: 364 },
-  B5: { w: 182, h: 257 },
-};
 
 function getPaperDims(
   preset: PaperPreset,
@@ -21,7 +9,7 @@ function getPaperDims(
   customH: number,
   orientation: 'portrait' | 'landscape',
 ): { w: number; h: number } {
-  const dims = preset === 'CUSTOM' ? { w: customW, h: customH } : PAPER_DIMS[preset];
+  const dims = preset === 'CUSTOM' ? { w: customW, h: customH } : PRESET_DIMENSIONS[preset];
   return {
     w: orientation === 'landscape' ? dims.h : dims.w,
     h: orientation === 'landscape' ? dims.w : dims.h,

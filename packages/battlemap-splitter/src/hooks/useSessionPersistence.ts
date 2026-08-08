@@ -11,6 +11,7 @@ interface PersistedConfig {
     offsetY: number;
     color: string;
     opacity: number;
+    tileOverlayVisible: boolean;
   };
   paper: {
     preset: string;
@@ -45,6 +46,9 @@ export function useSessionPersistence() {
         grid.setOffset(config.grid.offsetX, config.grid.offsetY);
         grid.setColor(config.grid.color);
         grid.setOpacity(config.grid.opacity);
+        if (config.grid.tileOverlayVisible !== undefined) {
+          useGridStore.setState({ tileOverlayVisible: config.grid.tileOverlayVisible });
+        }
       }
 
       if (config.paper) {
@@ -79,6 +83,7 @@ export function useSessionPersistence() {
         offsetY: grid.offsetY,
         color: grid.color,
         opacity: grid.opacity,
+        tileOverlayVisible: grid.tileOverlayVisible,
       },
       paper: {
         preset: paper.preset,
@@ -107,6 +112,7 @@ export function useSessionPersistence() {
     grid.offsetY,
     grid.color,
     grid.opacity,
+    grid.tileOverlayVisible,
     paper.preset,
     paper.orientation,
     paper.margin,

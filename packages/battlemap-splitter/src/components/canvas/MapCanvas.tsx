@@ -79,7 +79,7 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
     }
   }, []);
 
-  const { isReady } = useCanvasRenderer(canvasRef, {
+  useCanvasRenderer(canvasRef, {
     onDraw,
     calibrationMode,
     calibrateRef,
@@ -357,11 +357,6 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
         onMouseLeave={handleMouseUp}
         onContextMenu={(e) => e.preventDefault()}
       />
-      {!isReady && (
-        <div className="absolute inset-0 flex items-center justify-center bg-bg-primary/80">
-          <div className="text-text-secondary">Loading canvas...</div>
-        </div>
-      )}
       {!imageUrl && <DropZone />}
       {imageUrl && (
         <div className="absolute bottom-2 left-2 text-[10px] text-text-disabled/60 select-none pointer-events-none">

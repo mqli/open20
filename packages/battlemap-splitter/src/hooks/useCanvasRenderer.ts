@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
 import { useTileStore } from '@/stores/tileStore';
@@ -21,8 +21,8 @@ export function useCanvasRenderer(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   options: CanvasRendererOptions = {},
 ) {
-  const [isReady] = useState(true);
   const rafId = useRef<number>(0);
+  const paused = useRef(false);
   const { onDraw, calibrationMode, calibrateRef } = options;
 
   const render = useCallback(() => {
@@ -33,8 +33,6 @@ export function useCanvasRenderer(
     if (!ctx) return;
 
     const map = useMapStore.getState();
-    const grid = useGridStore.getState();
-    const tileStore = useTileStore.getState();
 
     // Reset transform and clear
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -48,8 +46,16 @@ export function useCanvasRenderer(
       ctx.font = '16px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('Upload a battle map to begin', canvas.width / 2, canvas.height / 2);
+      // No image — pause RAF to save CPU
+      paused.current = true;
       return;
     }
+
+    // Image is loaded — ensure RAF is running
+    paused.current = false;
+
+    const grid = useGridStore.getState();
+    const tileStore = useTileStore.getState();
 
     ctx.save();
 
@@ -140,9 +146,22 @@ export function useCanvasRenderer(
     ctx.restore();
   }, [canvasRef, onDraw, calibrationMode, calibrateRef]);
 
+  // Subscribe to image URL changes to unpause RAF when a new image is loaded
+  useEffect(() => {
+    const unsub = useMapStore.subscribe((state, prevState) => {
+      if (state.imageUrl && !prevState.imageUrl) {
+        // Image just loaded — ensure RAF is unpaused
+        paused.current = false;
+      }
+    });
+    return unsub;
+  }, []);
+
   useEffect(() => {
     const loop = () => {
-      render();
+      if (!paused.current) {
+        render();
+      }
       rafId.current = requestAnimationFrame(loop);
     };
 
@@ -154,6 +173,4 @@ export function useCanvasRenderer(
       }
     };
   }, [render]);
-
-  return { isReady };
 }

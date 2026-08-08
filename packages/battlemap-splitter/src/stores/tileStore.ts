@@ -27,6 +27,7 @@ interface TileState {
   tiles: TileInfo[][];
   tileCols: number;
   tileRows: number;
+  orientation: 'portrait' | 'landscape';
 
   /** Actions */
   recalculate: () => void;
@@ -53,10 +54,13 @@ function engineTileToTileInfo(t: EngineTileInfo): TileInfo {
   };
 }
 
+let emptyDetectAbortController: AbortController | null = null;
+
 export const useTileStore = create<TileState>((set, get) => ({
   tiles: [],
   tileCols: 0,
   tileRows: 0,
+  orientation: 'portrait',
 
   recalculate: () => {
     // Cross-store reads
@@ -87,7 +91,18 @@ export const useTileStore = create<TileState>((set, get) => ({
 
     const tiles: TileInfo[][] = grid.tiles.map((row) => row.map(engineTileToTileInfo));
 
-    set({ tiles, tileCols: grid.cols, tileRows: grid.rows });
+    set({
+      tiles,
+      tileCols: grid.cols,
+      tileRows: grid.rows,
+      orientation: grid.orientation,
+    });
+
+    // Abort any in-flight empty detection before starting a new one
+    if (emptyDetectAbortController) {
+      emptyDetectAbortController.abort();
+    }
+    emptyDetectAbortController = new AbortController();
 
     // Trigger empty tile detection asynchronously
     get().detectEmptyTiles();
@@ -129,10 +144,13 @@ export const useTileStore = create<TileState>((set, get) => ({
   },
 
   detectEmptyTiles: async () => {
+    const signal = emptyDetectAbortController?.signal;
+
     const mapState = useMapStore.getState();
     const { tiles } = get();
 
     if (!mapState.imageUrl || tiles.length === 0) return;
+    if (signal?.aborted) return;
 
     // Sample a thumbnail of each tile to check if it's empty
     const img = new Image();
@@ -144,6 +162,8 @@ export const useTileStore = create<TileState>((set, get) => ({
         img.onload = () => resolve();
         img.onerror = () => reject(new Error('Image load failed'));
       });
+
+      if (signal?.aborted) return;
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -158,6 +178,8 @@ export const useTileStore = create<TileState>((set, get) => ({
         tiles.map(async (row) =>
           Promise.all(
             row.map(async (t) => {
+              // Aborted — return tile unchanged
+              if (signal?.aborted) return t;
               // Skip tiles that are too small
               if (t.srcW < 10 || t.srcH < 10) return { ...t, isEmpty: false };
 
