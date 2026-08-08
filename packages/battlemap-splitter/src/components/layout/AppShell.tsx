@@ -1,18 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { MapCanvas } from '@/components/canvas/MapCanvas';
 import { ToolPalette } from '@/components/canvas/ToolPalette';
 import { Toolbar } from '@/components/layout/Toolbar';
 import { StatusBar } from '@/components/layout/StatusBar';
 import { ToastContainer } from '@/components/layout/ToastContainer';
 import { TileSidebar } from '@/components/panels/TileSidebar';
-import { GridPanel } from '@/components/panels/GridPanel';
-import { UploadDialog } from '@/components/dialogs/UploadDialog';
-import { ExportDialog } from '@/components/dialogs/ExportDialog';
 import { useSessionPersistence } from '@/hooks/useSessionPersistence';
 import { useTileRecalc } from '@/hooks/useTileRecalc';
 import { useMapStore } from '@/stores/mapStore';
 import { showToast } from '@/utils/toast';
 import type { CalibrateMode } from '@/types';
+
+const GridPanel = lazy(() =>
+  import('@/components/panels/GridPanel').then((m) => ({ default: m.GridPanel })),
+);
+const UploadDialog = lazy(() =>
+  import('@/components/dialogs/UploadDialog').then((m) => ({ default: m.UploadDialog })),
+);
+const ExportDialog = lazy(() =>
+  import('@/components/dialogs/ExportDialog').then((m) => ({ default: m.ExportDialog })),
+);
+
+/** Minimal fallback: renders nothing — these are overlay panels that appear instantly */
+function PanelFallback() {
+  return null;
+}
 
 export function AppShell() {
   const [showUpload, setShowUpload] = useState(false);
@@ -55,14 +67,16 @@ export function AppShell() {
             onUploadClick={() => setShowUpload(true)}
             onExportClick={() => setShowExport(true)}
           />
-          <GridPanel
-            calibrationMode={calibrationMode}
-            calibrateMode={calibrateMode}
-            onToggleCalibration={() => {
-              setCalibrationMode((v) => !v);
-            }}
-            onSetCalibrateMode={setCalibrateMode}
-          />
+          <Suspense fallback={<PanelFallback />}>
+            <GridPanel
+              calibrationMode={calibrationMode}
+              calibrateMode={calibrateMode}
+              onToggleCalibration={() => {
+                setCalibrationMode((v) => !v);
+              }}
+              onSetCalibrateMode={setCalibrateMode}
+            />
+          </Suspense>
         </div>
       </div>
 
@@ -70,8 +84,16 @@ export function AppShell() {
       <StatusBar calibrationMode={calibrationMode} />
 
       {/* Dialogs */}
-      {showUpload && <UploadDialog onClose={() => setShowUpload(false)} />}
-      {showExport && <ExportDialog onClose={() => setShowExport(false)} />}
+      {showUpload && (
+        <Suspense fallback={<PanelFallback />}>
+          <UploadDialog onClose={() => setShowUpload(false)} />
+        </Suspense>
+      )}
+      {showExport && (
+        <Suspense fallback={<PanelFallback />}>
+          <ExportDialog onClose={() => setShowExport(false)} />
+        </Suspense>
+      )}
 
       {/* Toast notifications */}
       <ToastContainer />

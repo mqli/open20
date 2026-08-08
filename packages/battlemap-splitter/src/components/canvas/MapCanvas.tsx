@@ -2,7 +2,6 @@ import { useRef, useCallback, useEffect } from 'react';
 import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
 import { useCanvasRenderer } from '@/hooks/useCanvasRenderer';
-import { snapCorner, detectGridFromRegion } from '@/engine/gridCalibration';
 import { DropZone } from './DropZone';
 import type { CalibrateMode } from '@/types';
 
@@ -257,7 +256,7 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
     [getCanvasPoint, toMapCoord, calibrateMode],
   );
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback(async () => {
     dragRef.current.active = false;
     gridDragRef.current.active = false;
 
@@ -274,6 +273,9 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
         onCalibrateDone();
         return;
       }
+
+      // Dynamic import: grid calibration engine only needed on first calibration
+      const { snapCorner, detectGridFromRegion } = await import('@/engine/gridCalibration');
 
       if (calibrateMode === 'manual') {
         // Manual mode: snap 4 corners with vote algorithm, compute cellPx from 2×2 rect
