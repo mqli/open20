@@ -1,0 +1,56 @@
+name: Deploy Battlemap Splitter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/battlemap-splitter/**'
+      - 'packages/core/**'
+      - 'packages/ui/**'
+      - 'packages/config/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy-battlemap-splitter.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-battlemap
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: 0
+
+      - name: Test
+        run: pnpm turbo run test --filter=@open20/battlemap-splitter
+
+      - name: Build
+        run: pnpm turbo run build --filter=@open20/battlemap-splitter --force
+        env:
+          DEPLOY_TARGET: github-pages
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: packages/battlemap-splitter/dist
+          destination_dir: battlemap-splitter
+          keep_files: true
+          enable_jekyll: false

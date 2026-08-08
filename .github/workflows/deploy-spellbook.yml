@@ -1,31 +1,28 @@
-name: Deploy to GitHub Pages
+name: Deploy Spellbook
 
 on:
   push:
     branches: [main]
     paths:
       - 'packages/spellbook/**'
-      - 'packages/battlemap-splitter/**'
       - 'packages/core/**'
       - 'packages/ui/**'
       - 'packages/config/**'
       - 'packages/content/**'
       - 'packages/content-*/**'
       - 'pnpm-lock.yaml'
-      - '.github/workflows/deploy-pages.yml'
+      - '.github/workflows/deploy-spellbook.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  group: deploy-spellbook
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -43,15 +40,13 @@ jobs:
         env:
           HUSKY: 0
 
-      # --- Spellbook (unit + e2e + build) ---
-
-      - name: Test spellbook (unit)
+      - name: Test (unit)
         run: pnpm turbo run test --filter=@open20/spellbook
 
       - name: Install Playwright browsers
         run: pnpm --filter @open20/spellbook exec playwright install --with-deps chromium
 
-      - name: Test spellbook (e2e)
+      - name: Test (e2e)
         run: pnpm turbo run test:e2e --filter=@open20/spellbook
         env:
           CI: 'true'
@@ -64,43 +59,16 @@ jobs:
           path: packages/spellbook/playwright-report/
           retention-days: 30
 
-      - name: Build spellbook
+      - name: Build
         run: pnpm turbo run build --filter=@open20/spellbook --force
         env:
           DEPLOY_TARGET: github-pages
 
-      # --- Battlemap Splitter (unit + build) ---
-
-      - name: Test battlemap-splitter
-        run: pnpm turbo run test --filter=@open20/battlemap-splitter
-
-      - name: Build battlemap-splitter
-        run: pnpm turbo run build --filter=@open20/battlemap-splitter --force
-        env:
-          DEPLOY_TARGET: github-pages
-
-      # --- Merge both apps into a single pages artifact ---
-
-      - name: Prepare Pages artifact
-        run: |
-          mkdir -p pages/spellbook pages/battlemap-splitter
-          cp -R packages/spellbook/dist/. pages/spellbook/
-          cp -R packages/battlemap-splitter/dist/. pages/battlemap-splitter/
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: pages
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: packages/spellbook/dist
+          destination_dir: spellbook
+          keep_files: true
+          enable_jekyll: false
