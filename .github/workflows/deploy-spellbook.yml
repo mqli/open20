@@ -66,26 +66,17 @@ jobs:
 
       - name: Deploy to gh-pages
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Try to fetch existing gh-pages; create orphan if it doesn't exist
-          git fetch origin gh-pages 2>/dev/null || true
-          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
-            git checkout gh-pages
-          else
-            git checkout --orphan gh-pages
-            git rm -rf . 2>/dev/null || true
-            git commit --allow-empty -m "init: gh-pages"
-          fi
-
+          git fetch origin gh-pages
+          git checkout gh-pages
           rm -rf spellbook/
           mkdir -p spellbook
           cp -R packages/spellbook/dist/. spellbook/
           git add spellbook/
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           if git diff --staged --quiet; then
             echo "No changes to deploy"
           else
             git commit -m "deploy: spellbook ${{ github.sha }}"
-            git push -u origin gh-pages
+            git push origin gh-pages
           fi
