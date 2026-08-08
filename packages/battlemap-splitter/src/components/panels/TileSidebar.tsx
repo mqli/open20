@@ -183,13 +183,6 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
           </button>
         </div>
 
-        {/* Custom mode hint */}
-        {mode === 'custom' && (
-          <p className="text-xs text-text-secondary leading-relaxed px-3 pt-1.5">
-            Drag tiles to reposition, press R to rotate, or use the controls below.
-          </p>
-        )}
-
         {/* Custom mode: selected tile controls */}
         {mode === 'custom' && selectedTile && (
           <div className="px-3 pt-2 pb-1 space-y-1.5 border-b border-border-primary">

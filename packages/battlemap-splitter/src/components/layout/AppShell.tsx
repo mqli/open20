@@ -8,6 +8,7 @@ import { TileSidebar } from '@/components/panels/TileSidebar';
 import { useSessionPersistence } from '@/hooks/useSessionPersistence';
 import { useTileRecalc } from '@/hooks/useTileRecalc';
 import { useMapStore } from '@/stores/mapStore';
+import { useTileStore } from '@/stores/tileStore';
 import { showToast } from '@/utils/toast';
 import type { CalibrateMode } from '@/types';
 
@@ -35,6 +36,10 @@ export function AppShell() {
   useSessionPersistence();
   useTileRecalc();
 
+  // Track custom tile mode for canvas alert
+  const tileMode = useTileStore((s) => s.mode);
+  const customTileMode = tileMode === 'custom';
+
   // Edge case: warn on very large images
   const width = useMapStore((s) => s.width);
   const height = useMapStore((s) => s.height);
@@ -60,6 +65,7 @@ export function AppShell() {
           <MapCanvas
             calibrationMode={calibrationMode}
             calibrateMode={calibrateMode}
+            customTileMode={customTileMode}
             onCalibrateDone={() => setCalibrationMode(false)}
           />
           <ToolPalette />

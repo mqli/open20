@@ -4,16 +4,23 @@ import { useGridStore } from '@/stores/gridStore';
 import { useTileStore } from '@/stores/tileStore';
 import { useCanvasRenderer } from '@/hooks/useCanvasRenderer';
 import { DropZone } from './DropZone';
+import { CanvasAlert } from './CanvasAlert';
 import { hitTestTile } from './TileOverlay';
 import type { CalibrateMode } from '@/types';
 
 interface MapCanvasProps {
   calibrationMode: boolean;
   calibrateMode: CalibrateMode;
+  customTileMode: boolean;
   onCalibrateDone: () => void;
 }
 
-export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: MapCanvasProps) {
+export function MapCanvas({
+  calibrationMode,
+  calibrateMode,
+  customTileMode,
+  onCalibrateDone,
+}: MapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -438,12 +445,19 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
         onMouseLeave={handleMouseUp}
         onContextMenu={(e) => e.preventDefault()}
       />
+      {imageUrl && (
+        <CanvasAlert
+          calibrationMode={calibrationMode}
+          calibrateMode={calibrateMode}
+          customMode={customTileMode}
+          onDismissCalibration={() => {}}
+          onDismissCustom={() => {}}
+        />
+      )}
       {!imageUrl && <DropZone />}
       {imageUrl && (
         <div className="absolute bottom-2 left-2 text-[10px] text-text-disabled/60 select-none pointer-events-none">
           Right-click or Shift+Left-click + drag to pan &middot; Scroll to zoom
-          {useTileStore.getState().mode === 'custom' &&
-            ' \u00b7 Click tile to select \u00b7 Drag to move \u00b7 R to rotate'}
         </div>
       )}
     </div>

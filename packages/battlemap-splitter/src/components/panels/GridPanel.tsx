@@ -126,34 +126,6 @@ export function GridPanel({
           </button>
         </div>
 
-        {calibrationMode ? (
-          <>
-            <p className="text-[10px] text-primary-400 text-center leading-snug">
-              {calibrateMode === 'manual'
-                ? 'Draw a rectangle covering exactly 2\u00d72 grid squares.'
-                : 'Roughly select a region containing 2\u00d72 grid squares.'}
-            </p>
-            <p className="text-[10px] text-text-disabled/70 text-center leading-snug">
-              Pick an area with clear, unobstructed grid lines for best results.
-            </p>
-            {calibrateMode === 'smart' && (
-              <p className="text-[10px] text-text-disabled/70 text-center leading-snug">
-                Not accurate? Switch to <span className="text-text-secondary">Manual</span> and draw
-                the grid precisely.
-              </p>
-            )}
-          </>
-        ) : !gridVisible ? (
-          <p className="text-[10px] text-primary-400 text-center leading-snug font-medium">
-            Click <span className="text-primary-300">Calibrate Grid</span> to align the grid with
-            your map.
-          </p>
-        ) : (
-          <p className="text-[10px] text-text-disabled text-center leading-snug">
-            Draw 2&times;2 squares on the map.
-          </p>
-        )}
-
         {/* Grid overlay toggle */}
         <div className="space-y-1">
           <p className="text-[10px] text-text-disabled leading-snug">Overlay</p>
