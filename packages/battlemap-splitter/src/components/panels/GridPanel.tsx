@@ -43,7 +43,7 @@ export function GridPanel({
   if (!imageUrl) return null;
 
   return (
-    <div className="absolute top-4 left-[316px] z-20 max-md:top-auto max-md:bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] max-md:left-2 max-md:right-2">
+    <div className="absolute top-4 left-[316px] z-20 max-md:top-auto max-md:bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] max-md:left-2 max-md:right-14">
       <div className="w-72 max-md:w-full bg-bg-secondary border border-border-primary rounded-lg shadow-lg max-md:max-h-[40vh] max-md:overflow-y-auto">
         {/* Header */}
         <div className="p-3 max-md:p-2 border-b border-border-primary flex items-center gap-2 max-md:justify-between">

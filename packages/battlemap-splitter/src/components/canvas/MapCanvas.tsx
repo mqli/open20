@@ -283,22 +283,20 @@ export function MapCanvas({
           };
           return;
         }
-        // Tap on empty area — deselect
+        // Tap on empty area — deselect and pan
         tileStore.setSelectedTile(null);
-        return;
       }
 
-      // Auto mode: start grid drag if grid is visible
-      const grid = useGridStore.getState();
-      if (grid.visible) {
-        gridDragRef.current = {
-          active: true,
-          startX: canvasX,
-          startY: canvasY,
-          startOffsetX: grid.offsetX,
-          startOffsetY: grid.offsetY,
-        };
-      }
+      // On touch: single-finger always pans the map.
+      // Grid offset is adjusted via GridPanel controls (no touch grid drag).
+      const map = useMapStore.getState();
+      dragRef.current = {
+        active: true,
+        startX: canvasX,
+        startY: canvasY,
+        startPanX: map.panX,
+        startPanY: map.panY,
+      };
     },
     [calibrationMode, toMapCoord],
   );
@@ -402,11 +400,6 @@ export function MapCanvas({
             dragRef.current.startY = canvasPoint.y;
             return;
           }
-          if (gridDragRef.current.active) {
-            gridDragRef.current.startX = canvasPoint.x;
-            gridDragRef.current.startY = canvasPoint.y;
-            return;
-          }
         }
 
         // Delegate to existing mouse-move logic (but with touch coordinates)
@@ -450,17 +443,6 @@ export function MapCanvas({
           useMapStore
             .getState()
             .setPan(dragRef.current.startPanX + mdx, dragRef.current.startPanY + mdy);
-        }
-
-        if (gridDragRef.current.active) {
-          const map = useMapStore.getState();
-          const grid = useGridStore.getState();
-          const mdx = (canvasPoint.x - gridDragRef.current.startX) / map.zoom;
-          const mdy = (canvasPoint.y - gridDragRef.current.startY) / map.zoom;
-          grid.setOffset(
-            gridDragRef.current.startOffsetX + mdx,
-            gridDragRef.current.startOffsetY + mdy,
-          );
         }
       }
     },
