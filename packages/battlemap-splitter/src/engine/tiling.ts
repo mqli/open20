@@ -169,32 +169,26 @@ export function computeTileGrid(
   for (let row = 0; row < rows; row++) {
     const tileRow: TileInfo[] = [];
     for (let col = 0; col < cols; col++) {
-      // Source pixel region
-      let srcX = col * mmToSrcPx(sliceW, cellPx);
-      let srcY = row * mmToSrcPx(sliceH, cellPx);
+      // Source pixel region — each tile extends overlapMm/2 on every side
+      // for printing alignment. Internal tiles overlap with adjacent tiles
+      // by full overlapMm (halfOverlap from each side); edge tiles are
+      // clamped to image bounds.
+      const halfOverlapPx = mmToSrcPx(overlapMm / 2, cellPx);
+      const overlapPx = mmToSrcPx(overlapMm, cellPx);
 
-      // Apply overlap (shift back by overlap for non-first tiles)
-      if (col > 0) {
-        srcX -= mmToSrcPx(overlapMm, cellPx);
-      }
-      if (row > 0) {
-        srcY -= mmToSrcPx(overlapMm, cellPx);
-      }
+      let srcX = col * mmToSrcPx(sliceW, cellPx) - halfOverlapPx;
+      let srcY = row * mmToSrcPx(sliceH, cellPx) - halfOverlapPx;
+
+      let srcW = mmToSrcPx(sliceW, cellPx) + overlapPx;
+      let srcH = mmToSrcPx(sliceH, cellPx) + overlapPx;
 
       // Clamp to image bounds
-      srcX = Math.max(0, Math.min(srcX, imageW));
-      srcY = Math.max(0, Math.min(srcY, imageH));
-
-      let srcW = mmToSrcPx(sliceW, cellPx);
-      let srcH = mmToSrcPx(sliceH, cellPx);
-
-      // Clamp width/height to image bounds
-      if (srcX + srcW > imageW) {
-        srcW = imageW - srcX;
-      }
-      if (srcY + srcH > imageH) {
-        srcH = imageH - srcY;
-      }
+      const clampedX = Math.max(0, srcX);
+      const clampedY = Math.max(0, srcY);
+      srcW = Math.min(srcX + srcW, imageW) - clampedX;
+      srcH = Math.min(srcY + srcH, imageH) - clampedY;
+      srcX = clampedX;
+      srcY = clampedY;
 
       // Content area in mm for this tile
       const contentW = useLandscape

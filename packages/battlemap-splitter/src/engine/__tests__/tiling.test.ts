@@ -98,11 +98,29 @@ describe('computeTileGrid', () => {
     expect(tile.srcH).toBe(500);
   });
 
-  it('applies overlap between tiles', () => {
-    // 2-column wide map to verify overlap behavior
-    const grid = computeTileGrid(3000, 700, 70, defaultPaper());
+  it('extends each tile by overlapMm/2 on all four sides', () => {
+    // 2-column wide map to verify uniform overlap
+    const paper = defaultPaper({ overlapMm: 8 });
+    const grid = computeTileGrid(3000, 700, 70, paper);
 
     expect(grid.cols).toBeGreaterThan(1);
+
+    const overlapPx = (8 / 25.4) * 70; // ~22.05
+
+    // First column tile: srcX clamped to 0 (would be negative from half-overlap shift)
+    expect(grid.tiles[0][0].srcX).toBe(0);
+
+    // Adjacent tiles should overlap (both extend into shared zone)
+    const overlapZone = grid.tiles[0][0].srcX + grid.tiles[0][0].srcW - grid.tiles[0][1].srcX;
+    expect(overlapZone).toBeGreaterThan(overlapPx * 0.5);
+
+    // For non-first columns, tile extends left by halfOverlapPx
+    const lastCol = grid.cols - 1;
+    const lastTile = grid.tiles[0][lastCol];
+    expect(lastTile.srcX).toBeGreaterThan(0);
+
+    // All tiles stay within image bounds
+    expect(lastTile.srcX + lastTile.srcW).toBeLessThanOrEqual(3000);
   });
 
   it('prefers landscape when it uses fewer pages', () => {
