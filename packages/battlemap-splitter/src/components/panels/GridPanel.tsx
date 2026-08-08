@@ -44,9 +44,9 @@ export function GridPanel({
 
   return (
     <div className="absolute top-4 left-[316px] z-20">
-      <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg p-3.5 space-y-3">
+      <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="p-3 border-b border-border-primary flex items-center justify-between">
           <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
             Grid Calibration
           </h3>
@@ -73,66 +73,66 @@ export function GridPanel({
           </div>
         </div>
 
-        {/* Calibrate button */}
-        <button
-          type="button"
-          onClick={onToggleCalibration}
-          className={`w-full flex items-center justify-center gap-2 h-9 rounded-md text-sm font-medium transition-colors ${
-            calibrationMode
-              ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
-              : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
-          }`}
-        >
-          {calibrationMode ? (
-            <>
-              <X size={16} />
-              Cancel
-            </>
-          ) : (
-            <>
-              <Ruler size={16} />
-              Calibrate Grid
-            </>
-          )}
-        </button>
-
-        {/* Calibrate mode selector (always visible) */}
-        <div className="flex rounded-md border border-border-primary overflow-hidden h-8">
+        {/* Body */}
+        <div className="p-3 space-y-2">
+          {/* Calibrate button */}
           <button
             type="button"
-            onClick={() => onSetCalibrateMode('smart')}
-            className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
-              calibrateMode === 'smart'
-                ? 'bg-primary-500/20 text-primary-400'
-                : 'text-text-disabled hover:bg-bg-tertiary'
+            onClick={onToggleCalibration}
+            className={`w-full flex items-center justify-center gap-2 h-7 rounded text-[10px] font-medium transition-colors ${
+              calibrationMode
+                ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
+                : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
             }`}
-            title="Auto-detect grid from rough selection"
           >
-            <Sparkles size={12} />
-            Smart
+            {calibrationMode ? (
+              <>
+                <X size={12} />
+                Cancel
+              </>
+            ) : (
+              <>
+                <Ruler size={12} />
+                Calibrate Grid
+              </>
+            )}
           </button>
-          <button
-            type="button"
-            onClick={() => onSetCalibrateMode('manual')}
-            className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
-              calibrateMode === 'manual'
-                ? 'bg-primary-500/20 text-primary-400'
-                : 'text-text-disabled hover:bg-bg-tertiary'
-            }`}
-            title="Manually draw precise 2×2 rectangle"
-          >
-            <MousePointer2 size={12} />
-            Manual
-          </button>
-        </div>
 
-        {/* Grid overlay toggle */}
-        <div className="space-y-1">
-          <p className="text-[10px] text-text-disabled leading-snug">Overlay</p>
+          {/* Calibrate mode selector */}
+          <div className="flex rounded-md border border-border-primary overflow-hidden h-7">
+            <button
+              type="button"
+              onClick={() => onSetCalibrateMode('smart')}
+              className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+                calibrateMode === 'smart'
+                  ? 'bg-primary-500/20 text-primary-400'
+                  : 'text-text-disabled hover:bg-bg-tertiary'
+              }`}
+              title="Auto-detect grid from rough selection"
+            >
+              <Sparkles size={12} />
+              Smart
+            </button>
+            <button
+              type="button"
+              onClick={() => onSetCalibrateMode('manual')}
+              className={`flex-1 flex items-center justify-center gap-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+                calibrateMode === 'manual'
+                  ? 'bg-primary-500/20 text-primary-400'
+                  : 'text-text-disabled hover:bg-bg-tertiary'
+              }`}
+              title="Manually draw precise 2×2 rectangle"
+            >
+              <MousePointer2 size={12} />
+              Manual
+            </button>
+          </div>
+
+          {/* Grid overlay toggle */}
           <button
             type="button"
             onClick={toggleGrid}
-            className={`flex items-center justify-center gap-1 py-1 rounded text-[10px] transition-colors w-full ${
+            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full ${
               gridVisible
                 ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
                 : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
@@ -142,38 +142,38 @@ export function GridPanel({
             Grid
             {gridVisible ? <Eye size={10} /> : <EyeOff size={10} />}
           </button>
-        </div>
 
-        {/* Color + Opacity */}
-        <div className="space-y-1.5">
-          <p className="text-[10px] text-text-disabled leading-snug">
-            Grid {squaresW}&times;{squaresH} squares
-          </p>
-          <div className="flex items-center gap-1.5">
-            {COLORS.map((c) => (
-              <button
-                key={c.value}
-                onClick={() => setColor(c.value)}
-                title={c.label}
-                className={`w-5 h-5 rounded-full border-2 transition-transform shrink-0 ${
-                  color === c.value
-                    ? 'border-primary-400 scale-110'
-                    : 'border-transparent hover:scale-105'
-                }`}
-                style={{ backgroundColor: c.value.replace(/[\d.]+\)$/, '1)') }}
+          {/* Color + Opacity */}
+          <div>
+            <p className="text-[10px] text-text-disabled leading-snug mb-1">
+              Grid {squaresW}&times;{squaresH} squares
+            </p>
+            <div className="flex items-center gap-1.5">
+              {COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  onClick={() => setColor(c.value)}
+                  title={c.label}
+                  className={`w-5 h-5 rounded-full border-2 transition-transform shrink-0 ${
+                    color === c.value
+                      ? 'border-primary-400 scale-110'
+                      : 'border-transparent hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: c.value.replace(/[\d.]+\)$/, '1)') }}
+                />
+              ))}
+              <span className="text-[10px] text-text-disabled shrink-0 leading-none">Opacity</span>
+              <input
+                type="range"
+                value={opacity}
+                onChange={(e) => setOpacity(+e.target.value)}
+                min={0.1}
+                max={1}
+                step={0.05}
+                title={`Grid opacity: ${Math.round(opacity * 100)}%`}
+                className="flex-1 accent-primary-600 h-3 min-w-0"
               />
-            ))}
-            <span className="text-[10px] text-text-disabled shrink-0 leading-none">Opacity</span>
-            <input
-              type="range"
-              value={opacity}
-              onChange={(e) => setOpacity(+e.target.value)}
-              min={0.1}
-              max={1}
-              step={0.05}
-              title={`Grid opacity: ${Math.round(opacity * 100)}%`}
-              className="flex-1 accent-primary-600 h-3 min-w-0"
-            />
+            </div>
           </div>
         </div>
       </div>

@@ -99,27 +99,28 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
     <div className="absolute top-4 left-4 bottom-4 z-10">
       <div className="w-72 bg-bg-secondary border border-border-primary rounded-lg shadow-lg flex flex-col h-full">
         {/* Header */}
-        <div className="p-3 border-b border-border-primary space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
-              Tiles
-            </h3>
-            <button
-              type="button"
-              onClick={onUploadClick}
-              className="flex items-center gap-1 py-1 px-2 rounded text-[10px] border border-primary-500/25 text-primary-400 bg-primary-500/10 hover:bg-primary-500/20 transition-colors"
-            >
-              <Upload size={12} />
-              Change
-            </button>
-          </div>
+        <div className="p-3 border-b border-border-primary flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
+            Tiles
+          </h3>
+          <button
+            type="button"
+            onClick={onUploadClick}
+            className="flex items-center gap-1 h-5 px-1.5 rounded text-[10px] border border-primary-500/25 text-primary-400 bg-primary-500/10 hover:bg-primary-500/20 transition-colors"
+          >
+            <Upload size={11} />
+            Change
+          </button>
+        </div>
 
+        {/* Body */}
+        <div className="p-3 space-y-2">
           {/* ft toggle */}
-          <div className="flex rounded-md border border-border-primary overflow-hidden h-8">
+          <div className="flex rounded-md border border-border-primary overflow-hidden h-7">
             <button
               type="button"
               onClick={() => useTileStore.getState().setCalibrationFeet(5)}
-              className={`flex-1 text-xs font-medium transition-colors ${
+              className={`flex-1 text-[10px] font-medium transition-colors ${
                 calibrationFeet === 5
                   ? 'bg-primary-500/20 text-primary-400'
                   : 'text-text-disabled hover:bg-bg-tertiary'
@@ -130,7 +131,7 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
             <button
               type="button"
               onClick={() => useTileStore.getState().setCalibrationFeet(10)}
-              className={`flex-1 text-xs font-medium transition-colors border-l border-border-primary ${
+              className={`flex-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
                 calibrationFeet === 10
                   ? 'bg-primary-500/20 text-primary-400'
                   : 'text-text-disabled hover:bg-bg-tertiary'

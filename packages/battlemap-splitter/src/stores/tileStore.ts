@@ -270,13 +270,18 @@ export const useTileStore = create<TileState>((set, get) => ({
       if (!ctx) return;
 
       const THUMB_MAX = 150;
+
+      // For 90/270 rotation, the visual width/height are swapped
+      const visualW = tile.rotation === 90 || tile.rotation === 270 ? tile.srcH : tile.srcW;
+      const visualH = tile.rotation === 90 || tile.rotation === 270 ? tile.srcW : tile.srcH;
+
       const previewW = Math.min(
         THUMB_MAX,
-        Math.round(THUMB_MAX * (tile.srcW / Math.max(tile.srcW, tile.srcH))),
+        Math.round(THUMB_MAX * (visualW / Math.max(visualW, visualH))),
       );
       const previewH = Math.min(
         THUMB_MAX,
-        Math.round(THUMB_MAX * (tile.srcH / Math.max(tile.srcW, tile.srcH))),
+        Math.round(THUMB_MAX * (visualH / Math.max(visualW, visualH))),
       );
       canvas.width = previewW;
       canvas.height = previewH;
@@ -284,7 +289,24 @@ export const useTileStore = create<TileState>((set, get) => ({
       // Use effective source position (with user offset)
       const srcX = tile.srcX + tile.userOffsetX;
       const srcY = tile.srcY + tile.userOffsetY;
-      ctx.drawImage(img, srcX, srcY, tile.srcW, tile.srcH, 0, 0, previewW, previewH);
+
+      if (tile.rotation !== 0) {
+        ctx.translate(previewW / 2, previewH / 2);
+        ctx.rotate((tile.rotation * Math.PI) / 180);
+        ctx.drawImage(
+          img,
+          srcX,
+          srcY,
+          tile.srcW,
+          tile.srcH,
+          -previewW / 2,
+          -previewH / 2,
+          previewW,
+          previewH,
+        );
+      } else {
+        ctx.drawImage(img, srcX, srcY, tile.srcW, tile.srcH, 0, 0, previewW, previewH);
+      }
 
       const previewUrl = canvas.toDataURL('image/jpeg', 0.5);
 
@@ -402,27 +424,48 @@ export const useTileStore = create<TileState>((set, get) => ({
                 function generatePreview(): string | undefined {
                   if (!thumbCtx || thumbCanvas.width === 0) return undefined;
                   try {
+                    const visualW = t.rotation === 90 || t.rotation === 270 ? t.srcH : t.srcW;
+                    const visualH = t.rotation === 90 || t.rotation === 270 ? t.srcW : t.srcH;
                     const previewW = Math.min(
                       THUMB_MAX,
-                      Math.round(THUMB_MAX * (t.srcW / Math.max(t.srcW, t.srcH))),
+                      Math.round(THUMB_MAX * (visualW / Math.max(visualW, visualH))),
                     );
                     const previewH = Math.min(
                       THUMB_MAX,
-                      Math.round(THUMB_MAX * (t.srcH / Math.max(t.srcW, t.srcH))),
+                      Math.round(THUMB_MAX * (visualH / Math.max(visualW, visualH))),
                     );
                     thumbCanvas.width = previewW;
                     thumbCanvas.height = previewH;
-                    thumbCtx.drawImage(
-                      img,
-                      t.srcX,
-                      t.srcY,
-                      t.srcW,
-                      t.srcH,
-                      0,
-                      0,
-                      previewW,
-                      previewH,
-                    );
+
+                    if (t.rotation !== 0) {
+                      thumbCtx.save();
+                      thumbCtx.translate(previewW / 2, previewH / 2);
+                      thumbCtx.rotate((t.rotation * Math.PI) / 180);
+                      thumbCtx.drawImage(
+                        img,
+                        t.srcX,
+                        t.srcY,
+                        t.srcW,
+                        t.srcH,
+                        -previewW / 2,
+                        -previewH / 2,
+                        previewW,
+                        previewH,
+                      );
+                      thumbCtx.restore();
+                    } else {
+                      thumbCtx.drawImage(
+                        img,
+                        t.srcX,
+                        t.srcY,
+                        t.srcW,
+                        t.srcH,
+                        0,
+                        0,
+                        previewW,
+                        previewH,
+                      );
+                    }
                     return thumbCanvas.toDataURL('image/jpeg', 0.5);
                   } catch {
                     return undefined;
