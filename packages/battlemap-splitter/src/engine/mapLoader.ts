@@ -20,8 +20,11 @@ export function evaluateAndRecalculate(): void {
   const mapState = useMapStore.getState();
   const paperState = usePaperStore.getState();
   const gridState = useGridStore.getState();
+  const tileState = useTileStore.getState();
 
-  const best = evaluateBestOrientation(mapState.width, mapState.height, gridState.cellPx, {
+  const effectiveCellPx = gridState.cellPx * (5 / tileState.calibrationFeet);
+
+  const best = evaluateBestOrientation(mapState.width, mapState.height, effectiveCellPx, {
     widthMm: paperState.getPaperWidth(),
     heightMm: paperState.getPaperHeight(),
     marginLeft: paperState.getMarginLeft(),

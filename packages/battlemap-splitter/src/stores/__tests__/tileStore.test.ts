@@ -13,7 +13,13 @@ function setupMapWithImage(width = 700, height = 700) {
 
 describe('tileStore', () => {
   beforeEach(() => {
-    useTileStore.setState({ tiles: [], tileCols: 0, tileRows: 0, orientation: 'portrait' });
+    useTileStore.setState({
+      tiles: [],
+      tileCols: 0,
+      tileRows: 0,
+      orientation: 'portrait',
+      calibrationFeet: 5,
+    });
     useMapStore.getState().clear();
     useGridStore.getState().reset();
   });
@@ -64,6 +70,26 @@ describe('tileStore', () => {
           expect(tile.srcH).toBeGreaterThan(0);
         }
       }
+    });
+
+    it('10ft calibration produces more tiles than 5ft', () => {
+      // At 5ft: cellPx=70 → 2100px / 70 * 25.4 = 762mm
+      // At 10ft: effectiveCellPx = 70 * (5/10) = 35 → 2100px / 35 * 25.4 = 1524mm
+      // Twice the physical size → roughly 4× the tiles
+      setupMapWithImage(2100, 2100);
+      useGridStore.getState().setCellPx(70);
+
+      // 5ft mode (default)
+      useTileStore.setState({ calibrationFeet: 5 });
+      useTileStore.getState().recalculate();
+      const tilesAt5ft = useTileStore.getState().tiles.flat().length;
+
+      // 10ft mode
+      useTileStore.setState({ calibrationFeet: 10 });
+      useTileStore.getState().recalculate();
+      const tilesAt10ft = useTileStore.getState().tiles.flat().length;
+
+      expect(tilesAt10ft).toBeGreaterThan(tilesAt5ft);
     });
 
     it('responds to grid DPI changes', () => {
@@ -258,6 +284,23 @@ describe('tileStore', () => {
       expect(state.tiles[2][0].selected).toBe(false);
       expect(state.tiles[2][1].selected).toBe(false);
       expect(state.tiles[2][2].selected).toBe(false);
+    });
+  });
+
+  describe('calibrationFeet', () => {
+    it('defaults to 5', () => {
+      expect(useTileStore.getState().calibrationFeet).toBe(5);
+    });
+
+    it('setCalibrationFeet updates to 10', () => {
+      useTileStore.getState().setCalibrationFeet(10);
+      expect(useTileStore.getState().calibrationFeet).toBe(10);
+    });
+
+    it('setCalibrationFeet accepts 5', () => {
+      useTileStore.getState().setCalibrationFeet(10);
+      useTileStore.getState().setCalibrationFeet(5);
+      expect(useTileStore.getState().calibrationFeet).toBe(5);
     });
   });
 });

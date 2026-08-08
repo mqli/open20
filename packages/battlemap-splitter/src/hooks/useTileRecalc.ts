@@ -46,9 +46,17 @@ export function useTileRecalc() {
       }
     });
 
+    // calibrationFeet affects effectiveCellPx and thus tile layout
+    const unsubTile = useTileStore.subscribe((state, prevState) => {
+      if (state.calibrationFeet !== prevState.calibrationFeet) {
+        debouncedRecalc();
+      }
+    });
+
     return () => {
       unsubPaper();
       unsubGrid();
+      unsubTile();
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [recalculate]);

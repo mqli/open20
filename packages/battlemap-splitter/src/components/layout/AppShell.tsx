@@ -18,7 +18,6 @@ export function AppShell() {
   const [showUpload, setShowUpload] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [calibrationMode, setCalibrationMode] = useState(false);
-  const [calibrationFeet, setCalibrationFeet] = useState<5 | 10>(5);
   const [calibrateMode, setCalibrateMode] = useState<CalibrateMode>('smart');
 
   useSessionPersistence();
@@ -58,19 +57,17 @@ export function AppShell() {
           />
           <GridPanel
             calibrationMode={calibrationMode}
-            calibrationFeet={calibrationFeet}
             calibrateMode={calibrateMode}
             onToggleCalibration={() => {
               setCalibrationMode((v) => !v);
             }}
-            onSetFeet={setCalibrationFeet}
             onSetCalibrateMode={setCalibrateMode}
           />
         </div>
       </div>
 
       {/* Status bar */}
-      <StatusBar calibrationMode={calibrationMode} calibrationFeet={calibrationFeet} />
+      <StatusBar calibrationMode={calibrationMode} />
 
       {/* Dialogs */}
       {showUpload && <UploadDialog onClose={() => setShowUpload(false)} />}

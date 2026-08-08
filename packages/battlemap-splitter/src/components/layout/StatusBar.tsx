@@ -4,16 +4,16 @@ import { useTileStore } from '@/stores/tileStore';
 
 interface StatusBarProps {
   calibrationMode: boolean;
-  calibrationFeet: 5 | 10;
 }
 
-export function StatusBar({ calibrationMode, calibrationFeet }: StatusBarProps) {
+export function StatusBar({ calibrationMode }: StatusBarProps) {
   const width = useMapStore((s) => s.width);
   const height = useMapStore((s) => s.height);
   const imageUrl = useMapStore((s) => s.imageUrl);
   const cellPx = useGridStore((s) => s.cellPx);
   const tileCols = useTileStore((s) => s.tileCols);
   const tileRows = useTileStore((s) => s.tileRows);
+  const calibrationFeet = useTileStore((s) => s.calibrationFeet);
 
   if (!imageUrl) return null;
 

@@ -16,10 +16,8 @@ import type { CalibrateMode } from '@/types';
 
 interface GridPanelProps {
   calibrationMode: boolean;
-  calibrationFeet: 5 | 10;
   calibrateMode: CalibrateMode;
   onToggleCalibration: () => void;
-  onSetFeet: (feet: 5 | 10) => void;
   onSetCalibrateMode: (mode: CalibrateMode) => void;
 }
 
@@ -32,10 +30,8 @@ const COLORS = [
 
 export function GridPanel({
   calibrationMode,
-  calibrationFeet,
   calibrateMode,
   onToggleCalibration,
-  onSetFeet,
   onSetCalibrateMode,
 }: GridPanelProps) {
   const imageUrl = useMapStore((s) => s.imageUrl);
@@ -90,56 +86,28 @@ export function GridPanel({
           </div>
         </div>
 
-        {/* Calibrate button + ft toggle */}
-        <div className="flex gap-1.5">
-          <button
-            type="button"
-            onClick={onToggleCalibration}
-            className={`flex-1 flex items-center justify-center gap-2 h-9 rounded-md text-sm font-medium transition-colors ${
-              calibrationMode
-                ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
-                : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
-            }`}
-          >
-            {calibrationMode ? (
-              <>
-                <X size={16} />
-                Cancel
-              </>
-            ) : (
-              <>
-                <Ruler size={16} />
-                Calibrate Grid
-              </>
-            )}
-          </button>
-
-          {/* ft toggle */}
-          <div className="flex rounded-md border border-border-primary overflow-hidden shrink-0 h-9">
-            <button
-              type="button"
-              onClick={() => onSetFeet(5)}
-              className={`w-10 text-xs font-medium transition-colors ${
-                calibrationFeet === 5
-                  ? 'bg-primary-500/20 text-primary-400'
-                  : 'text-text-disabled hover:bg-bg-tertiary'
-              }`}
-            >
-              5ft
-            </button>
-            <button
-              type="button"
-              onClick={() => onSetFeet(10)}
-              className={`w-10 text-xs font-medium transition-colors border-l border-border-primary ${
-                calibrationFeet === 10
-                  ? 'bg-primary-500/20 text-primary-400'
-                  : 'text-text-disabled hover:bg-bg-tertiary'
-              }`}
-            >
-              10ft
-            </button>
-          </div>
-        </div>
+        {/* Calibrate button */}
+        <button
+          type="button"
+          onClick={onToggleCalibration}
+          className={`w-full flex items-center justify-center gap-2 h-9 rounded-md text-sm font-medium transition-colors ${
+            calibrationMode
+              ? 'bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25'
+              : 'bg-primary-500/10 text-primary-400 border border-primary-500/25 hover:bg-primary-500/20'
+          }`}
+        >
+          {calibrationMode ? (
+            <>
+              <X size={16} />
+              Cancel
+            </>
+          ) : (
+            <>
+              <Ruler size={16} />
+              Calibrate Grid
+            </>
+          )}
+        </button>
 
         {/* Calibrate mode selector (always visible) */}
         <div className="flex rounded-md border border-border-primary overflow-hidden h-8">
@@ -175,8 +143,8 @@ export function GridPanel({
           <>
             <p className="text-[10px] text-primary-400 text-center leading-snug">
               {calibrateMode === 'manual'
-                ? `Draw a rectangle covering exactly 2\u00d72 grid squares (${calibrationFeet} ft).`
-                : `Roughly select a region containing 2\u00d72 grid squares (${calibrationFeet} ft).`}
+                ? 'Draw a rectangle covering exactly 2\u00d72 grid squares.'
+                : 'Roughly select a region containing 2\u00d72 grid squares.'}
             </p>
             <p className="text-[10px] text-text-disabled/70 text-center leading-snug">
               Pick an area with clear, unobstructed grid lines for best results.
@@ -195,7 +163,7 @@ export function GridPanel({
           </p>
         ) : (
           <p className="text-[10px] text-text-disabled text-center leading-snug">
-            Draw 2&times;2 squares on the map ({calibrationFeet} ft).
+            Draw 2&times;2 squares on the map.
           </p>
         )}
 

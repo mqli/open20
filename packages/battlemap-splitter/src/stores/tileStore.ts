@@ -28,6 +28,8 @@ interface TileState {
   tileCols: number;
   tileRows: number;
   orientation: 'portrait' | 'landscape';
+  /** Feet per grid square (5 or 10) — affects physical tile scaling */
+  calibrationFeet: 5 | 10;
 
   /** Actions */
   recalculate: () => void;
@@ -36,6 +38,7 @@ interface TileState {
   selectNone: () => void;
   selectRect: (r1: number, c1: number, r2: number, c2: number) => void;
   detectEmptyTiles: () => Promise<void>;
+  setCalibrationFeet: (feet: 5 | 10) => void;
 }
 
 function engineTileToTileInfo(t: EngineTileInfo): TileInfo {
@@ -61,6 +64,7 @@ export const useTileStore = create<TileState>((set, get) => ({
   tileCols: 0,
   tileRows: 0,
   orientation: 'portrait',
+  calibrationFeet: 5,
 
   recalculate: () => {
     // Cross-store reads
@@ -73,10 +77,14 @@ export const useTileStore = create<TileState>((set, get) => ({
       return;
     }
 
+    // Scale cellPx by calibration feet: 10ft grids are physically 2× wider,
+    // so effective DPI is halved (1 cell = 50.8mm instead of 25.4mm)
+    const effectiveCellPx = gridState.cellPx * (5 / get().calibrationFeet);
+
     const grid = computeTileGrid(
       mapState.width,
       mapState.height,
-      gridState.cellPx,
+      effectiveCellPx,
       {
         widthMm: paperState.getPaperWidth(),
         heightMm: paperState.getPaperHeight(),
@@ -142,6 +150,8 @@ export const useTileStore = create<TileState>((set, get) => ({
       ),
     }));
   },
+
+  setCalibrationFeet: (feet: 5 | 10) => set({ calibrationFeet: feet }),
 
   detectEmptyTiles: async () => {
     const signal = emptyDetectAbortController?.signal;
