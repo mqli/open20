@@ -18,6 +18,10 @@
       "types": "./types/vite/index.d.ts",
       "default": "./vite/index.js"
     },
+    "./vite/plugin-tunnel-qrcode": {
+      "types": "./types/vite/plugin-tunnel-qrcode.d.ts",
+      "default": "./vite/plugin-tunnel-qrcode.js"
+    },
     "./vitest": {
       "types": "./types/vitest/index.d.ts",
       "default": "./vitest/index.js"
