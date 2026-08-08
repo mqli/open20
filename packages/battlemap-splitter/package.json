@@ -42,6 +42,7 @@
     "eslint-plugin-react-refresh": "catalog:",
     "globals": "catalog:",
     "happy-dom": "catalog:",
+    "qrcode": "^1.5.4",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",

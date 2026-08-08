@@ -11,6 +11,27 @@ export default defineConfig({
     react(),
     // Cloudflare tunnel for mobile testing — opt-in via TUNNEL=true
     ...(process.env.TUNNEL === 'true' ? [cloudflareTunnel({ port: 5173 })] : []),
+    // Print QR code in terminal when tunnel URL is ready
+    {
+      name: 'tunnel-qrcode',
+      apply: (_config, env) => env.command === 'serve',
+      configureServer() {
+        const originalLog = console.log.bind(console);
+        console.log = ((...args: unknown[]) => {
+          originalLog(...args);
+          const msg = args.join(' ');
+          // cloudflareTunnel uses console.log: "🌐  Quick tunnel ready at: https://xxx.trycloudflare.com"
+          const match = msg.match(/https:\/\/[^\s]+\.trycloudflare\.com/);
+          if (match) {
+            import('qrcode').then((QRCode) => {
+              QRCode.toString(match[0], { type: 'terminal', small: true }, (_err, qrcode) => {
+                originalLog(`\n${qrcode}\n  ${match[0]}\n`);
+              });
+            });
+          }
+        }) as typeof console.log;
+      },
+    },
   ],
   base: createGithubPagesBase({ pagesBase: '/open20/battlemap-splitter/' }),
   resolve: {
