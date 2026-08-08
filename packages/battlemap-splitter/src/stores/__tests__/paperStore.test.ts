@@ -14,7 +14,6 @@ describe('paperStore', () => {
     store.setMarginRight(null);
     store.setOverlap(5);
     store.setOutputDpi(150);
-    store.setScaleLocked(true);
   });
 
   it('starts with A4 defaults', () => {
@@ -25,7 +24,6 @@ describe('paperStore', () => {
     expect(state.margin).toBe(15);
     expect(state.overlap).toBe(5);
     expect(state.outputDpi).toBe(150);
-    expect(state.scaleLocked).toBe(true);
   });
 
   it('resolves per-edge margins from uniform default', () => {
@@ -87,12 +85,5 @@ describe('paperStore', () => {
   it('enforces minimum 72 DPI output', () => {
     usePaperStore.getState().setOutputDpi(50);
     expect(usePaperStore.getState().outputDpi).toBe(72);
-  });
-
-  it('toggles scale lock', () => {
-    usePaperStore.getState().setScaleLocked(false);
-    expect(usePaperStore.getState().scaleLocked).toBe(false);
-    usePaperStore.getState().setScaleLocked(true);
-    expect(usePaperStore.getState().scaleLocked).toBe(true);
   });
 });

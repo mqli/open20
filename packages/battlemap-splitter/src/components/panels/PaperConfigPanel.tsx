@@ -5,13 +5,11 @@ export function PaperConfigPanel() {
   const margin = usePaperStore((s) => s.margin);
   const overlap = usePaperStore((s) => s.overlap);
   const outputDpi = usePaperStore((s) => s.outputDpi);
-  const scaleLocked = usePaperStore((s) => s.scaleLocked);
 
   const setOrientation = usePaperStore((s) => s.setOrientation);
   const setMargin = usePaperStore((s) => s.setMargin);
   const setOverlap = usePaperStore((s) => s.setOverlap);
   const setOutputDpi = usePaperStore((s) => s.setOutputDpi);
-  const setScaleLocked = usePaperStore((s) => s.setScaleLocked);
 
   return (
     <div className="space-y-4">
@@ -87,38 +85,23 @@ export function PaperConfigPanel() {
 
       <div className="border-t border-border-primary" />
 
-      {/* Output DPI + scale lock */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="text-xs font-medium text-text-primary">PDF Resolution</label>
-            <p className="text-[11px] text-text-disabled">
-              Output quality of the generated PDF. Higher = sharper but larger file. Does not affect
-              tile sizing.
-            </p>
-          </div>
-          <input
-            type="number"
-            value={outputDpi}
-            onChange={(e) => setOutputDpi(+e.target.value || 150)}
-            min={72}
-            max={600}
-            className="w-16 px-2 py-1 text-xs bg-bg-tertiary border border-border-primary rounded text-text-primary text-right"
-          />
+      {/* Output DPI */}
+      <div className="flex items-center justify-between">
+        <div>
+          <label className="text-xs font-medium text-text-primary">PDF Resolution</label>
+          <p className="text-[11px] text-text-disabled">
+            Output quality of the generated PDF. Higher = sharper but larger file. Does not affect
+            tile sizing.
+          </p>
         </div>
-
-        <label className="flex items-center gap-2 text-xs text-text-secondary cursor-pointer">
-          <input
-            type="checkbox"
-            checked={scaleLocked}
-            onChange={(e) => setScaleLocked(e.target.checked)}
-            className="accent-primary-600"
-          />
-          <span>
-            <strong>Scale lock:</strong> 1 grid square = 25.4mm (1 inch). Uncheck to print at custom
-            scale.
-          </span>
-        </label>
+        <input
+          type="number"
+          value={outputDpi}
+          onChange={(e) => setOutputDpi(+e.target.value || 150)}
+          min={72}
+          max={600}
+          className="w-16 px-2 py-1 text-xs bg-bg-tertiary border border-border-primary rounded text-text-primary text-right"
+        />
       </div>
     </div>
   );

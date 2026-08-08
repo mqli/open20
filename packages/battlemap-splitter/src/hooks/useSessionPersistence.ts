@@ -23,7 +23,6 @@ interface PersistedConfig {
     marginRight: number | null;
     overlap: number;
     outputDpi: number;
-    scaleLocked: boolean;
     customW: number;
     customH: number;
   };
@@ -64,7 +63,6 @@ export function useSessionPersistence() {
         if (config.paper.marginRight !== undefined) paper.setMarginRight(config.paper.marginRight);
         paper.setOverlap(config.paper.overlap);
         paper.setOutputDpi(config.paper.outputDpi);
-        paper.setScaleLocked(config.paper.scaleLocked);
         if (config.paper.customW)
           paper.setCustomDimensions(config.paper.customW, config.paper.customH);
       }
@@ -95,7 +93,6 @@ export function useSessionPersistence() {
         marginRight: paper.marginRight,
         overlap: paper.overlap,
         outputDpi: paper.outputDpi,
-        scaleLocked: paper.scaleLocked,
         customW: paper.customW,
         customH: paper.customH,
       },
@@ -122,7 +119,6 @@ export function useSessionPersistence() {
     paper.marginRight,
     paper.overlap,
     paper.outputDpi,
-    paper.scaleLocked,
     paper.customW,
     paper.customH,
   ]);

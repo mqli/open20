@@ -21,8 +21,6 @@ interface PaperState {
   overlap: number;
   /** Output PDF DPI */
   outputDpi: number;
-  /** Enforce 1 cell = 25.4 mm */
-  scaleLocked: boolean;
 
   /** Actions */
   setPreset: (preset: PaperPreset) => void;
@@ -35,7 +33,6 @@ interface PaperState {
   setMarginRight: (m: number | null) => void;
   setOverlap: (o: number) => void;
   setOutputDpi: (dpi: number) => void;
-  setScaleLocked: (locked: boolean) => void;
   /** Get resolved per-edge margins (applies overrides on top of uniform) */
   getMarginTop: () => number;
   getMarginBottom: () => number;
@@ -70,7 +67,6 @@ export const usePaperStore = create<PaperState>((set, get) => ({
   marginRight: null,
   overlap: 5,
   outputDpi: 150,
-  scaleLocked: true,
 
   setPreset: (preset) => set({ preset }),
 
@@ -88,8 +84,6 @@ export const usePaperStore = create<PaperState>((set, get) => ({
   setOverlap: (o) => set({ overlap: Math.max(0, o) }),
 
   setOutputDpi: (dpi) => set({ outputDpi: Math.max(72, dpi) }),
-
-  setScaleLocked: (locked) => set({ scaleLocked: locked }),
 
   getMarginTop: () => get().marginTop ?? get().margin,
   getMarginBottom: () => get().marginBottom ?? get().margin,
