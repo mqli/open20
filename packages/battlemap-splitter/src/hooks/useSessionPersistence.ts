@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useGridStore } from '@/stores/gridStore';
 import { usePaperStore } from '@/stores/paperStore';
+import { useTileStore } from '@/stores/tileStore';
 
 const PERSIST_KEY = 'battlemap-splitter-config';
 
@@ -26,11 +27,13 @@ interface PersistedConfig {
     customW: number;
     customH: number;
   };
+  tileMode?: string;
 }
 
 export function useSessionPersistence() {
   const grid = useGridStore();
   const paper = usePaperStore();
+  const tileMode = useTileStore((s) => s.mode);
 
   // Restore on mount
   useEffect(() => {
@@ -66,6 +69,10 @@ export function useSessionPersistence() {
         if (config.paper.customW)
           paper.setCustomDimensions(config.paper.customW, config.paper.customH);
       }
+
+      if (config.tileMode) {
+        useTileStore.setState({ mode: config.tileMode as 'auto' | 'custom' });
+      }
     } catch {
       // Invalid saved data — ignore
     }
@@ -96,6 +103,7 @@ export function useSessionPersistence() {
         customW: paper.customW,
         customH: paper.customH,
       },
+      tileMode,
     };
 
     try {
@@ -121,5 +129,6 @@ export function useSessionPersistence() {
     paper.outputDpi,
     paper.customW,
     paper.customH,
+    tileMode,
   ]);
 }

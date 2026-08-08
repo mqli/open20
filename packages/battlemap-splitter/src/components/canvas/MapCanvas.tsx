@@ -1,8 +1,10 @@
 import { useRef, useCallback, useEffect } from 'react';
 import { useMapStore } from '@/stores/mapStore';
 import { useGridStore } from '@/stores/gridStore';
+import { useTileStore } from '@/stores/tileStore';
 import { useCanvasRenderer } from '@/hooks/useCanvasRenderer';
 import { DropZone } from './DropZone';
+import { hitTestTile } from './TileOverlay';
 import type { CalibrateMode } from '@/types';
 
 interface MapCanvasProps {
@@ -38,6 +40,13 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
     endX: number;
     endY: number;
   }>({ active: false, startX: 0, startY: 0, endX: 0, endY: 0 });
+
+  /** Tile drag state for custom mode */
+  const tileDragRef = useRef<{
+    active: boolean;
+    lastX: number;
+    lastY: number;
+  }>({ active: false, lastX: 0, lastY: 0 });
 
   /** Cached full-image ImageData for snap detection (extracted on demand) */
   const imageDataRef = useRef<ImageData | null>(null);
@@ -191,7 +200,28 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
           startPanY: map.panY,
         };
       } else if (e.button === 0) {
-        // Left click — start grid drag (if grid visible)
+        const mapCoord = toMapCoord(x, y);
+        const tileStore = useTileStore.getState();
+
+        // Custom mode: check if clicking on a tile
+        if (tileStore.mode === 'custom' && tileStore.tiles.length > 0) {
+          const hit = hitTestTile(mapCoord.x, mapCoord.y, tileStore.tiles);
+          if (hit) {
+            tileStore.setSelectedTile(hit);
+            // Start tile drag
+            tileDragRef.current = {
+              active: true,
+              lastX: mapCoord.x,
+              lastY: mapCoord.y,
+            };
+            return;
+          }
+          // Click on empty area — deselect
+          tileStore.setSelectedTile(null);
+          return;
+        }
+
+        // Auto mode: left click — start grid drag (if grid visible)
         const grid = useGridStore.getState();
         if (grid.visible) {
           gridDragRef.current = {
@@ -233,6 +263,21 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
         return;
       }
 
+      // Tile drag in custom mode
+      if (tileDragRef.current.active) {
+        const mapCoord = toMapCoord(x, y);
+        const tileStore = useTileStore.getState();
+        const sel = tileStore.selectedTile;
+        if (sel) {
+          const dx = mapCoord.x - tileDragRef.current.lastX;
+          const dy = mapCoord.y - tileDragRef.current.lastY;
+          tileStore.moveTile(sel.row, sel.col, dx, dy);
+          tileDragRef.current.lastX = mapCoord.x;
+          tileDragRef.current.lastY = mapCoord.y;
+        }
+        return;
+      }
+
       if (dragRef.current.active) {
         const dx = x - dragRef.current.startX;
         const dy = y - dragRef.current.startY;
@@ -257,8 +302,19 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
   );
 
   const handleMouseUp = useCallback(async () => {
+    // If tile drag just ended, regenerate preview for the dragged tile
+    if (tileDragRef.current.active) {
+      const tileStore = useTileStore.getState();
+      const sel = tileStore.selectedTile;
+      if (sel) {
+        // Regenerate preview with updated userOffset
+        tileStore._regenerateTilePreview(sel.row, sel.col);
+      }
+    }
+
     dragRef.current.active = false;
     gridDragRef.current.active = false;
+    tileDragRef.current.active = false;
 
     if (calibrateRef.current.active) {
       calibrateRef.current.active = false;
@@ -320,6 +376,29 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
     }
   }, [onCalibrateDone, calibrateMode, ensureImageData]);
 
+  // Keyboard: R to rotate selected tile in custom mode
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+      if (e.key === 'r' || e.key === 'R') {
+        const tileStore = useTileStore.getState();
+        if (tileStore.mode === 'custom' && tileStore.selectedTile) {
+          tileStore.rotateTile(tileStore.selectedTile.row, tileStore.selectedTile.col);
+          tileStore._regenerateTilePreview(tileStore.selectedTile.row, tileStore.selectedTile.col);
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   // Resize canvas to fill container via ResizeObserver
   useEffect(() => {
     const container = containerRef.current;
@@ -363,6 +442,8 @@ export function MapCanvas({ calibrationMode, calibrateMode, onCalibrateDone }: M
       {imageUrl && (
         <div className="absolute bottom-2 left-2 text-[10px] text-text-disabled/60 select-none pointer-events-none">
           Right-click or Shift+Left-click + drag to pan &middot; Scroll to zoom
+          {useTileStore.getState().mode === 'custom' &&
+            ' \u00b7 Click tile to select \u00b7 Drag to move \u00b7 R to rotate'}
         </div>
       )}
     </div>

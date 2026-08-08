@@ -86,7 +86,7 @@ export function useCanvasRenderer(
 
     // Draw tile overlay
     if (grid.tileOverlayVisible && tileStore.tiles.length > 0) {
-      drawTiles(ctx, tileStore.tiles);
+      drawTiles(ctx, tileStore.tiles, tileStore.selectedTile);
     }
 
     // Draw calibration rectangle

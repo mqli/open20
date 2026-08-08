@@ -1,7 +1,19 @@
 import { useTileStore } from '@/stores/tileStore';
 import { usePaperStore, PRESET_DIMENSIONS } from '@/stores/paperStore';
+import { useGridStore } from '@/stores/gridStore';
 import type { PaperPreset } from '@/types';
-import { Upload, Download, CheckSquare, Square } from 'lucide-react';
+import {
+  Upload,
+  Download,
+  CheckSquare,
+  Square,
+  RotateCw,
+  PanelLeft,
+  PanelTop,
+  LayoutGrid,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 
 function getPaperDims(
   preset: PaperPreset,
@@ -25,9 +37,16 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
   const tiles = useTileStore((s) => s.tiles);
   const tileCols = useTileStore((s) => s.tileCols);
   const calibrationFeet = useTileStore((s) => s.calibrationFeet);
+  const mode = useTileStore((s) => s.mode);
+  const selectedTile = useTileStore((s) => s.selectedTile);
+  const setMode = useTileStore((s) => s.setMode);
+  const tileOverlayVisible = useGridStore((s) => s.tileOverlayVisible);
+  const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
   const toggleTile = useTileStore((s) => s.toggleTile);
   const selectAll = useTileStore((s) => s.selectAll);
   const selectNone = useTileStore((s) => s.selectNone);
+  const rotateTile = useTileStore((s) => s.rotateTile);
+  const setPerTileOrientation = useTileStore((s) => s.setPerTileOrientation);
 
   // Paper/margin specs for printable-area overlay
   const margin = usePaperStore((s) => s.margin);
@@ -120,7 +139,103 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
               10 ft
             </button>
           </div>
+
+          {/* Auto/Custom mode toggle */}
+          <div className="flex rounded-md border border-border-primary overflow-hidden h-7">
+            <button
+              type="button"
+              onClick={() => setMode('auto')}
+              className={`flex-1 text-[10px] font-medium transition-colors ${
+                mode === 'auto'
+                  ? 'bg-primary-500/20 text-primary-400'
+                  : 'text-text-disabled hover:bg-bg-tertiary'
+              }`}
+            >
+              Auto
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('custom')}
+              className={`flex-1 text-[10px] font-medium transition-colors border-l border-border-primary ${
+                mode === 'custom'
+                  ? 'bg-primary-500/20 text-primary-400'
+                  : 'text-text-disabled hover:bg-bg-tertiary'
+              }`}
+              title="Drag tiles to reposition, R to rotate"
+            >
+              Custom
+            </button>
+          </div>
+
+          {/* Tile overlay toggle */}
+          <button
+            type="button"
+            onClick={toggleTileOverlay}
+            className={`flex items-center justify-center gap-1 h-7 rounded text-[10px] transition-colors w-full ${
+              tileOverlayVisible
+                ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
+                : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
+            }`}
+          >
+            <LayoutGrid size={12} />
+            Tile Overlay
+            {tileOverlayVisible ? <Eye size={10} /> : <EyeOff size={10} />}
+          </button>
         </div>
+
+        {/* Custom mode hint */}
+        {mode === 'custom' && (
+          <p className="text-xs text-text-secondary leading-relaxed px-3 pt-1.5">
+            Drag tiles to reposition, press R to rotate, or use the controls below.
+          </p>
+        )}
+
+        {/* Custom mode: selected tile controls */}
+        {mode === 'custom' && selectedTile && (
+          <div className="px-3 pt-2 pb-1 space-y-1.5 border-b border-border-primary">
+            <p className="text-[10px] text-text-disabled">
+              Selected: R{selectedTile.row + 1}C{selectedTile.col + 1}
+            </p>
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => rotateTile(selectedTile.row, selectedTile.col)}
+                className="flex items-center gap-1 py-1 px-2 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
+              >
+                <RotateCw size={10} />
+                Rotate
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const tile = tiles[selectedTile.row]?.[selectedTile.col];
+                  const current = tile?.perTileOrientation;
+                  setPerTileOrientation(
+                    selectedTile.row,
+                    selectedTile.col,
+                    current === 'landscape' ? 'portrait' : 'landscape',
+                  );
+                }}
+                className="flex items-center gap-1 py-1 px-2 rounded text-[10px] border border-border-primary text-text-secondary hover:bg-bg-tertiary transition-colors"
+              >
+                {(() => {
+                  const tile = tiles[selectedTile.row]?.[selectedTile.col];
+                  return tile?.perTileOrientation === 'landscape' ? (
+                    <>
+                      <PanelTop size={10} />
+                      Landscape
+                    </>
+                  ) : (
+                    <>
+                      <PanelLeft size={10} />
+                      Portrait
+                    </>
+                  );
+                })()}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Select all + tile count */}
         <div className="px-3 pt-2 pb-1 flex items-center justify-between">
@@ -150,8 +265,9 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
             {tiles.map((row) =>
               row.map((tile) => {
                 // Position the tile image within the paper-sized thumbnail
-                const imageTop = (tile.row * tile.srcH) / paperH;
-                const imageLeft = (tile.col * tile.srcW) / paperW;
+                // Apply user offset so custom-mode moved tiles show the correct crop region
+                const imageTop = (tile.row * tile.srcH + tile.userOffsetY) / paperH;
+                const imageLeft = (tile.col * tile.srcW + tile.userOffsetX) / paperW;
                 const sliceW = Math.min(tile.srcW, paperW - imageLeft);
                 const sliceH = Math.min(tile.srcH, paperH - imageTop);
 
@@ -167,15 +283,29 @@ export function TileSidebar({ onUploadClick, onExportClick }: TileSidebarProps) 
                     key={`${tile.row}-${tile.col}`}
                     type="button"
                     onClick={() => toggleTile(tile.row, tile.col)}
-                    title={`R${tile.row + 1}C${tile.col + 1} (${tile.srcW}\u00d7${tile.srcH}px)`}
+                    title={`R${tile.row + 1}C${tile.col + 1} (${tile.srcW}\u00d7${tile.srcH}px)${tile.rotation ? ` \u21bb${tile.rotation}\u00b0` : ''}`}
                     style={{ aspectRatio: String(paperAspectRatio) }}
                     className={`rounded overflow-hidden border-2 transition-colors bg-bg-tertiary relative ${
-                      tile.selected
-                        ? 'border-primary-500 ring-1 ring-primary-500/30'
-                        : 'border-transparent hover:border-border-primary'
+                      mode === 'custom' &&
+                      selectedTile?.row === tile.row &&
+                      selectedTile?.col === tile.col
+                        ? 'border-blue-500 ring-1 ring-blue-500/30'
+                        : tile.selected
+                          ? 'border-primary-500 ring-1 ring-primary-500/30'
+                          : 'border-transparent hover:border-border-primary'
                     }`}
                   >
-                    {tile.previewUrl ? (
+                    {!tile.selected ? (
+                      <div
+                        className="absolute bg-black"
+                        style={{
+                          top: imageClip.top,
+                          left: imageClip.left,
+                          width: imageClip.width,
+                          height: imageClip.height,
+                        }}
+                      />
+                    ) : tile.previewUrl ? (
                       <img
                         src={tile.previewUrl}
                         alt={`R${tile.row + 1}C${tile.col + 1}`}

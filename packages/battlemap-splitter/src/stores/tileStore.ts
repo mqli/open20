@@ -3,7 +3,7 @@ import { computeTileGrid } from '@/engine/tiling';
 import { useGridStore } from './gridStore';
 import { usePaperStore } from './paperStore';
 import { useMapStore } from './mapStore';
-import type { TileInfo as EngineTileInfo } from '@/types';
+import type { TileInfo as EngineTileInfo, TileMode } from '@/types';
 
 export interface TileInfo {
   row: number;
@@ -21,6 +21,20 @@ export interface TileInfo {
   contentH: number;
   /** Thumbnail preview data URL (generated during empty tile detection) */
   previewUrl?: string;
+  /** Tile rotation in degrees (0, 90, 180, 270) */
+  rotation: 0 | 90 | 180 | 270;
+  /** Per-tile paper orientation override. undefined = follow global */
+  perTileOrientation?: 'portrait' | 'landscape';
+  /** Custom-mode user drag offset X in source pixels */
+  userOffsetX: number;
+  /** Custom-mode user drag offset Y in source pixels */
+  userOffsetY: number;
+}
+
+/** Selected tile coordinates (for custom mode canvas interaction) */
+export interface SelectedTile {
+  row: number;
+  col: number;
 }
 
 interface TileState {
@@ -30,8 +44,13 @@ interface TileState {
   orientation: 'portrait' | 'landscape';
   /** Feet per grid square (5 or 10) — affects physical tile scaling */
   calibrationFeet: 5 | 10;
+  /** Tiling mode: auto (uniform grid) or custom (user-positioned) */
+  mode: TileMode;
+  /** Currently selected tile in custom mode (null = no selection) */
+  selectedTile: SelectedTile | null;
 
   /** Actions */
+  reset: () => void;
   recalculate: () => void;
   toggleTile: (row: number, col: number) => void;
   selectAll: () => void;
@@ -39,6 +58,13 @@ interface TileState {
   selectRect: (r1: number, c1: number, r2: number, c2: number) => void;
   detectEmptyTiles: () => Promise<void>;
   setCalibrationFeet: (feet: 5 | 10) => void;
+  setMode: (mode: TileMode) => void;
+  setSelectedTile: (tile: SelectedTile | null) => void;
+  moveTile: (row: number, col: number, deltaX: number, deltaY: number) => void;
+  rotateTile: (row: number, col: number) => void;
+  setPerTileOrientation: (row: number, col: number, orientation: 'portrait' | 'landscape') => void;
+  /** Regenerate preview thumbnail for a specific tile (async, called after move/rotate) */
+  _regenerateTilePreview: (row: number, col: number) => void;
 }
 
 function engineTileToTileInfo(t: EngineTileInfo): TileInfo {
@@ -54,6 +80,10 @@ function engineTileToTileInfo(t: EngineTileInfo): TileInfo {
     srcH: t.srcH,
     contentW: t.contentW,
     contentH: t.contentH,
+    rotation: 0,
+    perTileOrientation: undefined,
+    userOffsetX: 0,
+    userOffsetY: 0,
   };
 }
 
@@ -65,6 +95,24 @@ export const useTileStore = create<TileState>((set, get) => ({
   tileRows: 0,
   orientation: 'portrait',
   calibrationFeet: 5,
+  mode: 'auto',
+  selectedTile: null,
+
+  reset: () => {
+    // Abort any in-flight empty detection
+    if (emptyDetectAbortController) {
+      emptyDetectAbortController.abort();
+      emptyDetectAbortController = null;
+    }
+    set({
+      tiles: [],
+      tileCols: 0,
+      tileRows: 0,
+      orientation: 'portrait',
+      mode: 'auto',
+      selectedTile: null,
+    });
+  },
 
   recalculate: () => {
     // Cross-store reads
@@ -73,8 +121,21 @@ export const useTileStore = create<TileState>((set, get) => ({
     const paperState = usePaperStore.getState();
 
     if (!mapState.imageUrl || mapState.width === 0) {
-      set({ tiles: [], tileCols: 0, tileRows: 0 });
+      set({ tiles: [], tileCols: 0, tileRows: 0, selectedTile: null });
       return;
+    }
+
+    // In custom mode, preserve user offsets/orientation when recalculating
+    // (triggered by mode switch back to auto, or explicit recalculate)
+    const isCustom = get().mode === 'custom';
+    const prevTiles = get().tiles;
+    const prevTileMap = new Map<string, TileInfo>();
+    if (isCustom) {
+      for (const row of prevTiles) {
+        for (const t of row) {
+          prevTileMap.set(`${t.row},${t.col}`, t);
+        }
+      }
     }
 
     // Scale cellPx by calibration feet: 10ft grids are physically 2× wider,
@@ -97,7 +158,23 @@ export const useTileStore = create<TileState>((set, get) => ({
       paperState.orientation,
     );
 
-    const tiles: TileInfo[][] = grid.tiles.map((row) => row.map(engineTileToTileInfo));
+    const tiles: TileInfo[][] = grid.tiles.map((row) =>
+      row.map((t) => {
+        const base = engineTileToTileInfo(t);
+        if (isCustom) {
+          // Preserve user customizations from previous tiles with matching coords
+          const prev = prevTileMap.get(`${t.row},${t.col}`);
+          if (prev) {
+            base.rotation = prev.rotation;
+            base.perTileOrientation = prev.perTileOrientation;
+            base.userOffsetX = prev.userOffsetX;
+            base.userOffsetY = prev.userOffsetY;
+            base.selected = prev.selected;
+          }
+        }
+        return base;
+      }),
+    );
 
     set({
       tiles,
@@ -152,6 +229,104 @@ export const useTileStore = create<TileState>((set, get) => ({
   },
 
   setCalibrationFeet: (feet: 5 | 10) => set({ calibrationFeet: feet }),
+
+  setMode: (mode: TileMode) => {
+    const prevMode = get().mode;
+    set({ mode, selectedTile: null });
+
+    // When switching from custom → auto, clear all user offsets and reset tiles
+    if (prevMode === 'custom' && mode === 'auto') {
+      get().recalculate();
+    }
+    // When switching from auto → custom, tiles are already from auto-grid;
+    // just keep them as-is (user can now modify)
+  },
+
+  setSelectedTile: (tile) => set({ selectedTile: tile }),
+
+  moveTile: (row, col, deltaX, deltaY) =>
+    set((state) => {
+      const newTiles = state.tiles.map((r) => r.map((t) => ({ ...t })));
+      if (newTiles[row]?.[col]) {
+        newTiles[row][col].userOffsetX += deltaX;
+        newTiles[row][col].userOffsetY += deltaY;
+      }
+      return { tiles: newTiles };
+    }),
+  // Schedule async preview regeneration after moveTile updates the store
+  _regenerateTilePreview: (row: number, col: number) => {
+    const mapState = useMapStore.getState();
+    if (!mapState.imageUrl) return;
+
+    const tile = get().tiles[row]?.[col];
+    if (!tile) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = mapState.imageUrl;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const THUMB_MAX = 150;
+      const previewW = Math.min(
+        THUMB_MAX,
+        Math.round(THUMB_MAX * (tile.srcW / Math.max(tile.srcW, tile.srcH))),
+      );
+      const previewH = Math.min(
+        THUMB_MAX,
+        Math.round(THUMB_MAX * (tile.srcH / Math.max(tile.srcW, tile.srcH))),
+      );
+      canvas.width = previewW;
+      canvas.height = previewH;
+
+      // Use effective source position (with user offset)
+      const srcX = tile.srcX + tile.userOffsetX;
+      const srcY = tile.srcY + tile.userOffsetY;
+      ctx.drawImage(img, srcX, srcY, tile.srcW, tile.srcH, 0, 0, previewW, previewH);
+
+      const previewUrl = canvas.toDataURL('image/jpeg', 0.5);
+
+      set((state) => {
+        const newTiles = state.tiles.map((r) => r.map((t) => ({ ...t })));
+        if (newTiles[row]?.[col]) {
+          newTiles[row][col].previewUrl = previewUrl;
+        }
+        return { tiles: newTiles };
+      });
+    };
+  },
+
+  rotateTile: (row, col) =>
+    set((state) => {
+      const newTiles = state.tiles.map((r) => r.map((t) => ({ ...t })));
+      const tile = newTiles[row]?.[col];
+      if (tile) {
+        // Rotate 90° clockwise: 0→90→180→270→0
+        tile.rotation = ((tile.rotation + 90) % 360) as 0 | 90 | 180 | 270;
+        // Swap srcW/srcH for 90/270 rotations
+        if (tile.rotation === 90 || tile.rotation === 270) {
+          const tmp = tile.srcW;
+          tile.srcW = tile.srcH;
+          tile.srcH = tmp;
+          // Also swap contentW/contentH to reflect the rotation
+          const tmpC = tile.contentW;
+          tile.contentW = tile.contentH;
+          tile.contentH = tmpC;
+        }
+      }
+      return { tiles: newTiles };
+    }),
+
+  setPerTileOrientation: (row, col, orientation) =>
+    set((state) => {
+      const newTiles = state.tiles.map((r) => r.map((t) => ({ ...t })));
+      if (newTiles[row]?.[col]) {
+        newTiles[row][col].perTileOrientation = orientation;
+      }
+      return { tiles: newTiles };
+    }),
 
   detectEmptyTiles: async () => {
     const signal = emptyDetectAbortController?.signal;

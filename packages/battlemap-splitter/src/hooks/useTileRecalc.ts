@@ -15,6 +15,9 @@ export function useTileRecalc() {
 
   useEffect(() => {
     function debouncedRecalc() {
+      // Skip recalculate in custom mode — user is manually positioning tiles
+      if (useTileStore.getState().mode === 'custom') return;
+
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         recalculate();

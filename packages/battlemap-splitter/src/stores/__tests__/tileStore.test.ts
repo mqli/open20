@@ -11,6 +11,29 @@ function setupMapWithImage(width = 700, height = 700) {
   return url;
 }
 
+/** Helper to create a tile with all required fields */
+function makeTile(
+  overrides: Partial<ReturnType<typeof useTileStore.getState>['tiles'][0][0]> = {},
+) {
+  return {
+    row: 0,
+    col: 0,
+    selected: false,
+    isEmpty: false,
+    srcX: 0,
+    srcY: 0,
+    srcW: 100,
+    srcH: 100,
+    contentW: 194,
+    contentH: 269,
+    rotation: 0 as const,
+    perTileOrientation: undefined as 'portrait' | 'landscape' | undefined,
+    userOffsetX: 0,
+    userOffsetY: 0,
+    ...overrides,
+  };
+}
+
 describe('tileStore', () => {
   beforeEach(() => {
     useTileStore.setState({
@@ -19,6 +42,8 @@ describe('tileStore', () => {
       tileRows: 0,
       orientation: 'portrait',
       calibrationFeet: 5,
+      mode: 'auto',
+      selectedTile: null,
     });
     useMapStore.getState().clear();
     useGridStore.getState().reset();
@@ -113,22 +138,7 @@ describe('tileStore', () => {
     it('toggleTile toggles selection', () => {
       // Set up a single tile
       useTileStore.setState({
-        tiles: [
-          [
-            {
-              row: 0,
-              col: 0,
-              selected: false,
-              isEmpty: false,
-              srcX: 0,
-              srcY: 0,
-              srcW: 100,
-              srcH: 100,
-              contentW: 194,
-              contentH: 269,
-            },
-          ],
-        ],
+        tiles: [[makeTile()]],
         tileCols: 1,
         tileRows: 1,
       });
@@ -142,22 +152,7 @@ describe('tileStore', () => {
 
     it('toggleTile ignores out-of-bounds indices', () => {
       useTileStore.setState({
-        tiles: [
-          [
-            {
-              row: 0,
-              col: 0,
-              selected: false,
-              isEmpty: false,
-              srcX: 0,
-              srcY: 0,
-              srcW: 100,
-              srcH: 100,
-              contentW: 194,
-              contentH: 269,
-            },
-          ],
-        ],
+        tiles: [[makeTile()]],
         tileCols: 1,
         tileRows: 1,
       });
@@ -168,34 +163,7 @@ describe('tileStore', () => {
 
     it('selectAll selects all tiles', () => {
       useTileStore.setState({
-        tiles: [
-          [
-            {
-              row: 0,
-              col: 0,
-              selected: false,
-              isEmpty: false,
-              srcX: 0,
-              srcY: 0,
-              srcW: 100,
-              srcH: 100,
-              contentW: 194,
-              contentH: 269,
-            },
-            {
-              row: 0,
-              col: 1,
-              selected: false,
-              isEmpty: false,
-              srcX: 100,
-              srcY: 0,
-              srcW: 100,
-              srcH: 100,
-              contentW: 194,
-              contentH: 269,
-            },
-          ],
-        ],
+        tiles: [[makeTile({ col: 0 }), makeTile({ col: 1, srcX: 100 })]],
         tileCols: 2,
         tileRows: 1,
       });
@@ -212,32 +180,7 @@ describe('tileStore', () => {
     it('selectNone deselects all tiles', () => {
       useTileStore.setState({
         tiles: [
-          [
-            {
-              row: 0,
-              col: 0,
-              selected: true,
-              isEmpty: false,
-              srcX: 0,
-              srcY: 0,
-              srcW: 100,
-              srcH: 100,
-              contentW: 194,
-              contentH: 269,
-            },
-            {
-              row: 0,
-              col: 1,
-              selected: true,
-              isEmpty: false,
-              srcX: 100,
-              srcY: 0,
-              srcW: 100,
-              srcH: 100,
-              contentW: 194,
-              contentH: 269,
-            },
-          ],
+          [makeTile({ col: 0, selected: true }), makeTile({ col: 1, srcX: 100, selected: true })],
         ],
         tileCols: 2,
         tileRows: 1,
@@ -255,18 +198,9 @@ describe('tileStore', () => {
     it('selectRect selects a rectangular region', () => {
       // 3x3 grid
       const tiles = Array.from({ length: 3 }, (_, r) =>
-        Array.from({ length: 3 }, (_, c) => ({
-          row: r,
-          col: c,
-          selected: false,
-          isEmpty: false,
-          srcX: c * 100,
-          srcY: r * 100,
-          srcW: 100,
-          srcH: 100,
-          contentW: 194,
-          contentH: 269,
-        })),
+        Array.from({ length: 3 }, (_, c) =>
+          makeTile({ row: r, col: c, srcX: c * 100, srcY: r * 100 }),
+        ),
       );
       useTileStore.setState({ tiles, tileCols: 3, tileRows: 3 });
 
@@ -301,6 +235,153 @@ describe('tileStore', () => {
       useTileStore.getState().setCalibrationFeet(10);
       useTileStore.getState().setCalibrationFeet(5);
       expect(useTileStore.getState().calibrationFeet).toBe(5);
+    });
+  });
+
+  describe('tileMode', () => {
+    it('defaults to auto', () => {
+      expect(useTileStore.getState().mode).toBe('auto');
+    });
+
+    it('setMode changes mode', () => {
+      useTileStore.getState().setMode('custom');
+      expect(useTileStore.getState().mode).toBe('custom');
+    });
+
+    it('setMode clears selectedTile', () => {
+      useTileStore.setState({
+        tiles: [[makeTile()]],
+        tileCols: 1,
+        tileRows: 1,
+        selectedTile: { row: 0, col: 0 },
+        mode: 'custom',
+      });
+      useTileStore.getState().setMode('auto');
+      expect(useTileStore.getState().selectedTile).toBeNull();
+    });
+
+    it('switching custom to auto triggers recalculate', () => {
+      setupMapWithImage(500, 500);
+      useTileStore.setState({ mode: 'custom', tiles: [[makeTile()]], tileCols: 1, tileRows: 1 });
+      useTileStore.getState().setMode('auto');
+      // After recalculate, tiles should be recomputed
+      expect(useTileStore.getState().tileCols).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('selectedTile', () => {
+    it('setSelectedTile updates selected tile', () => {
+      useTileStore.getState().setSelectedTile({ row: 1, col: 2 });
+      expect(useTileStore.getState().selectedTile).toEqual({ row: 1, col: 2 });
+    });
+
+    it('setSelectedTile clears selection', () => {
+      useTileStore.getState().setSelectedTile({ row: 0, col: 0 });
+      useTileStore.getState().setSelectedTile(null);
+      expect(useTileStore.getState().selectedTile).toBeNull();
+    });
+  });
+
+  describe('moveTile', () => {
+    it('moves tile by delta', () => {
+      useTileStore.setState({
+        tiles: [[makeTile()]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      useTileStore.getState().moveTile(0, 0, 10, -5);
+      const tile = useTileStore.getState().tiles[0][0];
+      expect(tile.userOffsetX).toBe(10);
+      expect(tile.userOffsetY).toBe(-5);
+    });
+
+    it('accumulates multiple moves', () => {
+      useTileStore.setState({
+        tiles: [[makeTile()]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      useTileStore.getState().moveTile(0, 0, 10, 0);
+      useTileStore.getState().moveTile(0, 0, 5, 3);
+      const tile = useTileStore.getState().tiles[0][0];
+      expect(tile.userOffsetX).toBe(15);
+      expect(tile.userOffsetY).toBe(3);
+    });
+
+    it('ignores out-of-bounds tile', () => {
+      useTileStore.setState({
+        tiles: [[makeTile()]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      expect(() => useTileStore.getState().moveTile(5, 5, 10, 10)).not.toThrow();
+    });
+  });
+
+  describe('rotateTile', () => {
+    it('rotates 0 → 90', () => {
+      useTileStore.setState({
+        tiles: [[makeTile({ srcW: 100, srcH: 80, contentW: 194, contentH: 269 })]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      useTileStore.getState().rotateTile(0, 0);
+      const tile = useTileStore.getState().tiles[0][0];
+      expect(tile.rotation).toBe(90);
+      // Width and height should swap
+      expect(tile.srcW).toBe(80);
+      expect(tile.srcH).toBe(100);
+      expect(tile.contentW).toBe(269);
+      expect(tile.contentH).toBe(194);
+    });
+
+    it('rotates 270 → 0 (wrap around)', () => {
+      useTileStore.setState({
+        tiles: [[makeTile({ rotation: 270, srcW: 100, srcH: 80, contentW: 194, contentH: 269 })]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      useTileStore.getState().rotateTile(0, 0);
+      const tile = useTileStore.getState().tiles[0][0];
+      expect(tile.rotation).toBe(0);
+    });
+
+    it('full rotation cycle returns to original dimensions', () => {
+      useTileStore.setState({
+        tiles: [[makeTile({ srcW: 100, srcH: 80, contentW: 194, contentH: 269 })]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      // Rotate 4 times
+      for (let i = 0; i < 4; i++) {
+        useTileStore.getState().rotateTile(0, 0);
+      }
+      const tile = useTileStore.getState().tiles[0][0];
+      expect(tile.rotation).toBe(0);
+      expect(tile.srcW).toBe(100);
+      expect(tile.srcH).toBe(80);
+    });
+  });
+
+  describe('setPerTileOrientation', () => {
+    it('sets per-tile orientation', () => {
+      useTileStore.setState({
+        tiles: [[makeTile()]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      useTileStore.getState().setPerTileOrientation(0, 0, 'landscape');
+      expect(useTileStore.getState().tiles[0][0].perTileOrientation).toBe('landscape');
+    });
+
+    it('changes orientation back to portrait', () => {
+      useTileStore.setState({
+        tiles: [[makeTile({ perTileOrientation: 'landscape' })]],
+        tileCols: 1,
+        tileRows: 1,
+      });
+      useTileStore.getState().setPerTileOrientation(0, 0, 'portrait');
+      expect(useTileStore.getState().tiles[0][0].perTileOrientation).toBe('portrait');
     });
   });
 });

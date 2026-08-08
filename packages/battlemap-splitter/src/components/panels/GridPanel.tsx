@@ -1,17 +1,6 @@
 import { useGridStore } from '@/stores/gridStore';
 import { useMapStore } from '@/stores/mapStore';
-import {
-  Ruler,
-  Grid3x3,
-  LayoutGrid,
-  X,
-  Eye,
-  EyeOff,
-  MousePointer2,
-  Sparkles,
-  Minus,
-  Plus,
-} from 'lucide-react';
+import { Ruler, Grid3x3, X, Eye, EyeOff, MousePointer2, Sparkles, Minus, Plus } from 'lucide-react';
 import type { CalibrateMode } from '@/types';
 
 interface GridPanelProps {
@@ -40,11 +29,9 @@ export function GridPanel({
 
   const cellPx = useGridStore((s) => s.cellPx);
   const gridVisible = useGridStore((s) => s.visible);
-  const tileOverlayVisible = useGridStore((s) => s.tileOverlayVisible);
   const color = useGridStore((s) => s.color);
   const opacity = useGridStore((s) => s.opacity);
   const toggleGrid = useGridStore((s) => s.toggleVisibility);
-  const toggleTileOverlay = useGridStore((s) => s.toggleTileOverlay);
   const setColor = useGridStore((s) => s.setColor);
   const setOpacity = useGridStore((s) => s.setOpacity);
   const adjustCellPx = useGridStore((s) => s.adjustCellPx);
@@ -167,37 +154,22 @@ export function GridPanel({
           </p>
         )}
 
-        {/* Overlay toggles */}
+        {/* Grid overlay toggle */}
         <div className="space-y-1">
-          <p className="text-[10px] text-text-disabled leading-snug">Overlays</p>
-          <div className="flex gap-1.5">
-            <button
-              type="button"
-              onClick={toggleGrid}
-              className={`flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] transition-colors ${
-                gridVisible
-                  ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
-                  : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
-              }`}
-            >
-              <Grid3x3 size={12} />
-              Grid
-              {gridVisible ? <Eye size={10} /> : <EyeOff size={10} />}
-            </button>
-            <button
-              type="button"
-              onClick={toggleTileOverlay}
-              className={`flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] transition-colors ${
-                tileOverlayVisible
-                  ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
-                  : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
-              }`}
-            >
-              <LayoutGrid size={12} />
-              Tiles
-              {tileOverlayVisible ? <Eye size={10} /> : <EyeOff size={10} />}
-            </button>
-          </div>
+          <p className="text-[10px] text-text-disabled leading-snug">Overlay</p>
+          <button
+            type="button"
+            onClick={toggleGrid}
+            className={`flex items-center justify-center gap-1 py-1 rounded text-[10px] transition-colors w-full ${
+              gridVisible
+                ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
+                : 'border border-border-primary text-text-secondary hover:bg-bg-tertiary'
+            }`}
+          >
+            <Grid3x3 size={12} />
+            Grid
+            {gridVisible ? <Eye size={10} /> : <EyeOff size={10} />}
+          </button>
         </div>
 
         {/* Color + Opacity */}

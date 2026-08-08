@@ -207,6 +207,9 @@ export function computeTileGrid(
         srcH: Math.round(srcH),
         contentW,
         contentH,
+        rotation: 0,
+        userOffsetX: 0,
+        userOffsetY: 0,
       });
     }
     tiles.push(tileRow);

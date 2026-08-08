@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { showToast } from '@/utils/toast';
+import { useTileStore } from './tileStore';
+import { useGridStore } from './gridStore';
 
 interface MapState {
   /** Source image — always a same-origin blob: URL to avoid CORS canvas tainting */
@@ -59,6 +61,10 @@ export const useMapStore = create<MapState>((set, get) => ({
       panX: 0,
       panY: 0,
     });
+
+    // Reset tiles and grid on new image
+    useTileStore.getState().reset();
+    useGridStore.getState().reset();
   },
 
   loadImageFromUrl: async (url: string) => {
@@ -98,6 +104,10 @@ export const useMapStore = create<MapState>((set, get) => ({
       panX: 0,
       panY: 0,
     });
+
+    // Reset tiles and grid on new image
+    useTileStore.getState().reset();
+    useGridStore.getState().reset();
   },
 
   setZoom: (z: number) => set({ zoom: Math.max(0.1, Math.min(5, z)) }),

@@ -32,8 +32,8 @@ interface PdfGenerationConfig {
   cellPx: number;
   /** Map label for page headers */
   mapLabel: string;
-  /** Whether tiles are in landscape orientation */
-  isLandscape: boolean;
+  /** Global orientation fallback (used when tile has no per-tile orientation) */
+  globalOrientation: 'portrait' | 'landscape';
   /** Generate assembly guide as first page */
   includeGuide: boolean;
   /** Progress callback */
@@ -49,6 +49,14 @@ interface TileSpec {
   col: number;
   contentW: number;
   contentH: number;
+  /** Tile rotation in degrees */
+  rotation: 0 | 90 | 180 | 270;
+  /** Per-tile paper orientation. undefined = follow global */
+  perTileOrientation?: 'portrait' | 'landscape';
+  /** Custom-mode user drag offset X in source pixels */
+  userOffsetX: number;
+  /** Custom-mode user drag offset Y in source pixels */
+  userOffsetY: number;
 }
 
 /**
@@ -68,7 +76,7 @@ function srcPxToMm(px: number, cellPx: number): number {
 
 /**
  * Crop a source region from an image and scale to output DPI.
- * Returns a JPEG data URL.
+ * Supports rotation. Returns a JPEG data URL.
  */
 function cropAndScaleTile(
   img: HTMLImageElement,
@@ -78,13 +86,18 @@ function cropAndScaleTile(
 ): string {
   const canvas = document.createElement('canvas');
 
+  // Apply user offset to source crop region
+  const srcX = tile.srcX + tile.userOffsetX;
+  const srcY = tile.srcY + tile.userOffsetY;
+
   // Content area on paper in mm
   const contentW = srcPxToMm(tile.srcW, cellPx);
   const contentH = srcPxToMm(tile.srcH, cellPx);
 
   // Output pixels
-  canvas.width = mmToOutputPx(contentW, outputDpi);
-  canvas.height = mmToOutputPx(contentH, outputDpi);
+  const isRotated90 = tile.rotation === 90 || tile.rotation === 270;
+  canvas.width = mmToOutputPx(isRotated90 ? contentH : contentW, outputDpi);
+  canvas.height = mmToOutputPx(isRotated90 ? contentW : contentH, outputDpi);
 
   const ctx = canvas.getContext('2d')!;
 
@@ -92,8 +105,20 @@ function cropAndScaleTile(
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw cropped region, scaled to output DPI
-  ctx.drawImage(img, tile.srcX, tile.srcY, tile.srcW, tile.srcH, 0, 0, canvas.width, canvas.height);
+  if (tile.rotation !== 0) {
+    // Rotate around canvas center
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((tile.rotation * Math.PI) / 180);
+    // Draw the source region centered; width/height may be swapped
+    const drawW = mmToOutputPx(contentW, outputDpi);
+    const drawH = mmToOutputPx(contentH, outputDpi);
+    ctx.drawImage(img, srcX, srcY, tile.srcW, tile.srcH, -drawW / 2, -drawH / 2, drawW, drawH);
+    ctx.restore();
+  } else {
+    // Draw cropped region, scaled to output DPI
+    ctx.drawImage(img, srcX, srcY, tile.srcW, tile.srcH, 0, 0, canvas.width, canvas.height);
+  }
 
   return canvas.toDataURL('image/jpeg', TILE_JPEG_QUALITY);
 }
@@ -167,9 +192,11 @@ function drawTileLabel(
   paperH: number,
   marginBottom: number,
   isLandscape: boolean,
+  rotation: number,
 ) {
   const orientTag = isLandscape ? ' (横排)' : '';
-  const label = `${mapLabel}${orientTag}  R${row + 1}C${col + 1}/${totalRows}×${totalCols}`;
+  const rotateTag = rotation !== 0 ? ` ↻${rotation}°` : '';
+  const label = `${mapLabel}${orientTag}  R${row + 1}C${col + 1}/${totalRows}×${totalCols}${rotateTag}`;
   const subLabel = `1格 = 25.4mm @ ${cellPx} DPI`;
 
   const labelY = paperH - marginBottom + 8;
@@ -187,6 +214,8 @@ function drawTileLabel(
 /**
  * Generate the assembly guide page.
  * Creates a scaled-down map preview with tile grid overlay.
+ * In custom mode, tiles may have user offsets — individual tile rectangles
+ * are drawn instead of a uniform grid.
  */
 function drawAssemblyGuidePage(
   img: HTMLImageElement,
@@ -194,6 +223,7 @@ function drawAssemblyGuidePage(
   rows: number,
   doc: jsPDF,
   config: PdfGenerationConfig,
+  tiles?: TileInfo[],
 ): void {
   const pw = config.paperW;
   const ph = config.paperH;
@@ -231,27 +261,54 @@ function drawAssemblyGuidePage(
   pCtx.drawImage(img, 0, 0, pCanvas.width, pCanvas.height);
   doc.addImage(pCanvas.toDataURL('image/jpeg', 0.85), 'JPEG', prevX, previewY, prevW, prevH);
 
-  // ── Tile grid overlay (vector, drawn ON the PDF, not rasterized) ──
-  const cellW = prevW / cols;
-  const cellH = prevH / rows;
+  // ── Tile grid overlay ──
+  const hasCustomOffsets = tiles && tiles.some((t) => t.userOffsetX !== 0 || t.userOffsetY !== 0);
 
-  doc.setLineWidth(0.3);
-  doc.setDrawColor(200, 40, 40);
+  if (hasCustomOffsets && tiles) {
+    // Custom mode: draw individual tile rectangles at user-offset positions
+    doc.setLineWidth(0.3);
+    doc.setDrawColor(200, 40, 40);
+    doc.setFontSize(8);
+    doc.setTextColor(200, 40, 40);
 
-  for (let r = 0; r <= rows; r++)
-    doc.line(prevX, previewY + r * cellH, prevX + prevW, previewY + r * cellH);
-  for (let c = 0; c <= cols; c++)
-    doc.line(prevX + c * cellW, previewY, prevX + c * cellW, previewY + prevH);
+    for (const tile of tiles) {
+      const x = prevX + (tile.srcX + tile.userOffsetX) * scale;
+      const y = previewY + (tile.srcY + tile.userOffsetY) * scale;
+      const w = tile.srcW * scale;
+      const h = tile.srcH * scale;
 
-  // ── Labels ──
-  doc.setFontSize(12);
-  doc.setTextColor(200, 40, 40);
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      doc.text(`R${r + 1}C${c + 1}`, prevX + (c + 0.5) * cellW, previewY + (r + 0.5) * cellH, {
+      doc.rect(x, y, w, h);
+
+      // Rotation indicator
+      const rotLabel = tile.rotation !== 0 ? ` ↻${tile.rotation}°` : '';
+      doc.text(`R${tile.row + 1}C${tile.col + 1}${rotLabel}`, x + w / 2, y + h / 2, {
         align: 'center',
         baseline: 'middle',
       });
+    }
+  } else {
+    // Auto mode: uniform grid
+    const cellW = prevW / cols;
+    const cellH = prevH / rows;
+
+    doc.setLineWidth(0.3);
+    doc.setDrawColor(200, 40, 40);
+
+    for (let r = 0; r <= rows; r++)
+      doc.line(prevX, previewY + r * cellH, prevX + prevW, previewY + r * cellH);
+    for (let c = 0; c <= cols; c++)
+      doc.line(prevX + c * cellW, previewY, prevX + c * cellW, previewY + prevH);
+
+    // Labels
+    doc.setFontSize(12);
+    doc.setTextColor(200, 40, 40);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        doc.text(`R${r + 1}C${c + 1}`, prevX + (c + 0.5) * cellW, previewY + (r + 0.5) * cellH, {
+          align: 'center',
+          baseline: 'middle',
+        });
+      }
     }
   }
 
@@ -289,7 +346,7 @@ export async function generatePdf(
 
   // Assembly guide (first page)
   if (config.includeGuide) {
-    drawAssemblyGuidePage(img, totalCols, totalRows, doc, config);
+    drawAssemblyGuidePage(img, totalCols, totalRows, doc, config, tiles);
     if (tiles.length > 0) {
       doc.addPage();
     }
@@ -301,16 +358,53 @@ export async function generatePdf(
 
     config.onProgress?.(i + 1, tiles.length);
 
-    // Crop and scale the tile
-    const tileUrl = cropAndScaleTile(img, tile, config.cellPx, config.outputDpi);
+    // Determine paper orientation for this tile
+    const tileOrientation = tile.perTileOrientation ?? config.globalOrientation;
+    const isLandscape = tileOrientation === 'landscape';
 
-    // Content area on paper
-    const tileContentW = srcPxToMm(tile.srcW, config.cellPx);
-    const tileContentH = srcPxToMm(tile.srcH, config.cellPx);
+    // Build tile spec for cropping
+    const spec: TileSpec = {
+      srcX: tile.srcX,
+      srcY: tile.srcY,
+      srcW: tile.srcW,
+      srcH: tile.srcH,
+      row: tile.row,
+      col: tile.col,
+      contentW: tile.contentW,
+      contentH: tile.contentH,
+      rotation: tile.rotation,
+      perTileOrientation: tile.perTileOrientation,
+      userOffsetX: tile.userOffsetX,
+      userOffsetY: tile.userOffsetY,
+    };
+
+    // Crop and scale the tile
+    const tileUrl = cropAndScaleTile(img, spec, config.cellPx, config.outputDpi);
+
+    // Content area on paper in mm — use effective dimensions (accounting for rotation)
+    const isRotated = tile.rotation === 90 || tile.rotation === 270;
+    const tileContentW = srcPxToMm(isRotated ? tile.srcH : tile.srcW, config.cellPx);
+    const tileContentH = srcPxToMm(isRotated ? tile.srcW : tile.srcH, config.cellPx);
 
     // Content area available on page (minus label)
-    const availW = config.paperW - config.marginLeft - config.marginRight;
-    const availH = config.paperH - config.marginTop - config.marginBottom;
+    // If per-tile orientation differs from global, swap paper dimensions for this page
+    let paperW = config.paperW;
+    let paperH = config.paperH;
+    if (isLandscape !== (config.globalOrientation === 'landscape')) {
+      // Swap paper dimensions for this tile's orientation
+      paperW = config.paperH;
+      paperH = config.paperW;
+    }
+
+    // Set page size for this tile
+    if (i > 0 || config.includeGuide) {
+      // If we already added pages, we need to handle per-page sizing
+      // jsPDF doesn't support per-page size changes easily in the same doc
+      // For now, keep the same page size; orientation is indicated in the label
+    }
+
+    const availW = paperW - config.marginLeft - config.marginRight;
+    const availH = paperH - config.marginTop - config.marginBottom;
 
     // Center the tile in the content area
     const tileX = config.marginLeft + (availW - tileContentW) / 2;
@@ -321,22 +415,35 @@ export async function generatePdf(
       doc.addImage(tileUrl, 'JPEG', tileX, tileY, tileContentW, tileContentH);
     } catch {
       // Fallback: if JPEG fails, try as PNG
-      // Recreate canvas for PNG
       const pngCanvas = document.createElement('canvas');
-      pngCanvas.width = mmToOutputPx(tileContentW, config.outputDpi);
-      pngCanvas.height = mmToOutputPx(tileContentH, config.outputDpi);
+      const pngW = mmToOutputPx(tileContentW, config.outputDpi);
+      const pngH = mmToOutputPx(tileContentH, config.outputDpi);
+      pngCanvas.width = pngW;
+      pngCanvas.height = pngH;
       const pngCtx = pngCanvas.getContext('2d')!;
-      pngCtx.drawImage(
-        img,
-        tile.srcX,
-        tile.srcY,
-        tile.srcW,
-        tile.srcH,
-        0,
-        0,
-        pngCanvas.width,
-        pngCanvas.height,
-      );
+      pngCtx.fillStyle = '#ffffff';
+      pngCtx.fillRect(0, 0, pngW, pngH);
+      const pngSrcX = tile.srcX + tile.userOffsetX;
+      const pngSrcY = tile.srcY + tile.userOffsetY;
+      if (tile.rotation !== 0) {
+        pngCtx.save();
+        pngCtx.translate(pngW / 2, pngH / 2);
+        pngCtx.rotate((tile.rotation * Math.PI) / 180);
+        pngCtx.drawImage(
+          img,
+          pngSrcX,
+          pngSrcY,
+          tile.srcW,
+          tile.srcH,
+          -pngW / 2,
+          -pngH / 2,
+          pngW,
+          pngH,
+        );
+        pngCtx.restore();
+      } else {
+        pngCtx.drawImage(img, pngSrcX, pngSrcY, tile.srcW, tile.srcH, 0, 0, pngW, pngH);
+      }
       const pngDataUrl = pngCanvas.toDataURL('image/png');
       doc.addImage(pngDataUrl, 'PNG', tileX, tileY, tileContentW, tileContentH);
     }
@@ -356,10 +463,11 @@ export async function generatePdf(
       totalCols,
       config.mapLabel,
       config.cellPx,
-      config.paperW,
-      config.paperH,
+      paperW,
+      paperH,
       config.marginBottom,
-      config.isLandscape,
+      isLandscape,
+      tile.rotation,
     );
 
     if (i < tiles.length - 1) {

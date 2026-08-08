@@ -58,7 +58,18 @@ export interface TileInfo {
   contentW: number;
   /** Tile height on paper in mm (content area) */
   contentH: number;
+  /** Tile rotation in degrees (0, 90, 180, 270). 90/270 swaps srcW and srcH */
+  rotation: 0 | 90 | 180 | 270;
+  /** Per-tile paper orientation override. undefined = follow global setting */
+  perTileOrientation?: 'portrait' | 'landscape';
+  /** Custom-mode user drag offset X in source pixels (relative to auto-computed srcX) */
+  userOffsetX: number;
+  /** Custom-mode user drag offset Y in source pixels (relative to auto-computed srcY) */
+  userOffsetY: number;
 }
+
+/** Tiling mode: auto (uniform grid) or custom (user-positioned tiles) */
+export type TileMode = 'auto' | 'custom';
 
 export interface TileGrid {
   cols: number;
