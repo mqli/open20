@@ -1,17 +1,18 @@
-name: Deploy Spellbook
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
     paths:
       - 'packages/spellbook/**'
+      - 'packages/battlemap-splitter/**'
       - 'packages/core/**'
       - 'packages/ui/**'
       - 'packages/config/**'
       - 'packages/content/**'
       - 'packages/content-*/**'
       - 'pnpm-lock.yaml'
-      - '.github/workflows/deploy-spellbook.yml'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -42,13 +43,15 @@ jobs:
         env:
           HUSKY: 0
 
-      - name: Test spellbook
+      # --- Spellbook (unit + e2e + build) ---
+
+      - name: Test spellbook (unit)
         run: pnpm turbo run test --filter=@open20/spellbook
 
       - name: Install Playwright browsers
         run: pnpm --filter @open20/spellbook exec playwright install --with-deps chromium
 
-      - name: Run E2E tests
+      - name: Test spellbook (e2e)
         run: pnpm turbo run test:e2e --filter=@open20/spellbook
         env:
           CI: 'true'
@@ -66,10 +69,23 @@ jobs:
         env:
           DEPLOY_TARGET: github-pages
 
-      - name: Prepare Pages artifact under spellbook path
+      # --- Battlemap Splitter (unit + build) ---
+
+      - name: Test battlemap-splitter
+        run: pnpm turbo run test --filter=@open20/battlemap-splitter
+
+      - name: Build battlemap-splitter
+        run: pnpm turbo run build --filter=@open20/battlemap-splitter --force
+        env:
+          DEPLOY_TARGET: github-pages
+
+      # --- Merge both apps into a single pages artifact ---
+
+      - name: Prepare Pages artifact
         run: |
-          mkdir -p pages/spellbook
+          mkdir -p pages/spellbook pages/battlemap-splitter
           cp -R packages/spellbook/dist/. pages/spellbook/
+          cp -R packages/battlemap-splitter/dist/. pages/battlemap-splitter/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
