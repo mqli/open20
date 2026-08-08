@@ -18,8 +18,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: pages-battlemap
+  cancel-in-progress: true
 
 jobs:
   build:
