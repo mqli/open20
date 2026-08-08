@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useSpellStore } from '@/stores/spellStore';
 import { spellService } from '@/core/spell-service';
 import { SearchBar } from '@/components/spell-library/SearchBar';
@@ -12,12 +12,6 @@ import { CharacterPanel } from '@/components/layout/CharacterPanel';
 import { CharacterBottomControls } from '@/components/layout/CharacterBottomControls';
 import { CharacterSelector } from '@/components/layout/CharacterSelector';
 import { CharacterSheetContent } from '@/components/character/CharacterSheet/CharacterSheet';
-import { CharacterModal } from '@/components/character/CharacterModal';
-import { CustomSpellModal } from '@/components/spell/CustomSpellModal';
-import { ImportSpellsDialog } from '@/components/spell/ImportSpellsDialog';
-import { CharacterImportDialog } from '@/components/spell/CharacterImportDialog';
-import { exportCharacter } from '@/components/spell/character-import-export-utils';
-import { CustomClassModal } from '@/components/class/CustomClassModal';
 import { FilterDrawer } from '@/components/layout/FilterDrawer';
 import { MobileTabBar, type MobileTab } from '@/components/layout/MobileTabBar';
 import { SpellLibraryMoreMenu } from '@/components/spell-library/SpellLibraryMoreMenu';
@@ -31,6 +25,31 @@ import { Pencil, Trash2 } from 'lucide-react';
 import type { Spell } from 'open20-core';
 import { getCasterType } from 'open20-core/spells';
 import { resolveDeps } from '@/core/content-resolver';
+
+// Lazy-loaded modals — only needed when user triggers them
+const CharacterModal = lazy(() =>
+  import('@/components/character/CharacterModal').then((m) => ({ default: m.CharacterModal })),
+);
+const CustomSpellModal = lazy(() =>
+  import('@/components/spell/CustomSpellModal').then((m) => ({ default: m.CustomSpellModal })),
+);
+const ImportSpellsDialog = lazy(() =>
+  import('@/components/spell/ImportSpellsDialog').then((m) => ({ default: m.ImportSpellsDialog })),
+);
+const CharacterImportDialog = lazy(() =>
+  import('@/components/spell/CharacterImportDialog').then((m) => ({
+    default: m.CharacterImportDialog,
+  })),
+);
+const CustomClassModal = lazy(() =>
+  import('@/components/class/CustomClassModal').then((m) => ({ default: m.CustomClassModal })),
+);
+
+// Dynamically import exportCharacter (uses heavy character import/export utils)
+async function loadExportCharacter() {
+  const { exportCharacter } = await import('@/components/spell/character-import-export-utils');
+  return exportCharacter;
+}
 
 export function SpellLibraryLayout() {
   const t = useTranslation();
@@ -123,8 +142,9 @@ export function SpellLibraryLayout() {
         : t('noSpellsFound');
 
   // ── Character import/export callbacks ──
-  const handleExportCharacter = useCallback(() => {
+  const handleExportCharacter = useCallback(async () => {
     if (activeCharacter) {
+      const exportCharacter = await loadExportCharacter();
       exportCharacter(activeCharacter);
     }
   }, [activeCharacter]);
@@ -276,17 +296,25 @@ export function SpellLibraryLayout() {
         <div className="flex-1 flex flex-col min-w-0">{spellLibraryContent}</div>
 
         <SpellDetailFlyout />
-        <CustomSpellModal
-          open={isCustomModalOpen}
-          onOpenChange={setIsCustomModalOpen}
-          editingSpell={editingSpell}
-        />
-        <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
-        <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
-        <CharacterImportDialog
-          open={isCharacterImportDialogOpen}
-          onOpenChange={setIsCharacterImportDialogOpen}
-        />
+        <Suspense fallback={null}>
+          <CustomSpellModal
+            open={isCustomModalOpen}
+            onOpenChange={setIsCustomModalOpen}
+            editingSpell={editingSpell}
+          />
+        </Suspense>
+        <Suspense fallback={null}>
+          <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <CharacterImportDialog
+            open={isCharacterImportDialogOpen}
+            onOpenChange={setIsCharacterImportDialogOpen}
+          />
+        </Suspense>
       </div>
     );
   }
@@ -334,18 +362,28 @@ export function SpellLibraryLayout() {
       </div>
       <MobileTabBar activeTab={mobileTab} onTabChange={setMobileTab} />
       <SpellDetailFlyout />
-      <CharacterModal open={isModalOpen} onOpenChange={setIsModalOpen} characterId={editingId} />
-      <CustomSpellModal
-        open={isCustomModalOpen}
-        onOpenChange={setIsCustomModalOpen}
-        editingSpell={editingSpell}
-      />
-      <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
-      <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
-      <CharacterImportDialog
-        open={isCharacterImportDialogOpen}
-        onOpenChange={setIsCharacterImportDialogOpen}
-      />
+      <Suspense fallback={null}>
+        <CharacterModal open={isModalOpen} onOpenChange={setIsModalOpen} characterId={editingId} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CustomSpellModal
+          open={isCustomModalOpen}
+          onOpenChange={setIsCustomModalOpen}
+          editingSpell={editingSpell}
+        />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CustomClassModal open={isClassModalOpen} onOpenChange={setIsClassModalOpen} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ImportSpellsDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CharacterImportDialog
+          open={isCharacterImportDialogOpen}
+          onOpenChange={setIsCharacterImportDialogOpen}
+        />
+      </Suspense>
     </div>
   );
 }

@@ -1,10 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useUIStore } from './stores/uiStore';
 import { SpellLibraryLayout } from './components/layout/SpellLibraryLayout';
 import { PwaReloadPrompt } from './components/PwaReloadPrompt';
-import { DiceRollOverlay, I18nProvider } from '@open20/ui';
+import { I18nProvider } from '@open20/ui';
 import { enTranslations, zhCNTranslations } from '@/i18n';
 import { storageService } from '@/core/storage-service';
+
+const DiceRollOverlay = lazy(() =>
+  import('@open20/ui').then((m) => ({ default: m.DiceRollOverlay })),
+);
 
 export function App() {
   const { theme } = useUIStore();
@@ -37,7 +41,9 @@ export function App() {
       }}
     >
       <SpellLibraryLayout />
-      <DiceRollOverlay />
+      <Suspense fallback={null}>
+        <DiceRollOverlay />
+      </Suspense>
       <PwaReloadPrompt />
     </I18nProvider>
   );

@@ -14,6 +14,9 @@ export default defineConfig({
       devOptions: {
         enabled: false,
       },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+      },
       manifest: {
         name: 'Open20 Spellbook',
         short_name: 'Spellbook',
@@ -54,5 +57,21 @@ export default defineConfig({
         replacement: replacement as string,
       })),
     ],
+  },
+  build: {
+    target: 'es2020',
+    cssMinify: true,
+    modulePreload: {
+      polyfill: false,
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-core': ['open20-core'],
+          'vendor-content': ['@open20/content-srd'],
+          'vendor-ui': ['@open20/ui'],
+        },
+      },
+    },
   },
 });

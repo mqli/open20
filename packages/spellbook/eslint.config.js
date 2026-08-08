@@ -3,6 +3,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import { baseConfig, browserConfig } from '@open20/config/eslint';
 
 export default [
+  { ignores: ['dev-dist/**'] },
   ...baseConfig,
   browserConfig,
   {

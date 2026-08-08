@@ -67,7 +67,33 @@ src/
 - **Cross-store subscriptions in useTileRecalc hook** — paper/grid changes trigger tile recalculation with 200ms debounce
 - **Known-DPI proximity scoring** — auto-detect uses tiered scoring (2x/1.5x/1x/0.5x) based on distance from known DPI values
 - **Downscale compensation** — auto-detect downsamples images for performance, then scales results back to original coordinates
-- **jspdf imported statically** (not dynamic import) — avoids chunk issue but adds ~200KB to bundle
+- **jsPDF dynamically imported** — loaded on demand in `usePdfGenerator.ts` when user clicks Export (saves ~392KB from initial bundle)
+- **React.lazy code splitting** — ExportDialog, UploadDialog, GridPanel are lazy-loaded with Suspense; gridCalibration engine (snapCorner, detectGridFromRegion) dynamically imported in MapCanvas.handleMouseUp
+
+## Performance
+
+### Build Configuration
+
+- `build.target: 'es2020'` — modern browser target, no transpilation overhead
+- `build.modulePreload.polyfill: false` — all modern browsers support native module preload
+- `build.cssMinify: true` — explicit (default), CSS minified by esbuild
+- `build.rollupOptions.output.manualChunks` — React split to vendor-react chunk for caching
+
+### Preconnect Hints
+
+- `index.html` has `<link rel="preconnect" href="https://static.cloudflareinsights.com" crossorigin>` for Cloudflare analytics
+
+### Bundle Splits
+
+| Chunk              | Size (gzip)     | When loaded                                   |
+| ------------------ | --------------- | --------------------------------------------- |
+| Main entry (index) | 230 KB (72 KB)  | Always                                        |
+| vendor-react       | 12 KB (4 KB)    | Always                                        |
+| ExportDialog       | 5 KB (2 KB)     | Click "Export"                                |
+| UploadDialog       | 6 KB (2 KB)     | Click "Upload"                                |
+| GridPanel          | 10 KB (3 KB)    | Image loaded                                  |
+| gridCalibration    | 6 KB (3 KB)     | First calibration                             |
+| pdfGenerator       | 392 KB (129 KB) | Click "Export" (jsPDF + html2canvas + purify) |
 
 ## Key Rules
 

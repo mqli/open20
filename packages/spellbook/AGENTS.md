@@ -152,6 +152,54 @@ Available wrapped components:
 - Character data goes in `useCharacterStore`
 - Spell data goes in `useSpellStore`
 
+### Code Splitting
+
+- Modals (CustomSpellModal, CustomClassModal, ImportSpellsDialog, CharacterImportDialog, CharacterModal) are lazy-loaded with `React.lazy` + `<Suspense fallback={null}>`
+- `DiceRollOverlay` from `@open20/ui` is lazy-loaded in `App.tsx`
+- `exportCharacter` uses dynamic `import()` for heavy character import/export utilities
+- All lazy boundaries are in `SpellLibraryLayout.tsx` (modals) and `App.tsx` (DiceRollOverlay)
+
+### Bootstrap
+
+- `initContent()` runs in parallel with React render in `main.tsx` — app shell renders immediately
+- `SpellLibraryLayout` shows its own loading spinner while content initializes (`isLoading` state)
+- `spellService` handles uninitialized state gracefully (`isReady()` check, returns `[]`)
+
+## Performance
+
+### Build Configuration
+
+- `build.target: 'es2020'` — modern browser target
+- `build.modulePreload.polyfill: false` — native module preload supported by all modern browsers
+- `build.rollupOptions.output.manualChunks` — vendor separation for long-term browser caching:
+  - `vendor-core`: `open20-core` (~107 KB)
+  - `vendor-content`: `@open20/content-srd` (~705 KB)
+  - `vendor-ui`: `@open20/ui` (~529 KB)
+
+### Preconnect Hints
+
+- `index.html` has `<link rel="preconnect" href="https://www.googletagmanager.com">` for Google Analytics
+
+### Bundle Splits
+
+| Chunk                         | Size (gzip)     | When loaded                       |
+| ----------------------------- | --------------- | --------------------------------- |
+| Main entry (index)            | 280 KB (85 KB)  | Always                            |
+| vendor-core                   | 107 KB (30 KB)  | Always (cached)                   |
+| vendor-content                | 705 KB (157 KB) | Always (cached)                   |
+| vendor-ui                     | 529 KB (147 KB) | Always (cached)                   |
+| DiceRollOverlay               | —               | First dice roll (from @open20/ui) |
+| CustomSpellModal              | 4 KB (2 KB)     | Create/Edit custom spell          |
+| CustomClassModal              | 18 KB (5 KB)    | Class Manager                     |
+| ImportSpellsDialog            | 6 KB (2 KB)     | Import spells                     |
+| CharacterImportDialog         | 8 KB (2 KB)     | Import character                  |
+| CharacterModal                | —               | Mobile: Edit character            |
+| character-import-export-utils | 5 KB (2 KB)     | Export character                  |
+
+### ESLint
+
+- `dev-dist/**` is in top-level `ignores` (PWA plugin generated files)
+
 ### Styling
 
 - Use Tailwind CSS utility classes
