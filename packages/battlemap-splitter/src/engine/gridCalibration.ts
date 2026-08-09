@@ -677,7 +677,7 @@ export function detectGridFromRegion(
   const allSpacings = [...vSpacings, ...hSpacings];
   const avgSpacing = allSpacings.reduce((a, b) => a + b, 0) / allSpacings.length;
 
-  const cellPx = Math.max(MIN_CELL_PX, Math.round(avgSpacing));
+  const cellPx = Math.max(MIN_CELL_PX, Math.round(avgSpacing * 10) / 10);
 
   // ── Compute offset: mean of (linePos % cellPx) across all detected lines ──
   const xOffsets = absVLines.map((l) => ((l % cellPx) + cellPx) % cellPx);

@@ -173,7 +173,7 @@ export function hitTestTile(
     const row = tiles[ri];
     for (let ci = row.length - 1; ci >= 0; ci--) {
       const tile = row[ci];
-      if (tile.isEmpty) continue;
+      if (tile.isEmpty || !tile.selected) continue;
       const bb = tileAABB(tile);
       if (mx >= bb.x && mx <= bb.x + bb.w && my >= bb.y && my <= bb.y + bb.h) {
         return { row: tile.row, col: tile.col };

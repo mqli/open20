@@ -53,18 +53,26 @@ export function GridPanel({
           <div className="flex items-center gap-0.5">
             <button
               type="button"
-              onClick={() => adjustCellPx(-1)}
+              onClick={() => adjustCellPx(-0.5)}
               className="w-5 h-5 flex items-center justify-center rounded text-text-disabled hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
               title="Decrease DPI"
             >
               <Minus size={12} />
             </button>
-            <span className="text-xs font-mono text-primary-400 tabular-nums w-10 text-center">
-              {cellPx}
-            </span>
+            <input
+              type="number"
+              value={cellPx % 1 === 0 ? cellPx : cellPx.toFixed(1)}
+              min={10}
+              step={0.1}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                if (!isNaN(v)) useGridStore.getState().setCellPx(v);
+              }}
+              className="w-12 h-5 bg-transparent text-xs font-mono text-primary-400 tabular-nums text-center border border-border-primary rounded outline-none focus:border-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
             <button
               type="button"
-              onClick={() => adjustCellPx(1)}
+              onClick={() => adjustCellPx(0.5)}
               className="w-5 h-5 flex items-center justify-center rounded text-text-disabled hover:bg-bg-tertiary hover:text-text-secondary transition-colors"
               title="Increase DPI"
             >

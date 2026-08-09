@@ -497,9 +497,10 @@ export function MapCanvas({
           w = Math.abs(Math.max(tl.x, tr.x, bl.x, br.x) - x);
           h = Math.abs(Math.max(tl.y, tr.y, bl.y, br.y) - y);
         }
-        const cellPx = Math.floor((w / 2 + h / 2) / 2);
+        const rawCellPx = (w / 2 + h / 2) / 2;
+        const cellPx = Math.max(10, Math.round(rawCellPx * 10) / 10);
         const grid = useGridStore.getState();
-        grid.setCellPx(Math.max(10, cellPx));
+        grid.setCellPx(cellPx);
         grid.setOffset(Math.round(x % cellPx), Math.round(y % cellPx));
         useGridStore.setState({ visible: true, tileOverlayVisible: true });
       } else {
@@ -705,9 +706,10 @@ export function MapCanvas({
           h = Math.abs(Math.max(tl.y, tr.y, bl.y, br.y) - y);
         }
 
-        const cellPx = Math.floor((w / 2 + h / 2) / 2);
+        const rawCellPx = (w / 2 + h / 2) / 2;
+        const cellPx = Math.max(10, Math.round(rawCellPx * 10) / 10);
         const grid = useGridStore.getState();
-        grid.setCellPx(Math.max(10, cellPx));
+        grid.setCellPx(cellPx);
         grid.setOffset(Math.round(x % cellPx), Math.round(y % cellPx));
         useGridStore.setState({ visible: true, tileOverlayVisible: true });
       } else {
