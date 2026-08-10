@@ -16,7 +16,7 @@ Item row: name, key stat (damage/AC), equipped checkmark toggle, remove `[-]`. E
 
 **Depends on:** T-202, T-005 · Search + category filter over SRD weapons/armor/gear (ContentResolver getters), `[+]` to add; custom manual entry (name/type/weight). **Store:** `addEquipment` w/ synthetic `EquipmentItem`. **Accept:** add SRD + custom persist. **Tests:** filter; add SRD; add custom.
 
-### T-204 — CurrencyRow (FR-126) — §6.8
+### T-204 — CurrencyRow (FR-126) — §6.8 — ✅ done
 
 5 columns CP/SP/EP/GP/PP, coin icon + amount + `[-]/[+]` stepper (≥44px). **Store:** `modifyCurrency(char, Partial<Currency>)`. **Accept:** displays `character.currency`; steppers adjust + persist; no negative (clamp or verify core). **Tests:** stepper → `modifyCurrency` partial; render five.
 

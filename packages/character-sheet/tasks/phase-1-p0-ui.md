@@ -115,15 +115,15 @@ Confirmation dialog ("Are you sure? This cannot be undone.") → **Store `delete
 
 **Depends on:** T-005 · Sidebar identity card: resolved name, `Lvl N Class`, HP + AC/Init/Speed/PP/PB (read-only). **Accept:** shows resolved identity + stats. **Tests:** render from fixture.
 
-### T-124 — HeroStrip (mobile) (FR-141) — §4.2
+### T-124 — HeroStrip (mobile) (FR-141) — §4.2 — ✅ done
 
 **Depends on:** T-005 · Sticky compact strip: **HP + AC + PB only**; tap expands full combat overlay. **Accept:** compact strip; tap expands. **Tests:** compact render; expand toggle.
 
-### T-125 — Sidebar + nav tabs (desktop) (FR-140, FR-142) — §4.1
+### T-125 — Sidebar + nav tabs (desktop) (FR-140, FR-142) — §4.1 — ✅ done
 
 **Depends on:** T-123 · Fixed 250px sidebar: HeroCard + vertical nav tabs (Combat/Abil/Skills/Spells/Equip/Feat/Notes) + rest-buttons slot + char-mgmt slot. Nav selects active section. **Accept:** nav switches section (no state mutation); sticky rest area. **Tests:** nav selection.
 
-### T-126 — BottomTabBar + MoreMenu (mobile) (FR-141) — §4.2
+### T-126 — BottomTabBar + MoreMenu (mobile) (FR-141) — §4.2 — ✅ done
 
 56px bottom bar: Combat/Skills/Spells/More; active = `--color-primary-600`. "More" → Equipment/Features/Notes/Settings/Rest overflow. **Accept:** tab selects/scrolls to section; More opens overflow. **Tests:** tab selection; More menu.
 

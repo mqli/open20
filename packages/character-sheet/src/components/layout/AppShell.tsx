@@ -36,7 +36,8 @@ const ALL_SECTIONS: SectionKey[] = [
 
 export function AppShell() {
   const { isDesktop } = useIsLargeScreen();
-  const { character, error, modifyHP, toggleDeathSave, toggleInspiration } = useCharacterStore();
+  const { character, error, modifyHP, toggleDeathSave, toggleInspiration, modifyCurrency } =
+    useCharacterStore();
 
   // Accordion state: combat is always expanded.
   // Desktop: all sections start expanded (multi-open).
@@ -184,6 +185,7 @@ export function AppShell() {
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
           toggleInspiration={toggleInspiration}
+          modifyCurrency={modifyCurrency}
         />
 
         {/* Character dialogs — render at top level */}
@@ -251,6 +253,7 @@ export function AppShell() {
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
           toggleInspiration={toggleInspiration}
+          modifyCurrency={modifyCurrency}
           className="pb-4"
         />
       </div>

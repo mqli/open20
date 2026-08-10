@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import {
   createCharacter as coreCreateCharacter,
   modifyHP as coreModifyHP,
+  modifyCurrency as coreModifyCurrency,
   setTemporaryHP as coreSetTemporaryHP,
   recomputeDerivedStats,
   shortRest as coreShortRest,
@@ -21,6 +22,7 @@ import {
   type AbilityName,
   type Character,
   type CharacterClass,
+  type Currency,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
 } from 'open20-core';
@@ -93,6 +95,8 @@ interface CharacterSheetState {
   longRest: () => void;
   /** Toggle inspiration on/off. */
   toggleInspiration: () => void;
+  /** Modify currency amounts (Positive = add, negative = spend; core clamps to 0). */
+  modifyCurrency: (delta: Partial<Currency>) => void;
   /** Cast a spell: resolve spell, call core castSpell, push roll to overlay, handle concentration, persist. */
   castSpell: (spellId: string, slotLevel: SpellLevel) => void;
   /** End concentration on the active character (persists + clears lastDamageForConcentration). */
@@ -295,6 +299,13 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       const active = get().character;
       if (!active) return;
       const next: AppCharacter = { ...coreToggleInspiration(active), id: active.id };
+      persist(next);
+    },
+
+    modifyCurrency: (delta) => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = { ...coreModifyCurrency(active, delta), id: active.id };
       persist(next);
     },
 

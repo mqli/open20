@@ -165,20 +165,28 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-120 CharacterCreateWizard (3 steps; point buy / standard array / manual)
 - ✅ T-121 CharacterEditDialog (edit any character field — completes CRUD alongside T-120)
 - ✅ T-122 DeleteConfirm (confirmation dialog for character deletion)
+- ✅ T-124 HeroStrip (mobile compact combat summary)
+- ✅ T-125 Sidebar + nav tabs (desktop)
+- ✅ T-126 MobileBottomBar + MoreMenu
 - ✅ T-127 Sheet assembly (accordion layout)
 - ✅ T-128 App states (loading skeleton, reduced-motion, error polish)
-- ��� 3 remaining P0 tasks: T-124~T-126
 
-**Phase 2 (P1) and Phase 3 (P2):** Not started.
+**Phase 1 (P0 UI): COMPLETE — all 28 tasks done.**
 
-### Unblocked tasks to pick up next
+**Phase 2 (P1):**
 
-The highest-value unblocked P0 tasks, in recommended order:
+- ✅ T-204 CurrencyRow
 
-| Task  | What                                      | Why first                                                         |
-| ----- | ----------------------------------------- | ----------------------------------------------------------------- |
-| T-124 | HeroStrip — compact mobile combat summary | Already built and wired — needs tests plus small spec gaps closed |
-| T-125 | Sidebar + nav tabs (desktop)              | Already built and wired — needs tests plus small spec gaps closed |
-| T-126 | MobileBottomBar + MoreMenu                | Already built and wired — needs tests plus small spec gaps closed |
+**Phase 3 (P2):** Not started.
+
+### Unblocked P1 tasks to pick up next
+
+All Phase 1 tasks are complete. Phase 2 (19 tasks) is now fully unblocked. High-impact P1 tasks to consider first:
+
+| Task  | What                  | Why first                                                |
+| ----- | --------------------- | -------------------------------------------------------- |
+| T-201 | Equipment card + list | Core inventory management, prerequisite for T-202/T-203  |
+| T-207 | Condition add/remove  | Depends only on core condition mutations                 |
+| T-219 | Inspiration cell      | Small, unblocked (T-014 done); fills CombatStatsBar slot |
 
 All Phase 0.5 core extensions (T-010–T-016) are done, so T-219 (inspiration), T-208 (exhaustion) and T-215 (senses) are **unblocked**.

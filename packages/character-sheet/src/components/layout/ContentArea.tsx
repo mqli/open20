@@ -13,6 +13,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { isConcentrating, getConcentratingSpellId, calculateConcentrationDC } from 'open20-core';
+import type { Currency } from 'open20-core';
 import type { AbilityName } from 'open20-core/types';
 import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
@@ -34,6 +35,7 @@ import {
 import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
+import { CurrencyRow } from '@/components/character/Currency';
 import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import type { SectionKey } from './Sidebar';
@@ -46,6 +48,7 @@ export interface ContentAreaProps {
   modifyHP: (delta: number) => void;
   toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
   toggleInspiration?: () => void;
+  modifyCurrency?: (delta: Partial<Currency>) => void;
   className?: string;
 }
 
@@ -226,6 +229,26 @@ function FeaturesSection({ character }: { character: AppCharacter }) {
   );
 }
 
+// ─── Equipment Section (internal) ──────────────────────────
+
+function EquipmentSection({
+  character,
+  modifyCurrency,
+}: {
+  character: AppCharacter;
+  modifyCurrency?: (delta: Partial<Currency>) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <CurrencyRow currency={character.currency} onModify={modifyCurrency ?? (() => {})} />
+      <PlaceholderSection
+        title="Equipment"
+        description="Weapons, armor, and gear management coming soon."
+      />
+    </div>
+  );
+}
+
 // ─── Placeholder Section (internal) ────────────────────────
 
 function PlaceholderSection({ title, description }: { title: string; description: string }) {
@@ -267,6 +290,7 @@ export function ContentArea({
   modifyHP,
   toggleDeathSave,
   toggleInspiration,
+  modifyCurrency,
   className,
 }: ContentAreaProps) {
   const renderSectionContent = (key: SectionKey) => {
@@ -287,12 +311,7 @@ export function ContentArea({
       case 'spells':
         return <SpellsSection character={character} />;
       case 'equipment':
-        return (
-          <PlaceholderSection
-            title="Equipment"
-            description="Inventory management coming soon. Track weapons, armor, gear, and currency."
-          />
-        );
+        return <EquipmentSection character={character} modifyCurrency={modifyCurrency} />;
       case 'features':
         return <FeaturesSection character={character} />;
       case 'notes':
