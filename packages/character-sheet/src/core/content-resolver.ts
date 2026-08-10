@@ -142,6 +142,9 @@ export const getSpeciesById = (id: string): Species | undefined =>
 export const getBackgroundById = (id: string): Background | undefined =>
   findBackground(id, getContentPack());
 
+/** Look up a Class by its id (e.g. "Wizard") — used by ClassFeaturesPanel. */
+export const getClassById = (id: string): Class | undefined => findClass(id, getContentPack());
+
 /** Look up a Feat by its id (e.g. "alert") — used by FeatList. */
 export const getFeatById = (id: string): Feat | undefined => findFeat(id, getContentPack());
 

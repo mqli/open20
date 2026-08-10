@@ -40,7 +40,8 @@ describe('SpeciesPanel', () => {
     const char = makeCharacter({ speciesId: 'Elf' });
     render(<SpeciesPanel character={char} />);
     // Elf baseTraits: Darkvision, Fey Ancestry, Trance, Keen Senses
-    expect(screen.getByText('Darkvision')).toBeInTheDocument();
+    // Note: Darkvision appears both as a sense row AND a trait card
+    expect(screen.getAllByText('Darkvision').length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText('Fey Ancestry')).toBeInTheDocument();
     expect(screen.getByText('Trance')).toBeInTheDocument();
     expect(screen.getByText('Keen Senses')).toBeInTheDocument();
@@ -55,11 +56,51 @@ describe('SpeciesPanel', () => {
     expect(screen.getByText('Cantrip')).toBeInTheDocument();
   });
 
-  it('renders T-215 senses placeholder', () => {
-    const char = makeCharacter();
+  // --- T-215: Senses ---
+
+  it('renders Darkvision with range for High Elf', () => {
+    const char = makeCharacter({ speciesId: 'Elf' });
+    const charWithSubtype = { ...char, speciesSubtype: 'High Elf' } as typeof char;
+    render(<SpeciesPanel character={charWithSubtype} />);
+
+    // Senses section heading
+    expect(screen.getByText('Senses')).toBeInTheDocument();
+    // Darkvision 60 ft
+    expect(screen.getByText('60 ft.')).toBeInTheDocument();
+    // Darkvision appears in both senses section and traits section
+    const darkvisionTexts = screen.getAllByText('Darkvision');
+    expect(darkvisionTexts.length).toBeGreaterThanOrEqual(2); // sense row + trait card
+  });
+
+  it('shows no senses section when species has none', () => {
+    // Human has no darkvision
+    const char = makeCharacter({ speciesId: 'Human' });
     render(<SpeciesPanel character={char} />);
-    expect(screen.getByText('Senses, Languages & Size')).toBeInTheDocument();
-    expect(screen.getByText('Coming in the next update')).toBeInTheDocument();
+
+    expect(screen.queryByText('Senses')).not.toBeInTheDocument();
+  });
+
+  // --- T-215: Languages ---
+
+  it('renders languages as badges for High Elf', () => {
+    const char = makeCharacter({ speciesId: 'Elf' });
+    const charWithSubtype = { ...char, speciesSubtype: 'High Elf' } as typeof char;
+    render(<SpeciesPanel character={charWithSubtype} />);
+
+    expect(screen.getByText('Languages')).toBeInTheDocument();
+    expect(screen.getByText('Common')).toBeInTheDocument();
+    expect(screen.getByText('Elvish')).toBeInTheDocument();
+  });
+
+  // --- T-215: Size label ---
+
+  it('renders explicit size label for High Elf', () => {
+    const char = makeCharacter({ speciesId: 'Elf' });
+    const charWithSubtype = { ...char, speciesSubtype: 'High Elf' } as typeof char;
+    render(<SpeciesPanel character={charWithSubtype} />);
+
+    expect(screen.getByText('Size:')).toBeInTheDocument();
+    expect(screen.getByText('Medium')).toBeInTheDocument();
   });
 
   // --- expand/collapse ---

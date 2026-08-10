@@ -1,21 +1,60 @@
-// SpeciesPanel.tsx (T-111)
-// Displays species name, subtype, traits as expandable cards.
+// SpeciesPanel.tsx (T-111 / T-215)
+// Displays species name, subtype, senses, traits, languages, and size.
 // Desktop: traits expanded by default. Mobile: collapsed.
 // NFR-01: chevron + color for expand state. NFR-02: >=44px tap targets.
-// T-215 slot: placeholder for senses/languages/size.
+// T-215 added: senses (darkvision/blindsight/tremorsense/truesight), languages, size.
 
 import { useState, useMemo } from 'react';
-import { ChevronDown, Leaf } from 'lucide-react';
+import { ChevronDown, Eye, Ear, Radar, Zap, Leaf } from 'lucide-react';
 import { Surface, Text, Badge, Button, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
-import { getSpeciesById, getSpeciesName } from '@/core/content-resolver';
+import {
+  getSpeciesById,
+  getSpeciesName,
+  getSpeciesSenses,
+  getSpeciesLanguages,
+  getSpeciesSize,
+} from '@/core/content-resolver';
 import type { Species, SpeciesTrait, SpeciesSubtype } from 'open20-core';
+import type { SenseInfo } from '@open20/content-srd/query/catalog';
 import { useIsLargeScreen } from '@/hooks/useIsLargeScreen';
 
 export interface SpeciesPanelProps {
   character: AppCharacter;
   className?: string;
 }
+
+// ─── Sense icons ─────────────────────────────────────────────
+
+const SENSE_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>
+> = {
+  Darkvision: Eye,
+  Blindsight: Ear,
+  Tremorsense: Radar,
+  Truesight: Zap,
+};
+
+function SenseRow({ sense }: { sense: SenseInfo }) {
+  const Icon = SENSE_ICONS[sense.name] ?? Eye;
+
+  return (
+    <div className="flex items-center gap-2">
+      <Icon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
+      <Text variant="labelSm" weight="medium">
+        {sense.name}
+      </Text>
+      {sense.range !== undefined && (
+        <Text variant="labelSm" color="secondary">
+          {sense.range} ft.
+        </Text>
+      )}
+    </div>
+  );
+}
+
+// ─── Trait helpers ────────────────────────────────────────────
 
 /** Look up the matching subtype object from species data. */
 function findSubtype(
@@ -97,20 +136,6 @@ function TraitCard({ trait, initiallyExpanded }: TraitCardProps) {
   );
 }
 
-/** Future: senses/languages/size placeholder (T-215). */
-function SensesPlaceholder() {
-  return (
-    <div className="rounded-lg border border-dashed border-border bg-bg-tertiary/50 p-2">
-      <Text variant="labelSm" color="secondary" className="mb-1">
-        Senses, Languages & Size
-      </Text>
-      <Text variant="bodySm" color="secondary">
-        Coming in the next update
-      </Text>
-    </div>
-  );
-}
-
 export function SpeciesPanel({ character, className }: SpeciesPanelProps) {
   const { isDesktop } = useIsLargeScreen();
   const species = useMemo(() => getSpeciesById(character.species), [character.species]);
@@ -119,6 +144,11 @@ export function SpeciesPanel({ character, className }: SpeciesPanelProps) {
     [species, character.speciesSubtype],
   );
   const traits = useMemo(() => collectTraits(species, subtype), [species, subtype]);
+
+  // T-215: senses, languages, size from T-016 API
+  const senses = useMemo(() => getSpeciesSenses(character), [character]);
+  const languages = useMemo(() => getSpeciesLanguages(character), [character]);
+  const sizeLabel = useMemo(() => getSpeciesSize(character), [character]);
 
   // Unknown species fallback
   if (!species) {
@@ -157,7 +187,7 @@ export function SpeciesPanel({ character, className }: SpeciesPanelProps) {
           {speciesLabel}
         </Badge>
         <Text variant="bodySm" color="secondary">
-          {species.size}, {species.speed} ft
+          {sizeLabel}, {species.speed} ft
         </Text>
       </div>
 
@@ -168,8 +198,19 @@ export function SpeciesPanel({ character, className }: SpeciesPanelProps) {
         </Text>
       )}
 
-      {/* T-215 slot: senses / languages / size placeholder */}
-      <SensesPlaceholder />
+      {/* T-215: Senses */}
+      {senses.length > 0 && (
+        <div>
+          <Text variant="labelSm" color="secondary" className="mb-1.5 uppercase tracking-wide">
+            Senses
+          </Text>
+          <div className="flex flex-col gap-1">
+            {senses.map((sense) => (
+              <SenseRow key={sense.name} sense={sense} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Traits */}
       {traits.length > 0 && (
@@ -184,6 +225,32 @@ export function SpeciesPanel({ character, className }: SpeciesPanelProps) {
           </div>
         </div>
       )}
+
+      {/* T-215: Languages */}
+      {languages.length > 0 && (
+        <div>
+          <Text variant="labelSm" color="secondary" className="mb-1.5 uppercase tracking-wide">
+            Languages
+          </Text>
+          <div className="flex flex-wrap gap-1">
+            {languages.map((lang) => (
+              <Badge key={lang} variant="secondary" size="sm">
+                {lang}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* T-215: Size (explicit label below traits, even though also in header) */}
+      <div className="flex items-center gap-2">
+        <Text variant="labelSm" color="secondary" className="uppercase tracking-wide">
+          Size:
+        </Text>
+        <Text variant="bodySm" weight="medium">
+          {sizeLabel}
+        </Text>
+      </div>
     </Surface>
   );
 }

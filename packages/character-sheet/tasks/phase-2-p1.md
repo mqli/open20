@@ -60,11 +60,11 @@ Three groups from `character.damageDefenses`: Resistances/Immunities/Vulnerabili
 
 **Depends on:** T-211, T-212, T-213 · Orchestrate steps → assemble `LevelUpOptions {classId, subclassId?, hpChoice, asiOrFeat?, newSpells?, isNewClass?}` → **Store `levelUp(char, options, deps, levelRng)`** → recompute → persist → **change summary** (HP/slots/DC/prepared deltas). ⚠️ FR-136: ensure core `levelUp` multiclass spell-slot path has explicit test coverage before shipping (add a core test PR if missing). **Accept:** single + multiclass level-up produce correct recomputed character; summary shown. **Tests:** options assembly end-to-end; `levelUp` w/ correct options + rng; summary deltas.
 
-### T-215 — Senses / Languages / Size display (FR-159~161) — §6.7
+### T-215 — Senses / Languages / Size display (FR-159~161) — §6.7 ✅ done
 
 **Depends on:** T-016, T-111 · Extend `SpeciesPanel`: senses (darkvision/blindsight/tremorsense/truesight w/ range + icon), languages (badges), size label — via the T-016 API. Fallbacks when absent. **Accept:** High Elf → Darkvision 60 ft, Common+Elvish, Medium; no-species defaults. **Tests:** both fixtures.
 
-### T-216 — ClassFeaturesPanel (FR-162) — §6.7
+### T-216 — ClassFeaturesPanel (FR-162) — §6.7 ✅ done
 
 **Depends on:** T-005 · Per class, features up to `classes[].level` from `Class.featuresByLevel` (`getClassFeaturesUpToLevel`), expandable cards w/ description, resolved names. **Accept:** Wizard 5 → level-appropriate features expandable. **Tests:** filtered by level; expand; unknown class empty.
 
