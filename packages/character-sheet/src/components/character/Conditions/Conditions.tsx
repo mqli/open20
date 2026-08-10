@@ -5,9 +5,10 @@
 import { useMemo, useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import type { ConditionName, ActiveCondition } from 'open20-core';
-import { Text, Button, Badge, cn, DropdownMenu } from '@open20/ui';
+import { Text, Button, cn, DropdownMenu } from '@open20/ui';
 import { srdContentPack } from '@open20/content-srd';
 import { getGlossaryEntriesByTag } from '@open20/content-srd/query/glossary';
+import { ExhaustionTracker } from './ExhaustionTracker';
 
 // ─── Helpers ───────────────────────────────────────────────
 
@@ -167,11 +168,8 @@ export function ConditionsPanel({ conditions, onToggle, className }: ConditionsP
   const descriptions = useConditionDescriptions();
   const activeIds = useMemo(() => new Set(conditions.map((c) => c.id)), [conditions]);
 
-  // Filter out Exhaustion (handled by T-208)
+  // Filter out Exhaustion (displayed by ExhaustionTracker below)
   const visible = conditions.filter((c) => c.id !== EXCLUDED);
-
-  // Exhaustion active indicator (placeholder for T-208)
-  const hasExhaustion = conditions.some((c) => c.id === EXCLUDED);
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
@@ -185,11 +183,11 @@ export function ConditionsPanel({ conditions, onToggle, className }: ConditionsP
           />
         ))}
 
-        {/* Exhaustion indicator (placeholder until T-208) */}
-        {hasExhaustion && <Badge variant="warning">Exhaustion (T-208)</Badge>}
-
         <AddConditionMenu activeIds={activeIds} onToggle={onToggle} />
       </div>
+
+      {/* T-208: Exhaustion stepper replaces the old placeholder badge */}
+      <ExhaustionTracker />
     </div>
   );
 }

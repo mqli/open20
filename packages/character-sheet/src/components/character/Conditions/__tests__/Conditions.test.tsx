@@ -199,21 +199,28 @@ describe('ConditionsPanel', () => {
     expect(screen.getByRole('button', { name: 'Add condition' })).toBeInTheDocument();
   });
 
-  it('hides Exhaustion chips (reserved for T-208)', () => {
+  it('shows Exhaustion as tracker, not as dismissible chip', () => {
     const conditions = [makeCondition('Exhaustion'), makeCondition('Blinded')];
     render(<ConditionsPanel conditions={conditions} onToggle={() => {}} />);
 
     // Blinded chip should appear
     expect(screen.getByText('Blinded')).toBeInTheDocument();
-    // Exhaustion chip label should not appear as a standalone text
-    // (The placeholder badge will show "Exhaustion (T-208)" which CONTAINS the word)
-    const exhaustionChip = screen.queryByText(/^Exhaustion$/);
-    expect(exhaustionChip).not.toBeInTheDocument();
+
+    // Exhaustion should NOT appear as a dismissible chip (no X button next to it)
+    const chipLabels = screen.getAllByText('Exhaustion');
+    // Should be present (tracker label) not absent
+    expect(chipLabels.length).toBeGreaterThanOrEqual(1);
+
+    // No X button for removing Exhaustion as a chip
+    expect(screen.queryByRole('button', { name: 'Remove Exhaustion' })).not.toBeInTheDocument();
   });
 
-  it('shows Exhaustion placeholder badge when exhaustion is active', () => {
+  it('renders ExhaustionTracker when exhaustion is active', () => {
     const conditions = [makeCondition('Exhaustion')];
     render(<ConditionsPanel conditions={conditions} onToggle={() => {}} />);
-    expect(screen.getByText(/Exhaustion/)).toBeInTheDocument();
+
+    // The tracker shows the exhaustion label and stepper
+    expect(screen.getByText('Exhaustion')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Increase exhaustion level' })).toBeInTheDocument();
   });
 });

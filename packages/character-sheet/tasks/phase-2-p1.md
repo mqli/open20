@@ -32,7 +32,7 @@ Per class: `Class dN used/level [Spend]` (total = class level; from `CharacterCl
 
 `ConditionChip` (dismissible, `--color-warning`, non-color label cue) + `AddConditionMenu` (dropdown of 15 `ConditionName`s minus Exhaustion, w/ descriptions from SRD glossary if available). **Store:** `toggleCondition`. **Accept:** add/remove conditions. **Tests:** chip dismiss; menu lists 15; add.
 
-### T-208 — ExhaustionTracker (FR-158) — §6.10
+### T-208 — ExhaustionTracker (FR-158) — §6.10 ✅ done
 
 **Depends on:** T-015 · 0–6 stepper stored as `ActiveCondition {name:'Exhaustion', level}`; live penalty text ("−{2×lvl} D20 Tests, −{5×lvl} ft Speed"); `--color-danger` tint at ≥4. Level change updates the Exhaustion condition (confirm core's representation; add tiny helper if needed). Actual roll/speed penalties come from T-015. **Accept:** level drives text (+ real penalties via T-015); tint ≥4. **Tests:** penalty text at 0/2/6; tint ≥4.
 

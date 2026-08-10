@@ -107,6 +107,8 @@ interface CharacterSheetState {
   modifyCurrency: (delta: Partial<Currency>) => void;
   /** Toggle a condition on/off on the active character. */
   toggleCondition: (conditionId: ConditionName) => void;
+  /** Set exhaustion level (0-6). Level 0 removes exhaustion. */
+  setExhaustionLevel: (level: number) => void;
   /** Equip an item and recompute derived stats (AC, attacks). */
   equipItem: (itemId: string) => void;
   /** Unequip an item and recompute derived stats (AC, attacks). */
@@ -339,6 +341,44 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
         ...coreToggleCondition(active, conditionId),
         id: active.id,
       };
+      persist(next);
+    },
+
+    setExhaustionLevel: (level) => {
+      const active = get().character;
+      if (!active) return;
+      const clamped = Math.max(0, Math.min(6, Math.round(level)));
+
+      let newConditions = [...active.conditions];
+      const exhaustionIdx = newConditions.findIndex((c) => c.id === 'Exhaustion');
+
+      if (clamped === 0) {
+        // Remove exhaustion if it exists
+        if (exhaustionIdx !== -1) {
+          newConditions = newConditions.filter((_, i) => i !== exhaustionIdx);
+        }
+      } else if (exhaustionIdx !== -1) {
+        // Update existing exhaustion level
+        newConditions[exhaustionIdx] = {
+          ...newConditions[exhaustionIdx]!,
+          level: clamped,
+        };
+      } else {
+        // Add new exhaustion condition
+        newConditions.push({
+          id: 'Exhaustion' as ConditionName,
+          source: '',
+          appliedAt: new Date().toISOString(),
+          level: clamped,
+        });
+      }
+
+      // Recompute derived stats since exhaustion affects speed
+      const updated = recomputeDerivedStats(
+        { ...active, conditions: newConditions },
+        resolveDeps(active),
+      );
+      const next: AppCharacter = { ...updated, id: active.id };
       persist(next);
     },
 
