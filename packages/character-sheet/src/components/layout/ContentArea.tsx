@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { isConcentrating, getConcentratingSpellId, calculateConcentrationDC } from 'open20-core';
 import type { Currency } from 'open20-core';
+import type { DamageType } from 'open20-core';
 import type { EquipmentItem } from 'open20-core';
 import type { ConditionName } from 'open20-core';
 import type { AbilityName } from 'open20-core/types';
@@ -60,6 +61,10 @@ export interface ContentAreaProps {
   onToggleEquip?: (itemId: string) => void;
   onRemoveEquipment?: (itemId: string) => void;
   onAddEquipment?: (item: EquipmentItem) => void;
+  onToggleDamageDefense?: (
+    category: 'resistances' | 'immunities' | 'vulnerabilities',
+    damageType: DamageType,
+  ) => void;
   className?: string;
 }
 
@@ -71,6 +76,7 @@ function CombatSection({
   toggleDeathSave,
   toggleInspiration,
   toggleCondition,
+  onToggleDamageDefense,
 }: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'className'>) {
   const concentrating = isConcentrating(character);
   const concentratingSpellId = getConcentratingSpellId(character);
@@ -141,7 +147,10 @@ function CombatSection({
         <Divider />
 
         {/* Damage Defenses (T-210) */}
-        <DamageDefensesSection defenses={character.damageDefenses} />
+        <DamageDefensesSection
+          defenses={character.damageDefenses}
+          onToggle={onToggleDamageDefense ?? (() => {})}
+        />
 
         <Divider />
 
@@ -341,6 +350,7 @@ export function ContentArea({
   onToggleEquip,
   onRemoveEquipment,
   onAddEquipment,
+  onToggleDamageDefense,
   className,
 }: ContentAreaProps) {
   const renderSectionContent = (key: SectionKey) => {
@@ -353,6 +363,7 @@ export function ContentArea({
             toggleDeathSave={toggleDeathSave}
             toggleInspiration={toggleInspiration}
             toggleCondition={toggleCondition}
+            onToggleDamageDefense={onToggleDamageDefense}
           />
         );
       case 'abilities':

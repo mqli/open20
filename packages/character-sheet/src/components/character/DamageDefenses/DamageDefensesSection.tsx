@@ -1,20 +1,26 @@
 // DamageDefensesSection.tsx — T-210
 // Displays three groups from character.damageDefenses:
 // Resistances (Shield), Immunities (ShieldCheck), Vulnerabilities (ShieldOff).
-// Each group shows damage-type badges or "(none)" when empty.
-// NFR-01: icons provide non-colour cues.
+// Each group shows dismissible damage-type badges, plus an Add dropdown
+// to toggle damage types on/off. NFR-01: icons provide non-colour cues.
 
-import { Shield, ShieldCheck, ShieldOff } from 'lucide-react';
+import { useState } from 'react';
+import { Shield, ShieldCheck, ShieldOff, Plus, X } from 'lucide-react';
 import type { DamageDefenses, DamageType } from 'open20-core';
-import { Text, Badge, Surface, cn } from '@open20/ui';
+import { ALL_DAMAGE_TYPES } from 'open20-core';
+import { Text, Badge, Button, DropdownMenu, Surface, cn } from '@open20/ui';
 
 export interface DamageDefensesSectionProps {
   defenses: DamageDefenses;
+  onToggle: (
+    category: 'resistances' | 'immunities' | 'vulnerabilities',
+    damageType: DamageType,
+  ) => void;
   className?: string;
 }
 
 interface GroupDef {
-  key: keyof DamageDefenses;
+  key: 'resistances' | 'immunities' | 'vulnerabilities';
   label: string;
   icon: typeof Shield;
   variant: 'success' | 'info' | 'danger';
@@ -26,11 +32,11 @@ const GROUPS: GroupDef[] = [
   { key: 'vulnerabilities', label: 'Vulnerabilities', icon: ShieldOff, variant: 'danger' },
 ];
 
-function damageTypeBadge(type: DamageType): string {
-  return type;
-}
-
-export function DamageDefensesSection({ defenses, className }: DamageDefensesSectionProps) {
+export function DamageDefensesSection({
+  defenses,
+  onToggle,
+  className,
+}: DamageDefensesSectionProps) {
   return (
     <Surface variant="default" padding="sm" className={cn(className)}>
       <div className="flex flex-col gap-3">
@@ -54,13 +60,35 @@ export function DamageDefensesSection({ defenses, className }: DamageDefensesSec
                 <Text variant="labelSm" color="secondary">
                   {g.label}
                 </Text>
+
+                {/* Add dropdown */}
+                <AddDropdown
+                  group={g.key}
+                  activeTypes={new Set(items)}
+                  onSelect={(type) => onToggle(g.key, type)}
+                />
               </div>
 
               {hasItems ? (
                 <div className="flex flex-wrap gap-1">
                   {items.map((type) => (
-                    <Badge key={type} variant={g.variant}>
-                      {damageTypeBadge(type)}
+                    <Badge
+                      key={type}
+                      variant={g.variant}
+                      className="cursor-pointer"
+                      onClick={() => onToggle(g.key, type)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Remove ${type}`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onToggle(g.key, type);
+                        }
+                      }}
+                    >
+                      {type}
+                      <X className="ml-1 h-3 w-3 opacity-70" />
                     </Badge>
                   ))}
                 </div>
@@ -74,5 +102,52 @@ export function DamageDefensesSection({ defenses, className }: DamageDefensesSec
         })}
       </div>
     </Surface>
+  );
+}
+
+// ─── AddDropdown ────────────────────────────────────────────
+
+function AddDropdown({
+  group,
+  activeTypes,
+  onSelect,
+}: {
+  group: string;
+  activeTypes: Set<DamageType>;
+  onSelect: (type: DamageType) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const available = ALL_DAMAGE_TYPES.filter((t) => !activeTypes.has(t));
+
+  return (
+    <DropdownMenu.Root open={open} onOpenChange={setOpen}>
+      <DropdownMenu.Trigger asChild>
+        <Button variant="ghost" size="sm" className="-m-1 h-7 w-7 p-0" aria-label={`Add ${group}`}>
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="start" className="w-44">
+        {available.length === 0 ? (
+          <DropdownMenu.Label>
+            <Text variant="bodySm" color="secondary">
+              All types active
+            </Text>
+          </DropdownMenu.Label>
+        ) : (
+          available.map((type) => (
+            <DropdownMenu.Item
+              key={type}
+              onSelect={() => {
+                onSelect(type);
+                setOpen(false);
+              }}
+            >
+              {type}
+            </DropdownMenu.Item>
+          ))
+        )}
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
   );
 }

@@ -29,6 +29,7 @@ import {
   type CharacterClass,
   type ConditionName,
   type Currency,
+  type DamageType,
   type EquipmentItem,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
@@ -114,6 +115,11 @@ interface CharacterSheetState {
   removeEquipment: (itemId: string) => void;
   /** Add a new item to equipment (SRD picker or custom entry). */
   addEquipment: (item: EquipmentItem) => void;
+  /** Toggle a damage type defense (resist/immune/vuln) on/off. */
+  toggleDamageDefense: (
+    category: 'resistances' | 'immunities' | 'vulnerabilities',
+    damageType: DamageType,
+  ) => void;
   /** Cast a spell: resolve spell, call core castSpell, push roll to overlay, handle concentration, persist. */
   castSpell: (spellId: string, slotLevel: SpellLevel) => void;
   /** End concentration on the active character (persists + clears lastDamageForConcentration). */
@@ -359,6 +365,30 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       if (!active) return;
       const next: AppCharacter = {
         ...coreAddEquipment(active, item),
+        id: active.id,
+      };
+      persist(next);
+    },
+
+    toggleDamageDefense: (category, damageType) => {
+      const active = get().character;
+      if (!active) return;
+      const defenses = active.damageDefenses;
+      const list = defenses[category];
+
+      let updated: typeof defenses;
+      if (list.includes(damageType)) {
+        // Remove
+        updated = { ...defenses, [category]: list.filter((t) => t !== damageType) };
+      } else {
+        // Add
+        updated = { ...defenses, [category]: [...list, damageType] };
+      }
+
+      const next: AppCharacter = {
+        ...active,
+        damageDefenses: updated,
+        updatedAt: new Date().toISOString(),
         id: active.id,
       };
       persist(next);
