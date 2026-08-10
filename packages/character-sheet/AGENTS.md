@@ -177,6 +177,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 - ✅ T-204 CurrencyRow
 - ✅ T-207 Condition add/remove
+- ✅ T-219 Inspiration cell
 
 **Phase 3 (P2):** Not started.
 
@@ -187,7 +188,9 @@ All Phase 1 tasks are complete. Phase 2 (19 tasks) is now fully unblocked. High-
 | Task  | What                  | Why first                                                |
 | ----- | --------------------- | -------------------------------------------------------- |
 | T-201 | Equipment card + list | Core inventory management, prerequisite for T-202/T-203  |
-| T-207 | Condition add/remove  | Depends only on core condition mutations                 |
+| T-210 | DamageDefensesSection | Independent — displays resistances/immunities/vulns      |
+| T-205 | HitDiceRow            | Per-class HD display, needed for short rest dialog       |
+| T-208 | ExhaustionTracker     | Small, fills condition slot; depends on T-015 (done)     |
 | T-219 | Inspiration cell      | Small, unblocked (T-014 done); fills CombatStatsBar slot |
 
 All Phase 0.5 core extensions (T-010–T-016) are done, so T-219 (inspiration), T-208 (exhaustion) and T-215 (senses) are **unblocked**.

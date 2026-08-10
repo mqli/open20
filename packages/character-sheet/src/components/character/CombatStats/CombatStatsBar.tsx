@@ -46,11 +46,12 @@ export function CombatStatsBar({ character, onToggleInspiration, className }: Co
       {/* Proficiency Bonus — not rollable */}
       <CombatStatCard icon={Star} label="PB" value={fmt(combatStats.proficiencyBonus)} />
 
-      {/* Inspiration — toggleable */}
+      {/* Inspiration — toggleable, filled primary-400 when active */}
       <CombatStatCard
         icon={Sparkles}
         label="Insp"
         value={character.inspiration ? 'ON' : '—'}
+        iconClassName={character.inspiration ? 'text-primary-400' : undefined}
         onTap={onToggleInspiration}
       />
     </div>

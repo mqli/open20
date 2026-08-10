@@ -76,6 +76,6 @@ Three groups from `character.damageDefenses`: Resistances/Immunities/Vulnerabili
 
 **Depends on:** T-103 · ⚠️ **No core change** (README #2): use existing `base/racialBonuses/backgroundBonuses/featBonuses/featGrants/temporaryBonuses`. Expandable per-ability detail listing non-zero sources + total. **Accept:** STR expands to `base 15 + racial 1 = 16`. **Tests:** lists only non-zero sources; sums to total.
 
-### T-219 — Inspiration cell (FR-157) — §6.5
+### T-219 — Inspiration cell (FR-157) — §6.5 — ✅ done
 
 **Depends on:** T-014, T-108 · Fill CombatStatsBar's Inspiration slot: sparkle icon filled `--color-primary-400` when `character.inspiration` (+ non-color "ON/—" cue). **Store:** `toggleInspiration`. **Accept:** reflects state; tap toggles + persists. **Tests:** both states; tap → `toggleInspiration`.

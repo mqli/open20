@@ -16,6 +16,8 @@ export interface CombatStatCardProps {
   value: string;
   /** Optional tap handler — when provided, the card is interactive */
   onTap?: () => void;
+  /** Additional class for the icon */
+  iconClassName?: string;
   /** Additional class for the card */
   className?: string;
 }
@@ -25,6 +27,7 @@ export function CombatStatCard({
   label,
   value,
   onTap,
+  iconClassName,
   className,
 }: CombatStatCardProps) {
   const isInteractive = !!onTap;
@@ -39,7 +42,7 @@ export function CombatStatCard({
         className,
       )}
     >
-      <Icon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
+      <Icon className={cn('h-4 w-4 shrink-0 text-text-secondary', iconClassName)} aria-hidden />
       <Text variant="labelSm" color="secondary" className="shrink-0">
         {label}
       </Text>

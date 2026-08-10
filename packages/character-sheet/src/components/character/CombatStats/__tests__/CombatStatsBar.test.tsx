@@ -65,7 +65,25 @@ describe('CombatStatsBar', () => {
     expect(screen.getByText('ON')).toBeInTheDocument();
   });
 
-  // --- inspiration tap ---
+  it('uses primary-400 icon color when inspired', () => {
+    const char = { ...makeCharacter(), inspiration: true };
+    render(<CombatStatsBar character={char} onToggleInspiration={() => {}} />);
+
+    // The Sparkles icon should have text-primary-400
+    const inspBtn = screen.getByRole('button', { name: 'Roll Insp' });
+    const icon = inspBtn.querySelector('svg');
+    expect(icon?.className).toContain('text-primary-400');
+  });
+
+  it('uses default icon color when not inspired', () => {
+    const char = makeCharacter();
+    render(<CombatStatsBar character={char} onToggleInspiration={() => {}} />);
+
+    const inspBtn = screen.getByRole('button', { name: 'Roll Insp' });
+    const icon = inspBtn.querySelector('svg');
+    expect(icon?.className).toContain('text-text-secondary');
+    expect(icon?.className).not.toContain('text-primary-400');
+  });
 
   it('calls onToggleInspiration when inspiration card is tapped', () => {
     const onToggleInspiration = vi.fn();
