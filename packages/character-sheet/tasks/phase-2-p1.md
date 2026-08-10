@@ -8,7 +8,7 @@ Inventory, resources, conditions, level-up, richer displays. Same shared convent
 
 Item row: name, key stat (damage/AC), equipped checkmark toggle, remove `[-]`. Emits `onToggleEquip`/`onRemove`. **Accept:** renders equipped vs unequipped; emits callbacks. **Tests:** render both states; callbacks.
 
-### T-202 — EquipmentList + equip actions (FR-122, FR-124~125) — §6.8
+### T-202 — EquipmentList + equip actions (FR-122, FR-124~125) — §6.8 — ✅ done
 
 **Depends on:** T-201, T-005 · Group `character.equipment` Weapons/Armor/Gear from `EquipmentCard`s. **Store:** `equipItem`/`unequipItem` → `equipItemAndRecompute`/`unequipItemAndRecompute(char,id,deps)`; `removeEquipment`. AC/attacks update via recompute. **Accept:** equip toggle recomputes AC/attacks; remove persists. **Tests:** equip/unequip call recompute variants w/ deps; AC changes after equipping armor (fixture integration); remove.
 

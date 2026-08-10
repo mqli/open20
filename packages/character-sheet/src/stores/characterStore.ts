@@ -14,6 +14,9 @@ import {
   longRest as coreLongRest,
   toggleInspiration as coreToggleInspiration,
   toggleCondition as coreToggleCondition,
+  equipItemAndRecompute as coreEquipItemAndRecompute,
+  unequipItemAndRecompute as coreUnequipItemAndRecompute,
+  removeEquipment as coreRemoveEquipment,
   isConcentrating,
   castSpell as coreCastSpell,
   startConcentration,
@@ -101,6 +104,12 @@ interface CharacterSheetState {
   modifyCurrency: (delta: Partial<Currency>) => void;
   /** Toggle a condition on/off on the active character. */
   toggleCondition: (conditionId: ConditionName) => void;
+  /** Equip an item and recompute derived stats (AC, attacks). */
+  equipItem: (itemId: string) => void;
+  /** Unequip an item and recompute derived stats (AC, attacks). */
+  unequipItem: (itemId: string) => void;
+  /** Remove an item from equipment entirely. */
+  removeEquipment: (itemId: string) => void;
   /** Cast a spell: resolve spell, call core castSpell, push roll to overlay, handle concentration, persist. */
   castSpell: (spellId: string, slotLevel: SpellLevel) => void;
   /** End concentration on the active character (persists + clears lastDamageForConcentration). */
@@ -318,6 +327,24 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       if (!active) return;
       const next: AppCharacter = {
         ...coreToggleCondition(active, conditionId),
+        id: active.id,
+      };
+      persist(next);
+    },
+
+    equipItem: (itemId) => {
+      applyMutation((char, deps) => coreEquipItemAndRecompute(char, itemId, deps));
+    },
+
+    unequipItem: (itemId) => {
+      applyMutation((char, deps) => coreUnequipItemAndRecompute(char, itemId, deps));
+    },
+
+    removeEquipment: (itemId) => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = {
+        ...coreRemoveEquipment(active, itemId),
         id: active.id,
       };
       persist(next);

@@ -44,6 +44,9 @@ export function AppShell() {
     toggleInspiration,
     modifyCurrency,
     toggleCondition,
+    equipItem,
+    unequipItem,
+    removeEquipment,
   } = useCharacterStore();
 
   // Accordion state: combat is always expanded.
@@ -122,6 +125,20 @@ export function AppShell() {
     [isDesktop],
   );
 
+  const handleToggleEquip = useCallback(
+    (itemId: string) => {
+      if (!character) return;
+      const item = character.equipment.find((e) => e.id === itemId);
+      if (!item) return;
+      if (item.equipped) {
+        unequipItem(itemId);
+      } else {
+        equipItem(itemId);
+      }
+    },
+    [character, equipItem, unequipItem],
+  );
+
   // Character dialogs — rendered at top level so they persist when the active
   // character is deleted (store sets character→null), and so the wizard is a
   // sibling of the selector rather than nested inside it.
@@ -194,6 +211,8 @@ export function AppShell() {
           toggleInspiration={toggleInspiration}
           modifyCurrency={modifyCurrency}
           toggleCondition={toggleCondition}
+          onToggleEquip={handleToggleEquip}
+          onRemoveEquipment={removeEquipment}
         />
 
         {/* Character dialogs — render at top level */}
@@ -263,6 +282,8 @@ export function AppShell() {
           toggleInspiration={toggleInspiration}
           modifyCurrency={modifyCurrency}
           toggleCondition={toggleCondition}
+          onToggleEquip={handleToggleEquip}
+          onRemoveEquipment={removeEquipment}
           className="pb-4"
         />
       </div>

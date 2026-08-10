@@ -37,6 +37,7 @@ import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
 import { CurrencyRow } from '@/components/character/Currency';
+import { EquipmentList } from '@/components/character/Equipment';
 import { ConditionsPanel } from '@/components/character/Conditions';
 import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
@@ -52,6 +53,8 @@ export interface ContentAreaProps {
   toggleInspiration?: () => void;
   modifyCurrency?: (delta: Partial<Currency>) => void;
   toggleCondition?: (conditionId: ConditionName) => void;
+  onToggleEquip?: (itemId: string) => void;
+  onRemoveEquipment?: (itemId: string) => void;
   className?: string;
 }
 
@@ -245,16 +248,21 @@ function FeaturesSection({ character }: { character: AppCharacter }) {
 function EquipmentSection({
   character,
   modifyCurrency,
+  onToggleEquip,
+  onRemoveEquipment,
 }: {
   character: AppCharacter;
   modifyCurrency?: (delta: Partial<Currency>) => void;
+  onToggleEquip?: (itemId: string) => void;
+  onRemoveEquipment?: (itemId: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-2">
       <CurrencyRow currency={character.currency} onModify={modifyCurrency ?? (() => {})} />
-      <PlaceholderSection
-        title="Equipment"
-        description="Weapons, armor, and gear management coming soon."
+      <EquipmentList
+        items={character.equipment}
+        onToggleEquip={onToggleEquip ?? (() => {})}
+        onRemove={onRemoveEquipment ?? (() => {})}
       />
     </div>
   );
@@ -303,6 +311,8 @@ export function ContentArea({
   toggleInspiration,
   modifyCurrency,
   toggleCondition,
+  onToggleEquip,
+  onRemoveEquipment,
   className,
 }: ContentAreaProps) {
   const renderSectionContent = (key: SectionKey) => {
@@ -324,7 +334,14 @@ export function ContentArea({
       case 'spells':
         return <SpellsSection character={character} />;
       case 'equipment':
-        return <EquipmentSection character={character} modifyCurrency={modifyCurrency} />;
+        return (
+          <EquipmentSection
+            character={character}
+            modifyCurrency={modifyCurrency}
+            onToggleEquip={onToggleEquip}
+            onRemoveEquipment={onRemoveEquipment}
+          />
+        );
       case 'features':
         return <FeaturesSection character={character} />;
       case 'notes':
