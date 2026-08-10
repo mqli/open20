@@ -4,7 +4,7 @@ Inventory, resources, conditions, level-up, richer displays. Same shared convent
 
 ---
 
-### T-201 — EquipmentCard (FR-122) — §6.8
+### T-201 — EquipmentCard (FR-122) — §6.8 — ✅ done
 
 Item row: name, key stat (damage/AC), equipped checkmark toggle, remove `[-]`. Emits `onToggleEquip`/`onRemove`. **Accept:** renders equipped vs unequipped; emits callbacks. **Tests:** render both states; callbacks.
 
