@@ -15,6 +15,9 @@ import type {
   Feat,
   Spell,
   AbilityName,
+  Weapon,
+  Armor,
+  Gear,
 } from 'open20-core';
 import { srdContentPack } from '@open20/content-srd';
 import { resolveCharacterDeps } from '@open20/content-srd/query/resolve';
@@ -32,6 +35,9 @@ import {
   getSensesForCharacter,
   getLanguagesForCharacter,
   getSizeForCharacter,
+  getWeapons,
+  getArmors,
+  getGearItems,
 } from '@open20/content-srd/query/catalog';
 import { findSpell } from '@open20/content-srd/query/spells';
 import type { SenseInfo } from '@open20/content-srd/query/catalog';
@@ -121,6 +127,12 @@ export const getAllSubclassesForClass = (classId: string): Subclass[] =>
   getSubclassesForClass(classId, getContentPack());
 export const getAllFeats = (): Feat[] => getFeats(getContentPack());
 export const getSpell = (id: string): Spell | undefined => findSpell(id, getContentPack());
+
+// ── Equipment getters ─────────────────────────────────────
+
+export const getAllWeapons = (): Weapon[] => getWeapons(getContentPack());
+export const getAllArmors = (): Armor[] => getArmors(getContentPack());
+export const getAllGearItems = (): Gear[] => getGearItems(getContentPack());
 
 /** Look up a Species by its id (e.g. "Elf") — used by SpeciesPanel. */
 export const getSpeciesById = (id: string): Species | undefined =>

@@ -12,7 +12,7 @@ Item row: name, key stat (damage/AC), equipped checkmark toggle, remove `[-]`. E
 
 **Depends on:** T-201, T-005 · Group `character.equipment` Weapons/Armor/Gear from `EquipmentCard`s. **Store:** `equipItem`/`unequipItem` → `equipItemAndRecompute`/`unequipItemAndRecompute(char,id,deps)`; `removeEquipment`. AC/attacks update via recompute. **Accept:** equip toggle recomputes AC/attacks; remove persists. **Tests:** equip/unequip call recompute variants w/ deps; AC changes after equipping armor (fixture integration); remove.
 
-### T-203 — AddEquipmentDialog (FR-123) — §7.7
+### T-203 — AddEquipmentDialog (FR-123) — §7.7 — ✅ done
 
 **Depends on:** T-202, T-005 · Search + category filter over SRD weapons/armor/gear (ContentResolver getters), `[+]` to add; custom manual entry (name/type/weight). **Store:** `addEquipment` w/ synthetic `EquipmentItem`. **Accept:** add SRD + custom persist. **Tests:** filter; add SRD; add custom.
 

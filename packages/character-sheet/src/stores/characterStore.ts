@@ -17,6 +17,7 @@ import {
   equipItemAndRecompute as coreEquipItemAndRecompute,
   unequipItemAndRecompute as coreUnequipItemAndRecompute,
   removeEquipment as coreRemoveEquipment,
+  addEquipment as coreAddEquipment,
   isConcentrating,
   castSpell as coreCastSpell,
   startConcentration,
@@ -28,6 +29,7 @@ import {
   type CharacterClass,
   type ConditionName,
   type Currency,
+  type EquipmentItem,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
 } from 'open20-core';
@@ -110,6 +112,8 @@ interface CharacterSheetState {
   unequipItem: (itemId: string) => void;
   /** Remove an item from equipment entirely. */
   removeEquipment: (itemId: string) => void;
+  /** Add a new item to equipment (SRD picker or custom entry). */
+  addEquipment: (item: EquipmentItem) => void;
   /** Cast a spell: resolve spell, call core castSpell, push roll to overlay, handle concentration, persist. */
   castSpell: (spellId: string, slotLevel: SpellLevel) => void;
   /** End concentration on the active character (persists + clears lastDamageForConcentration). */
@@ -345,6 +349,16 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       if (!active) return;
       const next: AppCharacter = {
         ...coreRemoveEquipment(active, itemId),
+        id: active.id,
+      };
+      persist(next);
+    },
+
+    addEquipment: (item) => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = {
+        ...coreAddEquipment(active, item),
         id: active.id,
       };
       persist(next);

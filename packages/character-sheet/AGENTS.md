@@ -177,6 +177,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 
 - ✅ T-201 EquipmentCard
 - ✅ T-202 EquipmentList + equip
+- ✅ T-203 AddEquipmentDialog
 - ✅ T-204 CurrencyRow
 - ✅ T-207 Condition add/remove
 - ✅ T-219 Inspiration cell

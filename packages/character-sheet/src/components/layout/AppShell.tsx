@@ -47,6 +47,7 @@ export function AppShell() {
     equipItem,
     unequipItem,
     removeEquipment,
+    addEquipment,
   } = useCharacterStore();
 
   // Accordion state: combat is always expanded.
@@ -213,6 +214,7 @@ export function AppShell() {
           toggleCondition={toggleCondition}
           onToggleEquip={handleToggleEquip}
           onRemoveEquipment={removeEquipment}
+          onAddEquipment={addEquipment}
         />
 
         {/* Character dialogs — render at top level */}
@@ -284,6 +286,7 @@ export function AppShell() {
           toggleCondition={toggleCondition}
           onToggleEquip={handleToggleEquip}
           onRemoveEquipment={removeEquipment}
+          onAddEquipment={addEquipment}
           className="pb-4"
         />
       </div>

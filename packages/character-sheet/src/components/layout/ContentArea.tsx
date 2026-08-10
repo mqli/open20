@@ -3,6 +3,7 @@
 // Combat section is always visible (non-collapsible).
 // Controlled by expandedSections/onToggleSection from AppShell.
 
+import { useState } from 'react';
 import {
   Shield,
   Dumbbell,
@@ -11,12 +12,14 @@ import {
   Package,
   Feather,
   FileText,
+  Plus,
 } from 'lucide-react';
 import { isConcentrating, getConcentratingSpellId, calculateConcentrationDC } from 'open20-core';
 import type { Currency } from 'open20-core';
+import type { EquipmentItem } from 'open20-core';
 import type { ConditionName } from 'open20-core';
 import type { AbilityName } from 'open20-core/types';
-import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
+import { Surface, Text, Divider, EmptyState, Button, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
@@ -37,7 +40,7 @@ import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
 import { CurrencyRow } from '@/components/character/Currency';
-import { EquipmentList } from '@/components/character/Equipment';
+import { EquipmentList, AddEquipmentDialog } from '@/components/character/Equipment';
 import { ConditionsPanel } from '@/components/character/Conditions';
 import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
@@ -55,6 +58,7 @@ export interface ContentAreaProps {
   toggleCondition?: (conditionId: ConditionName) => void;
   onToggleEquip?: (itemId: string) => void;
   onRemoveEquipment?: (itemId: string) => void;
+  onAddEquipment?: (item: EquipmentItem) => void;
   className?: string;
 }
 
@@ -250,12 +254,16 @@ function EquipmentSection({
   modifyCurrency,
   onToggleEquip,
   onRemoveEquipment,
+  onAddEquipment,
 }: {
   character: AppCharacter;
   modifyCurrency?: (delta: Partial<Currency>) => void;
   onToggleEquip?: (itemId: string) => void;
   onRemoveEquipment?: (itemId: string) => void;
+  onAddEquipment?: (item: EquipmentItem) => void;
 }) {
+  const [addOpen, setAddOpen] = useState(false);
+
   return (
     <div className="flex flex-col gap-2">
       <CurrencyRow currency={character.currency} onModify={modifyCurrency ?? (() => {})} />
@@ -263,6 +271,19 @@ function EquipmentSection({
         items={character.equipment}
         onToggleEquip={onToggleEquip ?? (() => {})}
         onRemove={onRemoveEquipment ?? (() => {})}
+      />
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" className="gap-1" onClick={() => setAddOpen(true)}>
+          <Plus className="h-4 w-4" />
+          Add Equipment
+        </Button>
+      </div>
+      <AddEquipmentDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onAdd={(item) => {
+          onAddEquipment?.(item);
+        }}
       />
     </div>
   );
@@ -313,6 +334,7 @@ export function ContentArea({
   toggleCondition,
   onToggleEquip,
   onRemoveEquipment,
+  onAddEquipment,
   className,
 }: ContentAreaProps) {
   const renderSectionContent = (key: SectionKey) => {
@@ -340,6 +362,7 @@ export function ContentArea({
             modifyCurrency={modifyCurrency}
             onToggleEquip={onToggleEquip}
             onRemoveEquipment={onRemoveEquipment}
+            onAddEquipment={onAddEquipment}
           />
         );
       case 'features':
