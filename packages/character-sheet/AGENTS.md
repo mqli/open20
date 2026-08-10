@@ -180,6 +180,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 - ✅ T-203 AddEquipmentDialog
 - ✅ T-204 CurrencyRow
 - ✅ T-207 Condition add/remove
+- ✅ T-210 DamageDefensesSection
 - ✅ T-219 Inspiration cell
 
 **Phase 3 (P2):** Not started.

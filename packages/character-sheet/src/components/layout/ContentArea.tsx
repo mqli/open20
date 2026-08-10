@@ -42,6 +42,7 @@ import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
 import { CurrencyRow } from '@/components/character/Currency';
 import { EquipmentList, AddEquipmentDialog } from '@/components/character/Equipment';
 import { ConditionsPanel } from '@/components/character/Conditions';
+import { DamageDefensesSection } from '@/components/character/DamageDefenses';
 import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import type { SectionKey } from './Sidebar';
@@ -136,6 +137,11 @@ function CombatSection({
             rollSave(character, ability, rollModifier)
           }
         />
+
+        <Divider />
+
+        {/* Damage Defenses (T-210) */}
+        <DamageDefensesSection defenses={character.damageDefenses} />
 
         <Divider />
 

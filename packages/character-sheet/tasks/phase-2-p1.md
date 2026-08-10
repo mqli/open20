@@ -40,7 +40,7 @@ Per class: `Class dN used/level [Spend]` (total = class level; from `CharacterCl
 
 **Depends on:** T-117, T-207, T-208 · Compose ConcentrationBanner + active-condition chips + AddConditionMenu + ExhaustionTracker into one section. **Accept:** all condition UIs together, correct order. **Tests:** section renders all sub-parts.
 
-### T-210 — DamageDefensesSection (FR-132) — §6.11
+### T-210 — DamageDefensesSection (FR-132) — §6.11 — ✅ done
 
 Three groups from `character.damageDefenses`: Resistances/Immunities/Vulnerabilities, damage-type badges w/ distinct icons (shield/shield-check/broken-shield, not color-only). Empty → "(none)". **Accept:** three groups; empty states. **Tests:** each group; empty.
 
