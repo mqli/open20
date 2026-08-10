@@ -114,7 +114,7 @@ export function AddConditionMenu({ activeIds, onToggle, className }: AddConditio
           aria-label="Add condition"
         >
           <Plus className="h-4 w-4" />
-          <Text variant="bodySm">Add</Text>
+          <Text variant="bodySm">Add Condition</Text>
         </Button>
       </DropdownMenu.Trigger>
 

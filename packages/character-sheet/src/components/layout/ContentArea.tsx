@@ -91,12 +91,6 @@ function CombatSection({
           />
         )}
 
-        {/* Conditions (T-207) */}
-        <ConditionsPanel
-          conditions={character.conditions}
-          onToggle={toggleCondition ?? (() => {})}
-        />
-
         {/* HP Bar — no Surface wrapper (embedded in merged panel) */}
         <HpBar
           current={character.hitPoints.current}
@@ -140,6 +134,13 @@ function CombatSection({
 
         {/* Weapon Attacks (T-109/T-110) */}
         <WeaponAttacksList character={character} />
+
+        {/* Conditions (T-207) — add/remove active conditions */}
+        <Divider />
+        <ConditionsPanel
+          conditions={character.conditions}
+          onToggle={toggleCondition ?? (() => {})}
+        />
       </div>
     </Surface>
   );
