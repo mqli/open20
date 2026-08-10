@@ -176,6 +176,7 @@ See `packages/spellbook/UI_Design_Spec.md` for the shared design system (Arcane 
 **Phase 2 (P1):**
 
 - ✅ T-204 CurrencyRow
+- ✅ T-207 Condition add/remove
 
 **Phase 3 (P2):** Not started.
 

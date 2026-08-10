@@ -28,7 +28,7 @@ Per class: `Class dN used/level [Spend]` (total = class level; from `CharacterCl
 
 **Depends on:** T-205, T-118 · Per-class stepper for dice to spend + per-class heal preview (`Nd{die}+CON`), total recovery + new-HP preview. Take Rest → **sum selections → Store `shortRest(char, total, deps, restRng)`** (core tracks per-class `used`). Replaces T-118's simple short-rest prompt. **Accept:** previews + spends summed total; per-class `used` increments. **Tests:** sum logic; `shortRest` w/ total+deps+rng; preview math.
 
-### T-207 — Condition add/remove (FR-129~130) — §6.10
+### T-207 — Condition add/remove (FR-129~130) — §6.10 — ✅ done
 
 `ConditionChip` (dismissible, `--color-warning`, non-color label cue) + `AddConditionMenu` (dropdown of 15 `ConditionName`s minus Exhaustion, w/ descriptions from SRD glossary if available). **Store:** `toggleCondition`. **Accept:** add/remove conditions. **Tests:** chip dismiss; menu lists 15; add.
 

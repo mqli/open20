@@ -13,6 +13,7 @@ import {
   shortRest as coreShortRest,
   longRest as coreLongRest,
   toggleInspiration as coreToggleInspiration,
+  toggleCondition as coreToggleCondition,
   isConcentrating,
   castSpell as coreCastSpell,
   startConcentration,
@@ -22,6 +23,7 @@ import {
   type AbilityName,
   type Character,
   type CharacterClass,
+  type ConditionName,
   type Currency,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
@@ -97,6 +99,8 @@ interface CharacterSheetState {
   toggleInspiration: () => void;
   /** Modify currency amounts (Positive = add, negative = spend; core clamps to 0). */
   modifyCurrency: (delta: Partial<Currency>) => void;
+  /** Toggle a condition on/off on the active character. */
+  toggleCondition: (conditionId: ConditionName) => void;
   /** Cast a spell: resolve spell, call core castSpell, push roll to overlay, handle concentration, persist. */
   castSpell: (spellId: string, slotLevel: SpellLevel) => void;
   /** End concentration on the active character (persists + clears lastDamageForConcentration). */
@@ -306,6 +310,16 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       const active = get().character;
       if (!active) return;
       const next: AppCharacter = { ...coreModifyCurrency(active, delta), id: active.id };
+      persist(next);
+    },
+
+    toggleCondition: (conditionId) => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = {
+        ...coreToggleCondition(active, conditionId),
+        id: active.id,
+      };
       persist(next);
     },
 

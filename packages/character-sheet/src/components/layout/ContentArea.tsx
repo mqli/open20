@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { isConcentrating, getConcentratingSpellId, calculateConcentrationDC } from 'open20-core';
 import type { Currency } from 'open20-core';
+import type { ConditionName } from 'open20-core';
 import type { AbilityName } from 'open20-core/types';
 import { Surface, Text, Divider, EmptyState, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
@@ -36,6 +37,7 @@ import { rollAbility, rollSave, rollSkill } from '@/core/roll-adapter';
 import type { RollModifierType } from '@/core/roll-adapter';
 import { WeaponAttacksList } from '@/components/character/WeaponAttacks';
 import { CurrencyRow } from '@/components/character/Currency';
+import { ConditionsPanel } from '@/components/character/Conditions';
 import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import type { SectionKey } from './Sidebar';
@@ -49,6 +51,7 @@ export interface ContentAreaProps {
   toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
   toggleInspiration?: () => void;
   modifyCurrency?: (delta: Partial<Currency>) => void;
+  toggleCondition?: (conditionId: ConditionName) => void;
   className?: string;
 }
 
@@ -59,6 +62,7 @@ function CombatSection({
   modifyHP,
   toggleDeathSave,
   toggleInspiration,
+  toggleCondition,
 }: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'className'>) {
   const concentrating = isConcentrating(character);
   const concentratingSpellId = getConcentratingSpellId(character);
@@ -86,6 +90,12 @@ function CombatSection({
             }}
           />
         )}
+
+        {/* Conditions (T-207) */}
+        <ConditionsPanel
+          conditions={character.conditions}
+          onToggle={toggleCondition ?? (() => {})}
+        />
 
         {/* HP Bar — no Surface wrapper (embedded in merged panel) */}
         <HpBar
@@ -291,6 +301,7 @@ export function ContentArea({
   toggleDeathSave,
   toggleInspiration,
   modifyCurrency,
+  toggleCondition,
   className,
 }: ContentAreaProps) {
   const renderSectionContent = (key: SectionKey) => {
@@ -302,6 +313,7 @@ export function ContentArea({
             modifyHP={modifyHP}
             toggleDeathSave={toggleDeathSave}
             toggleInspiration={toggleInspiration}
+            toggleCondition={toggleCondition}
           />
         );
       case 'abilities':
