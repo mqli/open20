@@ -20,7 +20,7 @@ Item row: name, key stat (damage/AC), equipped checkmark toggle, remove `[-]`. E
 
 5 columns CP/SP/EP/GP/PP, coin icon + amount + `[-]/[+]` stepper (≥44px). **Store:** `modifyCurrency(char, Partial<Currency>)`. **Accept:** displays `character.currency`; steppers adjust + persist; no negative (clamp or verify core). **Tests:** stepper → `modifyCurrency` partial; render five.
 
-### T-205 — HitDiceRow (FR-127) — §6.9
+### T-205 — HitDiceRow (FR-127) — §6.9 ✅ done
 
 Per class: `Class dN used/level [Spend]` (total = class level; from `CharacterClass.hitDice`). `[Spend]` opens T-206. **Accept:** rows from `character.classes`. **Tests:** render used/total per class.
 
