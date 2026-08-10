@@ -370,4 +370,71 @@ describe('ShortRestHitDiceDialog', () => {
     // Wizard: d6 fixed=4 + CON=2 = 6 per die, 2 dice = 12
     expect(screen.getByText('2d6 + 2×2 (CON) = ~12 HP')).toBeInTheDocument();
   });
+
+  // ── Multi-class sum logic (T-206) ──
+
+  it('shows total recovery as sum across all classes', () => {
+    renderWithI18n(
+      <ShortRestHitDiceDialog
+        open={true}
+        onOpenChange={vi.fn()}
+        onConfirm={vi.fn()}
+        classHitDice={multiClass}
+        conMod={2}
+        currentHp={20}
+        maxHp={55}
+      />,
+    );
+
+    // Multiclass: Fighter d10=6+2=8, Wizard d6=4+2=6
+    // Spend 1 Fighter (8) + 2 Wizard (12) = 20
+    fireEvent.click(screen.getByRole('button', { name: 'Spend one more Fighter hit die' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Spend one more Wizard hit die' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Spend one more Wizard hit die' }));
+
+    expect(screen.getByText('~20 HP')).toBeInTheDocument();
+    expect(screen.getByText('20 → 40 / 55')).toBeInTheDocument();
+  });
+
+  it('shows per-class heal estimates for multi-class', () => {
+    renderWithI18n(
+      <ShortRestHitDiceDialog
+        open={true}
+        onOpenChange={vi.fn()}
+        onConfirm={vi.fn()}
+        classHitDice={multiClass}
+        conMod={2}
+        currentHp={20}
+        maxHp={55}
+      />,
+    );
+
+    // Spend 1 Fighter (d10 avg=6 + CON=2 = 8) and 1 Wizard (d6 avg=4 + CON=2 = 6)
+    fireEvent.click(screen.getByRole('button', { name: 'Spend one more Fighter hit die' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Spend one more Wizard hit die' }));
+
+    // Per-class heal estimates
+    expect(screen.getByText('1d10 + 1×2 (CON) = ~8 HP')).toBeInTheDocument();
+    expect(screen.getByText('1d6 + 1×2 (CON) = ~6 HP')).toBeInTheDocument();
+  });
+
+  it('caps total HP correctly in multi-class scenario', () => {
+    renderWithI18n(
+      <ShortRestHitDiceDialog
+        open={true}
+        onOpenChange={vi.fn()}
+        onConfirm={vi.fn()}
+        classHitDice={multiClass}
+        conMod={2}
+        currentHp={45}
+        maxHp={55}
+      />,
+    );
+
+    // Spend 2 Fighter dice (2*(6+2)=16): 45+16=61 > 55 = capped
+    fireEvent.click(screen.getByRole('button', { name: 'Spend one more Fighter hit die' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Spend one more Fighter hit die' }));
+
+    expect(screen.getByText(/capped/)).toBeInTheDocument();
+  });
 });

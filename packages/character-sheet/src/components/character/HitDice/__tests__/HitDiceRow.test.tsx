@@ -1,4 +1,4 @@
-// HitDiceRow.test.tsx — T-205
+// HitDiceRow.test.tsx — T-205 / T-206
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -103,7 +103,6 @@ describe('HitDiceRow', () => {
   it('displays correct used/total when some hit dice are spent', () => {
     const character = makeCharacter();
     const deps = resolveDeps(character);
-    // Spend 2 hit dice via short rest
     const char = shortRest(character, { Wizard: 2 }, deps);
     setCharacter(char);
     renderWithI18n(<HitDiceRow />);
@@ -119,16 +118,17 @@ describe('HitDiceRow', () => {
     expect(screen.getByText('5 / 5')).toBeInTheDocument();
   });
 
-  // ── Spend button ──
+  // ── Dialog integration ──
 
-  it('calls onSpend with classId when Spend is clicked', () => {
+  it('opens Short Rest dialog when Spend is clicked', () => {
     const character = makeCharacter();
     setCharacter(character);
-    const onSpend = vi.fn();
-    renderWithI18n(<HitDiceRow onSpend={onSpend} />);
+    renderWithI18n(<HitDiceRow />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Spend Wizard hit dice' }));
-    expect(onSpend).toHaveBeenCalledWith('Wizard');
+    // Dialog should be visible
+    expect(screen.getByText('Short Rest')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Take Short Rest' })).toBeInTheDocument();
   });
 
   it('disables Spend button when all hit dice are used', () => {
@@ -141,6 +141,31 @@ describe('HitDiceRow', () => {
     expect(screen.getByRole('button', { name: 'Spend Wizard hit dice' })).toBeDisabled();
   });
 
+  it('performs short rest via store when dialog is confirmed', () => {
+    const character = makeCharacter();
+    setCharacter(character);
+
+    // Spy on the store's shortRest method
+    const store = useCharacterStore.getState();
+    const shortRestSpy = vi.fn(store.shortRest);
+    // Replace the method with spy while still calling through
+    useCharacterStore.setState({ shortRest: shortRestSpy });
+
+    renderWithI18n(<HitDiceRow />);
+
+    // Open dialog
+    fireEvent.click(screen.getByRole('button', { name: 'Spend Wizard hit dice' }));
+
+    // Spend 1 die in dialog
+    const plusBtn = screen.getByRole('button', { name: 'Spend one more Wizard hit die' });
+    fireEvent.click(plusBtn);
+
+    // Confirm
+    fireEvent.click(screen.getByRole('button', { name: 'Take Short Rest' }));
+
+    expect(shortRestSpy).toHaveBeenCalledWith({ Wizard: 1 });
+  });
+
   // ── className prop ──
 
   it('applies className prop', () => {
@@ -148,7 +173,6 @@ describe('HitDiceRow', () => {
     setCharacter(character);
     const { container } = renderWithI18n(<HitDiceRow className="custom-class" />);
 
-    // Surface wrapper should have the custom class
     expect(container.querySelector('.custom-class')).toBeInTheDocument();
   });
 });

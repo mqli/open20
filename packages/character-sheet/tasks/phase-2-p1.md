@@ -24,7 +24,7 @@ Item row: name, key stat (damage/AC), equipped checkmark toggle, remove `[-]`. E
 
 Per class: `Class dN used/level [Spend]` (total = class level; from `CharacterClass.hitDice`). `[Spend]` opens T-206. **Accept:** rows from `character.classes`. **Tests:** render used/total per class.
 
-### T-206 — ShortRestDialog per-class selector (FR-128, FR-138) — §7.2
+### T-206 — ShortRestDialog per-class selector (FR-128, FR-138) — §7.2 ✅ done
 
 **Depends on:** T-205, T-118 · Per-class stepper for dice to spend + per-class heal preview (`Nd{die}+CON`), total recovery + new-HP preview. Take Rest → **sum selections → Store `shortRest(char, total, deps, restRng)`** (core tracks per-class `used`). Replaces T-118's simple short-rest prompt. **Accept:** previews + spends summed total; per-class `used` increments. **Tests:** sum logic; `shortRest` w/ total+deps+rng; preview math.
 
