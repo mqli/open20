@@ -125,7 +125,7 @@ export function AddEquipmentDialog({ open, onOpenChange, onAdd }: AddEquipmentDi
         </div>
 
         {/* Category tabs */}
-        <div className="flex gap-1 mb-2 overflow-x-auto">
+        <div className="flex flex-wrap gap-1 mb-2">
           {CATS.map((c) => (
             <Button
               key={c.key}
