@@ -36,7 +36,7 @@ Per class: `Class dN used/level [Spend]` (total = class level; from `CharacterCl
 
 **Depends on:** T-015 · 0–6 stepper stored as `ActiveCondition {name:'Exhaustion', level}`; live penalty text ("−{2×lvl} D20 Tests, −{5×lvl} ft Speed"); `--color-danger` tint at ≥4. Level change updates the Exhaustion condition (confirm core's representation; add tiny helper if needed). Actual roll/speed penalties come from T-015. **Accept:** level drives text (+ real penalties via T-015); tint ≥4. **Tests:** penalty text at 0/2/6; tint ≥4.
 
-### T-209 — ConditionsSection assembly (FR-129~131, FR-158) — §6.10
+### T-209 — ConditionsSection assembly (FR-129~131, FR-158) — §6.10 ✅ done
 
 **Depends on:** T-117, T-207, T-208 · Compose ConcentrationBanner + active-condition chips + AddConditionMenu + ExhaustionTracker into one section. **Accept:** all condition UIs together, correct order. **Tests:** section renders all sub-parts.
 
