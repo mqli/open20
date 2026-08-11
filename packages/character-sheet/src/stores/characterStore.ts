@@ -336,9 +336,14 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
       }
       const leveled: Character = coreLevelUp(active, options, deps, restRng);
       // Recompute derived stats after level-up (proficiency bonus, attacks,
-      // spell DCs, etc. may change).
+      // spell DCs, etc. may change). Preserve hitPoints from core to keep
+      // rolled-HP values (recompute uses fixed dice).
       const recomputed = recomputeDerivedStats(leveled, deps);
-      const next: AppCharacter = { ...recomputed, id: active.id };
+      const next: AppCharacter = {
+        ...recomputed,
+        hitPoints: leveled.hitPoints,
+        id: active.id,
+      };
       persist(next);
     },
 

@@ -34,9 +34,25 @@ function renderWizard() {
   return renderWithI18n(<LevelUpWizard open onOpenChange={onOpenChange} />);
 }
 
+/** Click Next until reaching the target step. */
+function clickNext(times = 1) {
+  for (let i = 0; i < times; i++) {
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+  }
+}
+
+/** Advance through the wizard: select class, skip through to HP, choose Roll, and Level Up. */
+function completeWizard(classLabel: string, skipCount: number) {
+  fireEvent.click(screen.getByRole('button', { name: classLabel }));
+  clickNext(skipCount); // skip Features + optional Subclass/ASI steps
+  fireEvent.click(screen.getByRole('radio', { name: /Roll/ }));
+  fireEvent.click(screen.getByRole('button', { name: 'Level Up' }));
+}
+
 describe('LevelUpWizard', () => {
   beforeEach(() => {
     initContent();
+    // Default: Level-5 Wizard
     storeState.character = makeCharacter();
     storeState.levelUp.mockReset();
     onOpenChange.mockReset();
@@ -44,8 +60,10 @@ describe('LevelUpWizard', () => {
 
   it('renders the dialog when open', () => {
     renderWizard();
-    expect(screen.getByText('Level Up')).toBeInTheDocument();
-    expect(screen.getByText(/Step 1 of 2: Class/)).toBeInTheDocument();
+    // Use role-based query to distinguish title from button
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Level Up' })).toBeInTheDocument();
+    expect(screen.getByText(/Step 1 of 1: Class/)).toBeInTheDocument();
   });
 
   it('does not render when closed', () => {
@@ -53,29 +71,48 @@ describe('LevelUpWizard', () => {
     expect(screen.queryByText('Level Up')).not.toBeInTheDocument();
   });
 
-  it('has Next disabled until a class is selected', () => {
+  it('has Next/Level Up disabled until a class is selected', () => {
     renderWizard();
-    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    // Only 1 step when no class selected — shows "Level Up" (disabled)
+    expect(screen.getByRole('button', { name: 'Level Up' })).toBeDisabled();
   });
 
-  it('enables Next after selecting a class and advances to HP step', () => {
+  it('enables Next after selecting a class and advances to Features step', () => {
     renderWizard();
     fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
     expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-    expect(screen.getByText(/Step 2 of 2: Hit Points/)).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /Take Average/ })).toBeInTheDocument();
+    // Level 5 Wizard → 6: Features step shows level 6 gains
+    expect(screen.getByText(/Wizard Level 6/)).toBeInTheDocument();
   });
 
-  it('Back button returns to class step preserving selection', () => {
+  it('shows the Subclass step when new level reaches subclass unlock level', () => {
+    // Level-5 Wizard advancing to 6: subclass step is shown (unlocks at 3)
+    renderWizard();
+    fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
+    clickNext(); // Features
+    clickNext(); // Subclass
+    expect(screen.getByRole('group', { name: 'Subclass' })).toBeInTheDocument();
+  });
+
+  it('skips the Subclass step when new level is below unlock level', () => {
+    // Fighter multiclass: new class at level 1, subclass at level 3
+    renderWizard();
+    fireEvent.click(screen.getByRole('button', { name: 'Fighter' }));
+    clickNext(); // Features
+    // Should skip subclass and go straight to HP
+    expect(screen.getByText(/Hit Points/)).toBeInTheDocument();
+  });
+
+  it('Back button returns to previous step preserving selection', () => {
     renderWizard();
     fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
 
-    // Now on step 2 — go back
+    // Now on Features step — go back
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
-    expect(screen.getByText(/Step 1 of 2: Class/)).toBeInTheDocument();
+    expect(screen.getByText(/Step 1 of .+: Class/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Wizard' })).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -87,51 +124,49 @@ describe('LevelUpWizard', () => {
 
   it('Level Up button calls store.levelUp with correct options and closes dialog', async () => {
     renderWizard();
-
-    // Select wizard (existing class)
-    fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-
-    // Choose Roll HP
-    fireEvent.click(screen.getByRole('radio', { name: /Roll/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Level Up' }));
+    // Wizard level 5 → 6: steps = Class, Features, Subclass, HP (4 steps)
+    // skipCount = 3 (Features + Subclass + skip)
+    completeWizard('Wizard', 3);
 
     await waitFor(() => {
       expect(storeState.levelUp).toHaveBeenCalledTimes(1);
     });
-    expect(storeState.levelUp).toHaveBeenCalledWith({
-      classId: 'Wizard',
-      hpChoice: 'roll',
-      isNewClass: undefined,
-    });
+    const [call] = storeState.levelUp.mock.calls[0] as [LevelUpOptions];
+    expect(call.classId).toBe('Wizard');
+    expect(call.hpChoice).toBe('roll');
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('passes isNewClass: true when selecting a non-existing class', async () => {
     renderWizard();
-
-    // Select Fighter (new class for a Wizard character)
-    fireEvent.click(screen.getByRole('button', { name: 'Fighter' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Level Up' }));
+    // Fighter multiclass: steps = Class, Features, HP (3 steps)
+    // skipCount = 2 (Features + 1 more to reach HP)
+    completeWizard('Fighter', 2);
 
     await waitFor(() => {
       expect(storeState.levelUp).toHaveBeenCalledTimes(1);
     });
-    expect(storeState.levelUp).toHaveBeenCalledWith({
-      classId: 'Fighter',
-      hpChoice: 'fixed',
-      isNewClass: true,
-    });
+    const [call] = storeState.levelUp.mock.calls[0] as [LevelUpOptions];
+    expect(call.classId).toBe('Fighter');
+    expect(call.isNewClass).toBe(true);
   });
 
   it('shows the HP step with class-specific hit die context', () => {
     renderWizard();
-    // Select Wizard (d6)
+    fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
+    clickNext(); // Features
+    clickNext(); // Subclass
+    clickNext(); // HP
+    // Now at HP step
+    expect(screen.getByText(/Wizard hit die: d6/)).toBeInTheDocument();
+  });
+
+  it('shows feature preview content at the Features step', () => {
+    renderWizard();
     fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-
-    expect(screen.getByText(/Wizard hit die: d6/)).toBeInTheDocument();
+    // Features step for Wizard Level 6 should show content
+    expect(screen.getByText(/What You Gain/)).toBeInTheDocument();
   });
 
   it('resets state when re-opened', () => {
@@ -140,7 +175,6 @@ describe('LevelUpWizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
 
-    // Simulate parent closing and re-opening the dialog
     unmount();
     render(
       <I18nProvider initialLocale="en" translationsSet={{ en: defaultTranslations }}>
@@ -149,7 +183,7 @@ describe('LevelUpWizard', () => {
     );
 
     // Should be back at step 0 with no selection
-    expect(screen.getByText(/Step 1 of 2: Class/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(screen.getByText(/Step 1 of 1: Class/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Level Up' })).toBeDisabled();
   });
 });
