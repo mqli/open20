@@ -92,6 +92,7 @@ describe('LevelUpWizard', () => {
     renderWizard();
     fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
     clickNext(); // Features
+    clickNext(); // Spells
     clickNext(); // Subclass
     expect(screen.getByRole('group', { name: 'Subclass' })).toBeInTheDocument();
   });
@@ -124,9 +125,9 @@ describe('LevelUpWizard', () => {
 
   it('Level Up button calls store.levelUp with correct options and closes dialog', async () => {
     renderWizard();
-    // Wizard level 5 → 6: steps = Class, Features, Subclass, HP (4 steps)
-    // skipCount = 3 (Features + Subclass + skip)
-    completeWizard('Wizard', 3);
+    // Wizard level 5 → 6: steps = Class, Features, Spells, Subclass, HP (5 steps)
+    // skipCount = 4 (Features + Spells + Subclass + skip)
+    completeWizard('Wizard', 4);
 
     await waitFor(() => {
       expect(storeState.levelUp).toHaveBeenCalledTimes(1);
@@ -155,6 +156,7 @@ describe('LevelUpWizard', () => {
     renderWizard();
     fireEvent.click(screen.getByRole('button', { name: 'Wizard' }));
     clickNext(); // Features
+    clickNext(); // Spells
     clickNext(); // Subclass
     clickNext(); // HP
     // Now at HP step

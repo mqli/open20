@@ -12,6 +12,7 @@ import { ClassStep } from './ClassStep';
 import { FeaturesStep } from './FeaturesStep';
 import { SubclassStep } from './SubclassStep';
 import { ASIFeatStep, type WizardASIFeat } from './ASIFeatStep';
+import { SpellStep } from './SpellStep';
 import { HPStep } from './HPStep';
 
 // ── Helpers ──
@@ -49,6 +50,7 @@ interface StepInfo {
 const ALL_STEP_TITLES = {
   class: 'Class',
   features: 'Features',
+  spells: 'Spells',
   subclass: 'Subclass',
   asiFeat: 'ASI/Feat',
   hp: 'Hit Points',
@@ -72,12 +74,42 @@ function shouldShowASI(newLevel: number): boolean {
   return ASI_LEVELS.has(newLevel);
 }
 
+function shouldShowSpells(classId: string, newLevel: number): boolean {
+  const klass = getClassById(classId);
+  if (!klass?.spellcasting) return false;
+  const sc = klass.spellcasting;
+  // Only known casters (Bard, Sorcerer, Warlock) and spellbook casters (Wizard)
+  // select new spells on level-up. Prepared casters (Cleric, Druid, Paladin, Ranger)
+  // prepare from their full class list — no picker needed.
+  if (sc.knownSource !== 'spellbook' && sc.preparationTiming !== 'level_up') return false;
+  const newEntry = klass.featuresByLevel.find((f) => f.level === newLevel);
+  const oldEntry = klass.featuresByLevel.find((f) => f.level === newLevel - 1);
+  if (!newEntry) return false;
+  const cantripDelta = (newEntry.cantripsKnown ?? 0) - (oldEntry?.cantripsKnown ?? 0);
+  const spellDelta = (newEntry.preparedSpells ?? 0) - (oldEntry?.preparedSpells ?? 0);
+  if (cantripDelta > 0) return true;
+  if (spellDelta > 0) return true;
+  return false;
+}
+
+function getSpellPickCounts(classId: string, newLevel: number): { spells: number } {
+  const klass = getClassById(classId);
+  if (!klass || !klass.spellcasting) return { spells: 0 };
+  const newEntry = klass.featuresByLevel.find((f) => f.level === newLevel);
+  const oldEntry = klass.featuresByLevel.find((f) => f.level === newLevel - 1);
+  if (!newEntry) return { spells: 0 };
+  return {
+    spells: Math.max(0, (newEntry.preparedSpells ?? 0) - (oldEntry?.preparedSpells ?? 0)),
+  };
+}
+
 // ── Wizard state ──
 
 interface WizardDraft {
   classId: string;
   subclassId: string | null;
   asiOrFeat: WizardASIFeat | null;
+  newSpells: string[];
   hpChoice: 'fixed' | 'roll';
 }
 
@@ -86,7 +118,7 @@ interface DraftMeta {
 }
 
 function initialDraft(): WizardDraft {
-  return { classId: '', subclassId: null, asiOrFeat: null, hpChoice: 'fixed' };
+  return { classId: '', subclassId: null, asiOrFeat: null, newSpells: [], hpChoice: 'fixed' };
 }
 
 // ── Component ──
@@ -133,6 +165,9 @@ export function LevelUpWizard({ open, onOpenChange }: LevelUpWizardProps) {
     s.push({ id: 'class', title: ALL_STEP_TITLES.class });
     if (draft.classId) {
       s.push({ id: 'features', title: ALL_STEP_TITLES.features });
+      if (shouldShowSpells(draft.classId, newLevel)) {
+        s.push({ id: 'spells', title: ALL_STEP_TITLES.spells });
+      }
       if (shouldShowSubclass(draft.classId, newLevel, character as Character)) {
         s.push({ id: 'subclass', title: ALL_STEP_TITLES.subclass });
       }
@@ -157,6 +192,8 @@ export function LevelUpWizard({ open, onOpenChange }: LevelUpWizardProps) {
         return draft.classId !== '';
       case 'features':
         return true; // informational only
+      case 'spells':
+        return true; // selection is optional
       case 'subclass':
         return true; // subclassId can be null (None)
       case 'asiFeat':
@@ -178,6 +215,11 @@ export function LevelUpWizard({ open, onOpenChange }: LevelUpWizardProps) {
     return getModifier(getTotalScore(character.abilityScores, 'Constitution'));
   }, [character]);
 
+  const spellCounts = useMemo(
+    () => (draft.classId ? getSpellPickCounts(draft.classId, newLevel) : { spells: 0 }),
+    [draft.classId, newLevel],
+  );
+
   // ── State helpers ──
 
   function patch(partial: Partial<WizardDraft>) {
@@ -185,7 +227,7 @@ export function LevelUpWizard({ open, onOpenChange }: LevelUpWizardProps) {
   }
 
   function handleClassChange(classId: string, isNewClass: boolean) {
-    patch({ classId, subclassId: null, asiOrFeat: null });
+    patch({ classId, subclassId: null, asiOrFeat: null, newSpells: [] });
     setMeta({ isNewClass });
   }
 
@@ -196,6 +238,7 @@ export function LevelUpWizard({ open, onOpenChange }: LevelUpWizardProps) {
       subclassId: draft.subclassId ?? undefined,
       hpChoice: draft.hpChoice,
       asiOrFeat: wizardToCoreASIFeat(draft.asiOrFeat),
+      newSpells: draft.newSpells.length > 0 ? draft.newSpells : undefined,
       isNewClass: meta.isNewClass || undefined,
     });
     onOpenChange(false);
@@ -231,6 +274,15 @@ export function LevelUpWizard({ open, onOpenChange }: LevelUpWizardProps) {
           )}
           {currentStep?.id === 'features' && (
             <FeaturesStep classId={draft.classId} newLevel={newLevel} />
+          )}
+          {currentStep?.id === 'spells' && (
+            <SpellStep
+              classId={draft.classId}
+              newLevel={newLevel}
+              spellsToPick={spellCounts.spells}
+              newSpells={draft.newSpells}
+              onSpellsChange={(ids) => patch({ newSpells: ids })}
+            />
           )}
           {currentStep?.id === 'subclass' && (
             <SubclassStep

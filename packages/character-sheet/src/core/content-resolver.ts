@@ -39,8 +39,9 @@ import {
   getArmors,
   getGearItems,
 } from '@open20/content-srd/query/catalog';
-import { findSpell } from '@open20/content-srd/query/spells';
+import { findSpell, searchSpells as srdSearchSpells } from '@open20/content-srd/query/spells';
 import type { SenseInfo } from '@open20/content-srd/query/catalog';
+import type { SpellFilter } from 'open20-core';
 
 // ── Singleton content pack ────────────────────────────────
 // The SRD pack is a bundled constant (statically imported JSON), so init is
@@ -127,6 +128,10 @@ export const getAllSubclassesForClass = (classId: string): Subclass[] =>
   getSubclassesForClass(classId, getContentPack());
 export const getAllFeats = (): Feat[] => getFeats(getContentPack());
 export const getSpell = (id: string): Spell | undefined => findSpell(id, getContentPack());
+
+/** Search spells by filter (class, level, school, etc.). */
+export const searchSpells = (filter: SpellFilter): Spell[] =>
+  srdSearchSpells(filter, getContentPack());
 
 // ── Equipment getters ─────────────────────────────────────
 
