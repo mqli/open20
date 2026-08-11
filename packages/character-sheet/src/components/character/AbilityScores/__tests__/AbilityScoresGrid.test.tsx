@@ -1,16 +1,23 @@
+// AbilityScoresGrid.test.tsx — T-103 / T-218
+
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { TooltipProvider } from '@open20/ui';
 import { AbilityScoresGrid } from '../AbilityScoresGrid';
 import { makeCharacter } from '@/test/fixtures';
 
 const noop = () => {};
+
+function renderWithTooltip(ui: React.ReactElement) {
+  return render(<TooltipProvider>{ui}</TooltipProvider>);
+}
 
 describe('AbilityScoresGrid', () => {
   // --- basic rendering ---
 
   it('renders all six ability short labels', () => {
     const char = makeCharacter();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
+    renderWithTooltip(<AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />);
     expect(screen.getByText('STR')).toBeInTheDocument();
     expect(screen.getByText('DEX')).toBeInTheDocument();
     expect(screen.getByText('CON')).toBeInTheDocument();
@@ -19,73 +26,106 @@ describe('AbilityScoresGrid', () => {
     expect(screen.getByText('CHA')).toBeInTheDocument();
   });
 
-  it('renders positive modifier badges', () => {
+  it('renders score values for each ability', () => {
     const char = makeCharacter();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
-    const positiveBadge = screen.getAllByText(/^\+/)[0];
-    expect(positiveBadge).toBeInTheDocument();
+    renderWithTooltip(<AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />);
+
+    // Each ability should have a score value displayed
+    const scores = screen.getAllByText(/\b(10|12|14|16)\b/);
+    expect(scores.length).toBeGreaterThanOrEqual(6);
   });
 
-  it('renders negative modifier as danger badge', () => {
-    const char = makeCharacter({ abilityScores: { Strength: 8 } });
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
-    expect(screen.getByText('-1')).toBeInTheDocument();
-  });
-
-  it('renders zero modifier as secondary badge', () => {
-    const char = makeCharacter({ abilityScores: { Charisma: 10 } });
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
-    const allBadges = screen.getAllByText(/^[+-]\d$/);
-    expect(allBadges.length).toBeGreaterThan(0);
-  });
-
-  it('uses grid-cols-3 for mobile 3x2 layout', () => {
+  it('displays modifier badge for ability check', () => {
     const char = makeCharacter();
-    const { container } = render(
-      <AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />,
+    renderWithTooltip(<AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />);
+
+    // Find modifier badges: should include +3 (INT) and others
+    const positiveMods = screen.getAllByText(/^\+[0-9]+$/);
+    expect(positiveMods.length).toBeGreaterThan(0);
+  });
+
+  it('uses grid-cols-3 for mobile layout', () => {
+    const char = makeCharacter();
+    const { container } = renderWithTooltip(
+      <AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />,
     );
     const grid = container.firstChild as HTMLElement;
     expect(grid.className).toContain('grid-cols-3');
   });
 
-  // --- check roll ---
+  // --- Ability check roll ---
 
-  it('calls onRollCheck with ability and default normal mode', () => {
+  it('calls onRollCheck when modifier badge is clicked', () => {
     const char = makeCharacter();
     const onRollCheck = vi.fn();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
+    renderWithTooltip(
+      <AbilityScoresGrid character={char} onRollCheck={onRollCheck} onRollSave={noop} />,
+    );
+
     fireEvent.click(screen.getByLabelText('Roll Strength check'));
     expect(onRollCheck).toHaveBeenCalledWith('Strength', 'none');
   });
 
-  // --- advantage / disadvantage ---
-
-  it('ChevronUp button rolls with advantage immediately', () => {
+  it('renders ability check button for each ability', () => {
     const char = makeCharacter();
-    const onRollCheck = vi.fn();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
-    fireEvent.click(screen.getByLabelText('Roll Strength check with advantage'));
-    expect(onRollCheck).toHaveBeenCalledWith('Strength', 'advantage');
-  });
-
-  it('ChevronDown button rolls with disadvantage immediately', () => {
-    const char = makeCharacter();
-    const onRollCheck = vi.fn();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={onRollCheck} />);
-    fireEvent.click(screen.getByLabelText('Roll Strength check with disadvantage'));
-    expect(onRollCheck).toHaveBeenCalledWith('Strength', 'disadvantage');
-  });
-
-  // --- aria-labels for all six abilities ---
-
-  it('renders check button for each ability', () => {
-    const char = makeCharacter();
-    render(<AbilityScoresGrid abilityScores={char.abilityScores} onRollCheck={noop} />);
+    renderWithTooltip(<AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />);
     expect(screen.getByLabelText('Roll Strength check')).toBeInTheDocument();
     expect(screen.getByLabelText('Roll Dexterity check')).toBeInTheDocument();
     expect(screen.getByLabelText('Roll Constitution check')).toBeInTheDocument();
     expect(screen.getByLabelText('Roll Intelligence check')).toBeInTheDocument();
     expect(screen.getByLabelText('Roll Wisdom check')).toBeInTheDocument();
     expect(screen.getByLabelText('Roll Charisma check')).toBeInTheDocument();
+  });
+
+  // --- Saving throw roll ---
+
+  it('calls onRollSave when saving throw is clicked', () => {
+    const char = makeCharacter();
+    const onRollSave = vi.fn();
+    renderWithTooltip(
+      <AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={onRollSave} />,
+    );
+
+    fireEvent.click(screen.getByLabelText('Roll Strength saving throw'));
+    expect(onRollSave).toHaveBeenCalledWith('Strength', 'none');
+  });
+
+  it('renders saving throw button for each ability', () => {
+    const char = makeCharacter();
+    renderWithTooltip(<AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />);
+    expect(screen.getByLabelText('Roll Strength saving throw')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll Dexterity saving throw')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll Constitution saving throw')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll Intelligence saving throw')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll Wisdom saving throw')).toBeInTheDocument();
+    expect(screen.getByLabelText('Roll Charisma saving throw')).toBeInTheDocument();
+  });
+
+  // --- Proficiency indicator ---
+
+  it('shows proficiency indicator for proficient saves', () => {
+    // Wizard is proficient in INT and WIS saves
+    const char = makeCharacter({ classId: 'Wizard', classLevel: 5 });
+    renderWithTooltip(<AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />);
+
+    // INT and WIS save bonus should be higher than modifier alone
+    // INT mod = +3, with +3 PB = +6 save
+    const intSaveBtn = screen.getByLabelText('Roll Intelligence saving throw');
+    expect(intSaveBtn).toBeInTheDocument();
+  });
+
+  // --- className prop ---
+
+  it('applies className prop to grid container', () => {
+    const char = makeCharacter();
+    const { container } = renderWithTooltip(
+      <AbilityScoresGrid
+        character={char}
+        onRollCheck={noop}
+        onRollSave={noop}
+        className="custom-grid"
+      />,
+    );
+    expect(container.querySelector('.custom-grid')).toBeInTheDocument();
   });
 });

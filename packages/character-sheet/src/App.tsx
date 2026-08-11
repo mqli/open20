@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { I18nProvider, DiceRollOverlay, defaultTranslations, zhCNTranslations } from '@open20/ui';
+import {
+  I18nProvider,
+  TooltipProvider,
+  DiceRollOverlay,
+  defaultTranslations,
+  zhCNTranslations,
+} from '@open20/ui';
 import { AppShell } from '@/components/layout/AppShell';
 import { useCharacterStore } from '@/stores/characterStore';
 
@@ -29,14 +35,16 @@ export function App() {
       initialLocale="en"
       translationsSet={{ en: defaultTranslations, 'zh-CN': zhCNTranslations }}
     >
-      {isLoaded ? (
-        <>
-          <AppShell />
-          <DiceRollOverlay />
-        </>
-      ) : (
-        <LoadingSkeleton />
-      )}
+      <TooltipProvider>
+        {isLoaded ? (
+          <>
+            <AppShell />
+            <DiceRollOverlay />
+          </>
+        ) : (
+          <LoadingSkeleton />
+        )}
+      </TooltipProvider>
     </I18nProvider>
   );
 }

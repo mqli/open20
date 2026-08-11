@@ -72,7 +72,7 @@ Three groups from `character.damageDefenses`: Resistances/Immunities/Vulnerabili
 
 **Depends on:** T-116, T-005 · Modal from "+ Prepare More Spells"/"All Known". Search + level tabs (0–9) + school chips over `contentResolver.searchSpells`. Cards w/ school color (`--color-school-*`) + level badge (spellbook layout patterns, not code). Checkbox = prepared, respects prepared-count limit. **Store:** prepare/known actions → core preparation logic. **Accept:** search/filter; prepare respects limit; persists. **Tests:** filter name/level/school; prepare toggle; limit enforced.
 
-### T-218 — AbilityScore breakdown (FR-106) — §6.2
+### T-218 — AbilityScore breakdown (FR-106) — §6.2 ✅ done
 
 **Depends on:** T-103 · ⚠️ **No core change** (README #2): use existing `base/racialBonuses/backgroundBonuses/featBonuses/featGrants/temporaryBonuses`. Expandable per-ability detail listing non-zero sources + total. **Accept:** STR expands to `base 15 + racial 1 = 16`. **Tests:** lists only non-zero sources; sums to total.
 

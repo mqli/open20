@@ -24,7 +24,6 @@ import { Surface, Text, Divider, EmptyState, Button, cn } from '@open20/ui';
 import type { AppCharacter } from '@/types';
 import { HpBar } from '@/components/character/HPManager';
 import { AbilityScoresGrid } from '@/components/character/AbilityScores';
-import { SavingThrowsGrid } from '@/components/character/SavingThrows';
 import { DeathSavesTracker } from '@/components/character/DeathSavesTracker';
 import { CombatStatsBar } from '@/components/character/CombatStats';
 import { SkillsList } from '@/components/character/Skills';
@@ -136,16 +135,6 @@ function CombatSection({
 
         <Divider />
 
-        {/* Saving Throws */}
-        <SavingThrowsGrid
-          character={character}
-          onRollSave={(ability: AbilityName, rollModifier: RollModifierType) =>
-            rollSave(character, ability, rollModifier)
-          }
-        />
-
-        <Divider />
-
         {/* Damage Defenses (T-210) */}
         <DamageDefensesSection
           defenses={character.damageDefenses}
@@ -174,8 +163,11 @@ function AbilitiesSection({ character }: { character: AppCharacter }) {
   return (
     <Surface variant="default" padding="sm">
       <AbilityScoresGrid
-        abilityScores={character.abilityScores}
+        character={character}
         onRollCheck={(ability, rollModifier) => rollAbility(character, ability, rollModifier)}
+        onRollSave={(ability: AbilityName, rollModifier: RollModifierType) =>
+          rollSave(character, ability, rollModifier)
+        }
       />
     </Surface>
   );
