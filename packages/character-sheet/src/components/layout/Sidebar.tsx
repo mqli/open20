@@ -17,6 +17,7 @@ import {
   FileText,
   Users,
   Pencil,
+  TrendingUp,
 } from 'lucide-react';
 import type { AppCharacter } from '@/types';
 import { Tabs, Text, Button, cn } from '@open20/ui';
@@ -38,6 +39,7 @@ export interface SidebarProps {
   onSectionChange: (section: SectionKey) => void;
   onOpenCharacterSelector: () => void;
   onEditCharacter: () => void;
+  onLevelUp: () => void;
   className?: string;
 }
 
@@ -61,6 +63,7 @@ export function Sidebar({
   onSectionChange,
   onOpenCharacterSelector,
   onEditCharacter,
+  onLevelUp,
   className,
 }: SidebarProps) {
   return (
@@ -124,6 +127,18 @@ export function Sidebar({
       {/* Rest Actions — sticky bottom */}
       <div className="border-t border-border p-3">
         <RestActions />
+        <hr className="my-2 border-border" />
+        <Button
+          variant="primary"
+          size="sm"
+          className="w-full justify-start gap-2"
+          onClick={onLevelUp}
+          aria-label="Level up character"
+          disabled={character.classes.reduce((sum, c) => sum + c.level, 0) >= 20}
+        >
+          <TrendingUp className="h-4 w-4" />
+          Level Up
+        </Button>
       </div>
     </aside>
   );

@@ -23,6 +23,7 @@ import { MobileBottomBar } from './MobileBottomBar';
 import { CharacterSelector } from '@/components/character/CharacterSelector';
 import { CharacterCreateWizard } from '@/components/character/CharacterCreateWizard';
 import { CharacterEditDialog } from '@/components/character/CharacterEditDialog';
+import { LevelUpWizard } from '@/components/character/LevelUpWizard';
 
 const ALL_SECTIONS: SectionKey[] = [
   'combat',
@@ -71,6 +72,7 @@ export function AppShell() {
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showLevelUpWizard, setShowLevelUpWizard] = useState(false);
 
   // Toggle a section's expanded state.
   // Desktop: toggle independently.
@@ -156,6 +158,7 @@ export function AppShell() {
       />
       <CharacterCreateWizard open={showCreateWizard} onOpenChange={setShowCreateWizard} />
       <CharacterEditDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
+      <LevelUpWizard open={showLevelUpWizard} onOpenChange={setShowLevelUpWizard} />
     </>
   );
 
@@ -201,6 +204,7 @@ export function AppShell() {
           onSectionChange={handleSectionChange}
           onOpenCharacterSelector={() => setShowCharacterSelector(true)}
           onEditCharacter={() => setShowEditDialog(true)}
+          onLevelUp={() => setShowLevelUpWizard(true)}
         />
 
         {/* Content — accordion */}
@@ -295,7 +299,11 @@ export function AppShell() {
       </div>
 
       {/* Bottom Tab Bar */}
-      <MobileBottomBar activeSection={lastNavigatedSection} onSectionChange={handleSectionChange} />
+      <MobileBottomBar
+        activeSection={lastNavigatedSection}
+        onSectionChange={handleSectionChange}
+        onLevelUp={() => setShowLevelUpWizard(true)}
+      />
 
       {/* Character dialogs — render at top level */}
       {characterDialogs}

@@ -14,14 +14,17 @@ import {
   Package,
   Feather,
   FileText,
+  TrendingUp,
 } from 'lucide-react';
-import { cn } from '@open20/ui';
+import { Button, cn } from '@open20/ui';
 import type { SectionKey } from './Sidebar';
 import { RestActions } from './RestActions';
+import { useCharacterStore } from '@/stores/characterStore';
 
 export interface MobileBottomBarProps {
   activeSection: SectionKey;
   onSectionChange: (section: SectionKey) => void;
+  onLevelUp: () => void;
   className?: string;
 }
 
@@ -52,11 +55,15 @@ const isOverflow = (section: SectionKey) => OVERFLOW_IDS.includes(section);
 export function MobileBottomBar({
   activeSection,
   onSectionChange,
+  onLevelUp,
   className,
 }: MobileBottomBarProps) {
+  const character = useCharacterStore((s) => s.character);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const totalLevel = character?.classes.reduce((sum, c) => sum + c.level, 0) ?? 0;
 
   // Close dropdown on outside click and Escape key
   useEffect(() => {
@@ -180,6 +187,25 @@ export function MobileBottomBar({
             <hr className="mx-1 my-1 border-border" />
             <div className="pt-1">
               <RestActions onShortRest={() => setMoreOpen(false)} />
+            </div>
+
+            {/* Level Up */}
+            <hr className="mx-1 my-1 border-border" />
+            <div className="px-3 pb-1 pt-1">
+              <Button
+                variant="primary"
+                size="sm"
+                className="w-full justify-start gap-2"
+                onClick={() => {
+                  onLevelUp();
+                  setMoreOpen(false);
+                }}
+                aria-label="Level up character"
+                disabled={totalLevel >= 20}
+              >
+                <TrendingUp className="h-4 w-4" />
+                Level Up
+              </Button>
             </div>
           </div>
         )}

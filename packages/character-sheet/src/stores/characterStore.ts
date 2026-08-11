@@ -12,6 +12,7 @@ import {
   recomputeDerivedStats,
   shortRest as coreShortRest,
   longRest as coreLongRest,
+  levelUp as coreLevelUp,
   toggleInspiration as coreToggleInspiration,
   toggleCondition as coreToggleCondition,
   equipItemAndRecompute as coreEquipItemAndRecompute,
@@ -31,11 +32,12 @@ import {
   type Currency,
   type DamageType,
   type EquipmentItem,
+  type LevelUpOptions,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
 } from 'open20-core';
 import type { AppCharacter } from '@/types';
-import { resolveDeps, getSpell, buildDepsForCreate } from '@/core/content-resolver';
+import { resolveDeps, getSpell, buildDepsForCreate, getClassById } from '@/core/content-resolver';
 import { restRng, rollSpellCast } from '@/core/roll-adapter';
 import { storageService, StorageQuotaError } from '@/core/storage-service';
 
@@ -101,6 +103,8 @@ interface CharacterSheetState {
   shortRest: (hitDiceToSpend: Record<string, number>) => void;
   /** Long rest: full HP, all HD, all spell slots, reset death saves, conditions, resources. */
   longRest: () => void;
+  /** Level up: advance a class or add a new class, apply HP gain. */
+  levelUp: (options: LevelUpOptions) => void;
   /** Toggle inspiration on/off. */
   toggleInspiration: () => void;
   /** Modify currency amounts (Positive = add, negative = spend; core clamps to 0). */
@@ -318,6 +322,24 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
         const rested = coreLongRest(withoutConc, deps);
         return recomputeDerivedStats(rested, deps);
       });
+    },
+
+    levelUp: (options) => {
+      const active = get().character;
+      if (!active) return;
+      const deps = resolveDeps(active);
+      // When multiclassing into a new class, ensure the target class is in deps
+      // (resolveDeps only resolves classes the character already has).
+      if (options.isNewClass && !deps.classes[options.classId]) {
+        const klass = getClassById(options.classId);
+        if (klass) deps.classes = { ...deps.classes, [klass.id]: klass };
+      }
+      const leveled: Character = coreLevelUp(active, options, deps, restRng);
+      // Recompute derived stats after level-up (proficiency bonus, attacks,
+      // spell DCs, etc. may change).
+      const recomputed = recomputeDerivedStats(leveled, deps);
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
     },
 
     toggleInspiration: () => {
