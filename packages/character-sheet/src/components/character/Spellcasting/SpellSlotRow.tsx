@@ -1,9 +1,10 @@
 import { SlotPips, Text } from '@open20/ui';
 import { cn } from '@open20/ui';
 
-/** Map spell levels 1-3 to ordinal labels; 4+ use the regular -th suffix. */
-function levelLabel(level: number | 'Cantrip'): string {
+/** Map spell levels 1-3 to ordinal labels; display 'Cantrip' and 'Pact' for special rows. */
+function levelLabel(level: number | 'Cantrip' | 'Pact'): string {
   if (level === 'Cantrip') return 'Cantrip';
+  if (level === 'Pact') return 'Pact';
   if (level === 1) return '1st';
   if (level === 2) return '2nd';
   if (level === 3) return '3rd';
@@ -11,13 +12,14 @@ function levelLabel(level: number | 'Cantrip'): string {
 }
 
 export interface SpellSlotRowProps {
-  level: number | 'Cantrip';
+  level: number | 'Cantrip' | 'Pact';
   total: number;
   used: number;
+  onPipClick?: (index: number, isUsed: boolean) => void;
   className?: string;
 }
 
-export function SpellSlotRow({ level, total, used, className }: SpellSlotRowProps) {
+export function SpellSlotRow({ level, total, used, onPipClick, className }: SpellSlotRowProps) {
   const available = total - used;
 
   return (
@@ -35,7 +37,7 @@ export function SpellSlotRow({ level, total, used, className }: SpellSlotRowProp
           —
         </Text>
       ) : (
-        <SlotPips total={total} used={used} size="md" />
+        <SlotPips total={total} used={used} size="md" onPipClick={onPipClick} />
       )}
 
       <Text variant="bodySm" color="secondary" className="ml-auto tabular-nums">

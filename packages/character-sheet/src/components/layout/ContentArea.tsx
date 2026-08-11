@@ -13,6 +13,7 @@ import {
   Feather,
   FileText,
   Plus,
+  BookOpen,
 } from 'lucide-react';
 import { isConcentrating, getConcentratingSpellId, calculateConcentrationDC } from 'open20-core';
 import type { Currency } from 'open20-core';
@@ -45,6 +46,7 @@ import { ConditionsPanel } from '@/components/character/Conditions';
 import { DamageDefensesSection } from '@/components/character/DamageDefenses';
 import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
+import { SpellBrowser } from '@/components/character/SpellBrowser';
 import type { SectionKey } from './Sidebar';
 import { SectionCollapse } from './SectionCollapse';
 
@@ -191,12 +193,16 @@ const SPELL_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 function SpellsSection({ character }: { character: AppCharacter }) {
   const { spells } = character;
   const hasSpellcasting = Object.keys(spells.classSpellcasting).length > 0;
+  const [browserOpen, setBrowserOpen] = useState(false);
 
-  const slotLevels: Array<{ level: number | 'Cantrip'; total: number; used: number }> = [];
+  const slotLevels: Array<{ level: number | 'Cantrip' | 'Pact'; total: number; used: number }> = [];
 
-  const firstClassData = Object.values(spells.classSpellcasting)[0];
-  const cantripCount = firstClassData?.maxCantripsKnown ?? 0;
-  slotLevels.push({ level: 'Cantrip', total: cantripCount, used: 0 });
+  // Sum cantrip counts across all spellcasting classes for multiclass
+  const totalCantrips = Object.values(spells.classSpellcasting).reduce(
+    (sum, data) => sum + (data.maxCantripsKnown ?? 0),
+    0,
+  );
+  slotLevels.push({ level: 'Cantrip', total: totalCantrips, used: 0 });
 
   for (const lvl of SPELL_LEVELS) {
     const slot = spells.spellSlots[lvl];
@@ -204,6 +210,15 @@ function SpellsSection({ character }: { character: AppCharacter }) {
       level: lvl,
       total: slot?.total ?? 0,
       used: slot?.used ?? 0,
+    });
+  }
+
+  // Pact magic slots (Warlock)
+  if (spells.pactMagicSlots) {
+    slotLevels.push({
+      level: 'Pact',
+      total: spells.pactMagicSlots.total,
+      used: spells.pactMagicSlots.used,
     });
   }
 
@@ -224,7 +239,24 @@ function SpellsSection({ character }: { character: AppCharacter }) {
       <Surface variant="default" padding="sm">
         <div className="divide-y divide-border">
           {slotLevels.map((slot) => (
-            <SpellSlotRow key={slot.level} level={slot.level} total={slot.total} used={slot.used} />
+            <SpellSlotRow
+              key={slot.level}
+              level={slot.level}
+              total={slot.total}
+              used={slot.used}
+              onPipClick={
+                slot.level === 'Cantrip'
+                  ? undefined
+                  : (_index, isUsed) => {
+                      const lvl = slot.level === 'Pact' ? 'pact' : (slot.level as number);
+                      if (isUsed) {
+                        useCharacterStore.getState().recoverSpellSlot(lvl);
+                      } else {
+                        useCharacterStore.getState().consumeSpellSlot(lvl);
+                      }
+                    }
+              }
+            />
           ))}
         </div>
       </Surface>
@@ -235,6 +267,28 @@ function SpellsSection({ character }: { character: AppCharacter }) {
         onCastSpell={(spellId, slotLevel) => {
           useCharacterStore.getState().castSpell(spellId, slotLevel);
         }}
+      />
+
+      {/* Manage Spells button */}
+      <Button variant="outline" size="sm" className="w-full" onClick={() => setBrowserOpen(true)}>
+        <BookOpen className="w-4 h-4 mr-1" />
+        Manage Spells
+      </Button>
+
+      <SpellBrowser
+        character={character}
+        open={browserOpen}
+        onClose={() => setBrowserOpen(false)}
+        onPrepareSpell={(spellId) => useCharacterStore.getState().prepareSpell(spellId)}
+        onUnprepareSpell={(spellId) => useCharacterStore.getState().unprepareSpell(spellId)}
+        onLearnSpell={(spellId) => useCharacterStore.getState().learnSpell(spellId)}
+        onUnlearnSpell={(spellId) => useCharacterStore.getState().unlearnSpell(spellId)}
+        onLearnCantrip={(classId, spellId) =>
+          useCharacterStore.getState().learnCantrip(classId, spellId)
+        }
+        onUnlearnCantrip={(classId, spellId) =>
+          useCharacterStore.getState().unlearnCantrip(classId, spellId)
+        }
       />
     </div>
   );

@@ -35,6 +35,15 @@ import {
   type LevelUpOptions,
   type RecomputeDerivedStatsDeps,
   type SpellLevel,
+  prepareSpellForClass as corePrepareSpellForClass,
+  unprepareSpellForClass as coreUnprepareSpellForClass,
+  addKnownSpell as coreAddKnownSpell,
+  removeKnownSpell as coreRemoveKnownSpell,
+  learnCantripForClass as coreLearnCantripForClass,
+  consumeSpellSlot as coreConsumeSpellSlot,
+  recoverSpellSlot as coreRecoverSpellSlot,
+  getMatchingClassIds,
+  isSpellbookCaster,
 } from 'open20-core';
 import type { AppCharacter } from '@/types';
 import { resolveDeps, getSpell, buildDepsForCreate, getClassById } from '@/core/content-resolver';
@@ -132,6 +141,28 @@ interface CharacterSheetState {
   endConcentration: () => void;
   /** Roll a CON save for concentration and auto-end on failure (via core makeConcentrationCheck). */
   makeConcentrationSave: (damageAmount: number) => void;
+
+  // ── Spell Management ────────────────────────────────
+  /** Prepare a spell for the best-matching spellcasting class. */
+  prepareSpell: (spellId: string) => void;
+  /** Unprepare a spell (finds which class has it prepared). */
+  unprepareSpell: (spellId: string) => void;
+  /** Prepare a spell for a specific class. */
+  prepareSpellForClass: (classId: string, spellId: string) => void;
+  /** Unprepare a spell from a specific class. */
+  unprepareSpellForClass: (classId: string, spellId: string) => void;
+  /** Learn a spell (for spellbook casters: Wizard). */
+  learnSpell: (spellId: string) => void;
+  /** Unlearn a known spell (cascading: also unprepares). */
+  unlearnSpell: (spellId: string) => void;
+  /** Learn a cantrip for a specific class. */
+  learnCantrip: (classId: string, spellId: string) => void;
+  /** Unlearn a cantrip from a specific class. */
+  unlearnCantrip: (classId: string, spellId: string) => void;
+  /** Manually consume one spell slot (regular level or 'pact'). */
+  consumeSpellSlot: (level: number | 'pact') => void;
+  /** Manually recover one spell slot (regular level or 'pact'). */
+  recoverSpellSlot: (level: number | 'pact') => void;
 
   /** T-121: Merge identity patches, recompute derived stats, and persist. */
   updateCharacter: (input: UpdateCharacterInput) => void;
@@ -514,6 +545,190 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
 
       const next: AppCharacter = { ...updated, id: active.id };
       set({ lastDamageForConcentration: null });
+      persist(next);
+    },
+
+    // ── Spell Management Actions ─────────────────────────
+
+    prepareSpell: (spellId) => {
+      const active = get().character;
+      if (!active) return;
+      const spell = getSpell(spellId);
+      if (!spell) {
+        set({ error: `Spell not found: ${spellId}` });
+        return;
+      }
+      if (spell.level === 0) {
+        set({ error: 'Use Learn Cantrip for level 0 spells, not Prepare.' });
+        return;
+      }
+      const classIds = getMatchingClassIds(active, spell);
+      if (classIds.length === 0) {
+        set({ error: 'This spell does not match any of your classes.' });
+        return;
+      }
+      const classId = classIds[0]!;
+      const prevCount = active.spells.classSpellcasting[classId]?.preparedSpells.length ?? 0;
+      const updated = corePrepareSpellForClass(active, classId, spellId);
+      const newCount = updated.spells.classSpellcasting[classId]?.preparedSpells.length ?? 0;
+      if (newCount <= prevCount) {
+        set({
+          error: 'Cannot prepare more spells — maximum prepared reached or spell already prepared.',
+        });
+        return;
+      }
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    unprepareSpell: (spellId) => {
+      const active = get().character;
+      if (!active) return;
+      let foundClassId: string | null = null;
+      for (const [classId, data] of Object.entries(active.spells.classSpellcasting)) {
+        if (data.preparedSpells.includes(spellId)) {
+          foundClassId = classId;
+          break;
+        }
+      }
+      if (!foundClassId) {
+        set({ error: 'Spell is not currently prepared.' });
+        return;
+      }
+      const updated = coreUnprepareSpellForClass(active, foundClassId, spellId);
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    prepareSpellForClass: (classId, spellId) => {
+      const active = get().character;
+      if (!active) return;
+      const updated = corePrepareSpellForClass(active, classId, spellId);
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    unprepareSpellForClass: (classId, spellId) => {
+      const active = get().character;
+      if (!active) return;
+      const updated = coreUnprepareSpellForClass(active, classId, spellId);
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    learnSpell: (spellId) => {
+      const active = get().character;
+      if (!active) return;
+      const spell = getSpell(spellId);
+      if (!spell) {
+        set({ error: `Spell not found: ${spellId}` });
+        return;
+      }
+      const classIds = getMatchingClassIds(active, spell);
+      if (classIds.length === 0) {
+        set({ error: 'This spell does not match any of your classes.' });
+        return;
+      }
+      // Only spellbook casters (e.g., Wizard) "learn" spells; other classes
+      // access their full class list without needing to learn individual spells.
+      const learnableIds = classIds.filter((cid) => {
+        const klass = getClassById(cid);
+        return klass && isSpellbookCaster(klass);
+      });
+      if (learnableIds.length === 0) {
+        set({
+          error:
+            'This spell matches your classes but none of them learn spells individually (only spellbook casters like Wizard learn spells).',
+        });
+        return;
+      }
+      const classId = learnableIds[0]!;
+      const updated = coreAddKnownSpell(active, classId, spellId);
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    unlearnSpell: (spellId) => {
+      const active = get().character;
+      if (!active) return;
+      let foundClassId: string | null = null;
+      for (const [classId, data] of Object.entries(active.spells.classSpellcasting)) {
+        if (data.knownSpells.includes(spellId)) {
+          foundClassId = classId;
+          break;
+        }
+      }
+      if (!foundClassId) {
+        set({ error: 'Spell is not currently known.' });
+        return;
+      }
+      const updated = coreRemoveKnownSpell(active, foundClassId, spellId);
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    learnCantrip: (classId, spellId) => {
+      const active = get().character;
+      if (!active) return;
+      const prevCount = active.spells.classSpellcasting[classId]?.knownCantrips.length ?? 0;
+      const updated = coreLearnCantripForClass(active, classId, spellId);
+      const newCount = updated.spells.classSpellcasting[classId]?.knownCantrips.length ?? 0;
+      if (newCount <= prevCount) {
+        set({ error: 'Cannot learn cantrip — maximum known reached or already known.' });
+        return;
+      }
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    unlearnCantrip: (classId, spellId) => {
+      const active = get().character;
+      if (!active) return;
+      const classData = active.spells.classSpellcasting[classId];
+      if (!classData?.knownCantrips?.includes(spellId)) return;
+      const updated = {
+        ...active,
+        spells: {
+          ...active.spells,
+          classSpellcasting: {
+            ...active.spells.classSpellcasting,
+            [classId]: {
+              ...classData,
+              knownCantrips: classData.knownCantrips.filter((id) => id !== spellId),
+            },
+          },
+        },
+        updatedAt: new Date().toISOString(),
+      };
+      const recomputed = recomputeDerivedStats(updated, resolveDeps(updated));
+      const next: AppCharacter = { ...recomputed, id: active.id };
+      persist(next);
+    },
+
+    consumeSpellSlot: (level) => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = {
+        ...coreConsumeSpellSlot(active, level),
+        id: active.id,
+      };
+      persist(next);
+    },
+
+    recoverSpellSlot: (level) => {
+      const active = get().character;
+      if (!active) return;
+      const next: AppCharacter = {
+        ...coreRecoverSpellSlot(active, level),
+        id: active.id,
+      };
       persist(next);
     },
 
