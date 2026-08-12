@@ -18,8 +18,4 @@ export type GithubPagesBaseOptions = {
   defaultBase?: string;
 };
 
-export function createTunnelPlugins(params: {
-  cloudflareTunnel: (options?: { port?: number }) => Plugin;
-  QRCode: typeof import('qrcode');
-  port?: number;
-}): Plugin[];
+export function createTunnelPlugins(options?: { port?: number }): Plugin[];

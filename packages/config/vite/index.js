@@ -1,5 +1,6 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { tunnelQrcodePlugin } from './plugin-tunnel-qrcode.js';
 
 /**
@@ -48,32 +49,27 @@ export function createGithubPagesBase({
  * Opt-in via `TUNNEL=true` env var. When enabled, starts a Cloudflare quick
  * tunnel and prints a QR code to the terminal for easy mobile access.
  *
- * Requires `vite-plugin-cloudflare-tunnel` and `qrcode` as devDependencies
- * in the consuming package. The caller must pass the imported modules to
- * avoid bundling them in every build.
+ * `vite-plugin-cloudflare-tunnel` and `qrcode` are loaded dynamically
+ * only when TUNNEL=true — they are never bundled into production builds.
  *
  * Usage in vite.config.ts:
  *
- *   import cloudflareTunnel from 'vite-plugin-cloudflare-tunnel';
- *   import QRCode from 'qrcode';
  *   import { createTunnelPlugins } from '@open20/config/vite';
  *
  *   export default defineConfig({
- *     plugins: [
- *       ...otherPlugins,
- *       ...createTunnelPlugins({ cloudflareTunnel, QRCode, port: 5173 }),
- *     ],
+ *     plugins: [...createTunnelPlugins({ port: 5173 })],
  *   });
  *
- * @param {{
- *   cloudflareTunnel: import('vite-plugin-cloudflare-tunnel').default,
- *   QRCode: typeof import('qrcode'),
- *   port?: number,
- * }} params
+ * @param {{ port?: number }} [options]
  * @returns {import('vite').Plugin[]}
  */
-export function createTunnelPlugins({ cloudflareTunnel, QRCode, port = 5173 }) {
+export function createTunnelPlugins({ port = 5173 } = {}) {
   if (process.env.TUNNEL !== 'true') return [];
+
+  // Dynamically load optional dev deps – never evaluated during prod build.
+  const require = createRequire(import.meta.url);
+  const cloudflareTunnel = require('vite-plugin-cloudflare-tunnel').default;
+  const QRCode = require('qrcode');
 
   return [cloudflareTunnel({ port }), tunnelQrcodePlugin(QRCode)];
 }

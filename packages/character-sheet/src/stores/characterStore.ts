@@ -186,7 +186,7 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
     persist(next);
   }
 
-  function persist(next: AppCharacter): void {
+  function persist(next: AppCharacter): boolean {
     try {
       storageService.saveCharacter(next);
       set((s) => ({
@@ -194,7 +194,9 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
         characters: { ...s.characters, [next.id]: next },
         error: null,
       }));
+      return true;
     } catch (e) {
+      console.error('Failed to persist character to localStorage:', e);
       // Keep the in-memory update but surface the persistence failure.
       set((s) => ({
         character: next,
@@ -204,6 +206,7 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
             ? 'Storage is full. Export or delete characters to free space.'
             : 'Could not save character.',
       }));
+      return false;
     }
   }
 
@@ -216,21 +219,33 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
     lastDamageForConcentration: null,
 
     load: () => {
-      const characters = storageService.loadAll();
-      const activeId = storageService.getActiveId();
-      const active = activeId ? characters[activeId] : null;
-      // Refresh derived stats on the active character from current content.
-      let refreshed = active ?? null;
-      if (active) {
-        refreshed = { ...recomputeDerivedStats(active, resolveDeps(active)), id: active.id };
-        characters[active.id] = refreshed;
+      try {
+        const characters = storageService.loadAll();
+        const activeId = storageService.getActiveId();
+        const active = activeId ? characters[activeId] : null;
+        // Refresh derived stats on the active character from current content.
+        // If it fails (e.g. content pack hasn't loaded yet), use the raw character
+        // data from localStorage without recomputation.
+        let refreshed = active ?? null;
+        if (active) {
+          try {
+            refreshed = { ...recomputeDerivedStats(active, resolveDeps(active)), id: active.id };
+            characters[active.id] = refreshed;
+          } catch (depError) {
+            console.error('[Store] Failed to recompute derived stats during load:', depError);
+            refreshed = active;
+          }
+        }
+        set({
+          characters,
+          activeCharacterId: active ? active.id : null,
+          character: refreshed,
+          isLoaded: true,
+        });
+      } catch (e) {
+        console.error('[Store] Failed to load characters from storage:', e);
+        set({ isLoaded: true, error: 'Could not load saved characters.' });
       }
-      set({
-        characters,
-        activeCharacterId: active ? active.id : null,
-        character: refreshed,
-        isLoaded: true,
-      });
     },
 
     loadCharacter: (id) => {
@@ -287,7 +302,12 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
           id: crypto.randomUUID(),
         };
         storageService.setActiveId(next.id);
-        persist(next);
+        const saved = persist(next);
+        if (!saved) {
+          // Character is in memory but failed to persist. Return null so the
+          // wizard stays open and the user sees the error banner.
+          return null;
+        }
         set({ activeCharacterId: next.id });
         return next.id;
       } catch (e) {

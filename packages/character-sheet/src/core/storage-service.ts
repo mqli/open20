@@ -25,15 +25,44 @@ function isQuotaError(e: unknown): boolean {
 }
 
 export class StorageService {
-  /** Load all saved characters keyed by id. */
+  /** Load all saved characters keyed by id.
+   *  Auto-migrates from old array format `[{id, data}]` to new Record format. */
   loadAll(): Record<string, AppCharacter> {
     const data = localStorage.getItem(CHARACTERS_KEY);
     if (!data) return {};
     try {
-      return JSON.parse(data) as Record<string, AppCharacter>;
+      const parsed = JSON.parse(data);
+      // Old format: array of { id: string, data: object }
+      if (Array.isArray(parsed)) {
+        return this.migrateFromLegacyArray(parsed);
+      }
+      return parsed as Record<string, AppCharacter>;
     } catch {
       return {};
     }
+  }
+
+  /**
+   * One-time migration from legacy array format to Record<string, AppCharacter>.
+   * Old: [{ id: "abc", data: { name: "Foo", ... } }]
+   * New: { "abc": { id: "abc", name: "Foo", ... } }
+   */
+  private migrateFromLegacyArray(
+    legacy: Array<{ id: string; data: Record<string, unknown> }>,
+  ): Record<string, AppCharacter> {
+    const migrated: Record<string, AppCharacter> = {};
+    for (const entry of legacy) {
+      if (!entry.id || !entry.data) continue;
+      const character = { ...entry.data, id: entry.id } as AppCharacter;
+      migrated[entry.id] = character;
+    }
+    // Save back in new format — one-time migration
+    try {
+      localStorage.setItem(CHARACTERS_KEY, JSON.stringify(migrated));
+    } catch {
+      // Non-fatal — will retry on next load
+    }
+    return migrated;
   }
 
   /** Persist one character (upsert). Throws StorageQuotaError on quota. */
@@ -70,6 +99,7 @@ export class StorageService {
     try {
       localStorage.setItem(CHARACTERS_KEY, JSON.stringify(all));
     } catch (e) {
+      console.error('[Storage] Failed to write characters:', e);
       // Do NOT mutate stored data on failure — the prior value is untouched.
       if (isQuotaError(e)) throw new StorageQuotaError();
       throw e;

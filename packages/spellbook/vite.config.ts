@@ -2,8 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import cloudflareTunnel from 'vite-plugin-cloudflare-tunnel';
-import QRCode from 'qrcode';
+
 import { createAlias, createGithubPagesBase, createTunnelPlugins } from '@open20/config/vite';
 
 // https://vite.dev/config/
@@ -50,7 +49,7 @@ export default defineConfig({
         ],
       },
     }),
-    ...createTunnelPlugins({ cloudflareTunnel, QRCode, port: 5173 }),
+    ...createTunnelPlugins({ port: 5173 }),
   ],
   base: createGithubPagesBase({ pagesBase: '/open20/spellbook/' }),
   resolve: {

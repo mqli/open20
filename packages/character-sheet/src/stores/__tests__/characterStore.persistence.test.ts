@@ -100,4 +100,84 @@ describe('character store persistence', () => {
     expect(wizData.maxPrepared).toBeGreaterThan(0);
     expect(wizData.knownSpells.length).toBeGreaterThan(0);
   });
+
+  it('migrates legacy array-format characters on load', () => {
+    // Simulate old format: [{ id: "abc", data: { schemaVersion: "2024.1", name: "OldHero", ... } }]
+    const legacyData = JSON.stringify([
+      {
+        id: 'old-char-1',
+        data: {
+          schemaVersion: '2024.1',
+          name: 'OldHero',
+          species: 'Halfling',
+          speciesSubtype: null,
+          background: 'criminal',
+          classes: [
+            {
+              classId: 'Paladin',
+              level: 1,
+              subclassId: null,
+              subclassLevel: null,
+              hitDice: { die: 'd10', used: 0 },
+            },
+          ],
+          abilityScores: {
+            base: SCORES,
+            racialBonuses: {},
+            backgroundBonuses: {},
+            featBonuses: {},
+            featGrants: {},
+            temporaryBonuses: {},
+          },
+          skills: { Athletics: { proficient: false, expertise: false } },
+          feats: [],
+          equipment: [],
+          spells: { classSpellcasting: {}, spellSlots: {}, pactMagicSlots: null },
+          resources: {},
+          hitPoints: {
+            max: 10,
+            current: 10,
+            temporary: 0,
+            deathSaves: { successes: 0, failures: 0, isStable: false },
+          },
+          combatStats: {
+            AC: 10,
+            initiative: 0,
+            speed: 25,
+            passivePerception: 10,
+            proficiencyBonus: 2,
+            attacks: [],
+          },
+          currency: { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 },
+          conditions: [],
+          concentration: null,
+          activeEffects: [],
+          damageDefenses: { resistances: [], immunities: [], vulnerabilities: [] },
+          notes: '',
+          createdAt: '2026-01-01',
+          updatedAt: '2026-01-01',
+        },
+      },
+    ]);
+
+    localStorage.setItem('open20-character-sheet-characters', legacyData);
+    localStorage.setItem('open20-character-sheet-active-character', 'old-char-1');
+
+    // Load — should migrate
+    useCharacterStore.getState().load();
+    const state = useCharacterStore.getState();
+
+    expect(state.isLoaded).toBe(true);
+    expect(state.characters['old-char-1']).toBeDefined();
+    expect(state.character?.name).toBe('OldHero');
+    expect(state.activeCharacterId).toBe('old-char-1');
+
+    // Verify it was saved back in the new Record format
+    const raw = localStorage.getItem('open20-character-sheet-characters');
+    expect(raw).toBeTruthy();
+    const parsed = JSON.parse(raw!);
+    expect(Array.isArray(parsed)).toBe(false);
+    expect(parsed['old-char-1'].name).toBe('OldHero');
+    expect(parsed['old-char-1'].id).toBe('old-char-1');
+  });
 });
