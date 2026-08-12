@@ -25,3 +25,4 @@ packages/ui/storybook-static/
 playwright-report/
 test-results/
 playwright/*.html
+e2e/screenshots/
