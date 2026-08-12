@@ -133,6 +133,16 @@ export const getSpell = (id: string): Spell | undefined => findSpell(id, getCont
 export const searchSpells = (filter: SpellFilter): Spell[] =>
   srdSearchSpells(filter, getContentPack());
 
+/** Get all SRD spells as a record keyed by ID (for populating deps.spells). */
+export function getAllSpells(): Record<string, Spell> {
+  const spells = srdSearchSpells({}, getContentPack());
+  const map: Record<string, Spell> = {};
+  for (const spell of spells) {
+    map[spell.id] = spell;
+  }
+  return map;
+}
+
 // ── Equipment getters ─────────────────────────────────────
 
 export const getAllWeapons = (): Weapon[] => getWeapons(getContentPack());

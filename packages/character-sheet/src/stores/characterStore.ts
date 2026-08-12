@@ -46,7 +46,13 @@ import {
   isSpellbookCaster,
 } from 'open20-core';
 import type { AppCharacter } from '@/types';
-import { resolveDeps, getSpell, buildDepsForCreate, getClassById } from '@/core/content-resolver';
+import {
+  resolveDeps,
+  getSpell,
+  buildDepsForCreate,
+  getClassById,
+  getAllSpells,
+} from '@/core/content-resolver';
 import { restRng, rollSpellCast } from '@/core/roll-adapter';
 import { storageService, StorageQuotaError } from '@/core/storage-service';
 
@@ -264,18 +270,19 @@ export const useCharacterStore = create<CharacterSheetState>((set, get) => {
         const deps = buildDepsForCreate(input);
         // core createCharacter already runs recomputeDerivedStats internally.
         const created = coreCreateCharacter(input, deps);
-        // Second pass with character-resolved deps. `buildDepsForCreate` has no
-        // Character to read feat ids from, so it cannot populate `deps.feats`
-        // and core's internal recompute runs feat-blind — it skips feat ability
-        // bonuses, AC/attack bonuses and feat spells. No current SRD feat has an
-        // unconditional grant, so this changes nothing today; it is here so that
-        // a feat which does (or equipment, once creation grants any) is applied
-        // rather than silently dropped.
-        const recomputed = recomputeDerivedStats(created, resolveDeps(created));
+        // Second pass with character-resolved deps, plus the full spell catalog.
+        // resolveDeps only resolves spells the character already knows, but
+        // buildClassSpellData needs ALL content-pack spells in deps.spells to
+        // populate knownSpells for class-list casters (Cleric, Druid, etc.).
+        const secondDeps = resolveDeps(created);
+        if (!secondDeps.spells || Object.keys(secondDeps.spells).length === 0) {
+          secondDeps.spells = getAllSpells();
+        }
+        const recomputed = recomputeDerivedStats(created, secondDeps);
+        // A feat grant can raise CON and therefore max HP; recompute clamps
+        // current down to max but never heals, so top up after the fact.
         const next: AppCharacter = {
           ...recomputed,
-          // A feat grant can raise CON and therefore max HP; recompute clamps
-          // current down to max but never heals, so top up after the fact.
           hitPoints: { ...recomputed.hitPoints, current: recomputed.hitPoints.max },
           id: crypto.randomUUID(),
         };
