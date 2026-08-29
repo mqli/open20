@@ -25,14 +25,14 @@ export function CombatStatsBar({ character, onToggleInspiration, className }: Co
   const { combatStats } = character;
 
   return (
-    <div className={cn('grid grid-cols-3 gap-2', className)}>
-      {/* AC — not rollable */}
-      <CombatStatCard icon={Shield} label="AC" value={String(combatStats.AC)} />
+    <div className={cn('grid grid-cols-3 gap-2 md:grid-cols-6', className)}>
+      {/* AC — key defensive stat, emphasized */}
+      <CombatStatCard icon={Shield} label="AC" value={String(combatStats.AC)} accent />
 
       {/* Initiative — rollable */}
       <CombatStatCard
         icon={Swords}
-        label="Init"
+        label="Initiative"
         value={fmt(combatStats.initiative)}
         onTap={() => rollInitiative(character)}
       />
@@ -41,15 +41,20 @@ export function CombatStatsBar({ character, onToggleInspiration, className }: Co
       <CombatStatCard icon={Footprints} label="Speed" value={`${combatStats.speed} ft`} />
 
       {/* Passive Perception — not rollable */}
-      <CombatStatCard icon={Eye} label="PP" value={String(combatStats.passivePerception)} />
+      <CombatStatCard icon={Eye} label="Perception" value={String(combatStats.passivePerception)} />
 
-      {/* Proficiency Bonus — not rollable */}
-      <CombatStatCard icon={Star} label="PB" value={fmt(combatStats.proficiencyBonus)} />
+      {/* Proficiency Bonus — emphasized */}
+      <CombatStatCard
+        icon={Star}
+        label="Prof. Bonus"
+        value={fmt(combatStats.proficiencyBonus)}
+        accent
+      />
 
       {/* Inspiration — toggleable, filled primary-400 when active */}
       <CombatStatCard
         icon={Sparkles}
-        label="Insp"
+        label="Inspiration"
         value={character.inspiration ? 'ON' : '—'}
         iconClassName={character.inspiration ? 'text-primary-400' : undefined}
         onTap={onToggleInspiration}

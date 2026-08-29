@@ -1,7 +1,10 @@
 // ContentArea.tsx
-// Accordion-based content area. All sections are stacked vertically with collapse/expand behavior.
-// Combat section is always visible (non-collapsible).
-// Controlled by expandedSections/onToggleSection from AppShell.
+// Content area with two layout modes:
+// - Desktop (>=1024px): Combat is a permanent, non-collapsible focus panel at the top;
+//   the remaining 6 sections are rendered fully-expanded in a two-column grid.
+// - Mobile/tablet (<1024px): Combat stays pinned at top; the remaining sections are
+//   stacked in a single column with single-open collapse behavior.
+// Controlled by expandedSections/onToggleSection from AppShell (mobile only).
 
 import { useState } from 'react';
 import {
@@ -47,13 +50,16 @@ import { DamageDefensesSection } from '@/components/character/DamageDefenses';
 import { getSpellName } from '@/core/content-resolver';
 import { useCharacterStore } from '@/stores/characterStore';
 import { SpellBrowser } from '@/components/character/SpellBrowser';
-import type { SectionKey } from './Sidebar';
+import type { CollapsibleKey } from './sections';
 import { SectionCollapse } from './SectionCollapse';
 
 export interface ContentAreaProps {
   character: AppCharacter;
-  expandedSections: Record<SectionKey, boolean>;
-  onToggleSection: (key: SectionKey) => void;
+  /** Collapse state for the 6 collapsible sections (mobile single-open only). */
+  expandedSections: Record<CollapsibleKey, boolean>;
+  onToggleSection: (key: CollapsibleKey) => void;
+  /** Desktop flag — when true, renders two-column fully-expanded layout. */
+  isDesktop: boolean;
   modifyHP: (delta: number) => void;
   toggleDeathSave: (kind: 'success' | 'failure', index: number) => void;
   toggleInspiration?: () => void;
@@ -78,7 +84,7 @@ function CombatSection({
   toggleInspiration,
   toggleCondition,
   onToggleDamageDefense,
-}: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'className'>) {
+}: Omit<ContentAreaProps, 'expandedSections' | 'onToggleSection' | 'isDesktop' | 'className'>) {
   const concentrating = isConcentrating(character);
   const concentratingSpellId = getConcentratingSpellId(character);
   const lastDamage = useCharacterStore((s) => s.lastDamageForConcentration);
@@ -117,43 +123,36 @@ function CombatSection({
 
         <Divider />
 
-        {/* Combat Stats + Death Saves side-by-side on desktop */}
-        <div className="flex flex-col gap-3 md:flex-row md:gap-0 md:items-center">
-          <div className="flex-1 min-w-0 md:pr-6">
-            <CombatStatsBar character={character} onToggleInspiration={toggleInspiration} />
-          </div>
+        {/* Combat Stats — full-width single row on desktop, 2×3 on mobile */}
+        <CombatStatsBar character={character} onToggleInspiration={toggleInspiration} />
 
-          <Divider className="md:hidden" />
-
+        {/* Secondary: Death Saves | Damage Defenses | Conditions — three columns */}
+        <div className="grid gap-3 md:grid-cols-3 items-start">
           <DeathSavesTracker
             successes={character.hitPoints.deathSaves.successes}
             failures={character.hitPoints.deathSaves.failures}
             isStable={character.hitPoints.deathSaves.isStable}
             onToggleSuccess={(i) => toggleDeathSave('success', i)}
             onToggleFailure={(i) => toggleDeathSave('failure', i)}
-            className="p-0 border-none shadow-none bg-transparent md:border-l md:border-border md:pl-6"
           />
+
+          {/* Damage Defenses (T-210) */}
+          <DamageDefensesSection
+            defenses={character.damageDefenses}
+            onToggle={onToggleDamageDefense ?? (() => {})}
+          />
+
+          {/* Conditions (T-207) — wrapped in Surface to match the other columns */}
+          <Surface variant="default" padding="sm">
+            <ConditionsPanel
+              conditions={character.conditions}
+              onToggle={toggleCondition ?? (() => {})}
+            />
+          </Surface>
         </div>
 
-        <Divider />
-
-        {/* Damage Defenses (T-210) */}
-        <DamageDefensesSection
-          defenses={character.damageDefenses}
-          onToggle={onToggleDamageDefense ?? (() => {})}
-        />
-
-        <Divider />
-
-        {/* Weapon Attacks (T-109/T-110) */}
+        {/* Weapon Attacks (T-109/T-110) — full width */}
         <WeaponAttacksList character={character} />
-
-        {/* Conditions (T-207) — add/remove active conditions */}
-        <Divider />
-        <ConditionsPanel
-          conditions={character.conditions}
-          onToggle={toggleCondition ?? (() => {})}
-        />
       </div>
     </Surface>
   );
@@ -367,20 +366,30 @@ function PlaceholderSection({ title, description }: { title: string; description
 // ─── Section definitions ───────────────────────────────────
 
 interface SectionDefinition {
-  key: SectionKey;
+  key: CollapsibleKey;
   title: string;
   icon: typeof Shield;
 }
 
-const SECTIONS: SectionDefinition[] = [
-  { key: 'combat', title: 'Combat', icon: Shield },
+// The 6 collapsible sections, grouped into two balanced columns for desktop.
+// 3 sections per column, balancing tall sections (Skills ~18 rows, Spells) against
+// shorter ones (Abilities, Equipment, Features, Notes). Left = character capabilities
+// (Abilities + Skills + Features), Right = resources (Spells + Equipment + Notes).
+const LEFT_COLUMN: SectionDefinition[] = [
   { key: 'abilities', title: 'Ability Scores', icon: Dumbbell },
   { key: 'skills', title: 'Skills', icon: ScrollText },
+  { key: 'features', title: 'Features & Traits', icon: Feather },
+];
+
+const RIGHT_COLUMN: SectionDefinition[] = [
   { key: 'spells', title: 'Spellcasting', icon: WandSparkles },
   { key: 'equipment', title: 'Equipment', icon: Package },
-  { key: 'features', title: 'Features & Traits', icon: Feather },
   { key: 'notes', title: 'Notes', icon: FileText },
 ];
+
+// Combat is rendered separately as a permanent focus area (not a collapsible section).
+const COMBAT_TITLE = 'Combat';
+const COMBAT_ICON = Shield;
 
 // ─── ContentArea ────────────────────────────────────────────
 
@@ -388,6 +397,7 @@ export function ContentArea({
   character,
   expandedSections,
   onToggleSection,
+  isDesktop,
   modifyHP,
   toggleDeathSave,
   toggleInspiration,
@@ -399,19 +409,8 @@ export function ContentArea({
   onToggleDamageDefense,
   className,
 }: ContentAreaProps) {
-  const renderSectionContent = (key: SectionKey) => {
+  const renderSectionContent = (key: CollapsibleKey) => {
     switch (key) {
-      case 'combat':
-        return (
-          <CombatSection
-            character={character}
-            modifyHP={modifyHP}
-            toggleDeathSave={toggleDeathSave}
-            toggleInspiration={toggleInspiration}
-            toggleCondition={toggleCondition}
-            onToggleDamageDefense={onToggleDamageDefense}
-          />
-        );
       case 'abilities':
         return <AbilitiesSection character={character} />;
       case 'skills':
@@ -440,23 +439,91 @@ export function ContentArea({
     }
   };
 
+  // Combat — permanent focus area, never collapsed.
+  const combatSection = (
+    <section id="section-combat" aria-labelledby="section-combat-heading">
+      <div className="flex items-center gap-2 mb-2">
+        <COMBAT_ICON className="h-5 w-5 text-primary-500 shrink-0" aria-hidden="true" />
+        <h2
+          id="section-combat-heading"
+          className="flex-1 text-xs font-bold tracking-[0.2em] text-text-primary uppercase"
+        >
+          {COMBAT_TITLE}
+        </h2>
+      </div>
+      <CombatSection
+        character={character}
+        modifyHP={modifyHP}
+        toggleDeathSave={toggleDeathSave}
+        toggleInspiration={toggleInspiration}
+        toggleCondition={toggleCondition}
+        onToggleDamageDefense={onToggleDamageDefense}
+      />
+    </section>
+  );
+
   return (
     <main className={cn('flex-1 overflow-y-auto p-3 md:p-4 lg:p-5', className)}>
       <div className="flex flex-col gap-2">
-        {SECTIONS.map(({ key, title, icon }) => (
-          <SectionCollapse
-            key={key}
-            id={`section-${key}`}
-            title={title}
-            icon={icon}
-            expanded={expandedSections[key]}
-            onToggle={() => onToggleSection(key)}
-            disabled={key === 'combat'}
-          >
-            {renderSectionContent(key)}
-          </SectionCollapse>
-        ))}
+        {combatSection}
+
+        {isDesktop ? (
+          /* Desktop: two-column fully-expanded layout (no collapse). */
+          <div className="grid md:grid-cols-2 gap-x-4 gap-y-2 items-start">
+            <div className="flex flex-col gap-2">
+              {LEFT_COLUMN.map(({ key, title, icon }) => (
+                <section key={key} id={`section-${key}`} aria-labelledby={`section-${key}-heading`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon icon={icon} />
+                    <SectionHeading id={`section-${key}-heading`} title={title} />
+                  </div>
+                  {renderSectionContent(key)}
+                </section>
+              ))}
+            </div>
+            <div className="flex flex-col gap-2">
+              {RIGHT_COLUMN.map(({ key, title, icon }) => (
+                <section key={key} id={`section-${key}`} aria-labelledby={`section-${key}-heading`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon icon={icon} />
+                    <SectionHeading id={`section-${key}-heading`} title={title} />
+                  </div>
+                  {renderSectionContent(key)}
+                </section>
+              ))}
+            </div>
+          </div>
+        ) : (
+          /* Mobile/tablet: single column, single-open collapse. */
+          [...LEFT_COLUMN, ...RIGHT_COLUMN].map(({ key, title, icon }) => (
+            <SectionCollapse
+              key={key}
+              id={`section-${key}`}
+              title={title}
+              icon={icon}
+              expanded={expandedSections[key]}
+              onToggle={() => onToggleSection(key)}
+            >
+              {renderSectionContent(key)}
+            </SectionCollapse>
+          ))
+        )}
       </div>
     </main>
+  );
+}
+
+// ─── Section heading helpers (desktop static header) ─────────
+
+function Icon({ icon }: { icon: typeof Shield }) {
+  const IconComponent = icon;
+  return <IconComponent className="h-5 w-5 text-primary-500 shrink-0" aria-hidden="true" />;
+}
+
+function SectionHeading({ id, title }: { id: string; title: string }) {
+  return (
+    <h2 id={id} className="flex-1 text-xs font-bold tracking-[0.2em] text-text-primary uppercase">
+      {title}
+    </h2>
   );
 }

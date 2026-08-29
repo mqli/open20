@@ -20,6 +20,8 @@ export interface CombatStatCardProps {
   iconClassName?: string;
   /** Additional class for the card */
   className?: string;
+  /** Emphasize the value with a larger, primary-accented rendering (for key stats). */
+  accent?: boolean;
 }
 
 export function CombatStatCard({
@@ -29,6 +31,7 @@ export function CombatStatCard({
   onTap,
   iconClassName,
   className,
+  accent = false,
 }: CombatStatCardProps) {
   const isInteractive = !!onTap;
 
@@ -42,11 +45,22 @@ export function CombatStatCard({
         className,
       )}
     >
-      <Icon className={cn('h-4 w-4 shrink-0 text-text-secondary', iconClassName)} aria-hidden />
+      <Icon
+        className={cn(
+          'h-4 w-4 shrink-0',
+          accent ? 'text-primary-400' : 'text-text-secondary',
+          iconClassName,
+        )}
+        aria-hidden
+      />
       <Text variant="labelSm" color="secondary" className="shrink-0">
         {label}
       </Text>
-      <Text variant="headingSm" weight="bold" className="tabular-nums leading-none ml-auto">
+      <Text
+        variant="headingSm"
+        weight="bold"
+        className={cn('tabular-nums leading-none ml-auto', accent && 'text-lg text-primary-400')}
+      >
         {value}
       </Text>
     </Surface>

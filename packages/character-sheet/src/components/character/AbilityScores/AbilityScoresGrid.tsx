@@ -190,7 +190,7 @@ export function AbilityScoresGrid({
   const { abilityScores, combatStats } = character;
 
   return (
-    <div className={cn('grid grid-cols-3 gap-2 md:grid-cols-6', className)}>
+    <div className={cn('grid grid-cols-3 gap-2', className)}>
       {ORDER.map(({ ability, short }) => {
         const total = getTotalScore(abilityScores, ability);
         const saveBonus = getSavingThrowBonus(

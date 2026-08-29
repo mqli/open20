@@ -24,8 +24,8 @@ describe('CombatStatsBar', () => {
     const char = makeCharacter();
     render(<CombatStatsBar character={char} />);
     // DEX 14+2 racial = 16 (+3) -> +3 initiative
-    // Both Init and PB show +3, so query via the Init button
-    const initBtn = screen.getByRole('button', { name: 'Roll Init' });
+    // Both Initiative and PB show +3, so query via the Initiative button
+    const initBtn = screen.getByRole('button', { name: 'Roll Initiative' });
     expect(initBtn).toHaveTextContent('+3');
   });
 
@@ -70,7 +70,7 @@ describe('CombatStatsBar', () => {
     render(<CombatStatsBar character={char} onToggleInspiration={() => {}} />);
 
     // The Sparkles icon should have text-primary-400
-    const inspBtn = screen.getByRole('button', { name: 'Roll Insp' });
+    const inspBtn = screen.getByRole('button', { name: 'Roll Inspiration' });
     const icon = inspBtn.querySelector('svg');
     expect(icon?.className).toContain('text-primary-400');
   });
@@ -79,7 +79,7 @@ describe('CombatStatsBar', () => {
     const char = makeCharacter();
     render(<CombatStatsBar character={char} onToggleInspiration={() => {}} />);
 
-    const inspBtn = screen.getByRole('button', { name: 'Roll Insp' });
+    const inspBtn = screen.getByRole('button', { name: 'Roll Inspiration' });
     const icon = inspBtn.querySelector('svg');
     expect(icon?.className).toContain('text-text-secondary');
     expect(icon?.className).not.toContain('text-primary-400');
@@ -89,7 +89,7 @@ describe('CombatStatsBar', () => {
     const onToggleInspiration = vi.fn();
     const char = makeCharacter();
     render(<CombatStatsBar character={char} onToggleInspiration={onToggleInspiration} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Roll Insp' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll Inspiration' }));
     expect(onToggleInspiration).toHaveBeenCalled();
   });
 
@@ -98,7 +98,7 @@ describe('CombatStatsBar', () => {
   it('calls rollInitiative when initiative card is tapped', () => {
     const char = makeCharacter();
     render(<CombatStatsBar character={char} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Roll Init' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Roll Initiative' }));
     expect(rollInitiative).toHaveBeenCalledWith(char);
   });
 
@@ -111,10 +111,10 @@ describe('CombatStatsBar', () => {
 
     // AC should render as text but NOT have a surrounding button
     const buttons = screen.queryAllByRole('button');
-    // Init + Inspiration should be buttons
+    // Initiative + Inspiration should be buttons
     expect(buttons).toHaveLength(2);
-    expect(screen.getByRole('button', { name: 'Roll Init' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Roll Insp' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Roll Initiative' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Roll Inspiration' })).toBeInTheDocument();
   });
 
   // --- layout ---

@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     ...baseConfig.test,
-    exclude: ['**/node_modules/**', '**/dist/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
     // happy-dom provides document + localStorage for component and store tests.
     environment: 'happy-dom',
     setupFiles: ['./src/test/setup.ts'],

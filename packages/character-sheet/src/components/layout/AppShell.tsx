@@ -1,13 +1,13 @@
 // AppShell.tsx
 // Responsive scaffold implementing Wireframe_Design.md §4 layout architecture.
 //
-// Desktop (>= 1024px): Sidebar (250px) + ContentArea (accordion) side by side
-// Tablet  (768-1023px): HeroStrip + ContentArea (accordion) + MobileBottomBar
-// Mobile  (< 768px):    HeroStrip + ContentArea (accordion) + MobileBottomBar
+// Desktop (>= 1024px): Sidebar (250px) + ContentArea (Combat focus area + two-column grid)
+// Tablet  (768-1023px): HeroStrip + ContentArea (single column) + MobileBottomBar
+// Mobile  (< 768px):    HeroStrip + ContentArea (single column) + MobileBottomBar
 //
-// Navigation: Sidebar tabs / MobileBottomBar tabs expand the target section and scroll to it.
-// Desktop: multi-open accordion (all sections independently togglable).
-// Mobile: single-open accordion (only one section open at a time, combat always open).
+// Navigation: Sidebar tabs / MobileBottomBar tabs scroll to the target section.
+// Desktop: all sections always expanded (no collapse).
+// Mobile: single-open collapse (only one section open at a time, combat always pinned).
 
 import { useState, useCallback } from 'react';
 import { Plus, Users, Pencil } from 'lucide-react';
@@ -16,24 +16,16 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { getClassName, getSpeciesName } from '@/core/content-resolver';
 import { useIsLargeScreen } from '@/hooks/useIsLargeScreen';
 import { Sidebar } from './Sidebar';
-import type { SectionKey } from './Sidebar';
+import { COLLAPSIBLE_SECTIONS } from './sections';
+import type { CollapsibleKey, SectionKey } from './sections';
 import { HeroStrip } from './HeroStrip';
 import { ContentArea } from './ContentArea';
 import { MobileBottomBar } from './MobileBottomBar';
+import { RestActionsCompact } from './RestActions';
 import { CharacterSelector } from '@/components/character/CharacterSelector';
 import { CharacterCreateWizard } from '@/components/character/CharacterCreateWizard';
 import { CharacterEditDialog } from '@/components/character/CharacterEditDialog';
 import { LevelUpWizard } from '@/components/character/LevelUpWizard';
-
-const ALL_SECTIONS: SectionKey[] = [
-  'combat',
-  'abilities',
-  'skills',
-  'spells',
-  'equipment',
-  'features',
-  'notes',
-];
 
 export function AppShell() {
   const { isDesktop } = useIsLargeScreen();
@@ -52,15 +44,12 @@ export function AppShell() {
     toggleDamageDefense,
   } = useCharacterStore();
 
-  // Accordion state: combat is always expanded.
-  // Desktop: all sections start expanded (multi-open).
-  // Mobile: only combat expanded by default (single-open).
-  const [expandedSections, setExpandedSections] = useState<Record<SectionKey, boolean>>(() => {
-    const initial = { combat: true } as Record<SectionKey, boolean>;
-    // On mobile, only combat starts expanded; desktop has all open.
-    // isDesktop defaults to true before matchMedia resolves (safe for SSR).
-    ALL_SECTIONS.forEach((k) => {
-      initial[k] = isDesktop || k === 'combat';
+  // Collapse state (mobile single-open only). Combat is excluded — it is a
+  // permanent focus area rendered above the fold and never collapses.
+  const [expandedSections, setExpandedSections] = useState<Record<CollapsibleKey, boolean>>(() => {
+    const initial = {} as Record<CollapsibleKey, boolean>;
+    COLLAPSIBLE_SECTIONS.forEach((k) => {
+      initial[k] = k === 'abilities';
     });
     return initial;
   });
@@ -74,60 +63,37 @@ export function AppShell() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showLevelUpWizard, setShowLevelUpWizard] = useState(false);
 
-  // Toggle a section's expanded state.
-  // Desktop: toggle independently.
-  // Mobile: single-open (close other sections besides combat).
-  const handleToggleSection = useCallback(
-    (key: SectionKey) => {
-      if (key === 'combat') return; // never collapse combat
-      if (isDesktop) {
-        setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
-      } else {
-        // Single-open: close all other sections, toggle the target.
-        // Use functional updater to avoid stale closure on expandedSections.
-        setExpandedSections((prev) => {
-          const next = { combat: true } as Record<SectionKey, boolean>;
-          ALL_SECTIONS.forEach((k) => {
-            next[k] = k === key ? !prev[key] : k === 'combat';
-          });
-          return next;
-        });
-      }
-    },
-    [isDesktop],
-  );
-
-  // Navigation handler: expand target section, scroll to it after React commit,
-  // and update the highlighted nav item.
-  const handleSectionChange = useCallback(
-    (key: SectionKey) => {
-      setLastNavigatedSection(key);
-
-      setExpandedSections((prev) => {
-        const next = { combat: true } as Record<SectionKey, boolean>;
-        if (isDesktop) {
-          // Desktop: preserve other sections, expand target
-          ALL_SECTIONS.forEach((k) => {
-            next[k] = k === key ? true : prev[k];
-          });
-        } else {
-          // Mobile: single-open, only combat + target
-          ALL_SECTIONS.forEach((k) => {
-            next[k] = k === 'combat' || k === key;
-          });
-        }
-        return next;
+  // Toggle a section's expanded state (mobile single-open only).
+  const handleToggleSection = useCallback((key: CollapsibleKey) => {
+    setExpandedSections((prev) => {
+      const next = {} as Record<CollapsibleKey, boolean>;
+      COLLAPSIBLE_SECTIONS.forEach((k) => {
+        next[k] = k === key ? !prev[key] : false;
       });
+      return next;
+    });
+  }, []);
 
-      // Defer scroll until React has committed the expanded state update.
-      // Without this, the target section may still be collapsed (grid-rows-[0fr])
-      // and scrollIntoView would land on the wrong position.
-      requestAnimationFrame(() => {
-        document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: 'smooth' });
+  // Navigation handler: expand target section (mobile), scroll to it after
+  // React commit, and update the highlighted nav item.
+  const handleSectionChange = useCallback((key: SectionKey) => {
+    setLastNavigatedSection(key);
+
+    if (key !== 'combat') {
+      const next = {} as Record<CollapsibleKey, boolean>;
+      COLLAPSIBLE_SECTIONS.forEach((k) => {
+        next[k] = k === key;
       });
-    },
-    [isDesktop],
-  );
+      setExpandedSections(next);
+    }
+
+    // Defer scroll until React has committed the expanded state update.
+    // Without this, the target section may still be collapsed (grid-rows-[0fr])
+    // and scrollIntoView would land on the wrong position.
+    requestAnimationFrame(() => {
+      document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }, []);
 
   const handleToggleEquip = useCallback(
     (itemId: string) => {
@@ -207,11 +173,12 @@ export function AppShell() {
           onLevelUp={() => setShowLevelUpWizard(true)}
         />
 
-        {/* Content — accordion */}
+        {/* Content — combat focus area + two-column grid */}
         <ContentArea
           character={character}
           expandedSections={expandedSections}
           onToggleSection={handleToggleSection}
+          isDesktop
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
           toggleInspiration={toggleInspiration}
@@ -271,20 +238,28 @@ export function AppShell() {
           </Button>
         </div>
 
-        {/* Hero Strip — tap to expand full combat stats */}
-        <HeroStrip
-          character={character}
-          onExpand={() => handleSectionChange('combat')}
-          className="border-b border-border"
-        />
+        {/* Hero Strip + Rest/LevelUp actions — combat stats pinned at top */}
+        <div className="flex items-center gap-1 border-b border-border">
+          <HeroStrip
+            character={character}
+            onExpand={() => handleSectionChange('combat')}
+            className="flex-1 min-w-0"
+          />
+          <RestActionsCompact
+            onLevelUp={() => setShowLevelUpWizard(true)}
+            levelUpDisabled={character.classes.reduce((sum, c) => sum + c.level, 0) >= 20}
+            className="shrink-0 pr-3"
+          />
+        </div>
       </div>
 
-      {/* Content — accordion */}
+      {/* Content — single column, single-open collapse */}
       <div className="flex-1 pb-[56px]">
         <ContentArea
           character={character}
           expandedSections={expandedSections}
           onToggleSection={handleToggleSection}
+          isDesktop={false}
           modifyHP={modifyHP}
           toggleDeathSave={toggleDeathSave}
           toggleInspiration={toggleInspiration}
@@ -299,11 +274,7 @@ export function AppShell() {
       </div>
 
       {/* Bottom Tab Bar */}
-      <MobileBottomBar
-        activeSection={lastNavigatedSection}
-        onSectionChange={handleSectionChange}
-        onLevelUp={() => setShowLevelUpWizard(true)}
-      />
+      <MobileBottomBar activeSection={lastNavigatedSection} onSectionChange={handleSectionChange} />
 
       {/* Character dialogs — render at top level */}
       {characterDialogs}

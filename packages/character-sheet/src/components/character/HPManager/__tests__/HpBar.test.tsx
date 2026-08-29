@@ -14,7 +14,8 @@ function renderWithI18n(ui: React.ReactElement) {
 describe('HpBar', () => {
   it('renders current/max and temp HP', () => {
     renderWithI18n(<HpBar current={34} max={45} temporary={10} onAdjust={() => {}} />);
-    expect(screen.getByText('34 / 45')).toBeInTheDocument();
+    expect(screen.getByText('34')).toBeInTheDocument();
+    expect(screen.getByText('/ 45')).toBeInTheDocument();
     expect(screen.getByText('+10 Temp')).toBeInTheDocument();
   });
 

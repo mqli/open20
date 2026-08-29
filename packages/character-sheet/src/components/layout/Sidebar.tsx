@@ -23,15 +23,9 @@ import type { AppCharacter } from '@/types';
 import { Tabs, Text, Button, cn } from '@open20/ui';
 import { HeroCard } from './HeroCard';
 import { RestActions } from './RestActions';
+import type { SectionKey } from './sections';
 
-export type SectionKey =
-  | 'combat'
-  | 'abilities'
-  | 'skills'
-  | 'spells'
-  | 'equipment'
-  | 'features'
-  | 'notes';
+export type { SectionKey, CollapsibleKey } from './sections';
 
 export interface SidebarProps {
   character: AppCharacter;

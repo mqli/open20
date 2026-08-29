@@ -81,35 +81,9 @@ describe('SectionCollapse', () => {
     expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('disables toggle when disabled is true', () => {
-    render(
-      <SectionCollapse
-        id="combat"
-        title="Combat"
-        icon={Shield}
-        expanded
-        onToggle={vi.fn()}
-        disabled
-      >
-        <p>Combat content</p>
-      </SectionCollapse>,
-    );
-    // No button rendered
-    expect(screen.queryByRole('button')).toBeNull();
-    // Content always visible
-    expect(screen.getByText('Combat content')).toBeInTheDocument();
-  });
-
   it('sets id and aria-labelledby for accessibility', () => {
     render(
-      <SectionCollapse
-        id="section-combat"
-        title="Combat"
-        icon={Shield}
-        expanded
-        onToggle={vi.fn()}
-        disabled
-      >
+      <SectionCollapse id="section-combat" title="Combat" icon={Shield} expanded onToggle={vi.fn()}>
         <p>Accessible</p>
       </SectionCollapse>,
     );

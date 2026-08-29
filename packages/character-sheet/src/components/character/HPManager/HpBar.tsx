@@ -35,10 +35,20 @@ export function HpBar({ current, max, temporary, onAdjust, className, noSurface 
 
   const content = (
     <>
-      <div className="flex items-center justify-between">
-        <Text variant="labelSm" color="secondary" className="uppercase tracking-wide">
-          Hit Points
-        </Text>
+      <div className="flex items-end justify-between">
+        <div className="flex flex-col gap-0.5">
+          <Text variant="labelSm" color="secondary" className="uppercase tracking-wide">
+            Hit Points
+          </Text>
+          <div className="flex items-baseline gap-1">
+            <Text weight="bold" className="text-2xl tabular-nums leading-none">
+              {current}
+            </Text>
+            <Text variant="bodySm" color="secondary" className="tabular-nums">
+              / {max}
+            </Text>
+          </div>
+        </div>
         {temporary > 0 && (
           <Text
             variant="labelSm"
@@ -51,7 +61,7 @@ export function HpBar({ current, max, temporary, onAdjust, className, noSurface 
       </div>
 
       <div
-        className="relative h-6 w-full overflow-hidden rounded-md bg-bg-tertiary motion-reduce:transition-none"
+        className="relative h-4 w-full overflow-hidden rounded-full bg-bg-tertiary motion-reduce:transition-none"
         role="progressbar"
         aria-valuenow={current}
         aria-valuemin={0}
@@ -60,7 +70,7 @@ export function HpBar({ current, max, temporary, onAdjust, className, noSurface 
       >
         <div
           className={cn(
-            'h-full rounded-md transition-[width] duration-300 motion-reduce:transition-none',
+            'h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none',
             isDanger ? 'bg-danger' : 'bg-success',
           )}
           style={{ width: `${pct}%` }}
@@ -74,14 +84,6 @@ export function HpBar({ current, max, temporary, onAdjust, className, noSurface 
             }}
           />
         )}
-        <span
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ textShadow: '0 0 4px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.4)' }}
-        >
-          <Text variant="body" weight="bold" className="tabular-nums text-text-primary">
-            {current} / {max}
-          </Text>
-        </span>
       </div>
 
       {/* Three-group layout: grid columns on sm+, stacked on mobile */}

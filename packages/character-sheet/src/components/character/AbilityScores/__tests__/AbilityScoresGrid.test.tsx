@@ -44,7 +44,7 @@ describe('AbilityScoresGrid', () => {
     expect(positiveMods.length).toBeGreaterThan(0);
   });
 
-  it('uses grid-cols-3 for mobile layout', () => {
+  it('uses a 3-column grid layout', () => {
     const char = makeCharacter();
     const { container } = renderWithTooltip(
       <AbilityScoresGrid character={char} onRollCheck={noop} onRollSave={noop} />,

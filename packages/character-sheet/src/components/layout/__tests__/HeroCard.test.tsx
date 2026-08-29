@@ -65,51 +65,6 @@ describe('HeroCard', () => {
     expect(hpRow.textContent).not.toMatch(/^\+\d/);
   });
 
-  it('renders AC from combatStats', () => {
-    const char = makeCharacter();
-    render(<HeroCard character={char} />);
-    expect(screen.getByText(String(char.combatStats.AC))).toBeInTheDocument();
-  });
-
-  it('renders initiative with + prefix', () => {
-    const char = makeCharacter();
-    render(<HeroCard character={char} />);
-    // Initiative stat item should show formatted modifier (e.g. +3 for DEX 16)
-    // Find the row containing "Init" label and check its value
-    const initRow = screen.getByText('Init').parentElement;
-    expect(initRow).toBeInTheDocument();
-    expect(initRow!.textContent).toContain('Init');
-    // Must show a positive or negative value
-    expect(initRow!.textContent).toMatch(/[+-]?\d/);
-  });
-
-  it('renders speed in feet', () => {
-    const char = makeCharacter();
-    render(<HeroCard character={char} />);
-    expect(screen.getByText(`${char.combatStats.speed} ft`)).toBeInTheDocument();
-  });
-
-  it('renders PB with + prefix', () => {
-    const char = makeCharacter();
-    render(<HeroCard character={char} />);
-    // PB stat item — find the row containing "PB" label
-    const pbRow = screen.getByText('PB').parentElement;
-    expect(pbRow).toBeInTheDocument();
-    // Level 5 → PB is +3
-    expect(pbRow!.textContent).toMatch(/\+3/);
-  });
-
-  it('renders negative initiative correctly', () => {
-    // DEX 6 gives modifier -2. Human has no racial DEX bonus.
-    const char = makeCharacter({
-      speciesId: 'Human',
-      abilityScores: { Dexterity: 6 },
-    });
-    render(<HeroCard character={char} />);
-    // fmt(-2) returns "-2" (no + prefix)
-    expect(screen.getByText('-2')).toBeInTheDocument();
-  });
-
   it('applies className prop to root Surface', () => {
     const char = makeCharacter();
     const { container } = render(<HeroCard character={char} className="test-class-123" />);

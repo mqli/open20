@@ -1,6 +1,7 @@
 // SectionCollapse.tsx (T-127)
 // Presentational accordion section: collapsible header + animated content area.
-// Used by ContentArea to stack all sections vertically with collapse/expand behavior.
+// Used by ContentArea for the mobile/tablet single-column layout only (single-open
+// collapse). Desktop renders sections statically via ContentArea's two-column grid.
 // NFR-01: color + redundant non-color cues (Chevron direction).
 // NFR-02: >=44x44px tap target, keyboard operable, aria-expanded.
 
@@ -20,8 +21,6 @@ export interface SectionCollapseProps {
   expanded: boolean;
   /** Called when header is clicked */
   onToggle: () => void;
-  /** When true, no toggle button, always expanded */
-  disabled?: boolean;
   /** Section content */
   children: ReactNode;
   /** Additional class for the outer wrapper */
@@ -34,7 +33,6 @@ export function SectionCollapse({
   icon: Icon,
   expanded,
   onToggle,
-  disabled = false,
   children,
   className,
 }: SectionCollapseProps) {
@@ -43,10 +41,19 @@ export function SectionCollapse({
 
   return (
     <section id={id} aria-labelledby={headingId} className={className}>
-      {/* Header */}
-      {disabled ? (
-        /* Non-interactive header for always-visible sections (Combat) */
-        <div className="flex items-center gap-2 mb-2">
+      {/* Interactive header */}
+      <Button
+        variant="ghost"
+        size="md"
+        className={cn(
+          'w-full justify-between gap-2 py-2 px-0',
+          'focus-visible:ring-2 focus-visible:ring-primary-600 rounded-md',
+        )}
+        onClick={onToggle}
+        aria-expanded={expanded}
+        aria-controls={panelId}
+      >
+        <span className="flex items-center gap-2">
           <Icon className="h-5 w-5 text-primary-500 shrink-0" aria-hidden="true" />
           <h2
             id={headingId}
@@ -54,41 +61,16 @@ export function SectionCollapse({
           >
             {title}
           </h2>
-        </div>
-      ) : (
-        /* Interactive header */
-        <Button
-          variant="ghost"
-          size="md"
+        </span>
+        <ChevronDown
           className={cn(
-            'w-full justify-between gap-2 py-2 px-0',
-            'focus-visible:ring-2 focus-visible:ring-primary-600 rounded-md',
+            'h-5 w-5 shrink-0 text-text-secondary transition-transform duration-200',
+            'motion-reduce:transition-none',
+            expanded && 'rotate-180',
           )}
-          onClick={onToggle}
-          aria-expanded={expanded}
-          aria-controls={panelId}
-        >
-          <span className="flex items-center gap-2">
-            <Icon className="h-5 w-5 text-primary-500 shrink-0" aria-hidden="true" />
-            <h2
-              id={headingId}
-              className={cn(
-                'flex-1 text-xs font-bold tracking-[0.2em] text-text-primary uppercase',
-              )}
-            >
-              {title}
-            </h2>
-          </span>
-          <ChevronDown
-            className={cn(
-              'h-5 w-5 shrink-0 text-text-secondary transition-transform duration-200',
-              'motion-reduce:transition-none',
-              expanded && 'rotate-180',
-            )}
-            aria-hidden="true"
-          />
-        </Button>
-      )}
+          aria-hidden="true"
+        />
+      </Button>
 
       {/* Content — animated expand/collapse via CSS grid trick */}
       <div
@@ -103,7 +85,7 @@ export function SectionCollapse({
         )}
       >
         <div className="overflow-hidden">
-          <div className={disabled ? '' : 'pt-2 pb-1'}>{children}</div>
+          <div className="pt-2 pb-1">{children}</div>
         </div>
       </div>
     </section>

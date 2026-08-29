@@ -1,10 +1,10 @@
 // MobileBottomBar.tsx
 // Mobile bottom tab bar (56px height, fixed at bottom).
-// 4 primary tabs: Combat | Skills | Spells | More
-// "More" opens an inline dropdown menu for overflow sections:
-// Abilities | Equipment | Features | Notes
+// 4 primary tabs (Combat | Skills | Spells | Abilities) + a "More" tab that opens
+// a bottom sheet for the low-frequency sections (Equipment | Features | Notes).
+// Rest/LevelUp actions now live in the top sticky header (see AppShell).
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Shield,
   ScrollText,
@@ -14,17 +14,14 @@ import {
   Package,
   Feather,
   FileText,
-  TrendingUp,
+  X,
 } from 'lucide-react';
-import { Button, cn } from '@open20/ui';
-import type { SectionKey } from './Sidebar';
-import { RestActions } from './RestActions';
-import { useCharacterStore } from '@/stores/characterStore';
+import { cn } from '@open20/ui';
+import type { SectionKey } from './sections';
 
 export interface MobileBottomBarProps {
   activeSection: SectionKey;
   onSectionChange: (section: SectionKey) => void;
-  onLevelUp: () => void;
   className?: string;
 }
 
@@ -36,180 +33,143 @@ const PRIMARY_TABS: Array<{
   { id: 'combat', label: 'Combat', icon: Shield },
   { id: 'skills', label: 'Skills', icon: ScrollText },
   { id: 'spells', label: 'Spells', icon: WandSparkles },
+  { id: 'abilities', label: 'Abilities', icon: Dumbbell },
 ];
 
-const OVERFLOW_SECTIONS: Array<{
+const SECONDARY_SECTIONS: Array<{
   id: SectionKey;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { id: 'abilities', label: 'Abilities', icon: Dumbbell },
   { id: 'equipment', label: 'Equipment', icon: Package },
   { id: 'features', label: 'Features', icon: Feather },
   { id: 'notes', label: 'Notes', icon: FileText },
 ];
 
-const OVERFLOW_IDS: SectionKey[] = ['abilities', 'equipment', 'features', 'notes'];
-const isOverflow = (section: SectionKey) => OVERFLOW_IDS.includes(section);
+const SECONDARY_IDS: SectionKey[] = ['equipment', 'features', 'notes'];
+const isSecondary = (section: SectionKey) => SECONDARY_IDS.includes(section);
 
 export function MobileBottomBar({
   activeSection,
   onSectionChange,
-  onLevelUp,
   className,
 }: MobileBottomBarProps) {
-  const character = useCharacterStore((s) => s.character);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const totalLevel = character?.classes.reduce((sum, c) => sum + c.level, 0) ?? 0;
-
-  // Close dropdown on outside click and Escape key
-  useEffect(() => {
-    if (!moreOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target as Node) &&
-        moreRef.current &&
-        !moreRef.current.contains(e.target as Node)
-      ) {
-        setMoreOpen(false);
-      }
-    }
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        setMoreOpen(false);
-        moreRef.current?.focus();
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClick);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [moreOpen]);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
-    <nav
-      className={cn(
-        'sticky bottom-0 z-30 flex items-center border-t border-border bg-bg-secondary lg:hidden h-[56px]',
-        className,
-      )}
-      role="tablist"
-      aria-label="Character sheet navigation"
-    >
-      {PRIMARY_TABS.map(({ id, label, icon: Icon }) => {
-        const isActive = activeSection === id;
-        return (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            aria-label={label}
-            onClick={() => onSectionChange(id)}
-            className={cn(
-              'relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1',
-              'transition-colors duration-150',
-              isActive ? 'text-primary-400' : 'text-text-tertiary hover:text-text-secondary',
-            )}
-          >
-            <Icon className="h-5 w-5" />
-            <span className="text-[10px] font-medium leading-none">{label}</span>
-            {isActive && (
-              <div className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary-400" />
-            )}
-          </button>
-        );
-      })}
+    <>
+      <nav
+        className={cn(
+          'sticky bottom-0 z-30 flex items-center border-t border-border bg-bg-secondary lg:hidden h-[56px]',
+          className,
+        )}
+        role="tablist"
+        aria-label="Character sheet navigation"
+      >
+        {PRIMARY_TABS.map(({ id, label, icon: Icon }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-label={label}
+              onClick={() => onSectionChange(id)}
+              className={cn(
+                'relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1',
+                'transition-colors duration-150',
+                isActive ? 'text-primary-400' : 'text-text-tertiary hover:text-text-secondary',
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              <span className="text-[10px] font-medium leading-none">{label}</span>
+              {isActive && (
+                <div className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary-400" />
+              )}
+            </button>
+          );
+        })}
 
-      {/* More tab with dropdown */}
-      <div className="relative flex flex-1">
+        {/* More tab — opens bottom sheet for secondary sections */}
         <button
-          ref={moreRef}
           type="button"
           role="tab"
-          aria-selected={isOverflow(activeSection)}
+          aria-selected={isSecondary(activeSection)}
           aria-label="More sections"
-          aria-expanded={moreOpen}
-          aria-haspopup={true}
-          onClick={() => setMoreOpen((prev) => !prev)}
+          aria-haspopup="dialog"
+          aria-expanded={sheetOpen}
+          onClick={() => setSheetOpen(true)}
           className={cn(
-            'relative flex w-full flex-col items-center justify-center gap-0.5 py-1',
+            'relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1',
             'transition-colors duration-150',
-            isOverflow(activeSection)
+            isSecondary(activeSection)
               ? 'text-primary-400'
               : 'text-text-tertiary hover:text-text-secondary',
           )}
         >
           <MoreHorizontal className="h-5 w-5" />
           <span className="text-[10px] font-medium leading-none">More</span>
-          {isOverflow(activeSection) && (
+          {isSecondary(activeSection) && (
             <div className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary-400" />
           )}
         </button>
+      </nav>
 
-        {/* Dropdown panel */}
-        {moreOpen && (
+      {/* Bottom sheet for secondary sections */}
+      {sheetOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden" role="presentation">
           <div
-            ref={menuRef}
-            aria-label="More sections and actions"
-            className="absolute bottom-full left-0 right-0 mb-2 rounded-lg border border-border bg-bg-secondary p-1 shadow-lg"
+            className="absolute inset-0 bg-black/50"
+            aria-hidden="true"
+            onClick={() => setSheetOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="More sections"
+            className="absolute bottom-0 left-0 right-0 rounded-t-2xl border-t border-border bg-bg-secondary p-3 pb-6 shadow-2xl"
           >
-            {OVERFLOW_SECTIONS.map(({ id, label, icon: Icon }) => {
-              const isActive = activeSection === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => {
-                    onSectionChange(id);
-                    setMoreOpen(false);
-                  }}
-                  className={cn(
-                    'flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium',
-                    'transition-colors duration-150',
-                    isActive
-                      ? 'bg-primary-900/20 text-primary-400'
-                      : 'text-text-secondary hover:bg-bg-tertiary',
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  {label}
-                </button>
-              );
-            })}
-
-            {/* Rest Actions */}
-            <hr className="mx-1 my-1 border-border" />
-            <div className="pt-1">
-              <RestActions onShortRest={() => setMoreOpen(false)} />
-            </div>
-
-            {/* Level Up */}
-            <hr className="mx-1 my-1 border-border" />
-            <div className="px-3 pb-1 pt-1">
-              <Button
-                variant="primary"
-                size="sm"
-                className="w-full justify-start gap-2"
-                onClick={() => {
-                  onLevelUp();
-                  setMoreOpen(false);
-                }}
-                aria-label="Level up character"
-                disabled={totalLevel >= 20}
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-bg-tertiary" />
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-semibold text-text-primary">More Sections</span>
+              <button
+                type="button"
+                onClick={() => setSheetOpen(false)}
+                aria-label="Close"
+                className="flex h-9 w-9 items-center justify-center rounded-md text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-colors"
               >
-                <TrendingUp className="h-4 w-4" />
-                Level Up
-              </Button>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-1">
+              {SECONDARY_SECTIONS.map(({ id, label, icon: Icon }) => {
+                const isActive = activeSection === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => {
+                      onSectionChange(id);
+                      setSheetOpen(false);
+                    }}
+                    className={cn(
+                      'flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium',
+                      'transition-colors duration-150',
+                      isActive
+                        ? 'bg-primary-900/20 text-primary-400'
+                        : 'text-text-secondary hover:bg-bg-tertiary',
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
-      </div>
-    </nav>
+        </div>
+      )}
+    </>
   );
 }

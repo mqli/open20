@@ -180,9 +180,9 @@ The character selector card (§6.1), hero card (§3.1), and all section headers 
 **Key specs**:
 
 - Sidebar: Fixed 250px, flex-col, `--color-bg-secondary` background, `--space-xl` (24px) padding
-- Hero card: Sticky top of sidebar, shows character identity + combat quick-stats (all values are **read-only display** — names resolved via ContentResolver §2.5)
-- Nav tabs: Vertical list, `--space-sm` (8px) gaps
-- Main content: Scrollable, `--space-2xl` (32px) padding, sections as stacked accordion panels
+- Hero card: Sticky top of sidebar, shows character identity (name/species/class/level) + HP summary only. Combat quick-stats (AC/Init/Speed/PP/PB) live **only** in the Combat focus area (single source of truth — no duplication)
+- Nav tabs: Vertical list, `--space-sm` (8px) gaps, used for scroll-to-section navigation (not one-at-a-time panels)
+- Main content: Scrollable, `--space-2xl` (32px) padding, with a permanent **Combat focus area** at top followed by the remaining 6 sections in a **two-column grid** (left: Abilities + Skills, right: Spells + Equipment + Features + Notes). Desktop sections are always expanded — no collapse.
 - Rest buttons: Sticky to sidebar bottom (container uses `overflow-y: auto` with scrolling above the button area)
 
 ### 4.2 Mobile Layout (< 768px)
@@ -218,10 +218,10 @@ The character selector card (§6.1), hero card (§3.1), and all section headers 
 **Key specs**:
 
 - Top bar: Character name + class/level, dropdown for character selector, 48px, `--color-bg-secondary`
-- Hero strip: Sticky, compact horizontal layout showing **only HP, AC, and PB** (avoids crowding). Tap to expand full combat stats. Height: 48px, font: `--font-body` (14px) with values bold
-- Content: Single column, accordion sections, `--space-lg` (16px) horizontal padding
-- Bottom tab bar: 4 tabs, 56px, `--color-bg-secondary`, active tab = `--color-primary-600`
-- Tab "More": opens overflow menu for Equipment, Features, Notes, Settings, and Rest Actions
+- Hero strip: Sticky, compact horizontal layout showing **only HP, AC, and PB** (avoids crowding), with **Short Rest / Long Rest / Level Up icon buttons** to its right. Tap the strip to expand full combat stats. Height: 48px, font: `--font-body` (14px) with values bold
+- Content: Single column, accordion sections (single-open collapse), `--space-lg` (16px) horizontal padding
+- Bottom tab bar: 5 tabs, 56px, `--color-bg-secondary`, active tab = `--color-primary-600`. Primary tabs: Combat | Skills | Spells | Abilities. The 5th "More" tab opens a **bottom sheet** listing the low-frequency sections (Equipment | Features | Notes)
+- Rest/LevelUp: Located in the top sticky header (not in the bottom bar). Bottom bar is purely section navigation.
 
 ---
 
@@ -1081,11 +1081,11 @@ Tap "Level Up" (in Features tab or character menu)
 
 ## 9. Responsive Breakpoints
 
-| Breakpoint | Width          | Layout                                                                 |
-| ---------- | -------------- | ---------------------------------------------------------------------- |
-| Desktop    | ≥ 1024px       | Sidebar + content, all sections expanded/accordion                     |
-| Tablet     | 768px – 1023px | Sidebar collapses to icon bar, content = single column                 |
-| Mobile     | < 768px        | Hero strip top (HP + AC + PB only), accordion sections, bottom tab bar |
+| Breakpoint | Width          | Layout                                                                                  |
+| ---------- | -------------- | --------------------------------------------------------------------------------------- |
+| Desktop    | ≥ 1024px       | Sidebar + content: Combat focus area + two-column grid (always expanded)                |
+| Tablet     | 768px – 1023px | HeroStrip top, content = single column accordion, bottom tab bar                        |
+| Mobile     | < 768px        | Hero strip top (HP + AC + PB + Rest/LevelUp), single-column accordion, 5-tab bottom bar |
 
 ### Tablet Detail
 

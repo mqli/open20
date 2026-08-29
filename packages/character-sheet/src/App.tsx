@@ -12,11 +12,14 @@ import { useCharacterStore } from '@/stores/characterStore';
 function LoadingSkeleton() {
   return (
     <div className="flex h-screen flex-col gap-3 p-4" aria-label="Loading character sheet">
-      <div className="h-12 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+      {/* Combat focus area — large panel at top */}
+      <div className="h-40 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+      {/* Two-column sections */}
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="h-32 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+        <div className="h-48 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+      </div>
       <div className="h-24 animate-pulse rounded-xl border border-border bg-bg-secondary" />
-      <div className="h-32 animate-pulse rounded-xl border border-border bg-bg-secondary" />
-      <div className="h-20 animate-pulse rounded-xl border border-border bg-bg-secondary" />
-      <div className="h-20 animate-pulse rounded-xl border border-border bg-bg-secondary" />
     </div>
   );
 }

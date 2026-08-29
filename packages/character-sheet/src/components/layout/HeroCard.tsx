@@ -1,9 +1,9 @@
 // HeroCard.tsx
 // Desktop sidebar hero identity card. Shows character name, species, class/level,
-// and combat quick-stats (HP summary, AC, Initiative, Speed, PP, PB).
-// All values are read-only display; names resolved via ContentResolver.
+// and a compact HP summary. Combat quick-stats (AC/Init/Speed/PP/PB) live only in
+// the Combat focus area (ContentArea) — single source of truth, no duplication.
 
-import { Heart, Shield, Swords, Footprints, Eye, Star } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import type { AppCharacter } from '@/types';
 import { getClassName, getSpeciesName } from '@/core/content-resolver';
 import { Text, Surface, Divider, cn } from '@open20/ui';
@@ -13,45 +13,10 @@ export interface HeroCardProps {
   className?: string;
 }
 
-function fmt(n: number): string {
-  return n >= 0 ? `+${n}` : `${n}`;
-}
-
-function StatItem({
-  icon: Icon,
-  label,
-  value,
-  accent = false,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-  accent?: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <Icon
-        className={cn('h-3.5 w-3.5 shrink-0', accent ? 'text-primary-400' : 'text-text-secondary')}
-        aria-hidden="true"
-      />
-      <Text variant="bodySm" color="secondary">
-        {label}
-      </Text>
-      <Text
-        variant="bodySm"
-        weight="bold"
-        className={cn('tabular-nums ml-auto', accent && 'text-primary-400')}
-      >
-        {value}
-      </Text>
-    </div>
-  );
-}
-
 export function HeroCard({ character, className }: HeroCardProps) {
   const totalLevel = character.classes.reduce((sum, c) => sum + c.level, 0);
   const classLabel = character.classes.map((c) => getClassName(c.classId)).join(' / ');
-  const { combatStats, hitPoints } = character;
+  const { hitPoints } = character;
 
   return (
     <Surface variant="elevated" padding="sm" className={cn('flex flex-col gap-2', className)}>
@@ -87,15 +52,6 @@ export function HeroCard({ character, className }: HeroCardProps) {
             +{hitPoints.temporary}
           </Text>
         )}
-      </div>
-
-      {/* Combat Stats — 2-column grid for compact display */}
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-        <StatItem icon={Shield} label="AC" value={String(combatStats.AC)} accent />
-        <StatItem icon={Swords} label="Init" value={fmt(combatStats.initiative)} />
-        <StatItem icon={Footprints} label="Speed" value={`${combatStats.speed} ft`} />
-        <StatItem icon={Eye} label="PP" value={String(combatStats.passivePerception)} />
-        <StatItem icon={Star} label="PB" value={fmt(combatStats.proficiencyBonus)} accent />
       </div>
     </Surface>
   );
